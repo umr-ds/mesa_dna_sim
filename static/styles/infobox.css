@@ -1,0 +1,183 @@
+.info, .success, .warning, .danger {
+    padding: 10px;
+    margin: 10px 0;
+    text-align: center;
+}
+
+.red {
+    color: darkred;
+}
+
+hr {
+    display: block;
+    height: 1px;
+    border: 0;
+    border-top: 1px solid #ccc;
+    margin: 1em 0;
+    padding: 0;
+}
+
+input[id^="spoiler"] {
+    display: none;
+}
+
+input[id^="spoiler"] + label {
+    display: block;
+    width: 200px;
+    margin: 0 auto;
+    padding: 5px 0px;
+    background: mediumblue;
+    color: #fff;
+    text-align: center;
+    font-size: 24px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all .6s;
+}
+
+input[id^="spoiler"]:checked + label {
+    color: #333;
+    background: #ccc;
+}
+
+input[id^="spoiler"] ~ .spoiler {
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    opacity: 0;
+    margin: 10px auto 0;
+    padding: 10px;
+    background: #eee;
+    border: 1px solid #ccc;
+    color: black;
+    border-radius: 8px;
+    transition: all .6s;
+}
+
+input[id^="spoiler"]:checked + label + .spoiler {
+    height: auto;
+    opacity: 1;
+    padding: 10px;
+}
+
+
+.info:before, .success:before, .warning:before, .danger:before {
+    font-style: normal;
+    font-weight: 400;
+    speak: none;
+    display: inline-block;
+    text-decoration: inherit;
+    width: 1em;
+    margin-right: .2em;
+    text-align: center;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1em;
+    margin-left: .2em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale
+}
+
+/*
+.info:before {
+    content:"f05a";
+}
+.success:before {
+    content:'f00c';
+}
+.warning:before {
+    content:'f071';
+}
+.error:before {
+    content:'f057';
+}
+*/
+.info {
+    color: #00529B;
+    background-color: #BDE5F8;
+}
+
+.success {
+    color: #4F8A10;
+    background-color: #DFF2BF;
+}
+
+.warning {
+    color: #9F6000;
+    background-color: #FEEFB3;
+}
+
+.danger {
+    color: #D8000C;
+    background-color: #FFD2D2;
+}
+
+
+.tutorial-wrapper {
+    width: 100%;
+}
+
+.tutorial-wrapper form {
+    background-color: #ffc;
+    border: 1px solid #cc9;
+    padding: 10px;
+    width: 75%;
+    font-size: 1em;
+}
+
+.field-wrapper {
+    margin: 2px 0 2px 0;
+    padding: 0;
+}
+
+.tutorial-wrapper label {
+    float: left;
+    text-align: right;
+    margin: 0 5px 0 0;
+    width: 30%;
+}
+
+.tutorial-wrapper input {
+    width: 200px;
+    border: 1px solid #cc9;
+}
+
+.confirm-message {
+    margin: 0;
+    padding: 0;
+    font-size: .8em;
+}
+
+
+/*
+Sequence coloring:
+
+.text_lettering {
+    width: 80%;
+}
+
+.text_lettering ul {
+    width: 50px;
+    border: 2px solid white;
+    border-left: none;
+    border-right: none;
+    padding: 2px;
+    box-shadow: 0px -10px 0px rgba(0, 0, 0, 0.08) inset, 0px 12px 0px rgba(0, 0, 0, 0.2) inset, 0px 0px 5px rgba(0, 0, 0, 0.2);
+    list-style: none;
+    text-align: center;
+    color: white;
+    opacity: 0.8;
+}
+
+.text_lettering ul:hover {
+    opacity: 1;
+}
+
+.text_lettering ul:first-child {
+    border-left: 2px solid white;
+}
+
+.text_lettering ul:last-child {
+    border-right: 2px solid white;
+}
+*/

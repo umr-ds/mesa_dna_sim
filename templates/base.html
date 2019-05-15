@@ -1,0 +1,78 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Flask Auth Example</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>
+    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
+    <!--<link rel="script" href="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"/>-->
+
+    <!--<script src={{ url_for('static',filename='js/jquery-3.4.1.js') }}></script>-->
+    <script src={{ url_for('static',filename='js/jquery-3.4.1.min.js') }}></script>
+    <script src={{ url_for('static',filename='js/jquery.lettering-0.6.1.min.js') }}></script>
+</head>
+
+<body>
+<!--<script>
+    $(document).ready(function () {
+        $(".text_lettering").lettering();
+    });
+</script>-->
+<section class="hero is-primary is-fullheight">
+
+    <div class="hero-head">
+        <nav class="navbar">
+            <div class="container">
+
+                <div id="navbarMenuHeroA" class="navbar-menu">
+                    <div class="navbar-end">
+                        <a href="{{ url_for('main_page.home') }}" class="navbar-item">
+                            Home
+                        </a>
+                        {% if session['user_id'] %}
+                            <a href="{{ url_for('main_page.query_sequence') }}" class="navbar-item">
+                                Simulate
+                            </a>
+                            <a href="{{ url_for('main_page.profile') }}" class="navbar-item">
+                                Profile
+                            </a>
+                            <a href="{{ url_for('logout.do_logout') }}" class="navbar-item">
+                                Logout
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('login.do_login') }}" class="navbar-item">
+                                Login
+                            </a>
+                            <a href="{{ url_for('signup.register') }}" class="navbar-item">
+                                Sign Up
+                            </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <ul>
+                {% for category, message in messages %}
+                    <div class="{{ category }}">{{ message }}</div>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    {% endwith %}
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </div>
+</section>
+</body>
+
+</html>
