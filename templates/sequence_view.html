@@ -16,7 +16,7 @@
         <form id="submit_sequence">
             <div class="field">
                 <div class="control">
-                    <textarea class="input is-large" id="sequence" type="text" name="sequence"
+                    <textarea class="input is-large" rows="5" id="sequence" type="text" name="sequence"
                               placeholder="AAACCAGT" onkeyup="this.value = this.value.toUpperCase();"
                               required></textarea>
                 </div>
@@ -42,46 +42,50 @@
             submit_seq.submit(function (event) {
                 event.preventDefault();
                 let sequence = $("#sequence").val();
-                $('#text_lettering').text(sequence);
-                $('#gccontent').text(sequence);
+                let homopolymer = $('#homopolymer');
+                let gccontent = $('#gccontent');
+                homopolymer.text(sequence);
+                gccontent.text(sequence);
+
+                homopolymer.lettering();
+                gccontent.lettering();
                 //var endpoints = ['gccontent', 'homopolymers'];
 
                 //for (var mode in endpoints) {
-                mode = "gccontent";
-                $.post({
-                    url: "http://0.0.0.0:5000/api/" + mode,
-                    data: {sequence: sequence, key: '{{apikey}}', 'window': 15},
-                    async: true,
-                    beforeSend: function (xhr) {
-                        if (xhr && xhr.overrideMimeType) {
-                            xhr.overrideMimeType('application/json;charset=utf-8');
-                        }
-                    },
-                    dataType: 'json',
-                    success: function (data) {
-                        //let obj = jQuery.parseJSON(data);
-                        $(".text_lettering").lettering();
-                        for (block_num in data) {
-                            for (i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
-                                let curr_char = $("." + mode + "_char" + (i + 1));
-                                curr_char.css("background-color", getColorForPercentage(data[block_num].errorprob));
-                                curr_char.css("color", "gray");
-                                curr_char.attr('title', (data[block_num].errorprob * 100) + " %");
-                                //$('#text_lettering').text(data[i].base);
+                let endpoints = ["gccontent", "homopolymer"];
+                endpoints.forEach(function (mode) {
+                    $.post({
+                        url: "http://0.0.0.0:5000/api/" + mode,
+                        data: {sequence: sequence, key: '{{apikey}}', 'window': 15},
+                        async: true,
+                        beforeSend: function (xhr) {
+                            if (xhr && xhr.overrideMimeType) {
+                                xhr.overrideMimeType('application/json;charset=utf-8');
                             }
-                        }
-                    },
-                    fail:
-
-                        function (data) {
+                        },
+                        dataType: 'json',
+                        success: function (data) {
+                            $("#spoiler3_label").click();
+                            //let obj = jQuery.parseJSON(data);
+                            for (block_num in data) {
+                                for (var i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
+                                    let curr_char = $("." + mode + "_char" + (i + 1));
+                                    curr_char.css("background-color", getColorForPercentage(data[block_num].errorprob));
+                                    curr_char.css("color", "gray");
+                                    curr_char.attr('title', (data[block_num].errorprob * 100) + " %");
+                                    //$('#text_lettering').text(data[i].base);
+                                }
+                            }
+                        },
+                        fail: function (data) {
                             let obj = jQuery.parseJSON(data);
-                            for (i in obj) {
+                            for (var i in obj) {
                                 $('#text_lettering').text(data[i].base);
                             }
                             //$('#text_lettering').text(data);
                         }
+                    });
                 });
-                //}
                 //alert("Handler for .submit() called.");
             });
         });
@@ -123,21 +127,34 @@
     </script>
 
     <h2 class="subtitle">
-        Your Result:
+        Your Results:
     </h2>
+    <div class="box">
+        <h3 class="subtitle" style="color: black">
+            Homopolymers:
+        </h3>
+        <ul class="text_lettering" id="homopolymer" style="overflow-x: auto;"></ul>
+    </div>
 
-    <h3 class="subtitle">
-        Homopolymers:
-    </h3>
-    <ul class="text_lettering" id="text_lettering" style="overflow-x: auto;"></ul>
+    <div class="box">
+        <h3 class="subtitle" style="color: black">
+            GC-Content:
+        </h3>
+        <ul class="text_lettering" id="gccontent" style="overflow-x: auto;"></ul>
+    </div>
 
-
-    <h3 class="subtitle">
-        GC-Content:
-    </h3>
-    <ul class="text_lettering" id="gccontent" style="overflow-x: auto;"></ul>
-
-
+    <script type="text/javascript">
+        let gccontent = $("#gccontent");
+        let homopolymer = $("#homopolymer");
+        gccontent.scroll(function () {
+            homopolymer.scrollTop(gccontent.scrollTop());
+            homopolymer.scrollLeft(gccontent.scrollLeft());
+        });
+        homopolymer.scroll(function () {
+            gccontent.scrollTop(homopolymer.scrollTop());
+            gccontent.scrollLeft(homopolymer.scrollLeft());
+        });
+    </script>
     <!--{{ apikey }}-->
 
 {% endblock %}

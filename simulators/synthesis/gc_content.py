@@ -26,7 +26,7 @@ def windowed_gc_content(sequence, window_size=15, error_function=default_error_f
     no_windows = ceil(1.0 * length / window_size)
     for i in range(no_windows):
         basecount = dict()
-        window_sequence = sequence[i * window_size:min((i + 1) * window_size, length)]
+        window_sequence = sequence[i * window_size:min((i + 1) * window_size - 1, length)]
         curr_length = len(window_sequence)
         for char_pos in range(curr_length):
             if window_sequence[char_pos] in basecount:
@@ -36,7 +36,7 @@ def windowed_gc_content(sequence, window_size=15, error_function=default_error_f
         gc_sum = 1.0 * ((basecount["G"] if "G" in basecount else 0.0) + (basecount["C"] if "C" in basecount else 0.0))
         error_prob = error_function(gc_sum / curr_length)
         if error_prob > 0.0:
-            result.append(create_result(i * window_size, min((i + 1) * window_size, length), error_prob))
+            result.append(create_result(i * window_size, min((i + 1) * window_size - 1, length), error_prob))
     return result
 
 
