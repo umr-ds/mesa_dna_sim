@@ -92,4 +92,4 @@ def query_sequence():
         return render_template('sequence_view.html', apikey=apikey_obj.apikey)
     else:
         sequence = request.args.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence)
+        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host)

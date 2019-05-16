@@ -61,3 +61,13 @@ D
 api/simulator_api.py,a/4/a4b6a17acf189bc3ba13b5dad55bd013b4102d60
 L
 templates/sequence_view.html,e/d/ed6368a6f8e0634982ef8b6bc85adfa7582f6002
+M
+static/js/jquery-3.4.1.min.js,2/b/2b60a91dec07c6bde5e3f20a64bafb18641d6cf0
+@
+requirements.txt,1/9/19359a61ae2446b51b549167b014da2fcf265768
+?
+api/__init__.py,4/a/4a6406639b54c66f60832033746cf3ac6c6007bc
+J
+templates/secret_page.html,b/3/b3a5621ecb878827b2e681290579f1fab0e4bc5e
+R
+"simulators/synthesis/gc_content.py,7/5/75220136094c283fb611be5f06c1da9fa3ea8867

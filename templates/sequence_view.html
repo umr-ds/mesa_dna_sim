@@ -26,6 +26,10 @@
         </form>
     </div>
     <script type="text/javascript">
+        function round(value, decimals) {
+            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
+        }
+
         $(document).ready(function () {
             let seq = $("#sequence");
             seq.keypress(function (e) {
@@ -44,18 +48,29 @@
                 let sequence = $("#sequence").val();
                 let homopolymer = $('#homopolymer');
                 let gccontent = $('#gccontent');
+                let kmer = $('#kmer');
+                let overall = $('#overall');
                 homopolymer.text(sequence);
                 gccontent.text(sequence);
+                kmer.text(sequence);
+                overall.text(sequence);
 
                 homopolymer.lettering();
                 gccontent.lettering();
+                kmer.lettering();
+                overall.lettering();
+
+                for (var i = 0; i <= overall.text().length; i++) {
+                    let curr_char = $(".overall_char" + (i + 1));
+                    curr_char.data('errorprob', 0.0);
+                }
                 //var endpoints = ['gccontent', 'homopolymers'];
 
                 //for (var mode in endpoints) {
-                let endpoints = ["gccontent", "homopolymer"];
+                let endpoints = ["gccontent", "homopolymer", "kmer"];
                 endpoints.forEach(function (mode) {
                     $.post({
-                        url: "http://0.0.0.0:5000/api/" + mode,
+                        url: "http://{{ host }}/api/" + mode,
                         data: {sequence: sequence, key: '{{apikey}}', 'window': 15},
                         async: true,
                         beforeSend: function (xhr) {
@@ -65,14 +80,21 @@
                         },
                         dataType: 'json',
                         success: function (data) {
-                            $("#spoiler3_label").click();
+                            //$("#spoiler3_label").click();
                             //let obj = jQuery.parseJSON(data);
                             for (block_num in data) {
                                 for (var i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
                                     let curr_char = $("." + mode + "_char" + (i + 1));
-                                    curr_char.css("background-color", getColorForPercentage(data[block_num].errorprob));
+                                    curr_char.data('errorprob', data[block_num].errorprob);
+                                    curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
                                     curr_char.css("color", "gray");
                                     curr_char.attr('title', (data[block_num].errorprob * 100) + " %");
+
+                                    let overall_curr_char = $(".overall_char" + (i + 1));
+                                    overall_curr_char.data('errorprob', round(Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0), 4));
+                                    overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
+                                    overall_curr_char.css("color", "gray");
+                                    overall_curr_char.attr('title', round((overall_curr_char.data('errorprob') * 100.0), 4) + " %");
                                     //$('#text_lettering').text(data[i].base);
                                 }
                             }
@@ -92,8 +114,8 @@
 
         var percentColors = [
             {pct: 0.0, color: {r: 0xff, g: 0x00, b: 0}},
-            {pct: 0.5, color: {r: 0xff, g: 0x80, b: 0}},
-            {pct: 1.0, color: {r: 0xff, g: 0xff, b: 0}}];
+            {pct: 0.5, color: {r: 0xff, g: 0xff, b: 0}},
+            {pct: 1.0, color: {r: 0x00, g: 0xff, b: 0}}];
 
         var getColorForPercentage = function (pct) {
             pct = 1.0 - pct;
@@ -102,13 +124,13 @@
                     break;
                 }
             }
-            var lower = percentColors[i - 1];
-            var upper = percentColors[i];
-            var range = upper.pct - lower.pct;
-            var rangePct = (pct - lower.pct) / range;
-            var pctLower = 1 - rangePct;
-            var pctUpper = rangePct;
-            var color = {
+            const lower = percentColors[i - 1];
+            const upper = percentColors[i];
+            const range = upper.pct - lower.pct;
+            const rangePct = (pct - lower.pct) / range;
+            const pctLower = 1 - rangePct;
+            const pctUpper = rangePct;
+            const color = {
                 r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
                 g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
                 b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
@@ -143,16 +165,56 @@
         <ul class="text_lettering" id="gccontent" style="overflow-x: auto;"></ul>
     </div>
 
+    <div class="box">
+        <h3 class="subtitle" style="color: black">
+            Kmer:
+        </h3>
+        <ul class="text_lettering" id="kmer" style="overflow-x: auto;"></ul>
+    </div>
+
+    <div class="box">
+        <h3 class="subtitle" style="color: black">
+            Overall:
+        </h3>
+        <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
+    </div>
+
     <script type="text/javascript">
-        let gccontent = $("#gccontent");
-        let homopolymer = $("#homopolymer");
+        const gccontent = $("#gccontent");
+        const homopolymer = $("#homopolymer");
+        const kmer = $("#kmer");
+        const overall = $('#overall');
+        kmer.scroll(function () {
+            homopolymer.scrollTop(kmer.scrollTop());
+            homopolymer.scrollLeft(kmer.scrollLeft());
+            gccontent.scrollTop(kmer.scrollTop());
+            gccontent.scrollLeft(kmer.scrollLeft());
+            overall.scrollTop(kmer.scrollTop());
+            overall.scrollLeft(kmer.scrollLeft());
+        });
+        overall.scroll(function () {
+            homopolymer.scrollTop(overall.scrollTop());
+            homopolymer.scrollLeft(overall.scrollLeft());
+            gccontent.scrollTop(overall.scrollTop());
+            gccontent.scrollLeft(overall.scrollLeft());
+            kmer.scrollTop(overall.scrollTop());
+            kmer.scrollLeft(overall.scrollLeft());
+        });
         gccontent.scroll(function () {
             homopolymer.scrollTop(gccontent.scrollTop());
             homopolymer.scrollLeft(gccontent.scrollLeft());
+            overall.scrollLeft(gccontent.scrollLeft());
+            overall.scrollTop(gccontent.scrollTop());
+            kmer.scrollTop(gccontent.scrollTop());
+            kmer.scrollLeft(gccontent.scrollLeft());
         });
         homopolymer.scroll(function () {
             gccontent.scrollTop(homopolymer.scrollTop());
             gccontent.scrollLeft(homopolymer.scrollLeft());
+            overall.scrollLeft(homopolymer.scrollLeft());
+            overall.scrollTop(homopolymer.scrollTop());
+            kmer.scrollTop(homopolymer.scrollTop());
+            kmer.scrollLeft(homopolymer.scrollLeft());
         });
     </script>
     <!--{{ apikey }}-->
