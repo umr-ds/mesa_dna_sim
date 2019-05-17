@@ -12,7 +12,6 @@ from database.models import Apikey
 def query_apikey(key_):
     try:
         apikey = Apikey.query.filter_by(apikey=key_).first()
-        # print(apikey)
         return apikey is not None
     except Exception as e:
         print(e)

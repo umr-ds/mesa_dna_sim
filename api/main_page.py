@@ -85,7 +85,6 @@ def index():
 @require_logged_in
 def query_sequence():
     user_id = session.get('user_id')
-    # user = User.query.filter_by(user_id=user_id).first()
     apikey_obj = Apikey.query.filter_by(owner_id=user_id).first()
     if request.method == "POST":
         sequence = request.json.get('sequence')

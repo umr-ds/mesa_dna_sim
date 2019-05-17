@@ -24,6 +24,19 @@
             <button class="button is-block is-info is-large is-fullwidth">Submit
             </button>
         </form>
+
+        <!--<input type="checkbox" id="spoiler2"/>
+        <label style="white-space: nowrap;" for="spoiler2">Change Undesired Sequences</label>
+        <div class="spoiler">
+            <form id="known_subsequences">
+                <div class="field">
+                    <div class="control">
+
+                    </div>
+                </div>
+            </form>
+        </div>
+        -->
     </div>
     <script type="text/javascript">
         function round(value, decimals) {
@@ -48,15 +61,18 @@
                 let sequence = $("#sequence").val();
                 let homopolymer = $('#homopolymer');
                 let gccontent = $('#gccontent');
+                let sequences = $('#subsequences');
                 let kmer = $('#kmer');
                 let overall = $('#overall');
                 homopolymer.text(sequence);
                 gccontent.text(sequence);
+                sequences.text(sequence);
                 kmer.text(sequence);
                 overall.text(sequence);
 
                 homopolymer.lettering();
                 gccontent.lettering();
+                sequences.lettering();
                 kmer.lettering();
                 overall.lettering();
 
@@ -67,7 +83,7 @@
                 //var endpoints = ['gccontent', 'homopolymers'];
 
                 //for (var mode in endpoints) {
-                let endpoints = ["gccontent", "homopolymer", "kmer"];
+                let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences"];
                 endpoints.forEach(function (mode) {
                     $.post({
                         url: "http://{{ host }}/api/" + mode,
@@ -174,6 +190,13 @@
 
     <div class="box">
         <h3 class="subtitle" style="color: black">
+            Subsequences:
+        </h3>
+        <ul class="text_lettering" id="subsequences" style="overflow-x: auto;"></ul>
+    </div>
+
+    <div class="box">
+        <h3 class="subtitle" style="color: black">
             Overall:
         </h3>
         <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
@@ -183,6 +206,7 @@
         const gccontent = $("#gccontent");
         const homopolymer = $("#homopolymer");
         const kmer = $("#kmer");
+        const sequences = $('#subsequences');
         const overall = $('#overall');
         kmer.scroll(function () {
             homopolymer.scrollTop(kmer.scrollTop());
@@ -191,6 +215,9 @@
             gccontent.scrollLeft(kmer.scrollLeft());
             overall.scrollTop(kmer.scrollTop());
             overall.scrollLeft(kmer.scrollLeft());
+            sequences.scrollTop(kmer.scrollTop());
+            sequences.scrollLeft(kmer.scrollLeft());
+
         });
         overall.scroll(function () {
             homopolymer.scrollTop(overall.scrollTop());
@@ -199,6 +226,8 @@
             gccontent.scrollLeft(overall.scrollLeft());
             kmer.scrollTop(overall.scrollTop());
             kmer.scrollLeft(overall.scrollLeft());
+            sequences.scrollTop(overall.scrollTop());
+            sequences.scrollLeft(overall.scrollLeft());
         });
         gccontent.scroll(function () {
             homopolymer.scrollTop(gccontent.scrollTop());
@@ -207,6 +236,18 @@
             overall.scrollTop(gccontent.scrollTop());
             kmer.scrollTop(gccontent.scrollTop());
             kmer.scrollLeft(gccontent.scrollLeft());
+            sequences.scrollTop(gccontent.scrollTop());
+            sequences.scrollLeft(gccontent.scrollLeft());
+        });
+        sequences.scroll(function () {
+            homopolymer.scrollTop(sequences.scrollTop());
+            homopolymer.scrollLeft(sequences.scrollLeft());
+            overall.scrollLeft(sequences.scrollLeft());
+            overall.scrollTop(sequences.scrollTop());
+            kmer.scrollTop(sequences.scrollTop());
+            kmer.scrollLeft(sequences.scrollLeft());
+            gccontent.scrollTop(sequences.scrollTop());
+            gccontent.scrollLeft(sequences.scrollLeft());
         });
         homopolymer.scroll(function () {
             gccontent.scrollTop(homopolymer.scrollTop());
@@ -215,6 +256,8 @@
             overall.scrollTop(homopolymer.scrollTop());
             kmer.scrollTop(homopolymer.scrollTop());
             kmer.scrollLeft(homopolymer.scrollLeft());
+            sequences.scrollTop(homopolymer.scrollTop());
+            sequences.scrollLeft(homopolymer.scrollLeft());
         });
     </script>
     <!--{{ apikey }}-->

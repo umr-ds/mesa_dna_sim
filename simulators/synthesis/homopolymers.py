@@ -10,7 +10,6 @@ def default_error_function(homopolymere_length, base=None):
         return 0.9
     else:
         return 1.0
-    # return min(1.0, tmp)
 
 
 def create_result(startpos, endpos, errorprob):
@@ -48,4 +47,4 @@ def homopolymer(sequence, apply_for=None, error_function=default_error_function)
 
 if __name__ == "__main__":
     print(homopolymer("AAAAAAAAAACACACTTTTTTTTAAAAAAAAAAA"))
-    # print(homopolymer("AAAAGGGGGGCGGGGAGCCCTTTTTCGCGCCCCCCGGGGTTTTTT"))
+    print(homopolymer("AAAAGGGGGGCGGGGAGCCCTTTTTCGCGCCCCCCGGGGTTTTTT"))
