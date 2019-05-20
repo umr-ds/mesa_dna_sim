@@ -1,9 +1,12 @@
-from flask import Blueprint, render_template, redirect, session, request, flash, url_for
+import re
+
+from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
+from sqlalchemy import desc
 
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
-from database.models import User, Apikey
+from database.models import User, Apikey, UndesiredSubsequences
 from usersettings.login import require_logged_in, check_password
 from usersettings.register import gen_password
 
@@ -92,3 +95,92 @@ def query_sequence():
     else:
         sequence = request.args.get('sequence')
         return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host)
+
+
+@main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
+@require_logged_in
+def undesired_subsequences():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    if user_id and user:
+        if request.method == "POST":
+            # TODO
+
+            print("TODO, update sequences")
+        undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id).order_by(
+            desc(UndesiredSubsequences.id)).all()
+        return render_template('undesired_subsequences.html', usubsequence=undesired_sub_seq, host=request.host)
+    else:
+        flash("Could not find user, please login again", 'warning')
+        session.pop('user_id')
+        return render_template("index.html"), 200
+
+
+@main_page.route("/api/delete_subsequence", methods=['POST'])
+@require_logged_in
+def delete_subsequences():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    sequence_id = request.form.get('sequence_id')
+    if user_id and user and sequence_id is not None:
+        undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+        db.session.delete(undesired_sub_seq)
+        db.session.commit()
+        return jsonify({'did_succeed': True, 'deleted_id': sequence_id})
+    else:
+        return jsonify({'did_succeed': False, 'deleted_id': sequence_id})
+
+
+@main_page.route("/api/add_subsequence", methods=['POST'])
+@require_logged_in
+def add_subsequences():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    sequence = sanitizeInput(request.form.get('sequence'))
+    error_prob = request.form.get('error_prob')
+    if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
+        try:
+            error_prob = float(error_prob)
+            new_subsequence = UndesiredSubsequences(sequence=sequence, error_prob=error_prob, validated=False,
+                                                    owner_id=user_id)
+            db.session.add(new_subsequence)
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'sequence': new_subsequence.sequence, 'error_prob': new_subsequence.error_prob,
+                 'id': new_subsequence.id, 'created': new_subsequence.created, 'validated': new_subsequence.validated})
+        except:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/update_subsequence", methods=['POST'])
+@require_logged_in
+def update_subsequences():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    sequence_id = request.form.get('sequence_id')
+    sequence = sanitizeInput(request.form.get('sequence'))
+    error_prob = request.form.get('error_prob')
+    if user_id and user and sequence_id is not None and sequence is not None and sequence != "" and error_prob is not None:
+        try:
+            error_prob = float(error_prob)
+            curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+            curr_sub_seq.error_prob = error_prob
+            curr_sub_seq.sequence = sequence
+            curr_sub_seq.validated = False
+
+            # db.session.add(curr_sub_seq)
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'sequence': curr_sub_seq.sequence, 'error_prob': curr_sub_seq.error_prob,
+                 'id': curr_sub_seq.id, 'created': curr_sub_seq.created, 'validated': curr_sub_seq.validated})
+        except:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+def sanitizeInput(input, regex=r'[^a-zA-Z]'):
+    result = re.sub(regex, "", input)
+    return result

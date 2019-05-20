@@ -1,0 +1,239 @@
+<!-- templates/profile.html -->
+
+{% extends "base.html" %}
+
+
+{% block content %}
+    <!--<script type="text/javascript">
+        function checkPass() {
+            //Store the password field objects into variables ...
+            var password = document.getElementById('new_password');
+            var confirm = document.getElementById('new_password2');
+            //Store the Confirmation Message Object ...
+            var message = document.getElementById('confirm-message2');
+            //Set the colors we will be using ...
+            var good_color = "#66cc66";
+            var bad_color = "#ff6666";
+            //Compare the values in the password field
+            //and the confirmation field
+            if (password.value == confirm.value) {
+                //The passwords match.
+                //Set the color to the good color and inform
+                //the user that they have entered the correct password
+                confirm.style.backgroundColor = good_color;
+                message.style.color = good_color;
+                message.innerHTML = '<img src="/wp-content/uploads/2019/04/tick.png" alt="Passwords Match!">';
+                return true;
+            } else {
+                //The passwords do not match.
+                //Set the color to the bad color and
+                //notify the user.
+                confirm.style.backgroundColor = bad_color;
+                message.style.color = bad_color;
+                message.innerHTML = '<img src="/wp-content/uploads/2019/04/publish_x.png" alt="Passwords Do Not Match!">';
+                return false;
+            }
+        }
+    </script>-->
+    <div class="column is-8 is-offset-2">
+        <h3 class="title">Undesired Subsequences</h3>
+
+        <hr/>
+        <br/>
+
+        <div>Your custom undesired Subsequences:</div>
+        <!--<input type="checkbox" id="spoiler1"/>
+        <label style="white-space: nowrap;" for="spoiler1">Show API-Key(s)</label>
+
+         class="spoiler"-->
+
+        <div class="box is-large">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control" id="existing_subseqs">
+                            {% for subsequence in usubsequence %}
+                                <div class="control" id="subseq_{{ subsequence.id }}">
+                                    <table>
+                                        <tr>
+                                            <td><input class="input" type="text" name="sequence"
+                                                       placeholder="" value="{{ subsequence.sequence }}" required></td>
+                                            <td><input class="input" type="number" name="error_prob"
+                                                       placeholder="" value="{{ subsequence.error_prob }}" required
+                                                       min="0.0"
+                                                       max="1.0" step="0.01"></td>
+                                            <td> Validated: <input type="checkbox" id="validated"
+                                                                   value="{{ subsequence.id }}" disabled
+                                                    {% if subsequence.validated %} checked {% endif %}/></td>
+                                            <td>
+                                                <button class="button" id="update_subseq_{{ subsequence.id }}"
+                                                        onclick="updateSeq({{ subsequence.id }}); return false;">Update
+                                                </button>
+                                            </td>
+                                            <td>
+                                                <button class="button" id="delete_subseq_{{ subsequence.id }}"
+                                                        onclick="deleteSeq({{ subsequence.id }}); return false;">Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                    <nobr>
+                                        Created at:
+                                        <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
+                                        )
+                                        </script>
+                                    </nobr>
+
+                                </div>
+                            {% endfor %}
+                        </div>
+                        <div class="control" id="add_subseq">
+                            <table>
+                                <tr>
+                                    <td><input class="input" type="text" id="addsequence" name="sequence"
+                                               placeholder="" value="" required></td>
+                                    <td><input class="input" type="number" id="errorprob" name="error_prob"
+                                               placeholder="" value="" required
+                                               min="0.0"
+                                               max="1.0" step="0.01"></td>
+                                    <td>
+                                        <button class="button" id="add_new_subseq">Add</button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <button class="button is-block is-info is-large is-fullwidth" id="update">Update</button>
+            </form>
+        </div>
+        <br/>
+        <hr/>
+        <br/>
+    </div>
+    <script>
+        function deleteSeq(id) {
+            $.post({
+                url: "http://{{ host }}/api/delete_subsequence",
+                data: {sequence_id: id, do_delete: true},
+                async: true,
+                beforeSend: function (xhr) {
+                    if (xhr && xhr.overrideMimeType) {
+                        xhr.overrideMimeType('application/json;charset=utf-8');
+                    }
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.did_succeed) {
+                        let toRemove = $('#subseq_' + data.deleted_id);
+                        toRemove.remove()
+                    } else {
+                        console.log("Error while deleting Sequence " + id);
+                    }
+                },
+                fail: function (data) {
+                    console.log("Error while deleting Sequence" + id);
+                    //$('#text_lettering').text(data);
+                }
+            });
+        }
+
+        $('[id^="delete_subseq_"]').each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+            });
+        });
+
+        function updateSeq(id) {
+            let curr_subseq = $('#subseq_' + id);
+            let sequence = curr_subseq.children().find("[name='sequence']");
+            let error_prob = curr_subseq.children().find("[name='error_prob']");
+            $.post({
+                url: "http://{{ host }}/api/update_subsequence",
+                data: {sequence_id: id, sequence: sequence.val(), error_prob: error_prob.val()},
+                async: true,
+                beforeSend: function (xhr) {
+                    if (xhr && xhr.overrideMimeType) {
+                        xhr.overrideMimeType('application/json;charset=utf-8');
+                    }
+                },
+                dataType: 'json',
+                success: function (data) {
+                    console.log("Update successful for id=")
+                },
+                fail: function (data) {
+                    console.log("Update failed for id=" + id);
+                    //$('#text_lettering').text(data);
+                }
+            });
+        }
+
+        $('[id^="update_subseq_"]').each(function () {
+            $(this).click(function (event) {
+                event.preventDefault();
+            });
+        });
+
+
+        $('#add_new_subseq').click(function (event) {
+            event.preventDefault();
+            let sequence = $('#addsequence').val();
+            let error_prob = $('#errorprob').val();
+            $.post({
+                url: "http://{{ host }}/api/add_subsequence",
+                data: {sequence: sequence, error_prob: error_prob},
+                async: true,
+                beforeSend: function (xhr) {
+                    if (xhr && xhr.overrideMimeType) {
+                        xhr.overrideMimeType('application/json;charset=utf-8');
+                    }
+                },
+                dataType: 'json',
+                success: function (data) {
+                    if (data.did_succeed) {
+                        let subseq_box = $('#existing_subseqs');
+                        let dattime = new Date(data.created * 1000).toUTCString();
+                        subseq_box.append("<div class=\"control\" id=\"subseq_" + data.id + "\">\n" +
+                            "<table>\n" +
+                            "<tr>\n" +
+                            "<td><input class=\"input\" type=\"text\" name=\"sequence\"\n" +
+                            "placeholder=\"\" value=\"" + data.sequence + "\" required></td>\n" +
+                            "<td><input class=\"input\" type=\"number\" name=\"error_prob\"\n" +
+                            "placeholder=\"\" value=\"" + data.error_prob + "\" required\n" +
+                            "min=\"0.0\"\n" +
+                            "max=\"1.0\" step=\"0.01\"></td>\n" +
+                            "<td> Validated: <input type=\"checkbox\" id=\"validated\"\n" +
+                            "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
+                            "<td><button class=\"button\" id=\"update_subseq_" + data.id + "\"\n" +
+                            "onclick=\"updateSeq(" + data.id + "); return false;\"> Update<\/button>" +
+                            "<\/td>" +
+                            "<td>\n" +
+                            "<button class=\"button\" id=\"delete_subseq_" + data.id + "\"\n" +
+                            "onclick=\"deleteSeq(" + data.id + "); return false;\">Delete\n" +
+                            "</button>\n" +
+                            "</td>\n" +
+                            "</tr>\n" +
+                            "</table>\n" +
+                            "<nobr>\n" +
+                            "Created at:\n" +
+                            dattime +
+                            "<\/nobr>\n" +
+                            "\n" +
+                            "<\/div>"
+                        )
+                        ;
+                        $('#addsequence').val('');
+                        $('#errorprob').val('0,0');
+                    } else {
+                        console.log("Error while adding new Sequence ");
+                    }
+                },
+                fail: function (data) {
+                    console.log("Error while adding new Sequence");
+                    //$('#text_lettering').text(data);
+                }
+            })
+            ;
+        })
+    </script>
+{% endblock %}
