@@ -23,13 +23,13 @@ def require_apikey(view_function):
     # the new, post-decoration function. Note *args and **kwargs here.
     def decorated_function(*args, **kwargs):
         # todo dynamically check based on saved API-keys + ratelimit
-        if (request.args.get('key') and query_apikey(request.args.get('key'))) or \
-                (request.form and request.form.get('key') and query_apikey(
-                    request.form.get('key'))):  # == "ABC"::  # == "ABC":
+        if (request.args.get('key') and query_apikey(request.args.get('key'))) or (
+                request.json and request.json.get('key')) or (
+                request.form and request.form.get('key') and query_apikey(request.form.get('key'))):
+            # == "ABC"::  # == "ABC":
             return view_function(*args, **kwargs)
         else:
             abort(401)
-
     return decorated_function
 
 

@@ -1,4 +1,4 @@
-import re
+import regex as re
 
 undesired_ssequences = {"ATAACTTCGTATAGCATACATTATACGAAGTTAT": 0.9, "ATAACTTCGTATAGCATACATTATACGAACGGTA": 0.9,
                         "TACCGTTCGTATAGCATACATTATACGAAGTTAT": 0.9, "TACCGTTCGTATAGCATACATTATACGAACGGTA": 0.9,
@@ -19,8 +19,8 @@ def undesired_subsequences(sequence, dict_of_subsequences=None):
     res = []
     # for undesired_sequence, error_prob in list_of_subsequences:
     regextext = "|".join(dict_of_subsequences.keys())
-    for m in re.finditer(regextext, sequence):
-        res.append({'startpos': m.start(), 'endpos': m.start() + len(m.group(0)),
+    for m in re.finditer(regextext, sequence, overlapped=True):
+        res.append({'startpos': m.start(), 'endpos': m.start() + len(m.group(0)) - 1,
                     'errorprob': dict_of_subsequences[m.group(0)],
                     'undesired_sequence': m.group(0)})
     return res

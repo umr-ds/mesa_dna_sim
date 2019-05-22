@@ -1,7 +1,7 @@
 import re
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
-from sqlalchemy import desc
+from sqlalchemy import desc, or_
 
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
@@ -89,12 +89,17 @@ def index():
 def query_sequence():
     user_id = session.get('user_id')
     apikey_obj = Apikey.query.filter_by(owner_id=user_id).first()
+    undesired_sub_seq = UndesiredSubsequences.query.filter(
+        or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
+        desc(UndesiredSubsequences.id)).all()
     if request.method == "POST":
         sequence = request.json.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey)
+        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence,
+                               usubsequence=undesired_sub_seq)
     else:
         sequence = request.args.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host)
+        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host,
+                               usubsequence=undesired_sub_seq)
 
 
 @main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
@@ -103,10 +108,6 @@ def undesired_subsequences():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if user_id and user:
-        if request.method == "POST":
-            # TODO
-
-            print("TODO, update sequences")
         undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id).order_by(
             desc(UndesiredSubsequences.id)).all()
         return render_template('undesired_subsequences.html', usubsequence=undesired_sub_seq, host=request.host)
@@ -138,16 +139,18 @@ def add_subsequences():
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitizeInput(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
+    description = request.form.get('description')
     if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
             new_subsequence = UndesiredSubsequences(sequence=sequence, error_prob=error_prob, validated=False,
-                                                    owner_id=user_id)
+                                                    owner_id=user_id, description=description)
             db.session.add(new_subsequence)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'sequence': new_subsequence.sequence, 'error_prob': new_subsequence.error_prob,
-                 'id': new_subsequence.id, 'created': new_subsequence.created, 'validated': new_subsequence.validated})
+                 'id': new_subsequence.id, 'created': new_subsequence.created, 'validated': new_subsequence.validated,
+                 'description': new_subsequence.description})
         except:
             return jsonify({'did_succeed': False})
     else:
@@ -162,6 +165,7 @@ def update_subsequences():
     sequence_id = request.form.get('sequence_id')
     sequence = sanitizeInput(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
+    description = request.form.get('description')
     if user_id and user and sequence_id is not None and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -169,12 +173,14 @@ def update_subsequences():
             curr_sub_seq.error_prob = error_prob
             curr_sub_seq.sequence = sequence
             curr_sub_seq.validated = False
+            curr_sub_seq.description = description
 
             # db.session.add(curr_sub_seq)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'sequence': curr_sub_seq.sequence, 'error_prob': curr_sub_seq.error_prob,
-                 'id': curr_sub_seq.id, 'created': curr_sub_seq.created, 'validated': curr_sub_seq.validated})
+                 'id': curr_sub_seq.id, 'created': curr_sub_seq.created, 'validated': curr_sub_seq.validated,
+                 'description': curr_sub_seq.description})
         except:
             return jsonify({'did_succeed': False})
     else:

@@ -57,11 +57,17 @@
                                     <table>
                                         <tr>
                                             <td><input class="input" type="text" name="sequence"
-                                                       placeholder="" value="{{ subsequence.sequence }}" required></td>
+                                                       placeholder="" size="70" value="{{ subsequence.sequence }}"
+                                                       required></td>
                                             <td><input class="input" type="number" name="error_prob"
-                                                       placeholder="" value="{{ subsequence.error_prob }}" required
-                                                       min="0.0"
-                                                       max="1.0" step="0.01"></td>
+                                                       placeholder="" size="4" value="{{ subsequence.error_prob }}"
+                                                       required min="0.0" max="1.0" step="0.01"></td>
+                                            <td><input class="input" type="text" name="description"
+                                                       placeholder="Description" size="30"
+                                                    {% if subsequence.description != None %}
+                                                       value="{{ subsequence.description }}"
+                                                    {% endif %}
+                                                       required></td>
                                             <td> Validated: <input type="checkbox" id="validated"
                                                                    value="{{ subsequence.id }}" disabled
                                                     {% if subsequence.validated %} checked {% endif %}/></td>
@@ -91,11 +97,14 @@
                             <table>
                                 <tr>
                                     <td><input class="input" type="text" id="addsequence" name="sequence"
-                                               placeholder="" value="" required></td>
+                                               placeholder="Undesired Subsequence" size="70" value="" required></td>
                                     <td><input class="input" type="number" id="errorprob" name="error_prob"
-                                               placeholder="" value="" required
+                                               placeholder="Error Prob." size="4" value="" required
                                                min="0.0"
                                                max="1.0" step="0.01"></td>
+                                    <td><input class="input" type="text" id="description" name="description"
+                                               placeholder="Description" size="30" value=""
+                                               required></td>
                                     <td>
                                         <button class="button" id="add_new_subseq">Add</button>
                                     </td>
@@ -148,9 +157,15 @@
             let curr_subseq = $('#subseq_' + id);
             let sequence = curr_subseq.children().find("[name='sequence']");
             let error_prob = curr_subseq.children().find("[name='error_prob']");
+            let desc = curr_subseq.children().find("[name='description']");
             $.post({
                 url: "http://{{ host }}/api/update_subsequence",
-                data: {sequence_id: id, sequence: sequence.val(), error_prob: error_prob.val()},
+                data: {
+                    sequence_id: id,
+                    sequence: sequence.val(),
+                    error_prob: error_prob.val(),
+                    description: desc.val()
+                },
                 async: true,
                 beforeSend: function (xhr) {
                     if (xhr && xhr.overrideMimeType) {
@@ -179,9 +194,10 @@
             event.preventDefault();
             let sequence = $('#addsequence').val();
             let error_prob = $('#errorprob').val();
+            let description = $('#description').val();
             $.post({
                 url: "http://{{ host }}/api/add_subsequence",
-                data: {sequence: sequence, error_prob: error_prob},
+                data: {sequence: sequence, error_prob: error_prob, description: description},
                 async: true,
                 beforeSend: function (xhr) {
                     if (xhr && xhr.overrideMimeType) {
@@ -197,11 +213,14 @@
                             "<table>\n" +
                             "<tr>\n" +
                             "<td><input class=\"input\" type=\"text\" name=\"sequence\"\n" +
-                            "placeholder=\"\" value=\"" + data.sequence + "\" required></td>\n" +
+                            "placeholder=\"\" size=\"70\" value=\"" + data.sequence + "\" required></td>\n" +
                             "<td><input class=\"input\" type=\"number\" name=\"error_prob\"\n" +
-                            "placeholder=\"\" value=\"" + data.error_prob + "\" required\n" +
+                            "placeholder=\"\" size=\"4\" value=\"" + data.error_prob + "\" required\n" +
                             "min=\"0.0\"\n" +
                             "max=\"1.0\" step=\"0.01\"></td>\n" +
+                            "<td><input class=\"input\" type=\"text\" name=\"description\"\n" +
+                            "placeholder=\"Description\" value=\"" + data.description + "\" size=\"30\" value=\"\"\n" +
+                            "required></td>" +
                             "<td> Validated: <input type=\"checkbox\" id=\"validated\"\n" +
                             "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
                             "<td><button class=\"button\" id=\"update_subseq_" + data.id + "\"\n" +
@@ -220,10 +239,11 @@
                             "<\/nobr>\n" +
                             "\n" +
                             "<\/div>"
-                        )
+                        ).fadeIn(400)
                         ;
                         $('#addsequence').val('');
                         $('#errorprob').val('0,0');
+                        $('#description').val('');
                     } else {
                         console.log("Error while adding new Sequence ");
                     }

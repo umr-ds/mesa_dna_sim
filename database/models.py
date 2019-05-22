@@ -68,6 +68,7 @@ class UndesiredSubsequences(db.Model):
     error_prob = db.Column(db.FLOAT, nullable=False, default=0.0)
     created = db.Column(db.Integer, default=timestamp)
     validated = db.Column(db.Boolean, default=False, nullable=False)
+    description = db.Column(db.String(512))
     owner_id = db.Column(db.Integer, ForeignKey('User.user_id'))
 
     def __repr__(self):

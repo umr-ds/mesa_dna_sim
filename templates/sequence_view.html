@@ -21,24 +21,104 @@
                               required></textarea>
                 </div>
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Submit
-            </button>
-        </form>
+            <table>
+                <td>
+                    GC-Content Window-Size:
+                </td>
+                <td>
+                    <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
+                           required
+                           min="0" max="10000" step="1">
+                </td>
+                <td>Kmer Window-Size:</td>
+                <td>
+                    <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
+                           required
+                           min="0" max="10000" step="1">
+    </div>
+    </td>
+    </table>
+    <input type="checkbox" id="spoiler"/>
+    <label style="white-space: nowrap;" for="spoiler">Manage Subsequences</label>
+    <div class="spoiler">
+        <h3>Changes here wont be saved in your profile!</h3>
+        {% for subsequence in usubsequence %}
+            <div class="control" id="subseq_{{ subsequence.id }}">
+                <table>
+                    <tr>
+                        <td>Enabled: <input type="checkbox" id="enabled"
+                                            value="{{ subsequence.id }}" checked/></td>
+                        <td><input class="input" type="text" name="sequence"
+                                   placeholder="" size="70" {% if subsequence.validated %} disabled {% endif %}
+                                   value="{{ subsequence.sequence }}" required></td>
+                        <td><input class="input" type="number" name="error_prob"
+                                   placeholder="" size="4" {% if subsequence.validated %} disabled {% endif %}
+                                   value="{{ subsequence.error_prob }}" required min="0.0" max="1.0"
+                                   step="0.01"></td>
+                        <td><input class="input" type="text" name="description"
+                                   placeholder="No Description" size="30" {% if subsequence.validated %}
+                                   disabled {% endif %}
+                                {% if subsequence.description != None %}
+                                   value="{{ subsequence.description }}"
+                                {% endif %} readonly></td>
+                        <!--
+                            {% if subsequence.description != None %}
+                                Description: {{ subsequence.description }}
+                            {% else %}
+                                No Description
+                            {% endif %}-->
+                        <td> Public / Validated: <input type="checkbox" id="validated"
+                                                        value="{{ subsequence.id }}" disabled
+                                {% if subsequence.validated %} checked {% endif %}/></td>
+                    </tr>
+                </table>
+                <!--<nobr>
+                            Created at:
+                            <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
+                            )
+                            </script>
+                        </nobr>-->
 
-        <!--<input type="checkbox" id="spoiler2"/>
-        <label style="white-space: nowrap;" for="spoiler2">Change Undesired Sequences</label>
-        <div class="spoiler">
-            <form id="known_subsequences">
-                <div class="field">
-                    <div class="control">
+            </div>
+        {% endfor %}
+    </div>
+    <button class="button is-block is-info is-large is-fullwidth">Submit
+    </button>
+    </form>
 
-                    </div>
+    <!--<input type="checkbox" id="spoiler2"/>
+    <label style="white-space: nowrap;" for="spoiler2">Change Undesired Sequences</label>
+    <div class="spoiler">
+        <form id="known_subsequences">
+            <div class="field">
+                <div class="control">
+
                 </div>
-            </form>
-        </div>
-        -->
+            </div>
+        </form>
+    </div>
+    -->
     </div>
     <script type="text/javascript">
+        function extractUndesiredToJson() {
+            let res = [];
+            $('[id^="subseq_"]').each(function () {
+                let enabled = $(this).children().find("[id='enabled']")[0];
+                if (enabled.checked) {
+                    let id = $(this).children().find("[id='validated']");
+                    let sequence = $(this).children().find("[name='sequence']");
+                    let error_prob = $(this).children().find("[name='error_prob']");
+                    res.push({
+                        id: id.val(),
+                        sequence: sequence.val(),
+                        error_prob: error_prob.val(),
+                        enabled: enabled.checked
+                    });
+                }
+            });
+            return res;
+        }
+
         function round(value, decimals) {
             return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
         }
@@ -87,14 +167,21 @@
                 endpoints.forEach(function (mode) {
                     $.post({
                         url: "http://{{ host }}/api/" + mode,
-                        data: {sequence: sequence, key: '{{apikey}}', 'window': 15},
+                        dataType: 'json',
+                        contentType: 'application/json;charset=UTF-8',
+                        data: JSON.stringify({
+                            sequence: sequence,
+                            key: '{{apikey}}',
+                            enabledUndesiredSeqs: extractUndesiredToJson(),
+                            kmer_windowsize: $('#kmer_window_size').val(),
+                            gc_windowsize: $('#gc_window_size').val()
+                        }),
                         async: true,
                         beforeSend: function (xhr) {
                             if (xhr && xhr.overrideMimeType) {
                                 xhr.overrideMimeType('application/json;charset=utf-8');
                             }
                         },
-                        dataType: 'json',
                         success: function (data) {
                             //$("#spoiler3_label").click();
                             //let obj = jQuery.parseJSON(data);
