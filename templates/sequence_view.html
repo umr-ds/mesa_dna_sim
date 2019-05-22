@@ -86,20 +86,21 @@
     </button>
     </form>
 
-    <!--<input type="checkbox" id="spoiler2"/>
-    <label style="white-space: nowrap;" for="spoiler2">Change Undesired Sequences</label>
-    <div class="spoiler">
-        <form id="known_subsequences">
-            <div class="field">
-                <div class="control">
+    </div>
 
-                </div>
-            </div>
-        </form>
-    </div>
-    -->
-    </div>
     <script type="text/javascript">
+        //TODO improve me !
+        function makeHoverGroups() {
+            $('span[class^="group_" ],span[class*=" group_"]').each(function () {
+                let cls = $(this).attr('class').split(" ");
+                $("." + cls[cls.length - 1]).hover(function (e) {
+                    $("." + cls[cls.length - 1]).css('font-weight', "bold");
+                }, function (e) {
+                    $("." + cls[cls.length - 1]).css('font-weight', "normal");
+                });
+            });
+        }
+
         function extractUndesiredToJson() {
             let res = [];
             $('[id^="subseq_"]').each(function () {
@@ -163,6 +164,7 @@
                 //var endpoints = ['gccontent', 'homopolymers'];
 
                 //for (var mode in endpoints) {
+
                 let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences"];
                 endpoints.forEach(function (mode) {
                     $.post({
@@ -185,6 +187,7 @@
                         success: function (data) {
                             //$("#spoiler3_label").click();
                             //let obj = jQuery.parseJSON(data);
+                            curr_group = 0;
                             for (block_num in data) {
                                 for (var i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
                                     let curr_char = $("." + mode + "_char" + (i + 1));
@@ -192,15 +195,19 @@
                                     curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
                                     curr_char.css("color", "gray");
                                     curr_char.attr('title', (data[block_num].errorprob * 100) + " %");
+                                    curr_char.addClass('group_' + mode + '_' + curr_group);
 
                                     let overall_curr_char = $(".overall_char" + (i + 1));
                                     overall_curr_char.data('errorprob', round(Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0), 4));
                                     overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
                                     overall_curr_char.css("color", "gray");
                                     overall_curr_char.attr('title', round((overall_curr_char.data('errorprob') * 100.0), 4) + " %");
+                                    overall_curr_char.addClass('group_' + mode + '_' + curr_group);
                                     //$('#text_lettering').text(data[i].base);
                                 }
+                                curr_group++;
                             }
+                            makeHoverGroups();
                         },
                         fail: function (data) {
                             let obj = jQuery.parseJSON(data);
@@ -288,6 +295,18 @@
         </h3>
         <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
     </div>
+
+    <!--
+    <script>
+        $(function () {
+            $("#overall").hover(function (e) {
+                $(this).find('.overall_char5').css('font-weight', "bold");
+            }, function (e) {
+                $(this).find('.overall_char5').css('font-weight', "normal");
+            });
+        })
+    </script>
+    -->
 
     <script type="text/javascript">
         const gccontent = $("#gccontent");
