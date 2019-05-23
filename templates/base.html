@@ -1,21 +1,28 @@
 <!-- templates/base.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MOSLA DNA Simulator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>-->
+    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
+
     <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
     <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/checkbox_switch.css') }}>
 
-    <!--<link rel="stylesheet"
-          href="https://cdn.rawgit.com/tonystar/bootstrap-float-label/v4.0.2/bootstrap-float-label.min.css"/>-->
+
+    <!-- ENTWEDER: -->
+    <link rel="stylesheet"
+          href="https://cdn.rawgit.com/tonystar/bootstrap-float-label/v4.0.2/bootstrap-float-label.min.css"/>
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>-->
+    <!--funktioniert nicht wirklich in Chromium, dafür (z.B. in Firefox) deutlich schoener als : -->
+    <!-- ODER: -->
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/tonystar/float-label-css/v1.0.2/dist/float-label.min.css"/>-->
+
 
     <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/inputanimation.css') }}>-->
-
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>
 
     <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/fancytextinputs.css') }}>-->
     <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>-->

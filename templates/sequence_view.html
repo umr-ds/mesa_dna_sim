@@ -18,7 +18,7 @@
                 <div class="control">
                     <label class="form-group has-float-label">
                     <textarea class="input is-large" rows="5" id="sequence" name="sequence" placeholder="AAACCAGT"
-                              onkeyup="this.value = this.value.toUpperCase();" required></textarea>
+                              required></textarea>
                         <span>Sequence to Analyse</span>
                     </label>
                 </div>
@@ -34,9 +34,15 @@
                         <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
                                required min="0" max="10000" step="1"><span>Kmer Window-Size</span></label>
                 </td>
+                <td>
+                    <span>Limit Alphabet: </span><label class="switch">
+                    <input class="switch" type="checkbox" id="limitedChars" checked/>
+                    <span class="slider round"></span></label>
+                </td>
             </table>
+            <br/>
             <input type="checkbox" id="spoiler"/>
-            <label style="white-space: nowrap;" for="spoiler">Manage Subsequences</label>
+            <label style="white-space: nowrap; display:unset" for="spoiler">Manage Subsequences</label>
             <div class="spoiler">
                 <h3>Changes here wont be saved in your profile!</h3>
                 <br/>
@@ -138,18 +144,21 @@
             let seq = $("#sequence");
             seq.keypress(function (e) {
                 let chr = String.fromCharCode(e.which);
-                let limitAlphabet = true;
+                let limitAlphabet = $('#limitedChars')[0].checked;
                 if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
                     return false;
                 }
             });
-            seq.keydown(function () {
+            /*seq.keyup(function () {
+                var start = this.selectionStart,
+                    end = this.selectionEnd;
                 $(this).val($(this).val().toUpperCase());
-            });
+                this.setSelectionRange(start, end);
+            });*/
             let submit_seq = $("#submit_sequence");
             submit_seq.submit(function (event) {
                 event.preventDefault();
-                let sequence = $("#sequence").val();
+                let sequence = $("#sequence").val().toUpperCase();
                 let homopolymer = $('#homopolymer');
                 let gccontent = $('#gccontent');
                 let sequences = $('#subsequences');

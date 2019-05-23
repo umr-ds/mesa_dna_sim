@@ -197,3 +197,7 @@ Sequence coloring:
     padding: 1em;
 }
 */
+
+#sequence {
+    text-transform: uppercase;
+}
