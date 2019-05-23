@@ -71,7 +71,7 @@ def do_login():
             else:
                 session.pop("user_id", None)
                 flash("Session exists, but user does not exist (anymore)", 'warning')
-                return redirect(url_for('login'))
+                return redirect(url_for('login.do_login'))
     # user = db.get(session.get('user_id'))
     # return redirect(url_for('login'))  #
     return render_template('login.html')
