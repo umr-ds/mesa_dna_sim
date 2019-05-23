@@ -1,8 +1,7 @@
 import os
 from flask import Flask
 
-# from . import create_app
-
+from api.mail import mail
 from api.main_page import main_page
 from api.error_handle import page_not_found
 from api.simulator_api import simulator_api
@@ -16,15 +15,15 @@ from usersettings.validate import validate
 
 if __name__ == "__main__":
     # for debug purpose:
-    os.environ['REDIS_SERVER'] = '172.23.0.2'
-    os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.23.0.3:5432/dna_sim'
+    # os.environ['REDIS_SERVER'] = '172.23.0.2'
+    # os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.23.0.3:5432/dna_sim'
     # ENVIRONMENT VARIABLE 'API_PORT' CAN CHANGE THE API PORT (e.g. for DOCKER)
     # app = create_app()
     app = Flask(__name__)
     app.config.from_object(Config)  # Choose from the different configs...
 
     db.init_app(app)
-
+    mail.init_app(app)
     # db.init_app(app)
 
     # blueprint for auth routes in our app

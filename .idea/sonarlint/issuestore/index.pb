@@ -98,3 +98,9 @@ Q
 !static/styles/fancytextinputs.css,4/8/48059114799b6a9f0307c0c299b22c8e28bc3ace
 P
  static/styles/inputanimation.css,6/8/68c71b81c4ed9537aa33a8bdecb93544f158a162
+M
+static/styles/simptip.min.css,c/d/cd3e0d18fdca154c16abc8325c411994345d2724
+[
++static/styles/bootstrap-float-label.min.css,f/9/f9ee1d04339748e527732e6a51867e9000311c5a
+Q
+!static/styles/checkbox_switch.css,7/0/705deb95136e45d28a72e80613b968c44491d8b2

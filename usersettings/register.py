@@ -5,8 +5,10 @@ from flask import Blueprint, render_template, redirect, request, session, flash,
 
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
+from api.mail import send_mail
 from database.db import db
 from database.models import User
+from usersettings.validate import generate_confirmation_token
 
 signup = Blueprint("signup", __name__, template_folder="templates")
 
@@ -36,18 +38,23 @@ def register():
         if user:
             # Again, throwing an error is not a user-friendly
             # way of handling this, but this is just an example
-            return "Account already exists with this E-Mail"
+            flash("Account already exists with this E-Mail", "warning")
+            return render_template('signup.html')
         else:
             user = User(email=email, password=gen_password(password),
                         created=int(time.time()),
                         validated=False)
             db.session.add(user)
             db.session.commit()
-        # Note we don't *return* the response immediately
-        # session['user_id'] = user.user_id
-        # response = redirect(url_for("main_page.main_index"))
-        # response.set_cookie('YourSessionCookie', user.user_id)
-        return "Signup complete, please confirm your E-Mail"
+            # Note we don't *return* the response immediately
+            # session['user_id'] = user.user_id
+            # response = redirect(url_for("main_page.main_index"))
+            # response.set_cookie('YourSessionCookie', user.user_id)
+            send_mail("noreply@mosla.de", [user.email],
+                      "Use this link to confirm your E-Mail: http://" + request.host + "/confirm/" +
+                      generate_confirmation_token(user.email))
+            flash("Signup complete, please confirm your E-Mail", "info")
+            return redirect(url_for("main_page.main_index"))
     else:
         return render_template('signup.html')
 
