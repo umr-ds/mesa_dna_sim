@@ -59,6 +59,23 @@ class User(db.Model):
         return '<User {}>'.format(self.username)
 
 
+###############################################
+
+class UndesiredSubsequences(db.Model):
+    __tablename__ = 'undesiredsubsequences'
+    id = db.Column(db.Integer, primary_key=True)
+    sequence = db.Column(db.String(512), nullable=False)
+    error_prob = db.Column(db.FLOAT, nullable=False, default=0.0)
+    created = db.Column(db.Integer, default=timestamp)
+    validated = db.Column(db.Boolean, default=False, nullable=False)
+    description = db.Column(db.String(512))
+    owner_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+
+    def __repr__(self):
+        return '<UndesiredSubsequences(id={}, owner={}, sequence={}, error_prob={}, created={}, validated={}>'.format(
+            self.id, self.owner_id, self.sequence, self.error_prob, self.created, self.validated)
+
+
 class Apikey(db.Model):
     __tablename__ = 'Apikey'
     id = db.Column(db.Integer, primary_key=True)

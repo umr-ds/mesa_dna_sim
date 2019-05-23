@@ -13,7 +13,7 @@ simulator_api = Blueprint("simulator_api", __name__, template_folder="templates"
 @require_apikey
 def do_homopolymer():
     if request.method == 'POST':
-        sequence = request.form.get('sequence')
+        sequence = request.json.get('sequence')
     else:
         sequence = request.args.get('sequence')
     res = homopolymer(sequence)
@@ -24,11 +24,11 @@ def do_homopolymer():
 @require_apikey
 def do_gccontent():
     if request.method == 'POST':
-        sequence = request.form.get('sequence')
-        window = request.form.get('window')
+        sequence = request.json.get('sequence')
+        window = request.json.get('gc_windowsize')
     else:
         sequence = request.args.get('sequence')
-        window = request.args.get('window')
+        window = request.args.get('gc_windowsize')
     if window:
         try:
             res = windowed_gc_content(sequence, int(window))
@@ -43,11 +43,11 @@ def do_gccontent():
 @require_apikey
 def do_kmer():
     if request.method == 'POST':
-        sequence = request.form.get('sequence')
-        window = request.form.get('window')
+        sequence = request.json.get('sequence')
+        window = request.json.get('kmer_windowsize')
     else:
         sequence = request.args.get('sequence')
-        window = request.args.get('window')
+        window = request.args.get('kmer_windowsize')
     if window:
         try:
             res = kmer_counting(sequence, int(window))
@@ -59,21 +59,21 @@ def do_kmer():
 
 
 @simulator_api.route('/api/subsequences', methods=['GET', 'POST'])
-@require_apikey
+# @require_apikey
 def do_undesired_sequences():
     if request.method == 'POST':
-        sequence = request.form.get('sequence')
-        undesired_seqs = request.form.get('undesired_seqs')
+        sequence = request.json.get('sequence')
+        enabled_undesired_seqs = request.json.get('enabledUndesiredSeqs')
     else:
         sequence = request.args.get('sequence')
-        undesired_seqs = request.args.get('undesired_seqs')
+        enabled_undesired_seqs = request.args.get('enabledUndesiredSeqs')
 
-    if undesired_seqs:
+    if enabled_undesired_seqs:
         try:
             undesired_sequences = {}
-            for line in undesired_seqs.split(";"):
-                seq, error_prob = line.split(" ")
-                undesired_sequences[seq] = float(error_prob)
+            for useq in enabled_undesired_seqs:
+                if useq['enabled']:
+                    undesired_sequences[useq['sequence']] = float(useq['error_prob'])
             res = undesired_subsequences(sequence, undesired_sequences)
         except:
             res = undesired_subsequences(sequence)
@@ -87,20 +87,22 @@ def do_undesired_sequences():
 def do_all():
     # TODO
     if request.method == 'POST':
-        sequence = request.form.get('sequence')
-        window = request.args.get('window')
-        undesired_seqs = request.form.get('undesired_seqs')
+        sequence = request.json.get('sequence')
+        kmer_window = request.json.get('kmer_windowsize')
+        gc_window = request.json.get('gc_window')
+        enabled_undesired_seqs = request.json.get('enabledUndesiredSeqs')
     else:
         sequence = request.args.get('sequence')
-        window = request.args.get('window')
-        undesired_seqs = request.args.get('undesired_seqs')
+        kmer_window = request.json.get('kmer_windowsize')
+        gc_window = request.json.get('gc_window')
+        enabled_undesired_seqs = request.args.get('undesired_seqs')
 
-    if undesired_seqs:
+    if enabled_undesired_seqs:
         try:
             undesired_sequences = {}
-            for line in undesired_seqs.split(";"):
-                seq, error_prob = line.split(" ")
-                undesired_sequences[seq] = float(error_prob)
+            for useq in enabled_undesired_seqs:
+                if useq['enabled']:
+                    undesired_sequences[useq['sequence']] = float(useq['error_prob'])
             res = undesired_subsequences(sequence, undesired_sequences)
         except:
             res = undesired_subsequences(sequence)
