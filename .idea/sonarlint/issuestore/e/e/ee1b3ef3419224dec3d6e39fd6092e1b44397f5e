@@ -1,4 +1,4 @@
 
-{python:S1542¾"VRename function "sanitizeInput" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ìûª†úÿÿÿÿ8¹Ü¹­­-
-6python:S125"Remove this commented out code.(î—çž
 xpython:S3776-"TRefactor this function to reduce its Cognitive Complexity from 16 to the 15 allowed.(Ò†æÚùÿÿÿÿ8¼ºÿŠ«-
+6python:S125"Remove this commented out code.(î—çž
+{python:S1542¾"VRename function "sanitizeInput" to match the regular expression ^[a-z_][a-z0-9_]{2,}$.(Ìûª†úÿÿÿÿ8¹Ü¹­­-

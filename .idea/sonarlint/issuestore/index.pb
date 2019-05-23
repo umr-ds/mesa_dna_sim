@@ -104,3 +104,5 @@ M
 +static/styles/bootstrap-float-label.min.css,f/9/f9ee1d04339748e527732e6a51867e9000311c5a
 Q
 !static/styles/checkbox_switch.css,7/0/705deb95136e45d28a72e80613b968c44491d8b2
+;
+api/mail.py,a/3/a30dcf786ad344ba60e8682b6737d77e0ec3df20

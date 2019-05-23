@@ -6,27 +6,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="0e6c12f1-3d8a-410d-935d-7248db6ee34f" name="Default Changelist" comment="fixed gc window and allowed multiple jax requests &amp; rendering such">
-      <change afterPath="$PROJECT_DIR$/api/mail.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles/balloon.min.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles/checkbox_switch.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles/fancytextinputs.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/static/styles/simptip.min.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/a/4/a4b6a17acf189bc3ba13b5dad55bd013b4102d60" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/a/4/a4b6a17acf189bc3ba13b5dad55bd013b4102d60" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/c/ec3b4cbf21784d12c64b09fb2edd340baa1b7428" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/c/ec3b4cbf21784d12c64b09fb2edd340baa1b7428" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/e/ee1b3ef3419224dec3d6e39fd6092e1b44397f5e" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/e/e/ee1b3ef3419224dec3d6e39fd6092e1b44397f5e" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/sonarlint/issuestore/index.pb" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/styles/infobox.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/infobox.css" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static/styles/inputanimation.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/inputanimation.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulators/synthesis/kmer.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/synthesis/kmer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/sequence_view.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sequence_view.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/undesired_subsequences.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/undesired_subsequences.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usersettings/login.py" beforeDir="false" afterPath="$PROJECT_DIR$/usersettings/login.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/usersettings/register.py" beforeDir="false" afterPath="$PROJECT_DIR$/usersettings/register.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
@@ -51,21 +37,18 @@
   <component name="FileEditorManager">
     <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app.py">
+        <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="375">
-              <caret line="25" selection-start-line="25" selection-end-line="25" />
-              <folding>
-                <element signature="e#0#9#0" expanded="true" />
-              </folding>
+            <state relative-caret-position="228">
+              <caret line="29" column="77" selection-start-line="29" selection-start-column="77" selection-end-line="29" selection-end-column="77" />
             </state>
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/usersettings/login.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="365">
+            <state relative-caret-position="1005">
               <caret line="73" column="55" selection-start-line="73" selection-start-column="55" selection-end-line="73" selection-end-column="55" />
             </state>
           </provider>
@@ -81,22 +64,10 @@
         </entry>
       </file>
       <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/api/mail.py">
+        <entry file="file://$PROJECT_DIR$/simulators/synthesis/kmer.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="75">
-              <caret line="5" selection-start-line="5" selection-end-line="5" />
-              <folding>
-                <element signature="e#0#36#0" expanded="true" />
-              </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/flask_mail.py">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="89">
-              <caret line="138" lean-forward="true" selection-start-line="138" selection-end-line="138" />
+            <state relative-caret-position="225">
+              <caret line="15" column="74" selection-start-line="15" selection-start-column="74" selection-end-line="15" selection-end-column="74" />
             </state>
           </provider>
         </entry>
@@ -119,6 +90,15 @@
           </provider>
         </entry>
       </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/templates/base.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="240">
+              <caret line="17" column="120" selection-start-line="17" selection-start-column="120" selection-end-line="17" selection-end-column="120" />
+            </state>
+          </provider>
+        </entry>
+      </file>
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/database/db.py">
           <provider selected="true" editor-type-id="text-editor">
@@ -131,7 +111,7 @@
       <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/usersettings/register.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="254">
+            <state relative-caret-position="780">
               <caret line="52" selection-start-line="52" selection-end-line="52" />
               <folding>
                 <element signature="e#0#11#0" expanded="true" />
@@ -154,7 +134,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>gccontent</find>
       <find>hero</find>
       <find>self</find>
       <find>gc</find>
@@ -184,6 +163,7 @@
       <find>row</find>
       <find>init</find>
       <find>app</find>
+      <find>GC-C</find>
     </findStrings>
     <replaceStrings>
       <replace>json</replace>
@@ -223,7 +203,6 @@
         <option value="$PROJECT_DIR$/simulators/synthesis/gc_content.py" />
         <option value="$USER_HOME$/Code/error_sim.py" />
         <option value="$PROJECT_DIR$/Dockerfile" />
-        <option value="$PROJECT_DIR$/simulators/synthesis/kmer.py" />
         <option value="$PROJECT_DIR$/api/error_handle.py" />
         <option value="$PROJECT_DIR$/simulators/synthesis/homopolymers.py" />
         <option value="$PROJECT_DIR$/docker-compose.yml" />
@@ -238,11 +217,8 @@
         <option value="$PROJECT_DIR$/templates/login.html" />
         <option value="$PROJECT_DIR$/static/styles/fancytextinputs.css" />
         <option value="$PROJECT_DIR$/static/styles/simptip.min.css" />
-        <option value="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" />
-        <option value="$PROJECT_DIR$/templates/base.html" />
         <option value="$PROJECT_DIR$/static/styles/checkbox_switch.css" />
         <option value="$PROJECT_DIR$/templates/undesired_subsequences.html" />
-        <option value="$PROJECT_DIR$/templates/sequence_view.html" />
         <option value="$PROJECT_DIR$/static/styles/infobox.css" />
         <option value="$PROJECT_DIR$/static/styles/inputanimation.css" />
         <option value="$PROJECT_DIR$/usersettings/register.py" />
@@ -251,6 +227,10 @@
         <option value="$PROJECT_DIR$/api/__init__.py" />
         <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/usersettings/login.py" />
+        <option value="$PROJECT_DIR$/simulators/synthesis/kmer.py" />
+        <option value="$PROJECT_DIR$/templates/sequence_view.html" />
+        <option value="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" />
+        <option value="$PROJECT_DIR$/templates/base.html" />
       </list>
     </option>
   </component>
@@ -282,6 +262,11 @@
               <item name="dna_sim" type="b2602c69:ProjectViewProjectNode" />
               <item name="dna_sim" type="462c0819:PsiDirectoryNode" />
               <item name="database" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="b2602c69:ProjectViewProjectNode" />
+              <item name="dna_sim" type="462c0819:PsiDirectoryNode" />
+              <item name="lsp" type="462c0819:PsiDirectoryNode" />
             </path>
             <path>
               <item name="dna_sim" type="b2602c69:ProjectViewProjectNode" />
@@ -543,6 +528,7 @@
       <workItem from="1558510284312" duration="22166000" />
       <workItem from="1558593840512" duration="8484000" />
       <workItem from="1558603010921" duration="7433000" />
+      <workItem from="1558613759511" duration="2571000" />
     </task>
     <task id="LOCAL-00001" summary="fixed gc window and allowed multiple jax requests &amp; rendering such">
       <created>1557931757727</created>
@@ -555,26 +541,26 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="209231000" />
+    <option name="totallyTimeSpent" value="211802000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1920" y="25" width="1920" height="1110" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.24599786" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.24866596" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" sideWeight="0.4994664" weight="0.32925585" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" sideWeight="0.49306297" visible="true" weight="0.37104994" />
+      <window_info anchor="bottom" id="Run" order="2" sideWeight="0.49306297" visible="true" weight="0.37104994" />
       <window_info anchor="bottom" id="Debug" order="3" sideWeight="0.4941302" weight="0.39959225" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
       <window_info anchor="bottom" id="TODO" order="6" />
       <window_info anchor="bottom" id="Docker" order="7" weight="0.32925585" />
-      <window_info anchor="bottom" id="Version Control" order="8" />
+      <window_info anchor="bottom" id="Version Control" order="8" sideWeight="0.5554963" weight="0.32925585" />
       <window_info anchor="bottom" id="Database Changes" order="9" />
-      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.506937" side_tool="true" visible="true" weight="0.37104994" />
+      <window_info anchor="bottom" id="Event Log" order="10" sideWeight="0.44450372" side_tool="true" weight="0.32925585" />
       <window_info anchor="bottom" id="Terminal" order="11" weight="0.32925585" />
       <window_info anchor="bottom" id="Python Console" order="12" weight="0.32960325" />
       <window_info anchor="bottom" id="SonarLint" order="13" weight="0.3282365" />
@@ -589,6 +575,16 @@
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.History.Properties">
+    <option name="COLUMN_ORDER">
+      <list>
+        <option value="0" />
+        <option value="2" />
+        <option value="3" />
+        <option value="1" />
+      </list>
+    </option>
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="fixed gc window and allowed multiple jax requests &amp; rendering such" />
@@ -667,7 +663,7 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/dna_sim$dna_sim.coverage" NAME="dna_sim Coverage Results" MODIFIED="1557401860295" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/dna_sim$app.coverage" NAME="app Coverage Results" MODIFIED="1558612690732" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/dna_sim$app.coverage" NAME="app Coverage Results" MODIFIED="1558616332725" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/dna_sim$error_sim.coverage" NAME="error_sim Coverage Results" MODIFIED="1557997920045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Code" />
     <SUITE FILE_PATH="coverage/dna_sim$undesired_subsequences.coverage" NAME="undesired_subsequences Coverage Results" MODIFIED="1558079653570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
     <SUITE FILE_PATH="coverage/dna_sim$homopolymers.coverage" NAME="homopolymers Coverage Results" MODIFIED="1557822091260" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
@@ -837,13 +833,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/simulators/synthesis/kmer.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="315">
-          <caret line="21" selection-start-line="20" selection-end-line="21" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/simulators/synthesis/homopolymers.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="532">
@@ -878,13 +867,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/postgres/pg_backup.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="830">
-          <caret line="289" selection-start-line="289" selection-end-line="289" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/static/styles/balloon.min.css">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -911,20 +893,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="90">
           <caret line="6" selection-start-line="6" selection-end-line="6" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css">
-      <provider selected="true" editor-type-id="text-editor">
-        <state>
-          <caret column="883" selection-start-column="883" selection-end-column="883" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="3195">
-          <caret line="213" column="65" selection-start-line="213" selection-start-column="60" selection-end-line="213" selection-end-column="65" />
         </state>
       </provider>
     </entry>
@@ -959,13 +927,6 @@
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/templates/base.html">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="150">
-          <caret line="10" column="96" selection-start-line="10" selection-start-column="96" selection-end-line="10" selection-end-column="96" />
         </state>
       </provider>
     </entry>
@@ -1007,24 +968,10 @@
     <entry file="file://$PROJECT_DIR$/database/__init__.py">
       <provider selected="true" editor-type-id="text-editor" />
     </entry>
-    <entry file="file://$PROJECT_DIR$/database/db.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" selection-start-line="2" selection-end-line="2" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/flask/app.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="187">
           <caret line="1858" selection-start-line="1858" selection-end-line="1858" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/database/models.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="30">
-          <caret line="2" selection-start-line="2" selection-end-line="2" selection-end-column="29" />
         </state>
       </provider>
     </entry>
@@ -1042,27 +989,13 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/usersettings/register.py">
+    <entry file="file://$PROJECT_DIR$/app.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="254">
-          <caret line="52" selection-start-line="52" selection-end-line="52" />
+        <state>
+          <caret line="25" selection-start-line="25" selection-end-line="25" />
           <folding>
-            <element signature="e#0#11#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/flask_mail.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="89">
-          <caret line="138" lean-forward="true" selection-start-line="138" selection-end-line="138" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="225">
-          <caret line="15" column="30" selection-start-line="15" selection-start-column="30" selection-end-line="15" selection-end-column="30" />
         </state>
       </provider>
     </entry>
@@ -1076,6 +1009,20 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/flask_mail.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2070">
+          <caret line="138" selection-start-line="138" selection-end-line="138" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/database/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" selection-start-line="2" selection-end-line="2" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/api/__init__.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="15">
@@ -1083,20 +1030,69 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
+    <entry file="file://$PROJECT_DIR$/database/db.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="375">
-          <caret line="25" selection-start-line="25" selection-end-line="25" />
+        <state relative-caret-position="30">
+          <caret line="2" selection-start-line="2" selection-end-line="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/usersettings/register.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="780">
+          <caret line="52" selection-start-line="52" selection-end-line="52" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#11#0" expanded="true" />
           </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/pg_backup.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1989">
+          <caret line="289" selection-start-line="289" selection-end-line="289" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/usersettings/login.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="365">
+        <state relative-caret-position="1005">
           <caret line="73" column="55" selection-start-line="73" selection-start-column="55" selection-end-line="73" selection-end-column="55" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="30" selection-start-line="15" selection-start-column="30" selection-end-line="15" selection-end-column="30" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/synthesis/kmer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="225">
+          <caret line="15" column="74" selection-start-line="15" selection-start-column="74" selection-end-line="15" selection-end-column="74" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="228">
+          <caret line="29" column="77" selection-start-line="29" selection-start-column="77" selection-end-line="29" selection-end-column="77" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="2104" selection-start-column="2104" selection-end-column="2104" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/base.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="240">
+          <caret line="17" column="120" selection-start-line="17" selection-start-column="120" selection-end-line="17" selection-end-column="120" />
         </state>
       </provider>
     </entry>

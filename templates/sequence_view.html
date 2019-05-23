@@ -27,7 +27,7 @@
                 <td>
                     <label class="form-group has-float-label">
                         <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                               required min="0" max="10000" step="1"><span>GC-Content Window-Size</span></label>
+                               required min="0" max="10000" step="1"><span>GC Window-Size</span></label>
                 </td>
                 <td>
                     <label class="form-group has-float-label">
@@ -205,14 +205,21 @@
                                     curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
                                     curr_char.css("color", "gray");
                                     curr_char.attr('title', "Error Probability: " + round(curr_char.data('errorprob') * 100.0, 2) + " %");
-                                    curr_char.addClass('group_' + mode + '_' + curr_group);
-
+                                    if (mode === "kmer") {
+                                        curr_char.addClass('group_' + data[block_num].kmer);
+                                    } else {
+                                        curr_char.addClass('group_' + mode + '_' + curr_group);
+                                    }
                                     let overall_curr_char = $(".overall_char" + (i + 1));
                                     overall_curr_char.data('errorprob', Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0));
                                     overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
                                     overall_curr_char.css("color", "gray");
                                     overall_curr_char.attr('title', "Error Probability: " + round((overall_curr_char.data('errorprob') * 100.0), 2) + " %");
-                                    overall_curr_char.addClass('group_' + mode + '_' + curr_group);
+                                    if (mode === "kmer") {
+                                        overall_curr_char.addClass('group_' + data[block_num].kmer);
+                                    } else {
+                                        overall_curr_char.addClass('group_' + mode + '_' + curr_group);
+                                    }
                                     //$('#text_lettering').text(data[i].base);
                                 }
                                 curr_group++;
