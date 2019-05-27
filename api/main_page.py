@@ -137,9 +137,9 @@ def delete_subsequences():
 def add_subsequences():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
-    sequence = sanitizeInput(request.form.get('sequence'))
+    sequence = sanitize_input(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
-    description = request.form.get('description')
+    description = sanitize_input(request.form.get('description'))
     if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -163,9 +163,9 @@ def update_subsequences():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
-    sequence = sanitizeInput(request.form.get('sequence'))
+    sequence = sanitize_input(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
-    description = request.form.get('description')
+    description = sanitize_input(request.form.get('description'))
     if user_id and user and sequence_id is not None and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -187,6 +187,6 @@ def update_subsequences():
         return jsonify({'did_succeed': False})
 
 
-def sanitizeInput(input, regex=r'[^a-zA-Z]'):
+def sanitize_input(input, regex=r'[^a-zA-Z]'):
     result = re.sub(regex, "", input)
     return result

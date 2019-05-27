@@ -1,35 +1,47 @@
 <!-- templates/base.html -->
-<!DOCTYPE html>
+<!--<!DOCTYPE html>-->
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>MOSLA DNA Simulator</title>
-    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>-->
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
+    {% block head %}
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>MOSLA DNA Simulator</title>
+        <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-150x150.png') }}"
+              sizes="32x32"/>
+        <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"
+              sizes="192x192"/>
+        <link rel="apple-touch-icon-precomposed"
+              href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
+        <meta name="msapplication-TileImage"
+              content="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
 
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/checkbox_switch.css') }}>
+        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>-->
+        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
+
+        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
+        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/checkbox_switch.css') }}>
 
 
-    <!-- ENTWEDER: -->
-    <link rel="stylesheet"
-          href="https://cdn.rawgit.com/tonystar/bootstrap-float-label/v4.0.2/bootstrap-float-label.min.css"/>
-    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>-->
-    <!--funktioniert nicht wirklich in Chromium, dafür (z.B. in Firefox) deutlich schoener als : -->
-    <!-- ODER: -->
-    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/tonystar/float-label-css/v1.0.2/dist/float-label.min.css"/>-->
+        <!-- ENTWEDER: -->
+        <link rel="stylesheet"
+              href="https://cdn.rawgit.com/tonystar/bootstrap-float-label/v4.0.2/bootstrap-float-label.min.css"/>
+        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>-->
+        <!--funktioniert nicht wirklich in Chromium, dafür (z.B. in Firefox) deutlich schoener als : -->
+        <!-- ODER: -->
+        <!--<link rel="stylesheet" href="https://cdn.rawgit.com/tonystar/float-label-css/v1.0.2/dist/float-label.min.css"/>-->
 
 
-    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/inputanimation.css') }}>-->
+        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/inputanimation.css') }}>-->
 
-    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/fancytextinputs.css') }}>-->
-    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>-->
-    <!--<link rel="script" href="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"/>-->
-    <!--<script src={{ url_for('static',filename='js/jquery-3.4.1.js') }}></script>-->
-    <script src={{ url_for('static',filename='js/jquery-3.4.1.min.js') }}></script>
-    <script src={{ url_for('static',filename='js/jquery.lettering-0.6.1.min.js') }}></script>
+        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/fancytextinputs.css') }}>-->
+        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>
+        <!--<link rel="script" href="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"/>-->
+        <!--<script src={{ url_for('static',filename='js/jquery-3.4.1.js') }}></script>-->
+        <script src={{ url_for('static',filename='js/jquery-3.4.1.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/jquery.lettering-0.6.1.min.js') }}></script>
+    {% endblock %}
 </head>
 
 <body>

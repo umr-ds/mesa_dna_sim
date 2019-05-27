@@ -36,8 +36,8 @@ from database.models import User
 validate = Blueprint("validate", __name__, template_folder="templates")
 
 
-# TODO remove @... and use this function to send a confirmation email
-@validate.route('/confirm/mail/<email>')
+# remove @... and use this function to send a confirmation email
+# @validate.route('/confirm/mail/<email>')
 def generate_confirmation_token(email):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return serializer.dumps(email, salt=current_app.config['SECURITY_VALIDATION_SALT'])

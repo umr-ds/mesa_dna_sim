@@ -1,13 +1,104 @@
 <!-- templates/sequence_view.html -->
 
 {% extends "base.html" %}
+{% block head %}
+    {{ super() }}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@0.3.0/dist/chartjs-plugin-dragData.min.js"></script>
+    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
 
+    <script src="{{ url_for('static',filename='js/error-chart.js') }}"></script>
+{% endblock %}
 {% block content %}
-    <!--<script type="text/javascript">
-        window.onload = function () {
-            document.getElementById("text_lettering").lettering();
-        }
+    <!--<script type = "text/javascript" >
+window.onload = function () {
+    document.getElementById("text_lettering").lettering();
+}
     </script>-->
+    <!--TODO:
+    https://stackoverflow.com/questions/43757979/chart-js-drag-points-on-linear-chart
+    https://github.com/chrispahm/chartjs-plugin-dragData
+    -->
+    <div class="control" id="overlay">
+        <div class="box control" id="inneroverlay">
+            <a href="javascript:void(0)" class="closebtn" onclick="closeOverlay()">&times;</a>
+            <div class="overlay-content" id="overlay-content">
+                <canvas id="myChart" width="1600" height="900"></canvas>
+            </div>
+            <br/>
+            <table>
+                <tr>
+                    <td>
+                        <button onclick="drawGraph(false);return false;">Save</button> <!-- TODO --></td>
+                    <td>
+                        <button onclick="drawGraph(true);return false;">Toogle Interpolation</button> <!-- TODO --></td>
+                    <td>
+                        <label class="form-group has-float-label">
+                            <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
+                                   required min="0" step="1"><span>X-Value</span></label></td>
+                    <td>
+                        <label class="form-group has-float-label">
+                            <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
+                                   required min="0" step="1"><span>Y-Value</span></label></td>
+                    <td>
+                        <button onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;">Add Point
+                        </button> <!-- TODO --></td>
+                </tr>
+            </table>
+        </div>
+    </div>
+    <script>
+        $('#myChart').dblclick(function (e) {
+            //getting value by pressing on dataset
+            curr_chart.data.datasets.forEach((dataset) => {
+                for (var scaleName in curr_chart.scales) {
+                    var scale = curr_chart.scales[scaleName];
+                    if (scale.isHorizontal()) {
+                        valueX = round(scale.getValueForPixel(event.offsetX), 0);
+                    } else {
+                        valueY = scale.getValueForPixel(event.offsetY);
+                    }
+                }
+                curr_chart.data.datasets.forEach((dataset) => {
+                    dataset.data.push({x: valueX, y: valueY});
+                });
+                dataset.data.sort(function (a, b) {
+                    return a.x - b.x;
+                });
+                //curr_chart.data.labels.push("tmp");
+            });
+            curr_chart.update();
+        });
+
+        $(function () {
+            $("body").click(function (event) {
+                if (!$(event.target).closest("#inneroverlay,#overlay-content,#showOvrly").length) {
+                    closeOverlay();
+                }
+            });
+        });
+
+        function closeOverlay() {
+            let overlay = $("#overlay");
+            /*$("#overlay").css({
+                "opacity": "0",
+                "display": "none",
+            }).show().animate({opacity: 0}, 100).hide()*/
+            overlay.css("display", "none");
+        }
+
+        function showOverlay() {
+            let overlay = $("#overlay")
+            drawGraph();
+            /*$("#overlay").css({
+                "opacity": "1",
+                "display": "block",
+            }).show().animate({opacity: 1}, 100)*/
+            overlay.css("display", "block");
+            setYValueAfterX(curr_chart, 0, 3);
+        }
+    </script>
     <h2 class="subtitle">
         Your Query:
     </h2>
@@ -27,17 +118,22 @@
                 <td>
                     <label class="form-group has-float-label">
                         <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                               required min="0" max="10000" step="1"><span>GC Window-Size</span></label>
+                               required min="0" step="1"><span>GC Window-Size</span></label>
                 </td>
                 <td>
                     <label class="form-group has-float-label">
                         <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
-                               required min="0" max="10000" step="1"><span>Kmer Window-Size</span></label>
+                               required min="0" step="1"><span>Kmer Window-Size</span></label>
                 </td>
                 <td>
-                    <span>Limit Alphabet: </span><label class="switch">
-                    <input class="switch" type="checkbox" id="limitedChars" checked/>
-                    <span class="slider round"></span></label>
+                    <nobr><span>Limit Alphabet: </span><label class="switch">
+                        <input class="switch" type="checkbox" id="limitedChars" checked/>
+                        <span class="slider round"></span></label>
+                    </nobr>
+                </td>
+                <td>
+                    <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
+                           onclick="showOverlay();" value="Change Probability">
                 </td>
             </table>
             <br/>
@@ -51,44 +147,43 @@
                     <div class="control" id="subseq_{{ subsequence.id }}">
                         <table>
                             <tr>
-                                <td><span><label class="switch">
+                                <td><label class="switch">
                                     <input class="switch" type="checkbox"
                                            id="enabled"
                                            value="{{ subsequence.id }}" checked/>
-                                    <span class="slider round"></span></label></span>
+                                    <span class="slider round"></span></label>
                                 </td>
-                                <td><span><label class="form-group has-float-label">
-                                    <input type="text" name="sequence" id="sequence" placeholder=""
-                                           size="70"
+                                <td style="width:50%"><label class="form-group has-float-label">
+                                    <input style="width:100%" type="text" name="sequence" id="sequence" placeholder=""
                                             {% if subsequence.validated %}
                                            readonly{% endif %}
                                            value="{{ subsequence.sequence }}" required>
-                                    <span>Sequence</span></label></span></td>
-                                <td><span><label class="form-group has-float-label">
-                                    <input class="balloon" type="number" id="error_prob" name="error_prob"
-                                           placeholder="" size="4"
+                                    <span>Sequence</span></label></td>
+                                <td style="width:15%"><label class="form-group has-float-label">
+                                    <input style="width:100%" type="number" id="error_prob" name="error_prob"
+                                           placeholder=""
                                             {% if subsequence.validated %} disabled
                                            readonly {% endif %}
                                            value="{{ subsequence.error_prob }}"
                                            required min="0.0" max="1.0" step="0.01">
-                                    <span>Error Probability</span></label></span></td>
-                                <td><span><label class="form-group has-float-label">
-                                    <input class="balloon" type="text" name="description" id="description"
+                                    <span><nobr>Error Probability</nobr></span></label></td>
+                                <td style="width:30%"><label class="form-group has-float-label">
+                                    <input style="width:100%" type="text" name="description" id="description"
                                            placeholder="No Description" size="30"
                                             {% if subsequence.validated %}
                                            readonly {% endif %}
                                             {% if subsequence.description != None %}
                                            value="{{ subsequence.description }}"
-                                            {% endif %} readonly><span>Description</span></label></span></td>
+                                            {% endif %} readonly><span>Description</span></label></td>
                                 <!--
                             {% if subsequence.description != None %}
                                 Description: {{ subsequence.description }}
                             {% else %}
                                 No Description
                             {% endif %}-->
-                                <td><span>Public / Validated: <input type="checkbox" id="validated"
-                                                                     value="{{ subsequence.id }}" disabled
-                                        {% if subsequence.validated %} checked {% endif %}/></span></td>
+                                <td><span><nobr>Public / Validated: <input type="checkbox" id="validated"
+                                                                           value="{{ subsequence.id }}" disabled
+                                        {% if subsequence.validated %} checked {% endif %}/></nobr></span></td>
                             </tr>
                         </table>
                         <!--<nobr>
