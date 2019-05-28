@@ -38,18 +38,24 @@
 
 .closebtn {
     position: absolute;
-    top: 1px;
-    right: 25px;
+    top: -20px;
+    right: 10px;
     font-size: 60px;
 }
 
 #overlay-content {
-    width: 80%;
-    height: 80%;
+    width: 85%;
+    height: 85%;
     margin: 0 auto;
     background-color: rgba(255, 255, 255, 1.0);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
+    position: relative;
+    /*top: 5%;
+    left: 5%;
+    transform: translate(-50%, -50%);*/
+}
+
+#overlay-managebox {
+    position: relative;
+    width: 85%;
+    margin: 0 auto;
 }

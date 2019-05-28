@@ -23,41 +23,85 @@ window.onload = function () {
     <div class="control" id="overlay">
         <div class="box control" id="inneroverlay">
             <a href="javascript:void(0)" class="closebtn" onclick="closeOverlay()">&times;</a>
-            <div class="overlay-content" id="overlay-content">
+            <div class="box overlay-content" id="overlay-content">
                 <canvas id="myChart" width="1600" height="900"></canvas>
             </div>
             <br/>
-            <table>
-                <tr>
-                    <td>
-                        <button onclick="drawGraph(false);return false;">Save</button> <!-- TODO --></td>
-                    <td>
-                        <button onclick="drawGraph(true);return false;">Toogle Interpolation</button> <!-- TODO --></td>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>X-Value</span></label></td>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>Y-Value</span></label></td>
-                    <td>
-                        <button onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;">Add Point
-                        </button> <!-- TODO --></td>
-                </tr>
-            </table>
+            <div class="overlay-managebox" id="overlay-managebox">
+                <table>
+                    <tr>
+                        <td>
+                            <label class="form-group has-float-label">
+                                <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
+                                       required min="0.0" step="1"><span>X-value</span></label></td>
+                        <td>
+                            <label class="form-group has-float-label">
+                                <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
+                                       required min="0.0" step="1"><span>Y-value</span></label></td>
+                        <td>
+                            <button class="button is-block is-info" type="button" id="addpoint" name="addpoint"
+                                    onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;"
+                                    data-balloon="Modify is based on X-Value!" data-balloon-pos="up"> Add / Modify point
+                            </button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-info" type="button" id="removePoint" name="removePoint"
+                                    onclick="removePoint($('#x-val').val());return false;"
+                                    data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove point
+                            </button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-info" type="button" id="setybeforex" name="setybeforex"
+                                    onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
+                                    data-balloon="Changes all Y-Values of Points with a smaller X-Value"
+                                    data-balloon-pos="up">
+                                Set Y-Values before X
+                            </button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-info" type="button" id="setyafterx" name="setyafterx"
+                                    onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
+                                    data-balloon="Changes all Y-Values of Points with a greater X-Value"
+                                    data-balloon-pos="up">
+                                Set Y-values after X
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+                X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will be
+                mapped to the last Y-Value
+                <br/>
+                <table>
+                    <tr>
+                        <td>
+                            <input class="button is-block is-info" type="button" id="doReset" name="doReset"
+                                   onclick="resetChanges();return false;" value="Reset">
+                        <td>
+                            <input class="button is-block is-info" type="button" id="toogleinterpolation"
+                                   name="toogleinterpolation" onclick="toogleCubicInterpolation();return false;"
+                                   value="Use Interpolation">
+                        </td>
+                        <td>
+                            <input class="button is-block is-info" type="button" id="toogleDragX"
+                                   name="toogleDragX" onclick="toogleDragX();return false;"
+                                   value="Allow drag along X-Axis">
+                        </td>
+                    </tr>
+                </table>
+            </div>
         </div>
     </div>
     <script>
-        $('#myChart').dblclick(function (e) {
+        let chart = $('#myChart');
+        chart.dblclick(function (e) {
             //getting value by pressing on dataset
             curr_chart.data.datasets.forEach((dataset) => {
                 for (var scaleName in curr_chart.scales) {
                     var scale = curr_chart.scales[scaleName];
                     if (scale.isHorizontal()) {
-                        valueX = round(scale.getValueForPixel(event.offsetX), 0);
+                        valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
                     } else {
-                        valueY = scale.getValueForPixel(event.offsetY);
+                        valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
                     }
                 }
                 curr_chart.data.datasets.forEach((dataset) => {
@@ -68,7 +112,23 @@ window.onload = function () {
                 });
                 //curr_chart.data.labels.push("tmp");
             });
+            removeDuplicatesX();
             curr_chart.update();
+        });
+        chart.click(function (e) {
+            curr_chart.data.datasets.forEach((dataset) => {
+                for (var scaleName in curr_chart.scales) {
+                    var scale = curr_chart.scales[scaleName];
+                    if (scale.isHorizontal()) {
+                        valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
+                    } else {
+                        valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
+                    }
+                }
+                $('#x-val').val(valueX);
+                $('#y-val').val(valueY);
+                //curr_chart.data.labels.push("tmp");
+            });
         });
 
         $(function () {
@@ -85,18 +145,19 @@ window.onload = function () {
                 "opacity": "0",
                 "display": "none",
             }).show().animate({opacity: 0}, 100).hide()*/
+            //todo save values to the corresponding array
             overlay.css("display", "none");
         }
 
         function showOverlay() {
-            let overlay = $("#overlay")
+            let overlay = $("#overlay");
             drawGraph();
             /*$("#overlay").css({
                 "opacity": "1",
                 "display": "block",
             }).show().animate({opacity: 1}, 100)*/
             overlay.css("display", "block");
-            setYValueAfterX(curr_chart, 0, 3);
+            //setYValueAfterX(curr_chart, 0, 3);
         }
     </script>
     <h2 class="subtitle">
@@ -115,26 +176,28 @@ window.onload = function () {
                 </div>
             </div>
             <table>
-                <td>
-                    <label class="form-group has-float-label">
-                        <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                               required min="0" step="1"><span>GC Window-Size</span></label>
-                </td>
-                <td>
-                    <label class="form-group has-float-label">
-                        <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
-                               required min="0" step="1"><span>Kmer Window-Size</span></label>
-                </td>
-                <td>
-                    <nobr><span>Limit Alphabet: </span><label class="switch">
-                        <input class="switch" type="checkbox" id="limitedChars" checked/>
-                        <span class="slider round"></span></label>
-                    </nobr>
-                </td>
-                <td>
-                    <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                           onclick="showOverlay();" value="Change Probability">
-                </td>
+                <tr>
+                    <td>
+                        <label class="form-group has-float-label">
+                            <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
+                                   required min="0" step="1"><span>GC Window-Size</span></label>
+                    </td>
+                    <td>
+                        <label class="form-group has-float-label">
+                            <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
+                                   required min="0" step="1"><span>Kmer Window-Size</span></label>
+                    </td>
+                    <td>
+                        <nobr><span>Limit Alphabet: </span><label class="switch">
+                            <input class="switch" type="checkbox" id="limitedChars" checked/>
+                            <span class="slider round"></span></label>
+                        </nobr>
+                    </td>
+                    <td>
+                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
+                               onclick="showOverlay();" value="Change Probability">
+                    </td>
+                </tr>
             </table>
             <br/>
             <input type="checkbox" id="spoiler"/>
