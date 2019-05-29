@@ -353,7 +353,8 @@ window.onload = function () {
                             key: '{{apikey}}',
                             enabledUndesiredSeqs: extractUndesiredToJson(),
                             kmer_windowsize: $('#kmer_window_size').val(),
-                            gc_windowsize: $('#gc_window_size').val()
+                            gc_windowsize: $('#gc_window_size').val(),
+                            error_prob: serializeData()
                         }),
                         async: true,
                         beforeSend: function (xhr) {

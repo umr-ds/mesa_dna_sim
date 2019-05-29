@@ -9,6 +9,20 @@ const yRoundingFactor = 2;
 const maximumY = 100;
 const maximumX = 20;
 
+function serializeData() {
+    if (curr_chart === undefined)
+        drawGraph(); // just to initialize everything...
+    let dataset = curr_chart.data.datasets[0];
+    return JSON.stringify({
+        data: dataset.data,
+        interpolation: dataset.cubicInterpolationMode === "monotone",
+        maxX: maximumX,
+        maxY: maximumY,
+        xRound: xRoundingFactor,
+        yRound: yRoundingFactor
+    });
+}
+
 function toogleCubicInterpolation() {
     useCubicInterpolation = !useCubicInterpolation;
     curr_chart.data.datasets.forEach((dataset) => {
