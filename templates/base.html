@@ -1,17 +1,32 @@
 <!-- templates/base.html -->
-
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>MOSLA DNA Simulator</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
-    <!--<link rel="script" href="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"/>-->
+    <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>-->
+    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
 
+    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
+    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/checkbox_switch.css') }}>
+
+
+    <!-- ENTWEDER: -->
+    <link rel="stylesheet"
+          href="https://cdn.rawgit.com/tonystar/bootstrap-float-label/v4.0.2/bootstrap-float-label.min.css"/>
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>-->
+    <!--funktioniert nicht wirklich in Chromium, dafür (z.B. in Firefox) deutlich schoener als : -->
+    <!-- ODER: -->
+    <!--<link rel="stylesheet" href="https://cdn.rawgit.com/tonystar/float-label-css/v1.0.2/dist/float-label.min.css"/>-->
+
+
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/inputanimation.css') }}>-->
+
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/fancytextinputs.css') }}>-->
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>-->
+    <!--<link rel="script" href="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"/>-->
     <!--<script src={{ url_for('static',filename='js/jquery-3.4.1.js') }}></script>-->
     <script src={{ url_for('static',filename='js/jquery-3.4.1.min.js') }}></script>
     <script src={{ url_for('static',filename='js/jquery.lettering-0.6.1.min.js') }}></script>
@@ -19,36 +34,22 @@
 
 <body>
 <section class="hero is-primary is-fullheight">
-
     <div class="hero-head">
         <nav class="navbar">
             <div class="container">
-
                 <div id="navbarMenuHeroA" class="navbar-menu">
                     <div class="navbar-end">
-                        <a href="{{ url_for('main_page.home') }}" class="navbar-item">
-                            Home
-                        </a>
+                        <a href="{{ url_for('main_page.home') }}" class="navbar-item"> Home </a>
                         {% if session['user_id'] %}
-                            <a href="{{ url_for('main_page.query_sequence') }}" class="navbar-item">
-                                Simulate
-                            </a>
+                            <a href="{{ url_for('main_page.query_sequence') }}" class="navbar-item"> Simulate </a>
                             <a href="{{ url_for('main_page.undesired_subsequences') }}" class="navbar-item">
                                 Simulation Settings
                             </a>
-                            <a href="{{ url_for('main_page.profile') }}" class="navbar-item">
-                                Profile
-                            </a>
-                            <a href="{{ url_for('logout.do_logout') }}" class="navbar-item">
-                                Logout
-                            </a>
+                            <a href="{{ url_for('main_page.profile') }}" class="navbar-item"> Profile </a>
+                            <a href="{{ url_for('logout.do_logout') }}" class="navbar-item"> Logout </a>
                         {% else %}
-                            <a href="{{ url_for('login.do_login') }}" class="navbar-item">
-                                Login
-                            </a>
-                            <a href="{{ url_for('signup.register') }}" class="navbar-item">
-                                Sign Up
-                            </a>
+                            <a href="{{ url_for('login.do_login') }}" class="navbar-item"> Login </a>
+                            <a href="{{ url_for('signup.register') }}" class="navbar-item"> Sign Up </a>
                         {% endif %}
                     </div>
                 </div>

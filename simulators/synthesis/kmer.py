@@ -13,7 +13,8 @@ def kmer_counting(seq, k=20, upper_bound=1, error_prob=0.000002):
             kmer_dict[kmer] = 1
         else:
             kmer_dict[kmer] += 1
-    high_occ_kmers = [{'kmer': i, 'startpos': elem, 'endpos': elem + k, 'errorprob': v ** 2 * error_prob} for i, v in
+    high_occ_kmers = [{'kmer': i, 'startpos': elem, 'endpos': elem + k - 1, 'errorprob': v ** 2 * error_prob} for i, v
+                      in
                       kmer_dict.items() if v > upper_bound for elem in kmer_pos[i]]
 
     if high_occ_kmers:

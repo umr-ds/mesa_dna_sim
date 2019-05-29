@@ -181,3 +181,23 @@ Sequence coloring:
     border-right: 2px solid white;
 }
 */
+
+/* Tooltip:
+[data-tooltip] {
+    cursor: default;
+    font: normal 1em sans-serif;
+}
+
+[data-tooltip]:hover:after {
+    display: inline-block;
+    content: attr(data-tooltip);
+    white-space: pre-wrap;
+    color: #0081ff;
+    background-color: OldLace;
+    padding: 1em;
+}
+*/
+
+#sequence {
+    text-transform: uppercase;
+}

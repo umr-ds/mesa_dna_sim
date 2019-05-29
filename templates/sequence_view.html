@@ -16,90 +16,107 @@
         <form id="submit_sequence">
             <div class="field">
                 <div class="control">
-                    <textarea class="input is-large" rows="5" id="sequence" type="text" name="sequence"
-                              placeholder="AAACCAGT" onkeyup="this.value = this.value.toUpperCase();"
+                    <label class="form-group has-float-label">
+                    <textarea class="input is-large" rows="5" id="sequence" name="sequence" placeholder="AAACCAGT"
                               required></textarea>
+                        <span>Sequence to Analyse</span>
+                    </label>
                 </div>
             </div>
             <table>
                 <td>
-                    GC-Content Window-Size:
+                    <label class="form-group has-float-label">
+                        <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
+                               required min="0" max="10000" step="1"><span>GC Window-Size</span></label>
                 </td>
                 <td>
-                    <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                           required
-                           min="0" max="10000" step="1">
+                    <label class="form-group has-float-label">
+                        <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
+                               required min="0" max="10000" step="1"><span>Kmer Window-Size</span></label>
                 </td>
-                <td>Kmer Window-Size:</td>
                 <td>
-                    <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
-                           required
-                           min="0" max="10000" step="1">
-    </div>
-    </td>
-    </table>
-    <input type="checkbox" id="spoiler"/>
-    <label style="white-space: nowrap;" for="spoiler">Manage Subsequences</label>
-    <div class="spoiler">
-        <h3>Changes here wont be saved in your profile!</h3>
-        {% for subsequence in usubsequence %}
-            <div class="control" id="subseq_{{ subsequence.id }}">
-                <table>
-                    <tr>
-                        <td>Enabled: <input type="checkbox" id="enabled"
-                                            value="{{ subsequence.id }}" checked/></td>
-                        <td><input class="input" type="text" name="sequence"
-                                   placeholder="" size="70" {% if subsequence.validated %} disabled {% endif %}
-                                   value="{{ subsequence.sequence }}" required></td>
-                        <td><input class="input" type="number" name="error_prob"
-                                   placeholder="" size="4" {% if subsequence.validated %} disabled {% endif %}
-                                   value="{{ subsequence.error_prob }}" required min="0.0" max="1.0"
-                                   step="0.01"></td>
-                        <td><input class="input" type="text" name="description"
-                                   placeholder="No Description" size="30" {% if subsequence.validated %}
-                                   disabled {% endif %}
-                                {% if subsequence.description != None %}
-                                   value="{{ subsequence.description }}"
-                                {% endif %} readonly></td>
-                        <!--
+                    <span>Limit Alphabet: </span><label class="switch">
+                    <input class="switch" type="checkbox" id="limitedChars" checked/>
+                    <span class="slider round"></span></label>
+                </td>
+            </table>
+            <br/>
+            <input type="checkbox" id="spoiler"/>
+            <label style="white-space: nowrap; display:unset" for="spoiler">Manage Subsequences</label>
+            <div class="spoiler">
+                <h3>Changes here wont be saved in your profile!</h3>
+                <br/>
+                <div style="text-align: left">Enabled:</div>
+                {% for subsequence in usubsequence %}
+                    <div class="control" id="subseq_{{ subsequence.id }}">
+                        <table>
+                            <tr>
+                                <td><span><label class="switch">
+                                    <input class="switch" type="checkbox"
+                                           id="enabled"
+                                           value="{{ subsequence.id }}" checked/>
+                                    <span class="slider round"></span></label></span>
+                                </td>
+                                <td><span><label class="form-group has-float-label">
+                                    <input type="text" name="sequence" id="sequence" placeholder=""
+                                           size="70"
+                                            {% if subsequence.validated %}
+                                           readonly{% endif %}
+                                           value="{{ subsequence.sequence }}" required>
+                                    <span>Sequence</span></label></span></td>
+                                <td><span><label class="form-group has-float-label">
+                                    <input class="balloon" type="number" id="error_prob" name="error_prob"
+                                           placeholder="" size="4"
+                                            {% if subsequence.validated %} disabled
+                                           readonly {% endif %}
+                                           value="{{ subsequence.error_prob }}"
+                                           required min="0.0" max="1.0" step="0.01">
+                                    <span>Error Probability</span></label></span></td>
+                                <td><span><label class="form-group has-float-label">
+                                    <input class="balloon" type="text" name="description" id="description"
+                                           placeholder="No Description" size="30"
+                                            {% if subsequence.validated %}
+                                           readonly {% endif %}
+                                            {% if subsequence.description != None %}
+                                           value="{{ subsequence.description }}"
+                                            {% endif %} readonly><span>Description</span></label></span></td>
+                                <!--
                             {% if subsequence.description != None %}
                                 Description: {{ subsequence.description }}
                             {% else %}
                                 No Description
                             {% endif %}-->
-                        <td> Public / Validated: <input type="checkbox" id="validated"
-                                                        value="{{ subsequence.id }}" disabled
-                                {% if subsequence.validated %} checked {% endif %}/></td>
-                    </tr>
-                </table>
-                <!--<nobr>
+                                <td><span>Public / Validated: <input type="checkbox" id="validated"
+                                                                     value="{{ subsequence.id }}" disabled
+                                        {% if subsequence.validated %} checked {% endif %}/></span></td>
+                            </tr>
+                        </table>
+                        <!--<nobr>
                             Created at:
                             <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
                             )
                             </script>
                         </nobr>-->
-
+                    </div>
+                {% endfor %}
             </div>
-        {% endfor %}
-    </div>
-    <button class="button is-block is-info is-large is-fullwidth">Submit
-    </button>
-    </form>
-
-    <!--<input type="checkbox" id="spoiler2"/>
-    <label style="white-space: nowrap;" for="spoiler2">Change Undesired Sequences</label>
-    <div class="spoiler">
-        <form id="known_subsequences">
-            <div class="field">
-                <div class="control">
-
-                </div>
-            </div>
+            <button class="button is-block is-info is-large is-fullwidth">Submit</button>
         </form>
     </div>
-    -->
-    </div>
+
     <script type="text/javascript">
+        //TODO improve me !
+        function makeHoverGroups() {
+            $('span[class^="group_" ],span[class*=" group_"]').each(function () {
+                let cls = $(this).attr('class').split(" ");
+                $("." + cls[cls.length - 1]).hover(function () {
+                    $("." + cls[cls.length - 1]).css('font-weight', "bold");
+                }, function () {
+                    $("." + cls[cls.length - 1]).css('font-weight', "normal");
+                });
+            });
+        }
+
         function extractUndesiredToJson() {
             let res = [];
             $('[id^="subseq_"]').each(function () {
@@ -126,19 +143,22 @@
         $(document).ready(function () {
             let seq = $("#sequence");
             seq.keypress(function (e) {
-                var chr = String.fromCharCode(e.which);
-                var limitAlphabet = true;
+                let chr = String.fromCharCode(e.which);
+                let limitAlphabet = $('#limitedChars')[0].checked;
                 if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
                     return false;
                 }
             });
-            seq.keydown(function () {
+            /*seq.keyup(function () {
+                var start = this.selectionStart,
+                    end = this.selectionEnd;
                 $(this).val($(this).val().toUpperCase());
-            });
+                this.setSelectionRange(start, end);
+            });*/
             let submit_seq = $("#submit_sequence");
             submit_seq.submit(function (event) {
                 event.preventDefault();
-                let sequence = $("#sequence").val();
+                let sequence = $("#sequence").val().toUpperCase();
                 let homopolymer = $('#homopolymer');
                 let gccontent = $('#gccontent');
                 let sequences = $('#subsequences');
@@ -156,13 +176,14 @@
                 kmer.lettering();
                 overall.lettering();
 
-                for (var i = 0; i <= overall.text().length; i++) {
+                for (let i = 0; i <= overall.text().length; i++) {
                     let curr_char = $(".overall_char" + (i + 1));
                     curr_char.data('errorprob', 0.0);
                 }
                 //var endpoints = ['gccontent', 'homopolymers'];
 
                 //for (var mode in endpoints) {
+
                 let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences"];
                 endpoints.forEach(function (mode) {
                     $.post({
@@ -185,26 +206,38 @@
                         success: function (data) {
                             //$("#spoiler3_label").click();
                             //let obj = jQuery.parseJSON(data);
-                            for (block_num in data) {
-                                for (var i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
+                            let curr_group = 0;
+                            for (let block_num in data) {
+                                for (let i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
                                     let curr_char = $("." + mode + "_char" + (i + 1));
-                                    curr_char.data('errorprob', data[block_num].errorprob);
+                                    curr_char.data('errorprob', Math.min(data[block_num].errorprob, 1.0));
                                     curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
                                     curr_char.css("color", "gray");
-                                    curr_char.attr('title', (data[block_num].errorprob * 100) + " %");
-
+                                    curr_char.attr('title', "Error Probability: " + round(curr_char.data('errorprob') * 100.0, 2) + " %");
+                                    if (mode === "kmer") {
+                                        curr_char.addClass('group_' + data[block_num].kmer);
+                                    } else {
+                                        curr_char.addClass('group_' + mode + '_' + curr_group);
+                                    }
                                     let overall_curr_char = $(".overall_char" + (i + 1));
-                                    overall_curr_char.data('errorprob', round(Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0), 4));
+                                    overall_curr_char.data('errorprob', Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0));
                                     overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
                                     overall_curr_char.css("color", "gray");
-                                    overall_curr_char.attr('title', round((overall_curr_char.data('errorprob') * 100.0), 4) + " %");
+                                    overall_curr_char.attr('title', "Error Probability: " + round((overall_curr_char.data('errorprob') * 100.0), 2) + " %");
+                                    if (mode === "kmer") {
+                                        overall_curr_char.addClass('group_' + data[block_num].kmer);
+                                    } else {
+                                        overall_curr_char.addClass('group_' + mode + '_' + curr_group);
+                                    }
                                     //$('#text_lettering').text(data[i].base);
                                 }
+                                curr_group++;
                             }
+                            makeHoverGroups();
                         },
                         fail: function (data) {
                             let obj = jQuery.parseJSON(data);
-                            for (var i in obj) {
+                            for (let i in obj) {
                                 $('#text_lettering').text(data[i].base);
                             }
                             //$('#text_lettering').text(data);
@@ -215,7 +248,7 @@
             });
         });
 
-        var percentColors = [
+        const percentColors = [
             {pct: 0.0, color: {r: 0xff, g: 0x00, b: 0}},
             {pct: 0.5, color: {r: 0xff, g: 0xff, b: 0}},
             {pct: 1.0, color: {r: 0x00, g: 0xff, b: 0}}];
@@ -251,43 +284,39 @@
         }*/
     </script>
 
-    <h2 class="subtitle">
-        Your Results:
-    </h2>
+    <h2 class="subtitle"> Your Results: </h2>
     <div class="box">
-        <h3 class="subtitle" style="color: black">
-            Homopolymers:
-        </h3>
+        <h3 class="subtitle" style="color: black"> Homopolymers: </h3>
         <ul class="text_lettering" id="homopolymer" style="overflow-x: auto;"></ul>
     </div>
-
     <div class="box">
-        <h3 class="subtitle" style="color: black">
-            GC-Content:
-        </h3>
+        <h3 class="subtitle" style="color: black"> GC-Content: </h3>
         <ul class="text_lettering" id="gccontent" style="overflow-x: auto;"></ul>
     </div>
-
     <div class="box">
-        <h3 class="subtitle" style="color: black">
-            Kmer:
-        </h3>
+        <h3 class="subtitle" style="color: black"> Kmer: </h3>
         <ul class="text_lettering" id="kmer" style="overflow-x: auto;"></ul>
     </div>
-
     <div class="box">
-        <h3 class="subtitle" style="color: black">
-            Subsequences:
-        </h3>
+        <h3 class="subtitle" style="color: black"> Subsequences: </h3>
         <ul class="text_lettering" id="subsequences" style="overflow-x: auto;"></ul>
     </div>
-
     <div class="box">
-        <h3 class="subtitle" style="color: black">
-            Overall:
-        </h3>
+        <h3 class="subtitle" style="color: black"> Overall: </h3>
         <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
     </div>
+
+    <!--
+    <script>
+        $(function () {
+            $("#overall").hover(function (e) {
+                $(this).find('.overall_char5').css('font-weight', "bold");
+            }, function (e) {
+                $(this).find('.overall_char5').css('font-weight', "normal");
+            });
+        })
+    </script>
+    -->
 
     <script type="text/javascript">
         const gccontent = $("#gccontent");
