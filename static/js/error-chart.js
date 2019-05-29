@@ -1,13 +1,47 @@
-let curr_chart, element, datasetIndex, index, scale, org_pos, org_data, org_options;
+let curr_chart, curr_dataset, element, datasetIndex, index, scale, org_pos, org_data, org_options;
 let useCubicInterpolation = true;
 let toogleDragXaxis = false;
 let dragXcol = '#209cee';
 let interpolcol = '#50ee0a';
+let xLabelString = 'Homopolymer length';
 
-const xRoundingFactor = 0;
-const yRoundingFactor = 2;
-const maximumY = 100;
-const maximumX = 20;
+let xRoundingFactor = 0;
+let yRoundingFactor = 2;
+let maximumY = 100;
+let maximumX = 20;
+
+/**
+ * loads ne Data and draws the graph into the canvas
+ * @param data list of dicts ( e.g.: [{x:0.0, y:0.0},{x:1.0,y:10.5}, ...]
+ * @param useInterpolation flag (true | false) if (monotone!) interpolation should be used
+ * @param label Name of the Data! (shown on mouse-over)
+ * @param xRoundF digits after , to round to for X-Axis
+ * @param yRoundF digits after , to round to for Y-Axis
+ * @param maxX maximum value for X-Axis (this is not enforced, a user can manually add points outside and the graph will be extended accordingly)
+ * @param maxY maximum value for Y-Axis (this IS enforced and will be used to clip values!)
+ * @param xLabel Label of the X-Axis (e.g.: "Homopolymer length", "GC-Percentage", ...)
+ */
+function loadAndDrawData(data, useInterpolation, label, xRoundF, yRoundF, maxX, maxY, xLabel) {
+    if (curr_chart !== undefined) {
+        curr_chart.clear();
+        curr_chart = undefined;
+    }
+    curr_dataset = constructDataset(data, label, useInterpolation);
+    if (useCubicInterpolation !== useInterpolation)
+        toogleCubicInterpolation();
+    xRoundingFactor = xRoundF;
+    yRoundingFactor = yRoundF;
+    maximumX = maxX;
+    maximumY = maxY;
+    xLabelString = xLabel;
+    drawGraph();
+}
+
+function deserializeDataAndLoadDraw(serial_data) {
+    const json_dict = JSON.parse(serial_data);
+    return loadAndDrawData(json_dict["data"], json_dict["interpolation"], json_dict["xRound"],
+        json_dict["yRound"], json_dict["maxX"], json_dict["maxY"], json_dict["xLabel"]);
+}
 
 function serializeData() {
     if (curr_chart === undefined)
@@ -19,7 +53,9 @@ function serializeData() {
         maxX: maximumX,
         maxY: maximumY,
         xRound: xRoundingFactor,
-        yRound: yRoundingFactor
+        yRound: yRoundingFactor,
+        label: dataset.label,
+        xLabel: xLabelString
     });
 }
 
@@ -174,14 +210,14 @@ function constructDataset(datalist, lbl, useInterpolation) {
 }
 
 function drawGraph() {
+    if (curr_dataset === undefined)
+        curr_dataset = constructDataset([{x: 0.0, y: 0.0}, {x: 2.0, y: 0.0}, {x: 4.0, y: 20.0}, {x: 5.0, y: 50.0},
+            {x: 6.0, y: 80.0}, {x: 7.0, y: 100.0}, {x: 20.0, y: 100.0}], "Error Probability", true);
     if (curr_chart !== undefined) {
         org_data = $.extend(true, [], curr_chart.data.datasets);
         org_options = $.extend(true, {}, curr_chart.options);
         return curr_chart.update();
     }
-    let curr_dataset = constructDataset([{x: 0.0, y: 0.0}, {x: 2.0, y: 0.0}, {x: 4.0, y: 20.0}, {x: 5.0, y: 50.0},
-        {x: 6.0, y: 80.0}, {x: 7.0, y: 100.0}, {x: 20.0, y: 100.0}], "Error Probability", true);
-
     /*var homopolymer_dataset = {
         label: "Error Probability",
         data: [{x: 0.0, y: 0.0}, {x: 2.0, y: 0.0}, {x: 4.0, y: 20.0}, {x: 5.0, y: 50.0}, {x: 6.0, y: 80.0},
@@ -218,7 +254,7 @@ function drawGraph() {
                     display: true,
                     scaleLabel: {
                         display: true,
-                        labelString: 'Homopolymer length',
+                        labelString: xLabelString,
                         fontStyle: 'bold'
                     },
                     ticks: {
@@ -228,8 +264,8 @@ function drawGraph() {
                         callback: function (value, index, values) {
                             return parseFloat(value).toFixed(xRoundingFactor);
                         },
-                        autoSkip: false,
-                        stepSize: 1.0 //set to .5 for half steps
+                        autoSkip: false
+                        //stepSize: 1.0 //set to .5 for half steps
                     }
                     // ...
                 }
