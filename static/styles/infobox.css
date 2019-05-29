@@ -201,3 +201,13 @@ Sequence coloring:
 #sequence {
     text-transform: uppercase;
 }
+
+.sequence {
+    text-transform: uppercase;
+}
+
+br {
+    line-height: 1;
+    display: block;
+    margin-bottom: 5px;
+}

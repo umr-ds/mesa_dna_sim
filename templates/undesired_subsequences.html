@@ -35,7 +35,7 @@
             }
         }
     </script>-->
-    <div class="column is-10 is-offset-1">
+    <div class="column is-12 is-offset-0">
         <h3 class="title">Undesired Subsequences</h3>
 
         <hr/>
@@ -56,72 +56,74 @@
                                 <div class="control" id="subseq_{{ subsequence.id }}">
                                     <table>
                                         <tr>
-                                            <td><label class="form-group has-float-label">
-                                                <input class="input" type="text" name="sequence"
-                                                       placeholder="" size="70" value="{{ subsequence.sequence }}"
+                                            <td style="width:53%"><label class="form-group has-float-label">
+                                                <input style="width:100%" class="input" type="text" name="sequence"
+                                                       placeholder="" size="50" value="{{ subsequence.sequence }}"
                                                        required><span>Sequence</span></label></td>
-                                            <td><label class="form-group has-float-label">
-                                                <input class="input"
-                                                       type="number"
-                                                       name="error_prob"
-                                                       placeholder="" size="4"
+                                            <td style="width:15%"><label class="form-group has-float-label">
+                                                <input style="width:100%" class="input" type="number" name="error_prob"
+                                                       placeholder="" size="30"
                                                        value="{{ subsequence.error_prob }}"
                                                        required min="0.0"
-                                                       max="1.0" step="0.01"><span>Error Probability</span></label>
+                                                       max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
                                             </td>
-                                            <td><label class="form-group has-float-label">
-                                                <input class="input"
-                                                       type="text"
-                                                       name="description"
-                                                       placeholder="Description"
-                                                       size="30"
+                                            <td style="width:15%"><label class="form-group has-float-label">
+                                                <input style="width:100%" class="input"
+                                                       type="text" name="description" placeholder="Description"
+                                                       size="20"
                                                         {% if subsequence.description != None %}
                                                        value="{{ subsequence.description }}"
                                                         {% endif %}
                                                        required><span>Description</span></label></td>
-                                            <td> Validated: <input type="checkbox" id="validated"
-                                                                   value="{{ subsequence.id }}" disabled
+                                            <td style="width:7%"> Validated: <input type="checkbox" id="validated"
+                                                                                    value="{{ subsequence.id }}"
+                                                                                    disabled
                                                     {% if subsequence.validated %} checked {% endif %}/></td>
-                                            <td>
-                                                <button class="button" id="update_subseq_{{ subsequence.id }}"
+                                            <td style="width:5%">
+                                                <button class="button"
+                                                        data-balloon="Updating will remove the Validation!"
+                                                        data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
                                                         onclick="updateSeq({{ subsequence.id }}); return false;">Update
                                                 </button>
                                             </td>
-                                            <td>
+                                            <td style="width:5%">
                                                 <button class="button" id="delete_subseq_{{ subsequence.id }}"
+                                                        data-balloon="Created at: "
+                                                        data-balloon-pos="up"
                                                         onclick="deleteSeq({{ subsequence.id }}); return false;">Delete
                                                 </button>
                                             </td>
                                         </tr>
                                     </table>
-                                    <nobr>
-                                        Created at:
-                                        <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
-                                        )
-                                        </script>
-                                    </nobr>
-
+                                    <script>
+                                        let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000
+                                        ).toUTCString();
+                                        $('#delete_subseq_{{ subsequence.id }}').attr('data-balloon', "Created at: " + dattim_{{ subsequence.id }});
+                                    </script>
+                                    <br/>
                                 </div>
+
                             {% endfor %}
                         </div>
                         <div class="control" id="add_subseq">
                             <table>
                                 <tr>
-                                    <td><label class="form-group has-float-label">
+                                    <td style="width:55%"><label class="form-group has-float-label">
                                         <input class="input" type="text" id="addsequence" name="sequence"
-                                               placeholder="Undesired Subsequence" size="70" value=""
+                                               placeholder="Undesired Subsequence" size="58" value=""
                                                required><span>Sequence</span></label></td>
-                                    <td><label class="form-group has-float-label">
+                                    <td style="width:15%"><label class="form-group has-float-label">
                                         <input class="input" type="number" id="errorprob" name="error_prob"
-                                               placeholder="0,5" size="4" value="" required min="0.0"
-                                               max="1.0" step="0.01"><span>Error Probability</span></label>
+                                               placeholder="0,5" size="30" value="" required min="0.0"
+                                               max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
                                     </td>
-                                    <td><label class="form-group has-float-label">
+                                    <td style="width:29%"><label class="form-group has-float-label">
                                         <input class="input" type="text" id="description" name="description"
-                                               placeholder="Description" size="30" value=""
+                                               placeholder="Description" size="31" value=""
                                                required><span>Description</span></label>
                                     </td>
-                                    <td>
+                                    <br/>
+                                    <td style="width:1%">
                                         <button class="button" id="add_new_subseq">Add</button>
                                     </td>
                                 </tr>
@@ -129,7 +131,7 @@
                         </div>
                     </div>
                 </div>
-                <button class="button is-block is-info is-large is-fullwidth" id="update">Update</button>
+                <!--<button class="button is-block is-info is-large is-fullwidth" id="update">Update</button>-->
             </form>
         </div>
         <br/>
@@ -228,37 +230,33 @@
                         subseq_box.append("<div class=\"control\" id=\"subseq_" + data.id + "\">\n" +
                             "<table>\n" +
                             "<tr>\n" +
-                            "<td><label class=\"form-group has-float-label\"><input class=\"input\" type=\"text\" name=\"sequence\"\n" +
-                            "placeholder=\"\" size=\"70\" value=\"" + data.sequence + "\" required><span>Sequence</span></label></td>\n" +
-                            "<td><label class=\"form-group has-float-label\"><input class=\"input\" type=\"number\" name=\"error_prob\"\n" +
-                            "placeholder=\"\" size=\"4\" value=\"" + data.error_prob + "\" required\n" +
+                            "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"text\" name=\"sequence\"\n" +
+                            "placeholder=\"\" size=\"50\" value=\"" + data.sequence + "\" required><span>Sequence</span></label></td>\n" +
+                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"number\" name=\"error_prob\"\n" +
+                            "placeholder=\"\" size=\"30\" value=\"" + data.error_prob + "\" required\n" +
                             "min=\"0.0\"\n" +
-                            "max=\"1.0\" step=\"0.01\"><span>Errpr Probability</span></label></td>\n" +
-                            "<td><label class=\"form-group has-float-label\"><input class=\"input\" type=\"text\" name=\"description\"\n" +
-                            "placeholder=\"Description\" value=\"" + data.description + "\" size=\"30\" value=\"\"\n" +
+                            "max=\"1.0\" step=\"0.01\"><span><nobr>Errpr Probability</nobr></span></label></td>\n" +
+                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"text\" name=\"description\"\n" +
+                            "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                             "required><span>Description</span></label></td>" +
-                            "<td> Validated: <input type=\"checkbox\" id=\"validated\"\n" +
+                            "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated\"\n" +
                             "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
-                            "<td><button class=\"button\" id=\"update_subseq_" + data.id + "\"\n" +
+                            "<td style=\"width:5%\"><button class=\"button\" data-balloon=\"Updating will remove the Validation!\"\n" +
+                            "data-balloon-pos=\"up\" id=\"update_subseq_" + data.id + "\"\n" +
                             "onclick=\"updateSeq(" + data.id + "); return false;\"> Update<\/button>" +
                             "<\/td>" +
-                            "<td>\n" +
-                            "<button class=\"button\" id=\"delete_subseq_" + data.id + "\"\n" +
-                            "onclick=\"deleteSeq(" + data.id + "); return false;\">Delete\n" +
+                            "<td style=\"width:5%\">\n" +
+                            "<button class=\"button\" id=\"delete_subseq_" + data.id + "\" data-balloon=\"Delete this Subsequence created at: " + dattime + "\"" +
+                            "data-balloon-pos=\"up\" onclick=\"deleteSeq(" + data.id + "); return false;\">Delete\n" +
                             "</button>\n" +
                             "</td>\n" +
                             "</tr>\n" +
                             "</table>\n" +
-                            "<nobr>\n" +
-                            "Created at:\n" +
-                            dattime +
-                            "<\/nobr>\n" +
-                            "\n" +
-                            "<\/div>"
+                            "<br/><\/div>"
                         ).fadeIn(400)
                         ;
                         $('#addsequence').val('');
-                        $('#errorprob').val('0,0');
+                        $('#errorprob').val('');
                         $('#description').val('');
                     } else {
                         console.log("Error while adding new Sequence ");

@@ -1,6 +1,7 @@
 from flask import jsonify, request, Blueprint
 
 from api.apikey import require_apikey
+from simulators.error_probability import create_error_prob_function
 from simulators.synthesis.gc_content import overall_gc_content, windowed_gc_content
 from simulators.synthesis.homopolymers import homopolymer
 from simulators.synthesis.kmer import kmer_counting
@@ -14,9 +15,11 @@ simulator_api = Blueprint("simulator_api", __name__, template_folder="templates"
 def do_homopolymer():
     if request.method == 'POST':
         sequence = request.json.get('sequence')
+        error_prob_func = create_error_prob_function(request.json.get('error_prob'))
     else:
         sequence = request.args.get('sequence')
-    res = homopolymer(sequence)
+        error_prob_func = create_error_prob_function(request.args.get('error_prob'))
+    res = homopolymer(sequence, error_function=error_prob_func)
     return jsonify(res)
 
 
