@@ -3,7 +3,8 @@ import numpy as np
 import random
 import re
 
-class Sequencing_error:
+
+class SequencingError:
     """
     Base class for the simulation of sequencing errors.
     Implemented error types are:
@@ -23,12 +24,12 @@ class Sequencing_error:
         self.seq = seq
 
     def insertion(self, prob=None):
-        if prob != None:
+        if prob is not None:
             self.checks['ins_no_prob'] = 1
-            return "".join('{}{}'.format(char, random.choice(self.bases)
-            if random.random() <= prob else '') for char in self.seq)
+            return ''.join('{}{}'.format(char, random.choice(self.bases) if random.random() <= prob else '')
+                           for char in self.seq)
         else:
-            res = self.attributes["insertion"]
+            res = self.attributes['insertion']
             position, pattern, position_range = self._get_atts(res)
 
             if not position or position == 'random':
@@ -45,7 +46,7 @@ class Sequencing_error:
                     return self._indel(pattern, position_range, mode='insertion')
 
     def deletion(self, prob=None):
-        if prob != None:
+        if prob is not None:
             self.checks['del_no_prob'] = 1
             return "".join(filter(lambda x: random.random() <= prob, self.seq))
         else:
@@ -66,7 +67,7 @@ class Sequencing_error:
                     return self._indel(pattern, pattern_range, mode='deletion')
 
     def mismatch(self, prob=None):
-        if prob != None:
+        if prob is not None:
             self.checks['mis_no_prob'] = 1
             return "".join('{}'.format(random.choice(self.bases)
                                        if random.random() <= prob else char) for char in self.seq)
@@ -86,19 +87,19 @@ class Sequencing_error:
         poly_b = {ele['base'] for ele in poly}
         if pattern:
             # Get the base:weight pairs for all bases that exists in
-            # homopolymer form in the sequence
+            # homopolymer form in the sequence.
             poly_weights = {k: v for k, v in pattern.items() if k in poly_b}
         else:
-            # If no base pobabilities exist, just give all bases that
-            # exist as homopolymer the same probability
+            # If no base probabilities exist, just give all bases that
+            # exist as homopolymer the same probability.
             poly_weights = {ele['base']: None for ele in poly}
             poly_weights.update((k, 1 / len(poly_weights)) for k in poly_weights)
 
-        # Normalize the weigths
+        # Normalize the weights.
         s = sum(poly_weights.values())
         norm_poly_weights = {k: float(v) / s for k, v in poly_weights.items()}
 
-        # Choose which base will be deleted / inserted
+        # Choose which base will be deleted / inserted.
         choose_ele = np.random.choice(list(norm_poly_weights.keys()),
                                       p=list(norm_poly_weights.values()))
 

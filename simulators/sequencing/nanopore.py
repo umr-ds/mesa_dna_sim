@@ -1,4 +1,4 @@
-from sequencing_error import Sequencing_error
+from sequencing_error import SequencingError
 import numpy as np
 import random
 # Error rates = probability as fraction of total errors,
@@ -8,7 +8,8 @@ import random
 # Also, I have to think about a more elegant way to test all
 # of the implemented errors.
 
-class Nanopore(Sequencing_error):
+
+class Nanopore(SequencingError):
     """
     Class for the simulation of errors that can occur using the Oxford
     Nanopore technology.
@@ -56,13 +57,12 @@ class Nanopore(Sequencing_error):
                 "'2D' (sequencing both the template and the "
                 "complementary strand) or 'user' (using "
                 "custom error rates)")
-        if attributes == None:
-            self.attributes = {"deletion": {"position" :{"homopolymer" : 0.46, "random" : 0.54},
-                                            "pattern": {"G":0.35, "C":0.35, "A":0.15, "T":0.15}},
-                               "insertion" : {"position" :{"homopolymer" : 0.46, "random" : 0.54},
-                                              "pattern": {"A":0.35, "T":0.35, "C":0.15, "G":0.15}},
-                               "mismatch": {"pattern": {"TAG":"TGG", "TAC":"TGC"}}}
-
+        if attributes is None:
+            self.attributes = {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54},
+                                            "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
+                               "insertion": {"position": {"homopolymer": 0.46, "random": 0.54},
+                                             "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
+                               "mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}
 
     def lit_error_rate_mutations(self, mutation_list):
         assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
@@ -70,7 +70,7 @@ class Nanopore(Sequencing_error):
         out_seq = self.in_seq
         for mutation_type in mutation_list:
             err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
-            if self.attributes == None:
+            if self.attributes is False:
                 self.seq = eval('self.' + mutation_type)(err_rate)
             else:
                 for n in range(round((len(out_seq) * err_rate))):
@@ -83,6 +83,7 @@ class Nanopore(Sequencing_error):
             mut_type = np.random.choice(m_types, p=m_weights)
             att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
             self.out_seq = eval('self.' + mut_type)(self.in_seq, att)
+
 
 if __name__ == "__main__":
     def testing():
@@ -104,7 +105,7 @@ if __name__ == "__main__":
             c1 = random.choice(['A', 'T', 'G', 'C'])
             if not seq_l or seq_l[-1] != c1:
                 seq_l.append(c1)
-            seq2 = "".join(seq_l)
+        seq2 = "".join(seq_l)
 
         # Run
         for seq in [seq1, seq2]:
