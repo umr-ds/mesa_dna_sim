@@ -1,3 +1,3 @@
 FROM postgres
 
-ADD pg_backup.sql /docker-entrypoint-initdb.d
+COPY pg_dumpall.sql /docker-entrypoint-initdb.d/
