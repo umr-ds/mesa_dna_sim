@@ -1,12 +1,5 @@
 from sequencing_error import SequencingError
-import numpy as np
 import random
-# Error rates = probability as fraction of total errors,
-# Deletion = 0.5: fifty percent of the total errors are deletions
-# Raw rate = general error probability (not a fraction).
-# Slow atm, might be faster to make a list out of the sequence.
-# Also, I have to think about a more elegant way to test all
-# of the implemented errors.
 
 
 class Nanopore(SequencingError):
@@ -63,26 +56,6 @@ class Nanopore(SequencingError):
                                "insertion": {"position": {"homopolymer": 0.46, "random": 0.54},
                                              "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
                                "mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}
-
-    def lit_error_rate_mutations(self, mutation_list):
-        assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
-                   mutation_list), 'Supported types of mutation are: "deletion", "mismatch" and "insertion".'
-        out_seq = self.in_seq
-        for mutation_type in mutation_list:
-            err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
-            if self.attributes is False:
-                self.seq = eval('self.' + mutation_type)(err_rate)
-            else:
-                for n in range(round((len(out_seq) * err_rate))):
-                    self.seq = eval('self.' + mutation_type)()
-
-    def manual_mutation(self, error):
-        if random.random() <= error['errorprob']:
-            m_types = ['deletion', 'insertion', 'mismatch']
-            m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]
-            mut_type = np.random.choice(m_types, p=m_weights)
-            att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
-            self.out_seq = eval('self.' + mut_type)(self.in_seq, att)
 
 
 if __name__ == "__main__":

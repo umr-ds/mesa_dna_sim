@@ -22,6 +22,7 @@ class SequencingError:
                        'mis_no_prob': None, 'mis_no_pos': None}
         self.attributes = attributes
         self.seq = seq
+        self.out_seq = None
 
     def insertion(self, prob=None):
         if prob is not None:
@@ -144,7 +145,11 @@ class SequencingError:
         except IndexError:
             return self._no_pattern_mismatch()
 
-        return self.seq[:chosen_ele[0][0]] + pattern[chosen_ele[1]] + self.seq[chosen_ele[0][1]:]
+        if type(pattern[chosen_ele[1]]) == list:
+            new_ele = random.choice(pattern[chosen_ele[1]])
+        else:
+            new_ele = pattern[chosen_ele[1]]
+        return self.seq[:chosen_ele[0][0]] + new_ele + self.seq[chosen_ele[0][1]:]
 
     # Not really random and could end up in an infinite loop, but
     # better than to take all indices which satisfy the condition
@@ -195,3 +200,24 @@ class SequencingError:
             position_range = None
 
         return position, pattern, position_range
+
+    def lit_error_rate_mutations(self, mutation_list):
+        assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
+                   mutation_list), 'Supported types of mutation are: "deletion", "mismatch" and "insertion".'
+        out_seq = self.in_seq
+        for mutation_type in mutation_list:
+            err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
+            if self.attributes is False:
+                self.seq = eval('self.' + mutation_type)(err_rate)
+            else:
+                for n in range(round((len(out_seq) * err_rate))):
+                    self.seq = eval('self.' + mutation_type)()
+
+    def manual_mutation(self, error):
+        if random.random() <= error['errorprob']:
+            m_types = ['deletion', 'insertion', 'mismatch']
+            m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]
+            mut_type = np.random.choice(m_types, p=m_weights)
+            att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
+            self.out_seq = eval('self.' + mut_type)(self.in_seq, att)
+
