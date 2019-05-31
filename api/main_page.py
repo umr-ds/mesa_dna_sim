@@ -6,7 +6,7 @@ from sqlalchemy import desc, or_
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
-from database.models import User, Apikey, UndesiredSubsequences
+from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability
 from usersettings.login import require_logged_in, check_password
 from usersettings.register import gen_password
 
@@ -187,6 +187,37 @@ def update_subsequences():
         return jsonify({'did_succeed': False})
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z]'):
+@main_page.route("/api/update_error_prob_charts", methods=['POST'])
+@require_logged_in
+def update_error_prob_charts():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    id = request.json.get('chart_id')
+    jsonblob = request.json.get('jsonblob').replace(">", "").replace("<", "")
+    name = sanitize_input(request.json.get('name'))
+    if user_id and user and id is not None and jsonblob is not None and jsonblob != "" and name is not None:
+        try:
+            # check if an entry exists for the given id AND user --> only entrys for the current user might be updated
+            curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+            if curr_error_prob is None:
+                curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id)
+                db.session.add(curr_error_prob)
+            else:
+                curr_error_prob.jsonblob = jsonblob
+                curr_error_prob.validated = False
+                curr_error_prob.name = name
+
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'jsonblob': curr_error_prob.jsonblob, 'id': curr_error_prob.id,
+                 'created': curr_error_prob.created, 'validated': curr_error_prob.validated,
+                 'name': curr_error_prob.name})
+        except Exception as ex:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
     result = re.sub(regex, "", input)
     return result

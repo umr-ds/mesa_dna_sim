@@ -86,11 +86,73 @@ window.onload = function () {
                                    name="toogleDragX" onclick="toogleDragX();return false;"
                                    value="Allow drag along X-Axis">
                         </td>
+                        <td>
+                            <label class="form-group has-float-label">
+                                <input class="input" type="text" id="chart-name" placeholder="" size="20"
+                                       required><span>Name</span></label></td>
+                        <td>
+
+                        <td>
+                            <button class="button is-block is-info" type="button" id="update-chart" name="update-chart"
+                                    onclick="saveChart(false);return false;"
+                                    data-balloon="Update current Error-Probability Graph" data-balloon-pos="up"> Update
+                                Template
+                            </button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-info" type="button" id="delete-chart" name="delete-chart"
+                                    onclick="deleteChart($('#x-val').val(), $('#y-val').val());return false;"
+                                    data-balloon="Delete current Error-Probability Graph" data-balloon-pos="up"> Delete
+                            </button>
+                        </td>
+                        <td>
+                            <button class="button is-block is-info" type="button" id="save-chart" name="save-chart"
+                                    onclick="saveChart(true);return false;" data-balloon="Save Copy"
+                                    data-balloon-pos="up"> Save copy of Template
+                            </button>
+                        </td>
                     </tr>
                 </table>
             </div>
         </div>
     </div>
+    <script>
+        function saveChart(create_copy) {
+            const chart_name = $('#chart-name');
+            $.post({
+                url: "http://{{ host }}/api/update_error_prob_charts",
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify({
+                    name: chart_name.val(),
+                    key: '{{apikey}}',
+                    chart_id: chart_name.data('id'),
+                    jsonblob: serializeData(),
+                    copy: create_copy,
+                    type: chart_name.data('type')
+                }),
+                async: true,
+                beforeSend: function (xhr) {
+                    if (xhr && xhr.overrideMimeType) {
+                        xhr.overrideMimeType('application/json;charset=utf-8');
+                    }
+                },
+                success: function (data) {
+                    if (data["did_succeed"] === true) {
+                        showOverlay(data["validated"], true, data["id"], data["name"], data["type"])
+                    } else {
+                        console.log(data)
+                        //TODO show error
+                    }
+                },
+                fail: function (data) {
+                    console.log(data)
+                    //TODO show error message on screen
+                }
+            });
+        }
+
+    </script>
     <script>
         let chart = $('#myChart');
         chart.dblclick(function (e) {
@@ -149,13 +211,26 @@ window.onload = function () {
             overlay.css("display", "none");
         }
 
-        function showOverlay() {
+        function showOverlay(validated, editable, id, text, type) {
             let overlay = $("#overlay");
-            drawGraph();
+            let chartName = $("#chart-name");
             /*$("#overlay").css({
                 "opacity": "1",
                 "display": "block",
             }).show().animate({opacity: 1}, 100)*/
+            /*
+             * if editable == false, we can only safe a copy via "Save as ________"
+             * otherwise we want an "Update" Button +  "Delete" Buttton as well as an Option for "Save as ________"
+             * additinally we want to show Validated true false
+             */
+
+            $("#update-chart").prop('disabled', !editable);
+            $("#delete-chart").prop('disabled', !editable);
+            chartName.val(text);
+            chartName.data("id", id);
+            chartName.data("validated", validated);
+            chartName.data("type", type);
+
             overlay.css("display", "block");
             //setYValueAfterX(curr_chart, 0, 3);
         }
@@ -194,8 +269,48 @@ window.onload = function () {
                         </nobr>
                     </td>
                     <td>
+                        <select id="homopolymer-dropdown">
+                            {% for chart in homopolymer_charts %}
+
+                                <option data-id="{{ chart.id }}" data-type="homopolymer"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob="{{ chart.json }}">{{ chart.name }}</option>
+                            {% endfor %}
+                            <option data-id="-1" data-type="homopolymer"
+                                    data-validated="false" data-isowner="false">New Graph</option>
+                        </select>
+                    </td>
+                    <td>
                         <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="showOverlay();" value="Change Probability">
+                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'));"
+                               value="Change Homopolymer Probability">
+                    </td>
+                    <td>
+                        <select id="gc-dropdown">
+                            {% for chart in gc_charts %}
+
+                                <option data-id="{{ chart.id }}" data-type="gc"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob="{{ chart.json }}">{{ chart.name }}</option>
+                            {% endfor %}
+                            <option data-id="-1" data-type="gc"
+                                    data-validated="false" data-isowner="false">New Graph</option>
+                        </select>
+                    </td>
+                    <td>
+                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
+                               onclick="let dropdown_select = $('#gc-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'));"
+                               value="Change GC Probability">
                     </td>
                 </tr>
             </table>
