@@ -7,8 +7,10 @@
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@0.3.0/dist/chartjs-plugin-dragData.min.js"></script>
     <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
-
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/dropdown.css') }}>-->
     <script src="{{ url_for('static',filename='js/error-chart.js') }}"></script>
+    <script src="{{ url_for('static',filename='js/autoscroll.js') }}"></script>
+    <script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
 {% endblock %}
 {% block content %}
     <!--<script type = "text/javascript" >
@@ -139,6 +141,7 @@ window.onload = function () {
                 },
                 success: function (data) {
                     if (data["did_succeed"] === true) {
+                        updateDropdown(chart_name.data('type'));
                         showOverlay(data["validated"], true, data["id"], data["name"], data["type"])
                     } else {
                         console.log(data)
@@ -152,8 +155,81 @@ window.onload = function () {
             });
         }
 
+        function deleteChart() {
+            const chart_name = $('#chart-name');
+            $.post({
+                url: "http://{{ host }}/api/delete_error_prob_charts",
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify({
+                    name: chart_name.val(),
+                    key: '{{apikey}}',
+                    chart_id: chart_name.data('id'),
+                    type: chart_name.data('type')
+                }),
+                async: true,
+                beforeSend: function (xhr) {
+                    if (xhr && xhr.overrideMimeType) {
+                        xhr.overrideMimeType('application/json;charset=utf-8');
+                    }
+                },
+                success: function (data) {
+                    if (data["did_succeed"] === true) {
+                        updateDropdown(chart_name.data('type'));
+                        deserializeDataAndLoadDraw(undefined, chart_name.data('type'));
+                        showOverlay(true, false, -1, "New Graph", chart_name.data('type'));
+                    } else {
+                        console.log(data)
+                        //TODO show error
+                    }
+                },
+                fail: function (data) {
+                    console.log(data)
+                    //TODO show error message on screen
+                }
+            });
+        }
+
+        function updateDropdown(type) {
+            const chart_name = $('#chart-name');
+            $.post({
+                url: "http://{{ host }}/api/get_error_prob_charts",
+                dataType: 'json',
+                contentType: 'application/json;charset=UTF-8',
+                data: JSON.stringify({
+                    key: '{{apikey}}',
+                    type: type
+                }),
+                async: true,
+                beforeSend: function (xhr) {
+                    if (xhr && xhr.overrideMimeType) {
+                        xhr.overrideMimeType('application/json;charset=utf-8');
+                    }
+                },
+                success: function (data) {
+                    let el = $('#' + type + '-dropdown');
+                    el.empty(); // remove old options
+                    $.each(data['charts'], function (id) {
+                        let elem = data['charts'][id];
+                        el.append($("<option></option>").text(elem['name']).data('jsonblob', elem['jsonblob'])
+                            .data('id', elem['id']).data('validated', elem['validated'])
+                            .data('isowner', elem['isowner']).data('type', elem['type']));
+                    });
+                    el.append($("<option></option>").text("New Graph").data('id', -1).data('validated', true)
+                        .data('isowner', false).data('type', type).data('jsonblob', default_data_obj[type]));
+                },
+                fail: function (data) {
+                    console.log(data)
+                    //TODO show error message on screen
+                }
+            });
+        }
     </script>
     <script>
+        jQuery(document).ready(function () {
+            updateDropdown("gc");
+            updateDropdown("homopolymer");
+        });
         let chart = $('#myChart');
         chart.dblclick(function (e) {
             //getting value by pressing on dataset
@@ -270,15 +346,16 @@ window.onload = function () {
                     </td>
                     <td>
                         <select id="homopolymer-dropdown">
-                            {% for chart in homopolymer_charts %}
+                            <!--{% for chart in homopolymer_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="homopolymer"
                                         data-validated="{{ chart.validated }}"
                                         data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob="{{ chart.json }}">{{ chart.name }}</option>
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
                             {% endfor %}
                             <option data-id="-1" data-type="homopolymer"
-                                    data-validated="false" data-isowner="false">New Graph</option>
+                                    data-validated="false" data-isowner="false">New Graph
+                            </option>-->
                         </select>
                     </td>
                     <td>
@@ -292,15 +369,16 @@ window.onload = function () {
                     </td>
                     <td>
                         <select id="gc-dropdown">
-                            {% for chart in gc_charts %}
+                            <!--{% for chart in gc_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="gc"
                                         data-validated="{{ chart.validated }}"
                                         data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob="{{ chart.json }}">{{ chart.name }}</option>
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
                             {% endfor %}
                             <option data-id="-1" data-type="gc"
-                                    data-validated="false" data-isowner="false">New Graph</option>
+                                    data-validated="false" data-isowner="false">New Graph
+                            </option>-->
                         </select>
                     </td>
                     <td>
@@ -459,6 +537,23 @@ window.onload = function () {
 
                 let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences"];
                 endpoints.forEach(function (mode) {
+                    let error_prob = undefined;
+                    if (mode === "gccontent") {
+                        let dropdown_select = $('#gc-dropdown option:selected');
+                        error_prob = dropdown_select.data('jsonblob');
+                        if (typeof (error_prob) === "string")
+                            error_prob = JSON5.parse(error_prob);
+                    } else if (mode === "homopolymer") {
+                        let dropdown_select = $('#homopolymer-dropdown option:selected');
+                        error_prob = dropdown_select.data('jsonblob');
+                        if (typeof (error_prob) === "string")
+                            error_prob = JSON5.parse(error_prob);
+                    } else {
+                        let dropdown_select = $('#homopolymer-dropdown option:selected');
+                        error_prob = dropdown_select.data('jsonblob');
+                        if (typeof (error_prob) === "string")
+                            error_prob = JSON5.parse(error_prob);
+                    }
                     $.post({
                         url: "http://{{ host }}/api/" + mode,
                         dataType: 'json',
@@ -469,7 +564,7 @@ window.onload = function () {
                             enabledUndesiredSeqs: extractUndesiredToJson(),
                             kmer_windowsize: $('#kmer_window_size').val(),
                             gc_windowsize: $('#gc_window_size').val(),
-                            error_prob: serializeData()
+                            error_prob: error_prob
                         }),
                         async: true,
                         beforeSend: function (xhr) {
@@ -591,65 +686,6 @@ window.onload = function () {
         })
     </script>
     -->
-
-    <script type="text/javascript">
-        const gccontent = $("#gccontent");
-        const homopolymer = $("#homopolymer");
-        const kmer = $("#kmer");
-        const sequences = $('#subsequences');
-        const overall = $('#overall');
-        kmer.scroll(function () {
-            homopolymer.scrollTop(kmer.scrollTop());
-            homopolymer.scrollLeft(kmer.scrollLeft());
-            gccontent.scrollTop(kmer.scrollTop());
-            gccontent.scrollLeft(kmer.scrollLeft());
-            overall.scrollTop(kmer.scrollTop());
-            overall.scrollLeft(kmer.scrollLeft());
-            sequences.scrollTop(kmer.scrollTop());
-            sequences.scrollLeft(kmer.scrollLeft());
-
-        });
-        overall.scroll(function () {
-            homopolymer.scrollTop(overall.scrollTop());
-            homopolymer.scrollLeft(overall.scrollLeft());
-            gccontent.scrollTop(overall.scrollTop());
-            gccontent.scrollLeft(overall.scrollLeft());
-            kmer.scrollTop(overall.scrollTop());
-            kmer.scrollLeft(overall.scrollLeft());
-            sequences.scrollTop(overall.scrollTop());
-            sequences.scrollLeft(overall.scrollLeft());
-        });
-        gccontent.scroll(function () {
-            homopolymer.scrollTop(gccontent.scrollTop());
-            homopolymer.scrollLeft(gccontent.scrollLeft());
-            overall.scrollLeft(gccontent.scrollLeft());
-            overall.scrollTop(gccontent.scrollTop());
-            kmer.scrollTop(gccontent.scrollTop());
-            kmer.scrollLeft(gccontent.scrollLeft());
-            sequences.scrollTop(gccontent.scrollTop());
-            sequences.scrollLeft(gccontent.scrollLeft());
-        });
-        sequences.scroll(function () {
-            homopolymer.scrollTop(sequences.scrollTop());
-            homopolymer.scrollLeft(sequences.scrollLeft());
-            overall.scrollLeft(sequences.scrollLeft());
-            overall.scrollTop(sequences.scrollTop());
-            kmer.scrollTop(sequences.scrollTop());
-            kmer.scrollLeft(sequences.scrollLeft());
-            gccontent.scrollTop(sequences.scrollTop());
-            gccontent.scrollLeft(sequences.scrollLeft());
-        });
-        homopolymer.scroll(function () {
-            gccontent.scrollTop(homopolymer.scrollTop());
-            gccontent.scrollLeft(homopolymer.scrollLeft());
-            overall.scrollLeft(homopolymer.scrollLeft());
-            overall.scrollTop(homopolymer.scrollTop());
-            kmer.scrollTop(homopolymer.scrollTop());
-            kmer.scrollLeft(homopolymer.scrollLeft());
-            sequences.scrollTop(homopolymer.scrollTop());
-            sequences.scrollLeft(homopolymer.scrollLeft());
-        });
-    </script>
     <!--{{ apikey }}-->
 
 {% endblock %}

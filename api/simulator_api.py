@@ -29,16 +29,18 @@ def do_gccontent():
     if request.method == 'POST':
         sequence = request.json.get('sequence')
         window = request.json.get('gc_windowsize')
+        error_prob_func = create_error_prob_function(request.json.get('error_prob'))
     else:
         sequence = request.args.get('sequence')
         window = request.args.get('gc_windowsize')
+        error_prob_func = create_error_prob_function(request.args.get('error_prob'))
     if window:
         try:
-            res = windowed_gc_content(sequence, int(window))
+            res = windowed_gc_content(sequence, int(window), error_function=error_prob_func)
         except:
-            res = overall_gc_content(sequence)
+            res = overall_gc_content(sequence, error_function=error_prob_func)
     else:
-        res = overall_gc_content(sequence)
+        res = overall_gc_content(sequence, error_function=error_prob_func)
     return jsonify(res)
 
 

@@ -101,9 +101,24 @@ class ErrorProbability(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     created = db.Column(db.Integer, default=timestamp)  # , onupdate=timestamp
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
-    #error_probability_user_user_id_fk = db.relationship('User', backref=backref("User", uselist=False))
+
+    # error_probability_user_user_id_fk = db.relationship('User', backref=backref("User", uselist=False))
 
     def __repr__(self):
         return '<ErrorProbability(id={}, owner={}) = {}>'.format(self.id, self.user_id, self.jsonblob)
 
+    @staticmethod
+    def serialize(ob, owner_id=None):
+        tmp = {
+            'id': ob.id,
+            'name': ob.name,
+            'type': ob.type,
+            'jsonblob': ob.jsonblob,
+            'validated': ob.validated,
+            'created': ob.created,
+            'user_id': ob.user_id,
+        }
+        if owner_id is not None:
+            tmp['isowner'] = owner_id == ob.user_id
+        return tmp
 ###############################################
