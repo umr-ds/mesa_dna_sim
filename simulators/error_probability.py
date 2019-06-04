@@ -28,6 +28,8 @@ def remove_duplicates(data, x_round):
 
 
 def create_error_prob_function(error_prob_dict):
+    if error_prob_dict is None:
+        return None
     if type(error_prob_dict) is str:
         error_prob_dict = json.loads(error_prob_dict)
 

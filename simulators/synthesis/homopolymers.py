@@ -12,15 +12,18 @@ def default_error_function(homopolymere_length, base=None):
         return 1.0
 
 
-def create_result(startpos, endpos, errorprob):
+def create_result(startpos, endpos, errorprob, i):
     res = dict()
     res['startpos'] = startpos
     res['endpos'] = endpos
     res['errorprob'] = errorprob
+    res['identifier'] = "homopolymer_" + str(i)
     return res
 
 
 def homopolymer(sequence, apply_for=None, error_function=default_error_function):
+    if error_function is None:
+        error_function = default_error_function
     # returns a list of dicts, each dict has the following entries: base, startpos, endpos, errorprob
     result = []
     if apply_for is None:
@@ -28,20 +31,23 @@ def homopolymer(sequence, apply_for=None, error_function=default_error_function)
     prev_char = sequence[0]
     curr_start_pos = 0
     length = len(sequence)
+    i = 0
     for char_pos in range(1, length):
         if prev_char != sequence[char_pos]:
             error_prob = error_function(char_pos - curr_start_pos)
             if error_prob > 0.0:
-                tmp = create_result(curr_start_pos, char_pos - 1, error_prob)
+                tmp = create_result(curr_start_pos, char_pos - 1, error_prob, i)
                 tmp['base'] = prev_char
                 result.append(tmp)
+                i += 1
             curr_start_pos = char_pos
             prev_char = sequence[char_pos]
     error_prob = error_function(length - curr_start_pos)
     if error_prob > 0.0:
-        tmp = create_result(curr_start_pos, length - 1, error_prob)
+        tmp = create_result(curr_start_pos, length - 1, error_prob, i)
         tmp['base'] = prev_char
         result.append(tmp)
+        i += 1
     return result
 
 

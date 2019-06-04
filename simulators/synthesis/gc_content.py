@@ -12,19 +12,23 @@ def default_error_function(gc_percentage, base=None):
         return (0.5 - gc_percentage) * 2
 
 
-def create_result(startpos, endpos, errorprob):
+def create_result(startpos, endpos, errorprob, identifier):
     res = dict()
     res['startpos'] = startpos
     res['endpos'] = endpos
     res['errorprob'] = errorprob
+    res['identifier'] = identifier
     return res
 
 
 def windowed_gc_content(sequence, window_size=15, error_function=default_error_function):
+    if error_function is None:
+        error_function = default_error_function
     # returns a list of dicts, each dict has the following entries: base, startpos, endpos, errorprob
     result = []
     length = len(sequence)
     no_windows = ceil(1.0 * length / window_size)
+    j = 0
     for i in range(no_windows):
         basecount = dict()
         window_sequence = sequence[i * window_size:min((i + 1) * window_size - 1, length)]
@@ -37,11 +41,15 @@ def windowed_gc_content(sequence, window_size=15, error_function=default_error_f
         gc_sum = 1.0 * ((basecount["G"] if "G" in basecount else 0.0) + (basecount["C"] if "C" in basecount else 0.0))
         error_prob = error_function(gc_sum / curr_length * 100.0)
         if error_prob > 0.0:
-            result.append(create_result(i * window_size, min((i + 1) * window_size - 1, length), error_prob))
+            result.append(create_result(i * window_size, min((i + 1) * window_size - 1, length), error_prob,
+                                        "window_gc_content_" + str(j)))
+            j += 1
     return result
 
 
 def overall_gc_content(sequence, error_function=default_error_function):
+    if error_function is None:
+        error_function = default_error_function
     # returns a list of dicts, each dict has the following entries: base, startpos, endpos, errorprob
     result = []
     length = len(sequence)
@@ -53,7 +61,7 @@ def overall_gc_content(sequence, error_function=default_error_function):
             basecount[sequence[char_pos]] = 1
     gc_sum = 1.0 * (basecount["G"] if "G" in basecount else 0.0 + basecount["C"] if "C" in basecount else 0.0)
     error_prob = error_function(gc_sum / length)
-    result.append(create_result(0, length, error_prob))
+    result.append(create_result(0, length, error_prob, "overall_gc_content_0"))
     return result
 
 

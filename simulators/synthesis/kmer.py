@@ -1,4 +1,9 @@
-def kmer_counting(seq, k=20, upper_bound=1, error_prob=0.000002):
+def default_error_function(kmer_amount):
+    # we might apply different rules based on what the user needs
+    return kmer_amount ** 2 * 0.000002
+
+
+def kmer_counting(seq, k=20, upper_bound=1, error_function=default_error_function):
     kmer_dict = {}
     kmer_pos = {}
     kmers = []
@@ -13,9 +18,9 @@ def kmer_counting(seq, k=20, upper_bound=1, error_prob=0.000002):
             kmer_dict[kmer] = 1
         else:
             kmer_dict[kmer] += 1
-    high_occ_kmers = [{'kmer': i, 'startpos': elem, 'endpos': elem + k - 1, 'errorprob': v ** 2 * error_prob} for i, v
-                      in
-                      kmer_dict.items() if v > upper_bound for elem in kmer_pos[i]]
+    high_occ_kmers = [{'kmer': i, 'startpos': elem, 'endpos': elem + k - 1, 'errorprob': error_function(v),
+                       'identifier': i} for i, v in kmer_dict.items() if v > upper_bound for elem in
+                      kmer_pos[i]]
 
     if high_occ_kmers:
         return high_occ_kmers  # sum(list(zip(*high_occ_kmers.values()))[1]), high_occ_kmers
