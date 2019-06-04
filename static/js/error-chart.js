@@ -421,3 +421,144 @@ function buildDropdown(result, dropdown, emptyMessage) {
         });
     }
 }
+
+/* Overlay / Chart-Display */
+
+function closeOverlay() {
+    let overlay = $("#overlay");
+    /*$("#overlay").css({
+        "opacity": "0",
+        "display": "none",
+    }).show().animate({opacity: 0}, 100).hide()*/
+    //todo save values to the corresponding array
+    overlay.css("display", "none");
+}
+
+function showOverlay(validated, editable, id, text, type) {
+    let overlay = $("#overlay");
+    let chartName = $("#chart-name");
+    /*$("#overlay").css({
+        "opacity": "1",
+        "display": "block",
+    }).show().animate({opacity: 1}, 100)*/
+    /*
+     * if editable == false, we can only safe a copy via "Save as ________"
+     * otherwise we want an "Update" Button +  "Delete" Buttton as well as an Option for "Save as ________"
+     * additinally we want to show Validated true false
+     */
+
+    $("#update-chart").prop('disabled', !editable);
+    $("#delete-chart").prop('disabled', !editable);
+    chartName.val(text);
+    chartName.data("id", id);
+    chartName.data("validated", validated);
+    chartName.data("type", type);
+
+    overlay.css("display", "block");
+    //setYValueAfterX(curr_chart, 0, 3);
+}
+
+function saveChart(host, apikey, create_copy) {
+    const chart_name = $('#chart-name');
+    $.post({
+        url: "http://" + host + "/api/update_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            name: chart_name.val(),
+            key: apikey,
+            chart_id: chart_name.data('id'),
+            jsonblob: serializeData(),
+            copy: create_copy,
+            type: chart_name.data('type')
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data["did_succeed"] === true) {
+                updateDropdown(host, apikey, chart_name.data('type'));
+                showOverlay(data["validated"], true, data["id"], data["name"], data["type"])
+            } else {
+                console.log(data)
+                //TODO show error
+            }
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function deleteChart(host, apikey) {
+    const chart_name = $('#chart-name');
+    $.post({
+        url: "http://" + host + "/api/delete_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            name: chart_name.val(),
+            key: apikey,
+            chart_id: chart_name.data('id'),
+            type: chart_name.data('type')
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data["did_succeed"] === true) {
+                updateDropdown(host, apikey, chart_name.data('type'));
+                deserializeDataAndLoadDraw(undefined, chart_name.data('type'));
+                showOverlay(true, false, -1, "New Graph", chart_name.data('type'));
+            } else {
+                console.log(data)
+                //TODO show error
+            }
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function updateDropdown(host, apikey, type) {
+    $.post({
+        url: "http://" + host + "/api/get_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            key: apikey,
+            type: type
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            let el = $('#' + type + '-dropdown');
+            el.empty(); // remove old options
+            $.each(data['charts'], function (id) {
+                let elem = data['charts'][id];
+                el.append($("<option></option>").text(elem['name']).data('jsonblob', elem['jsonblob'])
+                    .data('id', elem['id']).data('validated', elem['validated'])
+                    .data('isowner', elem['isowner']).data('type', elem['type']));
+            });
+            el.append($("<option></option>").text("New Graph").data('id', -1).data('validated', true)
+                .data('isowner', false).data('type', type).data('jsonblob', default_data_obj[type]));
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
