@@ -16,13 +16,13 @@ simulator_api = Blueprint("simulator_api", __name__, template_folder="templates"
 @require_apikey
 def do_homopolymer():
     if request.method == 'POST':
-        sequence = request.json.get('sequence')
-        error_prob_func = create_error_prob_function(request.json.get('error_prob'))
-        as_html = request.json.get('asHTML')
+        r_method = request.json
     else:
-        sequence = request.args.get('sequence')
-        error_prob_func = create_error_prob_function(request.args.get('error_prob'))
-        as_html = request.args.get('asHTML')
+        r_method = request.args
+
+    sequence = r_method.get('sequence')
+    error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
+    as_html = r_method.get('asHTML')
     res = homopolymer(sequence, error_function=error_prob_func)
     if as_html:
         return htmlify(res, sequence)
@@ -33,15 +33,14 @@ def do_homopolymer():
 @require_apikey
 def do_gccontent():
     if request.method == 'POST':
-        sequence = request.json.get('sequence')
-        window = request.json.get('gc_windowsize')
-        error_prob_func = create_error_prob_function(request.json.get('error_prob'))
-        as_html = request.json.get('asHTML')
+        r_method = request.json
     else:
-        sequence = request.args.get('sequence')
-        window = request.args.get('gc_windowsize')
-        error_prob_func = create_error_prob_function(request.args.get('error_prob'))
-        as_html = request.args.get('asHTML')
+        r_method = request.args
+
+    sequence = r_method.get('sequence')
+    window = r_method.get('gc_windowsize')
+    error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
+    as_html = r_method.get('asHTML')
     if window:
         try:
             res = windowed_gc_content(sequence, int(window), error_function=error_prob_func)
@@ -58,36 +57,37 @@ def do_gccontent():
 @require_apikey
 def do_kmer():
     if request.method == 'POST':
-        sequence = request.json.get('sequence')
-        window = request.json.get('kmer_windowsize')
-        as_html = request.json.get('asHTML')
+        r_method = request.json
     else:
-        sequence = request.args.get('sequence')
-        window = request.args.get('kmer_windowsize')
-        as_html = request.args.get('asHTML')
+        r_method = request.args
+
+    sequence = r_method.get('sequence')
+    window = r_method.get('kmer_windowsize')
+    error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
+    as_html = r_method.get('asHTML')
     if window:
         try:
-            res = kmer_counting(sequence, int(window))
+            res = kmer_counting(sequence, int(window), error_prob_func)
         except:
-            res = kmer_counting(sequence)
+            res = kmer_counting(sequence, error_function=error_prob_func)
     else:
-        res = kmer_counting(sequence)
+        res = kmer_counting(sequence, error_function=error_prob_func)
     if as_html:
         return htmlify(res, sequence)
     return jsonify(res)
 
 
 @simulator_api.route('/api/subsequences', methods=['GET', 'POST'])
-# @require_apikey
+@require_apikey
 def do_undesired_sequences():
     if request.method == 'POST':
-        sequence = request.json.get('sequence')
-        enabled_undesired_seqs = request.json.get('enabledUndesiredSeqs')
-        as_html = request.json.get('asHTML')
+        r_method = request.json
     else:
-        sequence = request.args.get('sequence')
-        enabled_undesired_seqs = request.args.get('enabledUndesiredSeqs')
-        as_html = request.args.get('asHTML')
+        r_method = request.args
+    sequence = r_method.get('sequence')
+    enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
+    as_html = r_method.get('asHTML')
+
     if enabled_undesired_seqs:
         try:
             undesired_sequences = {}
@@ -109,19 +109,17 @@ def do_undesired_sequences():
 def do_all():
     # TODO
     if request.method == 'POST':
-        sequence = request.json.get('sequence')
-        kmer_window = request.json.get('kmer_windowsize')
-        gc_window = request.json.get('gc_windowsize')
-        enabled_undesired_seqs = request.json.get('enabledUndesiredSeqs')
-        error_prob_func = create_error_prob_function(request.json.get('error_prob'))
-        as_html = request.json.get('asHTML')
+        r_method = request.json
     else:
-        sequence = request.args.get('sequence')
-        kmer_window = request.args.get('kmer_windowsize')
-        gc_window = request.args.get('gc_windowsize')
-        enabled_undesired_seqs = request.args.get('undesired_seqs')
-        error_prob_func = create_error_prob_function(request.args.get('error_prob'))
-        as_html = request.args.get('asHTML')
+        r_method = request.args
+    sequence = r_method.get('sequence')
+    kmer_window = r_method.get('kmer_windowsize')
+    gc_window = r_method.get('gc_windowsize')
+    enabled_undesired_seqs = r_method.get('undesired_seqs')
+    gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
+    homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
+    kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
+    as_html = r_method.get('asHTML')
 
     if enabled_undesired_seqs:
         try:
@@ -134,24 +132,35 @@ def do_all():
             res = undesired_subsequences(sequence)
     else:
         res = undesired_subsequences(sequence)
+    usubseq_html = htmlify(res, sequence)
     if kmer_window:
         try:
-            res.extend(kmer_counting(sequence, int(kmer_window)))
+            kmer_res = kmer_counting(sequence, int(kmer_window), error_function=kmer_error_prob_func)
         except:
-            res.extend(kmer_counting(sequence))
+            kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
     else:
-        res.extend(kmer_counting(sequence))
+        kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
+
+    res.extend(kmer_res)
     if gc_window:
         try:
-            res.extend(windowed_gc_content(sequence, int(gc_window), error_function=error_prob_func))
+            gc_window_res = windowed_gc_content(sequence, int(gc_window), error_function=gc_error_prob_func)
         except:
-            res.extend(overall_gc_content(sequence, error_function=error_prob_func))
+            gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
     else:
-        res.extend(overall_gc_content(sequence, error_function=error_prob_func))
+        gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
 
-    res.extend(homopolymer(sequence, error_function=error_prob_func))  # TODO use different error_prob_func!!!
+    res.extend(gc_window_res)
+    homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
+
+    res.extend(homopolymer_res)
     if as_html:
-        return htmlify(res, sequence)
+        kmer_html = htmlify(kmer_res, sequence)
+        gc_html = htmlify(gc_window_res, sequence)
+        homopolymer_html = htmlify(homopolymer_res, sequence)
+        return jsonify(
+            {'subsequences': usubseq_html, 'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+             'all': htmlify(res, sequence)})
     return jsonify(res)
 
 
@@ -178,11 +187,11 @@ def build_html(interval_tree, sequence):
             if error_prob <= 0.000000001:
                 res += "<span>" + str(sequence[interval[0]:interval[1]]) + "</span>"
             else:
-                res += "<span class=\"group_" + " group_".join(
+                res += "<span class=\"g_" + " g_".join(
                     [str(x.get('identifier')) for x in interval[2] if str(x.get('identifier')) != "all"]) + \
                        "\" title=\"Error Probability: " + str(round(error_prob * 100, 2)) + \
                        "%\" style=\"background-color: " + colorize(error_prob) + \
-                       "; color: gray; font-weight: normal;\">" + sequence[interval[0]:interval[1]] + "</span>"
+                       ";\">" + sequence[interval[0]:interval[1]] + "</span>"
     return res
 
 
@@ -206,7 +215,7 @@ def htmlify_old(input, sequence, type):
     for seq_pos in range(len(sequence)):
         if seq_pos in resmapping:
             curr_err_prob = round(min(100, error_prob[seq_pos] * 100), 2)
-            res += "<span class=\"group_" + type + "_" + (" group_" + type + "_").join(
+            res += "<span class=\"g_" + type + "_" + (" g_" + type + "_").join(
                 [str(x) for x in resmapping[seq_pos]]) + \
                    "\" title=\"Error Probability: " + str(curr_err_prob) + \
                    "%\" style=\"background-color: " + colorize(curr_err_prob / 100) + \

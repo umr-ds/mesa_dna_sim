@@ -13,7 +13,8 @@ from usersettings.logout import logout
 from usersettings.register import signup
 from usersettings.validate import validate
 
-if __name__ == "__main__":
+
+def main():
     # for debug purpose:
     # os.environ['REDIS_SERVER'] = '172.23.0.2'
     # os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.23.0.3:5432/dna_sim'
@@ -41,9 +42,12 @@ if __name__ == "__main__":
 
     app.register_error_handler(404, page_not_found)
     # from database import db
-
     # db.init_app(app)
-
     # db.create_all(app=create_app())
+    return app
+
+
+if __name__ == "__main__":
+    app = main()
     port = int(os.environ.get("API_PORT", 5000))
     app.run(host=os.environ.get("API_IP", "0.0.0.0"), port=port)

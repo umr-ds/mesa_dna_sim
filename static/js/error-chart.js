@@ -5,6 +5,8 @@ let dragXcol = '#209cee';
 let interpolcol = '#50ee0a';
 let xLabelString = 'Homopolymer length';
 
+let default_graph_name = "Default Graph"; //"New Graph";
+
 let xRoundingFactor = 0;
 let yRoundingFactor = 2;
 let maximumY = 100;
@@ -14,6 +16,10 @@ let maximumX = 20;
 let default_homopolymer_data = "{\"data\":[{\"x\":0,\"y\":0},{\"x\":2,\"y\":0},{\"x\":4,\"y\":20},{\"x\":5,\"y\":50}," +
     "{\"x\":6,\"y\":80},{\"x\":7,\"y\":100},{\"x\":20,\"y\":100}],\"interpolation\":true,\"maxX\":20," +
     "\"maxY\":100,\"xRound\":0,\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"Homopolymer length\"}";
+
+let default_kmer_data = "{\"data\":[{\"x\":0,\"y\":0},{\"x\":6,\"y\":0.15},{\"x\":12,\"y\":0.85},{\"x\":22,\"y\":4.73}," +
+    "{\"x\":40,\"y\":18.2},{\"x\":60,\"y\":40.7},{\"x\":79,\"y\":67.36},{\"x\":100,\"y\":100}],\"interpolation\":true," +
+    "\"maxX\":20,\"maxY\":100,\"xRound\":0,\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"Kmer repeats\"}";
 
 let default_gc_content_data = "{\"data\":[{\"x\":0,\"y\":100},{\"x\":30,\"y\":100},{\"x\":40,\"y\":0},{\"x\":60.17,\"y\":0}," +
     "{\"x\":70,\"y\":100},{\"x\":100,\"y\":100}],\"interpolation\":true,\"maxX\":100,\"maxY\":100,\"xRound\":0," +
@@ -25,19 +31,29 @@ let default_gc_content_data_obj = {
     "label": "Error Probability", "xLabel": "GC-Percentage"
 };
 
+
 const default_homopolymer_data_obj = {
     "data": [{"x": 0, "y": 0}, {"x": 2, "y": 0}, {"x": 4, "y": 20}, {"x": 5, "y": 50},
         {"x": 6, "y": 80}, {"x": 7, "y": 100}, {"x": 20, "y": 100}], "interpolation": true, "maxX": 20,
     "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Homopolymer length"
 };
 
+const default_kmer_data_obj = {
+    "data": [{"x": 0, "y": 0}, {"x": 6, "y": 0.15}, {"x": 12, "y": 0.85}, {"x": 22, "y": 4.73}, {"x": 40, "y": 18.2},
+        {"x": 60, "y": 40.7}, {"x": 79, "y": 67.36}, {"x": 100, "y": 100}], "interpolation": true, "maxX": 20,
+    "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Homopolymer length"
+};
+
 const default_data_obj = {
     'gc': default_gc_content_data_obj,
-    'homopolymer': default_homopolymer_data_obj
+    'homopolymer': default_homopolymer_data_obj,
+    'kmer': default_kmer_data_obj
 };
+
 const defaults = {
     "homopolymer": default_homopolymer_data,
     "gc": default_gc_content_data,
+    'kmer': default_kmer_data,
     undefined: default_gc_content_data
 };
 
@@ -177,7 +193,7 @@ function toogleDragX() {
 }
 
 function addPoint(x_val, y_val) {
-    x_val = Math.min(round(Number(x_val), xRoundingFactor), maximumX);
+    x_val = round(Number(x_val), xRoundingFactor); // we might want to enforce using Math.min(maximumX, ...)
     y_val = Math.min(round(Number(y_val), yRoundingFactor), maximumY);
     curr_chart.data.datasets.forEach((dataset) => {
         var found = dataset.data.findIndex(function (element) {
@@ -516,7 +532,7 @@ function deleteChart(host, apikey) {
             if (data["did_succeed"] === true) {
                 updateDropdown(host, apikey, chart_name.data('type'));
                 deserializeDataAndLoadDraw(undefined, chart_name.data('type'));
-                showOverlay(true, false, -1, "New Graph", chart_name.data('type'));
+                showOverlay(true, false, -1, default_graph_name, chart_name.data('type'));
             } else {
                 console.log(data)
                 //TODO show error
@@ -553,7 +569,7 @@ function updateDropdown(host, apikey, type) {
                     .data('id', elem['id']).data('validated', elem['validated'])
                     .data('isowner', elem['isowner']).data('type', elem['type']));
             });
-            el.append($("<option></option>").text("New Graph").data('id', -1).data('validated', true)
+            el.append($("<option></option>").text(default_graph_name).data('id', -1).data('validated', true)
                 .data('isowner', false).data('type', type).data('jsonblob', default_data_obj[type]));
         },
         fail: function (data) {

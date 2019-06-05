@@ -125,6 +125,7 @@ window.onload = function () {
             setApikey("{{ host }}", "{{ apikey }}");
             updateDropdown("{{ host }}", "{{ apikey }}", "gc");
             updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
+            updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
 
             let chart = $('#myChart');
             chart.dblclick(function (e) {
@@ -190,43 +191,17 @@ window.onload = function () {
             <table>
                 <tr>
                     <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>GC Window-Size</span></label>
-                    </td>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>Kmer Window-Size</span></label>
-                    </td>
-                    <td>
-                        <nobr><span>Limit Alphabet: </span><label class="switch">
+                        <nobr><label for="limitedChars">Limit Alphabet:</label><label class="switch">
                             <input class="switch" type="checkbox" id="limitedChars" checked/>
                             <span class="slider round"></span></label>
                         </nobr>
                     </td>
+                </tr>
+                <tr>
                     <td>
-                        <select id="homopolymer-dropdown">
-                            <!--{% for chart in homopolymer_charts %}
-
-                                <option data-id="{{ chart.id }}" data-type="homopolymer"
-                                        data-validated="{{ chart.validated }}"
-                                        data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
-                            {% endfor %}
-                            <option data-id="-1" data-type="homopolymer"
-                                    data-validated="false" data-isowner="false">New Graph
-                            </option>-->
-                        </select>
-                    </td>
-                    <td>
-                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
-                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
-                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
-                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'));"
-                               value="Change Homopolymer Probability">
+                        <label class="form-group has-float-label">
+                            <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
+                                   required min="0" step="1"><span>GC Window-Size</span></label>
                     </td>
                     <td>
                         <select id="gc-dropdown">
@@ -250,6 +225,51 @@ window.onload = function () {
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
                                value="Change GC Probability">
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <label class="form-group has-float-label">
+                            <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
+                                   required min="0" step="1"><span>Kmer Window-Size</span></label>
+                    </td>
+                    <td>
+                        <select id="kmer-dropdown"></select>
+                    </td>
+                    <td>
+                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
+                               onclick="let dropdown_select = $('#kmer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'));"
+                               value="Change Kmer Probability">
+                    </td>
+                </tr>
+                <tr>
+                    <td></td>
+                    <td>
+                        <label for="homopolymer-dropdown"></label><select id="homopolymer-dropdown">
+                        <!--{% for chart in homopolymer_charts %}
+
+                                <option data-id="{{ chart.id }}" data-type="homopolymer"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
+                            {% endfor %}
+                            <option data-id="-1" data-type="homopolymer"
+                                    data-validated="false" data-isowner="false">New Graph
+                            </option>-->
+                    </select>
+                    </td>
+                    <td>
+                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
+                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'));"
+                               value="Change Homopolymer Probability">
                     </td>
                 </tr>
             </table>
@@ -336,7 +356,7 @@ window.onload = function () {
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Subsequences: </h3>
-        <ul class="text_lettering" id="subsequences" style="overflow-x: auto;"></ul>
+        <div class="text_lettering" id="subsequences" style="overflow-x: auto;"></div>
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Overall: </h3>

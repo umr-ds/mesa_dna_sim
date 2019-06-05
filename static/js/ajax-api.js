@@ -7,7 +7,7 @@ function setApikey(hst, key) {
 }
 
 function makeHoverGroups() {
-    $('span[class^="group_" ],span[class*=" group_"]').each(function () {
+    $('span[class^="g_" ],span[class*=" g_"]').each(function () {
         let cls = $(this).attr('class').split(" ");
         $("." + cls[cls.length - 1]).hover(function () {
             $("." + cls[cls.length - 1]).css('font-weight', "bold");
@@ -73,41 +73,52 @@ $(document).ready(function () {
 
         //for (var mode in endpoints) {
 
-        let endpoints = {"gccontent": gccontent, "homopolymer": homopolymer, "kmer": kmer, "subsequences": sequences};
+        let endpoints = {
+            "gccontent": gccontent,
+            "homopolymer": homopolymer,
+            "kmer": kmer,
+            "subsequences": sequences,
+            "all": overall
+        };
         //endpoints.keys().forEach(function (mode) {
-        for (let mode in endpoints) {
-            let error_prob = undefined;
-            if (mode === "gccontent") {
-                let dropdown_select = $('#gc-dropdown option:selected');
-                error_prob = dropdown_select.data('jsonblob');
-                if (typeof (error_prob) === "string")
-                    error_prob = JSON5.parse(error_prob);
-            } else if (mode === "homopolymer") {
-                let dropdown_select = $('#homopolymer-dropdown option:selected');
-                error_prob = dropdown_select.data('jsonblob');
-                if (typeof (error_prob) === "string")
-                    error_prob = JSON5.parse(error_prob);
-            } else {
-                let dropdown_select = $('#homopolymer-dropdown option:selected');
-                error_prob = dropdown_select.data('jsonblob');
-                if (typeof (error_prob) === "string")
-                    error_prob = JSON5.parse(error_prob);
-            }
+
+        let gc_dropdown_select = $('#gc-dropdown option:selected');
+        let gc_error_prob = gc_dropdown_select.data('jsonblob');
+        if (typeof (gc_error_prob) === "string")
+            gc_error_prob = JSON5.parse(gc_error_prob);
+
+        let homopolymer_dropdown_select = $('#homopolymer-dropdown option:selected');
+        let homopolymer_error_prob = homopolymer_dropdown_select.data('jsonblob');
+        if (typeof (homopolymer_error_prob) === "string")
+            homopolymer_error_prob = JSON5.parse(homopolymer_error_prob);
+
+        let kmer_dropdown_select = $('#kmer-dropdown option:selected');
+        let kmer_error_prob = kmer_dropdown_select.data('jsonblob');
+        if (typeof (kmer_error_prob) === "string")
+            kmer_error_prob = JSON5.parse(kmer_error_prob);
+
+        for (let mode in {"all": overall}) {
             $.post({
                 url: "http://" + host + "/api/" + mode,
                 contentType: 'application/json;charset=UTF-8',
+                dataType: 'json',
                 data: JSON.stringify({
                     sequence: sequence,
                     key: apikey,
                     enabledUndesiredSeqs: extractUndesiredToJson(),
                     kmer_windowsize: $('#kmer_window_size').val(),
                     gc_windowsize: $('#gc_window_size').val(),
-                    error_prob: error_prob,
+                    error_prob: gc_error_prob,
+                    gc_error_prob: gc_error_prob,
+                    homopolymer_error_prob: homopolymer_error_prob,
+                    kmer_error_prob: kmer_error_prob,
                     asHTML: true
                 }),
                 async: true,
                 success: function (data) {
-                    endpoints[mode].html(data);
+                    for (let error_source in data) {
+                        endpoints[error_source].html(data[error_source]);
+                    }
                     makeHoverGroups();
                 },
                 fail: function (data) {
@@ -119,8 +130,6 @@ $(document).ready(function () {
                 }
             });
         }
-        ;
-        //alert("Handler for .submit() called.");
     });
 });
 
