@@ -1,12 +1,12 @@
 import re
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
-from sqlalchemy import desc, or_
+from sqlalchemy import desc, or_, and_
 
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
-from database.models import User, Apikey, UndesiredSubsequences
+from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability
 from usersettings.login import require_logged_in, check_password
 from usersettings.register import gen_password
 
@@ -92,14 +92,22 @@ def query_sequence():
     undesired_sub_seq = UndesiredSubsequences.query.filter(
         or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
         desc(UndesiredSubsequences.id)).all()
+    gc_charts = ErrorProbability.query.filter(
+        and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
+             ErrorProbability.type == "gc")).order_by(desc(ErrorProbability.id)).all()
+    homopolymer_charts = ErrorProbability.query.filter(
+        and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
+             ErrorProbability.type == "homopolymer")).order_by(desc(ErrorProbability.id)).all()
     if request.method == "POST":
         sequence = request.json.get('sequence')
         return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence,
-                               usubsequence=undesired_sub_seq)
+                               usubsequence=undesired_sub_seq, gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
+                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in homopolymer_charts])
     else:
         sequence = request.args.get('sequence')
         return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host,
-                               usubsequence=undesired_sub_seq)
+                               usubsequence=undesired_sub_seq, gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
+                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in homopolymer_charts])
 
 
 @main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
@@ -139,7 +147,7 @@ def add_subsequences():
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitize_input(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
-    description = sanitize_input(request.form.get('description'))
+    description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
     if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -165,7 +173,7 @@ def update_subsequences():
     sequence_id = request.form.get('sequence_id')
     sequence = sanitize_input(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
-    description = sanitize_input(request.form.get('description'))
+    description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
     if user_id and user and sequence_id is not None and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -187,6 +195,81 @@ def update_subsequences():
         return jsonify({'did_succeed': False})
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z]'):
+@main_page.route("/api/update_error_prob_charts", methods=['POST'])
+@require_logged_in
+def update_error_prob_charts():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    id = request.json.get('chart_id')
+    jsonblob = request.json.get('jsonblob')  # .replace(">", "").replace("<", "")
+    name = sanitize_input(request.json.get('name'), r'[^a-zA-Z0-9() ]')
+    type = sanitize_input(request.json.get('type'), r'[^a-zA-Z0-9]')
+    copy = bool(request.json.get('copy'))
+    if user_id and user and id is not None and jsonblob is not None and jsonblob != "" and name is not None:
+        try:
+            # check if an entry exists for the given id AND user --> only entrys for the current user might be updated
+            curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+            if curr_error_prob is None or copy:
+                curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id,
+                                                   type=type)
+                db.session.add(curr_error_prob)
+            else:
+                curr_error_prob.jsonblob = jsonblob
+                curr_error_prob.validated = False
+                curr_error_prob.name = name
+                curr_error_prob.type = type
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'jsonblob': curr_error_prob.jsonblob, 'id': curr_error_prob.id,
+                 'created': curr_error_prob.created, 'validated': curr_error_prob.validated,
+                 'name': curr_error_prob.name, 'type': curr_error_prob.type})
+        except Exception as ex:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/delete_error_prob_charts", methods=['POST'])
+@require_logged_in
+def delete_error_prob_chart():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    chart_id = request.json.get('chart_id')
+    try:
+        if user_id and user and chart_id is not None:
+            error_prob_chart = ErrorProbability.query.filter_by(user_id=user_id, id=chart_id).first()
+            db.session.delete(error_prob_chart)
+            db.session.commit()
+            return jsonify({"did_succeed": True, "deleted_id": chart_id})
+        else:
+            return jsonify({"did_succeed": False, "deleted_id": chart_id})
+    except:
+        return jsonify({"did_succeed": False, "deleted_id": chart_id})
+
+
+@main_page.route("/api/get_error_prob_charts", methods=['GET', 'POST'])
+@require_logged_in
+def get_error_prob_chart():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    if request.method == "POST":
+        typ = request.json.get('type')
+    else:
+        typ = request.args.get('type')
+    try:
+        if user_id and user and typ is not None:
+            charts = ErrorProbability.query.filter(
+                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated is True),
+                     ErrorProbability.type == typ)).order_by(desc(ErrorProbability.id)).all()
+
+            return jsonify(
+                {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
+        else:
+            return jsonify({'did_succeed': False})
+    except Exception as x:
+        return jsonify({'did_succeed': False})
+
+
+def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
     result = re.sub(regex, "", input)
     return result

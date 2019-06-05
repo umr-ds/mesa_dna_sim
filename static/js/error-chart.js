@@ -10,6 +10,37 @@ let yRoundingFactor = 2;
 let maximumY = 100;
 let maximumX = 20;
 
+
+let default_homopolymer_data = "{\"data\":[{\"x\":0,\"y\":0},{\"x\":2,\"y\":0},{\"x\":4,\"y\":20},{\"x\":5,\"y\":50}," +
+    "{\"x\":6,\"y\":80},{\"x\":7,\"y\":100},{\"x\":20,\"y\":100}],\"interpolation\":true,\"maxX\":20," +
+    "\"maxY\":100,\"xRound\":0,\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"Homopolymer length\"}";
+
+let default_gc_content_data = "{\"data\":[{\"x\":0,\"y\":100},{\"x\":30,\"y\":100},{\"x\":40,\"y\":0},{\"x\":60.17,\"y\":0}," +
+    "{\"x\":70,\"y\":100},{\"x\":100,\"y\":100}],\"interpolation\":true,\"maxX\":100,\"maxY\":100,\"xRound\":0," +
+    "\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"GC-Percentage\"}";
+
+let default_gc_content_data_obj = {
+    "data": [{"x": 0, "y": 100}, {"x": 30, "y": 100}, {"x": 40, "y": 0}, {"x": 60.17, "y": 0}, {"x": 70, "y": 100},
+        {"x": 100, "y": 100}], "interpolation": true, "maxX": 100, "maxY": 100, "xRound": 2, "yRound": 2,
+    "label": "Error Probability", "xLabel": "GC-Percentage"
+};
+
+const default_homopolymer_data_obj = {
+    "data": [{"x": 0, "y": 0}, {"x": 2, "y": 0}, {"x": 4, "y": 20}, {"x": 5, "y": 50},
+        {"x": 6, "y": 80}, {"x": 7, "y": 100}, {"x": 20, "y": 100}], "interpolation": true, "maxX": 20,
+    "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Homopolymer length"
+};
+
+const default_data_obj = {
+    'gc': default_gc_content_data_obj,
+    'homopolymer': default_homopolymer_data_obj
+};
+const defaults = {
+    "homopolymer": default_homopolymer_data,
+    "gc": default_gc_content_data,
+    undefined: default_gc_content_data
+};
+
 /**
  * loads ne Data and draws the graph into the canvas
  * @param data list of dicts ( e.g.: [{x:0.0, y:0.0},{x:1.0,y:10.5}, ...]
@@ -23,23 +54,38 @@ let maximumX = 20;
  */
 function loadAndDrawData(data, useInterpolation, label, xRoundF, yRoundF, maxX, maxY, xLabel) {
     if (curr_chart !== undefined) {
-        curr_chart.clear();
+        curr_chart.destroy();
         curr_chart = undefined;
     }
     curr_dataset = constructDataset(data, label, useInterpolation);
-    if (useCubicInterpolation !== useInterpolation)
-        toogleCubicInterpolation();
     xRoundingFactor = xRoundF;
     yRoundingFactor = yRoundF;
     maximumX = maxX;
     maximumY = maxY;
     xLabelString = xLabel;
     drawGraph();
+    if (useCubicInterpolation !== useInterpolation)
+        toogleCubicInterpolation();
 }
 
-function deserializeDataAndLoadDraw(serial_data) {
-    const json_dict = JSON.parse(serial_data);
-    return loadAndDrawData(json_dict["data"], json_dict["interpolation"], json_dict["xRound"],
+/**
+ * dropdown_select.data('jsonblob'),
+ dropdown_select.data('type'), dropdown_select.data('validated'),
+ dropdown_select.data(id), dropdown_select.text()
+ * @param serial_data
+ * @param type
+ */
+function deserializeDataAndLoadDraw(serial_data, type) {
+
+    if (serial_data === undefined) {
+        serial_data = defaults[type];
+    }
+    if (typeof serial_data === "string") {
+        serial_data = serial_data.replace(/True/g, 'true');
+        serial_data = JSON5.parse(serial_data);
+    }
+    const json_dict = serial_data;
+    return loadAndDrawData(json_dict["data"], json_dict["interpolation"], json_dict["label"], json_dict["xRound"],
         json_dict["yRound"], json_dict["maxX"], json_dict["maxY"], json_dict["xLabel"]);
 }
 
@@ -47,16 +93,16 @@ function serializeData() {
     if (curr_chart === undefined)
         drawGraph(); // just to initialize everything...
     let dataset = curr_chart.data.datasets[0];
-    return JSON.stringify({
-        data: dataset.data,
-        interpolation: dataset.cubicInterpolationMode === "monotone",
-        maxX: maximumX,
-        maxY: maximumY,
-        xRound: xRoundingFactor,
-        yRound: yRoundingFactor,
-        label: dataset.label,
-        xLabel: xLabelString
-    });
+    return {
+        "data": dataset.data,
+        "interpolation": dataset.cubicInterpolationMode === "monotone",
+        "maxX": maximumX,
+        "maxY": maximumY,
+        "xRound": xRoundingFactor,
+        "yRound": yRoundingFactor,
+        "label": dataset.label,
+        "xLabel": xLabelString
+    };
 }
 
 function toogleCubicInterpolation() {
@@ -358,4 +404,20 @@ function sortData() {
         });
     });
     curr_chart.update();
+}
+
+
+function buildDropdown(result, dropdown, emptyMessage) {
+    // Remove current options
+    dropdown.html('');
+    // Add the empty option with the empty message
+    dropdown.append('<option value="">' + emptyMessage + '</option>');
+    // Check result isn't empty
+    if (result !== '') {
+        // Loop through each of the results and append the option to the dropdown
+        $.each(result, function (k, v) {
+            dropdown.append('<option data-editable="' + v.editable + '" data-jsonblob="' + v.content + '">' +
+                v.name + '</option>');
+        });
+    }
 }

@@ -1,0 +1,43 @@
+.select-wrapper {
+    position: relative;
+    width: 200px;
+}
+
+.select-wrapper::before {
+    color: #fff;
+    font-size: 20px;
+    pointer-events: none;
+    position: absolute;
+    right: 15px;
+    top: 10px;
+}
+
+select {
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8nwYAAmoBZ0eMiB8AAAAASUVORK5CYII=) repeat;
+    border: none;
+    border-radius: 3px;
+    box-shadow: 2px 2px 5px 1px rgba(0, 0, 0, .3);
+    color: #fff;
+    cursor: pointer;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    height: 40px;
+    outline: none;
+    padding-left: 10px;
+    width: 100%;
+}
+
+select option {
+    color: #666;
+}
+
+select::-ms-expand {
+    display: none;
+}
+
+select:focus::-ms-value {
+    background-color: transparent;
+}

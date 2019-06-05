@@ -3,6 +3,7 @@ from math import ceil
 
 def default_error_function(gc_percentage, base=None):
     # we might apply different rules based on what the user needs
+    gc_percentage = 1.0 * gc_percentage / 100.0
     if 0.5 <= gc_percentage <= 0.6:
         return 0
     elif gc_percentage > 0.6:
@@ -34,7 +35,7 @@ def windowed_gc_content(sequence, window_size=15, error_function=default_error_f
             else:
                 basecount[window_sequence[char_pos]] = 1
         gc_sum = 1.0 * ((basecount["G"] if "G" in basecount else 0.0) + (basecount["C"] if "C" in basecount else 0.0))
-        error_prob = error_function(gc_sum / curr_length)
+        error_prob = error_function(gc_sum / curr_length * 100.0)
         if error_prob > 0.0:
             result.append(create_result(i * window_size, min((i + 1) * window_size - 1, length), error_prob))
     return result
