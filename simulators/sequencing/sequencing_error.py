@@ -3,6 +3,16 @@ import numpy as np
 import random
 import re
 
+err_rates = {"1": None, "2": None, "3": {"raw_rate": 0.02, "mismatch": 0.75, "deletion": 0.20, "insertion": 0.05},
+             "4": {"raw_rate": 0.14, "mismatch": 0.37, "deletion": 0.21, "insertion": 0.42},
+             "5": {"raw_rate": 0.2, "mismatch": 0.48, "deletion": 0.37, "insertion": 0.15},
+             "6": {"raw_rate": 0.13, "mismatch": 0.41, "deletion": 0.36, "insertion": 0.23}}
+
+mutation_attributes = {"1": None, "2": None, "3": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.85, "random": 0.15},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}}, "mismatch": {"pattern": {"CG": ["CA", "TG"]}}},
+                       "4": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}}, "mismatch": {"pattern": {"CG": ["CA", "TG"]}}},
+                       "5": {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.46, "random": 0.54},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}},
+                       "6": {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.46, "random": 0.54},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}}
+
 
 class SequencingError:
     """
@@ -15,12 +25,13 @@ class SequencingError:
     -- mismatches with and without patterns (preferred bases) randomly or
     specific motives that are switched (e.g. TAC -> TGC)
     """
-    def __init__(self, seq, attributes):
+    def __init__(self, seq, attributes=None, error_rates=None):
         self.bases = ['A', 'T', 'C', 'G']
         self.checks = {'ins_no_prob': None, 'ins_no_pos': None, 'ins_poly_w': None, 'ins_poly_wo': None,
                        'del_no_prob': None, 'del_no_pos': None, 'del_poly_w': None, 'del_poly_wo': None,
                        'mis_no_prob': None, 'mis_no_pos': None}
         self.attributes = attributes
+        self.error_rates = error_rates
         self.seq = seq
         self.out_seq = None
 
@@ -201,17 +212,21 @@ class SequencingError:
 
         return position, pattern, position_range
 
-    def lit_error_rate_mutations(self, mutation_list):
+    def lit_error_rate_mutations(self, mutation_list=['insertion', 'deletion', 'mismatch']):
         assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
                    mutation_list), 'Supported types of mutation are: "deletion", "mismatch" and "insertion".'
-        out_seq = self.in_seq
+        out_seq = self.seq
         for mutation_type in mutation_list:
-            err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
+            if self.error_rates is not None:
+                err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
+            else:
+                err_rate = 0
             if self.attributes is False:
                 self.seq = eval('self.' + mutation_type)(err_rate)
             else:
                 for n in range(round((len(out_seq) * err_rate))):
                     self.seq = eval('self.' + mutation_type)()
+        return self.seq
 
     def manual_mutation(self, error):
         if random.random() <= error['errorprob']:
@@ -219,5 +234,5 @@ class SequencingError:
             m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]
             mut_type = np.random.choice(m_types, p=m_weights)
             att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
-            self.out_seq = eval('self.' + mut_type)(self.in_seq, att)
+            self.out_seq = eval('self.' + mut_type)(self.seq, att)
 

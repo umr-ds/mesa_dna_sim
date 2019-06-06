@@ -382,7 +382,6 @@ window.onload = function () {
                         </select>
                     </td>
                     <td>
-<<<<<<< HEAD
                         <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
                                onclick="let dropdown_select = $('#gc-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
@@ -390,33 +389,36 @@ window.onload = function () {
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
                                value="Change GC Probability">
-=======
+                        <!-- values 1-7 correspond to the submethod id in the database -->
+                        <!-- I either have to change the database entries for 0, 8 and 9 -->
+                        <!-- or intercept these values before the database request.  -->
                         <label for="seqmeth">Sequencing Method:</label>
                         <select id="seqmeth">
                           <optgroup label="None">
-                            <option selected>None</option>
+                            <option value="0" selected>None</option>
                           </optgroup>
                           <optgroup label="Illumina">
-                            <option>Single End</option>
-                            <option>Paired End</option>
+                            <option value="1">Single End</option>
+                            <option value="2">Paired End</option>
                           </optgroup>
                           <optgroup label="PacBio">
-                            <option>Subread</option>
-                            <option>CCS</option>
+                            <option value="4">Subread</option>
+                            <option value="3">CCS</option>
                           </optgroup>
                           <optgroup label="Nanopore">
-                            <option>1D</option>
-                            <option>2D</option>
+                            <option value="5">1D</option>
+                            <option value="6">2D</option>
                           </optgroup>
                           <optgroup label="User defined">
-                            <option>Error Rates</option>
-                            <option>Error Attributes</option>
-                            <option>Rates and Attributes</option>
+                            <option value="7">Error Rates</option>
+                            <option value="8">Error Attributes</option>
+                            <option value="9">Rates and Attributes</option>
                           </optgroup>
->>>>>>> Integrated error rates and attributes to database.
+                        </select>
                     </td>
                 </tr>
             </table>
+
             <br/>
             <input type="checkbox" id="spoiler"/>
             <label style="white-space: nowrap; display:unset" for="spoiler">Manage Subsequences</label>
@@ -540,6 +542,8 @@ window.onload = function () {
                 let sequences = $('#subsequences');
                 let kmer = $('#kmer');
                 let overall = $('#overall');
+                let mod_seq  = $('#mod_seq');
+
                 homopolymer.text(sequence);
                 gccontent.text(sequence);
                 sequences.text(sequence);
@@ -590,6 +594,7 @@ window.onload = function () {
                             kmer_windowsize: $('#kmer_window_size').val(),
                             gc_windowsize: $('#gc_window_size').val(),
                             error_prob: error_prob
+                            sequence_method: $("#seqmeth option:selected").val()
                         }),
                         async: true,
                         beforeSend: function (xhr) {
@@ -599,7 +604,9 @@ window.onload = function () {
                         },
                         success: function (data) {
                             //$("#spoiler3_label").click();
-                            //let obj = jQuery.parseJSON(data);
+                            if( mode == "sequencing") {
+                                mod_seq.text(data);
+                            }
                             let curr_group = 0;
                             for (let block_num in data) {
                                 for (let i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
@@ -740,6 +747,11 @@ window.onload = function () {
     <div class="box">
         <h3 class="subtitle" style="color: black"> Overall: </h3>
         <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
+    </div>
+        <h2 class="subtitle"> Result of the Error Simulation: </h2>
+    <div class="box">
+        <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>
+        <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
     </div>
 
     <!--
