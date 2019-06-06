@@ -191,7 +191,8 @@ window.onload = function () {
             <table>
                 <tr>
                     <td>
-                        <nobr><label for="limitedChars">Limit Alphabet:</label><label class="switch">
+                        <nobr><label for="limitedChars">Limit Alphabet:</label><label class="switch"
+                                                                                      style="padding-top: 22px;">
                             <input class="switch" type="checkbox" id="limitedChars" checked/>
                             <span class="slider round"></span></label>
                         </nobr>
@@ -344,23 +345,23 @@ window.onload = function () {
     <h2 class="subtitle"> Your Results: </h2>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Homopolymers: </h3>
-        <ul class="text_lettering" id="homopolymer" style="overflow-x: auto;"></ul>
+        <div class="text_lettering" id="homopolymer"></div>
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> GC-Content: </h3>
-        <ul class="text_lettering" id="gccontent" style="overflow-x: auto;"></ul>
+        <div class="text_lettering" id="gccontent"></div>
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Kmer: </h3>
-        <ul class="text_lettering" id="kmer" style="overflow-x: auto;"></ul>
+        <div class="text_lettering" id="kmer"></div>
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Subsequences: </h3>
-        <div class="text_lettering" id="subsequences" style="overflow-x: auto;"></div>
+        <div class="text_lettering" id="subsequences"></div>
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Overall: </h3>
-        <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
+        <div class="text_lettering" id="overall"></div>
     </div>
 
     <!--

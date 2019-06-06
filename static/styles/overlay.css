@@ -59,3 +59,12 @@
     width: 85%;
     margin: 0 auto;
 }
+
+
+/* Code for underlining errors */
+.text_lettering {
+    font-family: monospace;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-color: black;
+}

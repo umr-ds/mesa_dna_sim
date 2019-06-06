@@ -115,7 +115,7 @@ def do_all():
     sequence = r_method.get('sequence')
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
-    enabled_undesired_seqs = r_method.get('undesired_seqs')
+    enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))

@@ -6,14 +6,64 @@ function setApikey(hst, key) {
     host = hst;
 }
 
-function makeHoverGroups() {
-    $('span[class^="g_" ],span[class*=" g_"]').each(function () {
+function makeHoverGroups(user_borders, full_border, force) {
+    if (user_borders === undefined) {
+        user_borders = true;
+    }
+    if (full_border === undefined) {
+        full_border = false;
+    }
+    let x = 0;
+    let all_groups = $('span[class^="g_" ],span[class*=" g_"]');
+    if (all_groups.length > 500 && !force) {
+        user_borders = false;
+        full_border = false;
+    }
+    let lettering = $('.text_lettering');
+    if (user_borders) {
+        lettering.css('min-height', '70px');
+        lettering.css('overflow-y', '');
+    } else {
+        lettering.css('min-height', '30px');
+        lettering.css('overflow-y', 'hidden');
+        //$('#text_lettering').css('height', '80%');
+    }
+    all_groups.each(function () {
+
         let cls = $(this).attr('class').split(" ");
-        $("." + cls[cls.length - 1]).hover(function () {
-            $("." + cls[cls.length - 1]).css('font-weight', "bold");
+        let tmp = $("." + cls[cls.length - 1]);
+        //user_borders = !(cls[cls.length - 1].startsWith("g_A") || cls[cls.length - 1].startsWith("g_C") || cls[cls.length - 1].startsWith("g_T") || cls[cls.length - 1].startsWith("g_G"));
+        if (user_borders) {
+            tmp.data('depth_id', x);
+        }
+        tmp.hover(function () {
+            let curr_elem = $("." + cls[cls.length - 1]);
+            if (user_borders) {
+                const i = curr_elem.data('depth_id');
+                curr_elem.css('border-bottom', '2px solid');
+                if (full_border)
+                    curr_elem.css('border', '1px solid');
+                curr_elem.css('border-color', 'black');
+                curr_elem.css('padding-bottom', (i % 30) + 'px');
+                //curr_elem.css('overflow-y', 'hidden');
+            } else {
+                curr_elem.css('border-bottom', '5px solid'); // underline should be faster then bold font
+                //curr_elem.css('overflow-y','initial')
+                //curr_elem.css('font-weight', "bold");
+            }
         }, function () {
-            $("." + cls[cls.length - 1]).css('font-weight', "normal");
+            let curr_elem = $("." + cls[cls.length - 1]);
+            if (user_borders) {
+                curr_elem.css('border-bottom', '');
+                curr_elem.css('padding-bottom', '');
+                if (full_border)
+                    curr_elem.css('border', '');
+            } else {
+                curr_elem.css('border-bottom', ''); // underline should be faster then bold font
+                //curr_elem.css('font-weight', "normal");
+            }
         });
+        x++;
     });
 }
 
