@@ -382,6 +382,7 @@ window.onload = function () {
                         </select>
                     </td>
                     <td>
+<<<<<<< HEAD
                         <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
                                onclick="let dropdown_select = $('#gc-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
@@ -389,6 +390,30 @@ window.onload = function () {
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
                                value="Change GC Probability">
+=======
+                        <label for="seqmeth">Sequencing Method:</label>
+                        <select id="seqmeth">
+                          <optgroup label="None">
+                            <option selected>None</option>
+                          </optgroup>
+                          <optgroup label="Illumina">
+                            <option>Single End</option>
+                            <option>Paired End</option>
+                          </optgroup>
+                          <optgroup label="PacBio">
+                            <option>Subread</option>
+                            <option>CCS</option>
+                          </optgroup>
+                          <optgroup label="Nanopore">
+                            <option>1D</option>
+                            <option>2D</option>
+                          </optgroup>
+                          <optgroup label="User defined">
+                            <option>Error Rates</option>
+                            <option>Error Attributes</option>
+                            <option>Rates and Attributes</option>
+                          </optgroup>
+>>>>>>> Integrated error rates and attributes to database.
                     </td>
                 </tr>
             </table>
@@ -535,7 +560,7 @@ window.onload = function () {
 
                 //for (var mode in endpoints) {
 
-                let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences"];
+                let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences", "sequencing"];
                 endpoints.forEach(function (mode) {
                     let error_prob = undefined;
                     if (mode === "gccontent") {
@@ -651,6 +676,48 @@ window.onload = function () {
             curr_char.attr('title', (i / l));
             //$(".text_lettering").append(li);
         }*/
+
+        $(function () { // wait for page to load
+            var subDropdown = $("#seqmeth"),
+                mainDropdown = $('<select></select>'), // create a method dropdown
+                submethods = []; // ordered list of submethods
+
+            // parse the nested dropdown
+            subDropdown.children().each(function () {
+                var group = $(this),
+                    mainName = group.attr('label'),
+                    option;
+
+                // create an option for the method
+                option = $('<option></option>').text(mainName);
+
+                // store the associated submethod options
+                option.data('subMethods', group.children());
+
+                // check if the method should be selected
+                if( group.find(':selected').length > 0 ) {
+                    option.prop('selected', true);
+                }
+
+                // add the method to the dropdown
+                mainDropdown.append(option);
+            });
+
+            // add the method dropdown to the page
+            subDropdown.before(mainDropdown);
+
+            // this function updates the submethod dropdown based on the selected method
+            function updateSubmethods() {
+                var main = mainDropdown.find(':selected');
+                subDropdown.empty().append(main.data('subMethods'));
+            }
+
+            // call the function to set the initial subMethods
+            updateSubmethods();
+
+            // and add the change handler
+            mainDropdown.on('change', updateSubmethods);
+        });
     </script>
 
     <h2 class="subtitle"> Your Results: </h2>
