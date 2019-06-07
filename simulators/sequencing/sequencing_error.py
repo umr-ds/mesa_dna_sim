@@ -3,15 +3,55 @@ import numpy as np
 import random
 import re
 
-err_rates = {"1": None, "2": None, "3": {"raw_rate": 0.02, "mismatch": 0.75, "deletion": 0.20, "insertion": 0.05},
+# err_rates and mutation attributes for PacBio (keys 3-6) are based on Attributes based on
+# 10.12688/f1000research.10571.2, for Illumina (key 1&2), they are based on 10.1186/s12859-016-0976-y.
+# The Illumina err_rates for the different types do not add up to 1, either some other form of error (Bases that
+# could not be identified / N's?) are responsible for the rest of the errors or the people that wrote the
+# paper were wrong. Also, for paired end I just summed the error rates for the R1 and R2 reads and divided it by 2.
+
+err_rates = {"1": {"raw_rate": 0.0021, "mismatch": 0.81, "deletion": 0.0024, "insertion": 0.0013},
+             "2": {"raw_rate": 0.0032, "mismatch": 0.79, "deletion": 0.0018, "insertion": 0.0011},
+             "3": {"raw_rate": 0.02, "mismatch": 0.75, "deletion": 0.20, "insertion": 0.05},
              "4": {"raw_rate": 0.14, "mismatch": 0.37, "deletion": 0.21, "insertion": 0.42},
              "5": {"raw_rate": 0.2, "mismatch": 0.48, "deletion": 0.37, "insertion": 0.15},
              "6": {"raw_rate": 0.13, "mismatch": 0.41, "deletion": 0.36, "insertion": 0.23}}
 
-mutation_attributes = {"1": None, "2": None, "3": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.85, "random": 0.15},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}}, "mismatch": {"pattern": {"CG": ["CA", "TG"]}}},
-                       "4": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}}, "mismatch": {"pattern": {"CG": ["CA", "TG"]}}},
-                       "5": {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.46, "random": 0.54},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}},
-                       "6": {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.46, "random": 0.54},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}}
+mutation_attributes = {"1": {"deletion": {"position": {"random": 1},
+                                          "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}},
+                             "insertion": {"position": {"random": 1},
+                                           "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}},
+                             "mismatch": {"pattern": {"A": {"G": 0.50, "T": 0.25, "C": 0.25},
+                                                      "T": {"G": 0.50, "A": 0.25, "C": 0.25},
+                                                      "C": {"G": 0.50, "A": 0.25, "T": 0.25},
+                                                      "G": {"T": 0.50, "A": 0.25, "C": 0.25}}}},
+                       "2": {"deletion": {"position": {"random": 1},
+                                          "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}},
+                             "insertion": {"position": {"random": 1},
+                                           "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}},
+                             "mismatch": {"pattern": {"A": {"G": 0.50, "T": 0.25, "C": 0.25},
+                                                      "T": {"G": 0.50, "A": 0.25, "C": 0.25},
+                                                      "C": {"G": 0.50, "A": 0.25, "T": 0.25},
+                                                      "G": {"T": 0.50, "A": 0.25, "C": 0.25}}}},
+                       "3": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15},
+                                          "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
+                             "insertion": {"position": {"homopolymer": 0.85, "random": 0.15},
+                                           "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
+                             "mismatch": {"pattern": {"CG": {"CA":0.5, "TG":0.5}}}},
+                       "4": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15},
+                                          "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
+                             "insertion": {"position": {"homopolymer": 0.85, "random": 0.15},
+                                           "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
+                             "mismatch": {"pattern": {"CG": {"CA": 0.5, "TG": 0.5}}}},
+                       "5": {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54},
+                                          "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
+                             "insertion": {"position": {"homopolymer": 0.46, "random": 0.54},
+                                           "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
+                             "mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}},
+                       "6": {"deletion": {"position": {"homopolymer": 0.46, "random": 0.54},
+                                          "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
+                             "insertion": {"position": {"homopolymer": 0.46, "random": 0.54},
+                                           "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
+                             "mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}}
 
 
 class SequencingError:
@@ -156,8 +196,9 @@ class SequencingError:
         except IndexError:
             return self._no_pattern_mismatch()
 
-        if type(pattern[chosen_ele[1]]) == list:
-            new_ele = random.choice(pattern[chosen_ele[1]])
+        if type(pattern[chosen_ele[1]]) == dict:
+            new_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
+                                       p=list(pattern[chosen_ele[1]].values()))
         else:
             new_ele = pattern[chosen_ele[1]]
         return self.seq[:chosen_ele[0][0]] + new_ele + self.seq[chosen_ele[0][1]:]
@@ -219,6 +260,7 @@ class SequencingError:
         for mutation_type in mutation_list:
             if self.error_rates is not None:
                 err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
+                print(err_rate)
             else:
                 err_rate = 0
             if self.attributes is False:
@@ -235,4 +277,5 @@ class SequencingError:
             mut_type = np.random.choice(m_types, p=m_weights)
             att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
             self.out_seq = eval('self.' + mut_type)(self.seq, att)
+        return self.out_seq
 

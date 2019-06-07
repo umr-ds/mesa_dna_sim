@@ -108,7 +108,6 @@ def add_sequencing_errors():
     else:
         seqerr = SequencingError(sequence, mutation_attributes[seq_meth], err_rates[seq_meth])
         res = seqerr.lit_error_rate_mutations()
-        print(res)
     return jsonify(res)
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
