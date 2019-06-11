@@ -2,10 +2,6 @@ from flask import jsonify, request, Blueprint
 
 from api.apikey import require_apikey
 from simulators.error_probability import create_error_prob_function
-from simulators.synthesis.gc_content import overall_gc_content, windowed_gc_content
-from simulators.synthesis.homopolymers import homopolymer
-from simulators.synthesis.kmer import kmer_counting
-from simulators.synthesis.undesired_subsequences import undesired_subsequences
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
 from simulators.error_sources.kmer import kmer_counting
