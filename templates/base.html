@@ -49,6 +49,16 @@
     <div class="hero-head">
         <nav class="navbar">
             <div class="container">
+                <div class="navbar-brand">
+                    <a class="navbar-item" href="#" style="font-weight:bold;">
+                        <img src="{{ url_for('static',filename='img/header_logo_sm.png') }}" alt=""/>
+                    </a>
+                    <span class="navbar-burger burger" data-target="navMenu">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </span>
+                </div>
                 <div id="navbarMenuHeroA" class="navbar-menu">
                     <div class="navbar-end">
                         <a href="{{ url_for('main_page.home') }}" class="navbar-item"> Home </a>
