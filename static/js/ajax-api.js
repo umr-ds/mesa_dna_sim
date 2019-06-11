@@ -106,6 +106,7 @@ $(document).ready(function () {
         this.setSelectionRange(start, end);
     });*/
     let submit_seq = $("#submit_sequence");
+    let submit_seq_btn = $('#submit_seq_btn');
     submit_seq.submit(function (event) {
         event.preventDefault();
         let sequence = $("#sequence").val().toUpperCase();
@@ -147,6 +148,7 @@ $(document).ready(function () {
         if (typeof (kmer_error_prob) === "string")
             kmer_error_prob = JSON5.parse(kmer_error_prob);
 
+
         for (let mode in {"all": overall}) {
             $.post({
                 url: "http://" + host + "/api/" + mode,
@@ -165,18 +167,24 @@ $(document).ready(function () {
                     asHTML: true
                 }),
                 async: true,
+                beforeSend: function () {
+                    submit_seq_btn.addClass('is-loading');
+                },
                 success: function (data) {
                     for (let error_source in data) {
                         endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();
+                    submit_seq_btn.removeClass('is-loading');
                 },
                 fail: function (data) {
                     console.log(data);
                     //$('#text_lettering').text(data);
+                    submit_seq_btn.removeClass('is-loading');
                 },
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+                    submit_seq_btn.removeClass('is-loading');
                 }
             });
         }

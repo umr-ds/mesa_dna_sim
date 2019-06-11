@@ -44,8 +44,8 @@
 }
 
 #overlay-content {
-    width: 85%;
-    height: 85%;
+    width: 100%;
+    height: auto;
     margin: 0 auto;
     background-color: rgba(255, 255, 255, 1.0);
     position: relative;
@@ -54,9 +54,17 @@
     transform: translate(-50%, -50%);*/
 }
 
+.overlay-all {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+}
+
 #overlay-managebox {
     position: relative;
-    width: 85%;
+    width: 100%;
     margin: 0 auto;
 }
 

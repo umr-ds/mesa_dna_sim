@@ -26,97 +26,113 @@ window.onload = function () {
     <div class="control" id="overlay">
         <div class="box control" id="inneroverlay">
             <a href="javascript:void(0)" class="closebtn" onclick="closeOverlay()">&times;</a>
-            <div class="box overlay-content" id="overlay-content">
-                <canvas id="myChart" width="1600" height="900"></canvas>
-            </div>
-            <br/>
-            <div class="overlay-managebox" id="overlay-managebox">
-                <table>
-                    <tr>
-                        <td>
+            <div class="box overlay-all">
+                <div class="box overlay-content" id="overlay-content">
+                    <canvas id="myChart"></canvas>
+                </div>
+                <br/>
+                <div class="overlay-managebox" id="overlay-managebox">
+                    <div class="columns">
+                        <div class="column is-pulled-left is-2 is-one-">
                             <label class="form-group has-float-label">
                                 <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
-                                       required min="0.0" step="1"><span>X-value</span></label></td>
-                        <td>
+                                       required min="0.0" step="1"><span>X-value</span></label>
+                        </div>
+                        <div class="column is-pulled-left is-2">
                             <label class="form-group has-float-label">
                                 <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
-                                       required min="0.0" step="1"><span>Y-value</span></label></td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="addpoint" name="addpoint"
+                                       required min="0.0" step="1"><span>Y-value</span></label>
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button" id="addpoint"
+                                    name="addpoint"
                                     onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Modify is based on X-Value!" data-balloon-pos="up"> Add / Modify point
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="removePoint" name="removePoint"
-                                    onclick="removePoint($('#x-val').val());return false;"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="removePoint"
+                                    name="removePoint" onclick="removePoint($('#x-val').val());return false;"
                                     data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove point
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="setybeforex" name="setybeforex"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="setybeforex"
+                                    name="setybeforex"
                                     onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Changes all Y-Values of Points with a smaller X-Value"
                                     data-balloon-pos="up">
                                 Set Y-Values before X
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="setyafterx" name="setyafterx"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="setyafterx"
+                                    name="setyafterx"
                                     onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Changes all Y-Values of Points with a greater X-Value"
                                     data-balloon-pos="up">
                                 Set Y-Values after X
                             </button>
-                        </td>
-                    </tr>
-                </table>
-                X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will be
-                mapped to the last Y-Value
-                <br/>
-                <table>
-                    <tr>
-                        <td>
-                            <input class="button is-block is-info" type="button" id="doReset" name="doReset"
+                        </div>
+                    </div>
+                    <!--<span>
+                    X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
+                    be mapped to the last Y-Value</span>-->
+                    <div class="columns">
+                        <div class="column is-pulled-left">
+                            <input class="button is-block is-info-deactivated button-fill" type="button" id="doReset"
+                                   name="doReset"
                                    onclick="resetChanges();return false;" value="Reset">
-                        <td>
-                            <input class="button is-block is-info" type="button" id="toogleinterpolation"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <input class="button is-block is-info-deactivated button-fill" type="button"
+                                   id="toogleinterpolation"
                                    name="toogleinterpolation" onclick="toogleCubicInterpolation();return false;"
                                    value="Use Interpolation">
-                        </td>
-                        <td>
-                            <input class="button is-block is-info" type="button" id="toogleDragX"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <input class="button is-block is-info-deactivated button-fill" type="button"
+                                   id="toogleDragX"
                                    name="toogleDragX" onclick="toogleDragX();return false;"
                                    value="Allow drag along X-Axis">
-                        </td>
-                        <td>
-                            <label class="form-group has-float-label">
+                        </div>
+                        <div class="column is-pulled-left is-2">
+                            <label class="form-group has-float-label button-fill">
                                 <input class="input" type="text" id="chart-name" placeholder="" size="20"
-                                       required><span>Name</span></label></td>
-                        <td>
-
-                        <td>
-                            <button class="button is-block is-info" type="button" id="update-chart" name="update-chart"
+                                       required><span>Name</span></label>
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="update-chart"
+                                    name="update-chart"
                                     onclick="saveChart('{{ host }}', '{{ apikey }}', false);return false;"
                                     data-balloon="Update current Error-Probability Graph" data-balloon-pos="up"> Update
                                 Template
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="delete-chart" name="delete-chart"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="delete-chart"
+                                    name="delete-chart"
                                     onclick="deleteChart('{{ host }}', '{{ apikey }}', $('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Delete current Error-Probability Graph" data-balloon-pos="up"> Delete
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="save-chart" name="save-chart"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="save-chart"
+                                    name="save-chart"
                                     onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
                                     data-balloon="Save Copy"
                                     data-balloon-pos="up"> Save copy of Template
                             </button>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -126,6 +142,10 @@ window.onload = function () {
             updateDropdown("{{ host }}", "{{ apikey }}", "gc");
             updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
             updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
+
+            $(document).keyup(function (e) {
+                if (e.keyCode === 27) closeOverlay();
+            });
 
             let chart = $('#myChart');
             chart.dblclick(function (e) {
@@ -179,34 +199,38 @@ window.onload = function () {
 
     <div class="box">
         <form id="submit_sequence">
-            <div class="field">
-                <div class="control">
-                    <label class="form-group has-float-label">
+
+            <div class="columns is-gapless is-multiline">
+                <div class="column is-1 is-pulled-left">
+                    <label class="switch"
+                           data-balloon="Limit Alphabet"
+                           data-balloon-pos="up">
+                        <input class="switch" type="checkbox" id="limitedChars" checked/>
+                        <span class="slider round"></span></label>
+                </div>
+                <div class="column is-pulled-left">
+                    <div class="field">
+                        <div class="control">
+                            <label class="form-group has-float-label">
                     <textarea class="input is-large" rows="5" id="sequence" name="sequence" placeholder="AAACCAGT"
                               required></textarea>
-                        <span>Sequence to Analyse</span>
-                    </label>
+                                <span>Sequence to Analyse</span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <table>
-                <tr>
-                    <td>
-                        <nobr><label for="limitedChars">Limit Alphabet:</label><label class="switch"
-                                                                                      style="padding-top: 22px;">
-                            <input class="switch" type="checkbox" id="limitedChars" checked/>
-                            <span class="slider round"></span></label>
-                        </nobr>
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>GC Window-Size</span></label>
-                    </td>
-                    <td>
-                        <select id="gc-dropdown">
-                            <!--{% for chart in gc_charts %}
+
+                <div class="column is-full">
+                </div>
+                <div class="column is-2 is-pulled-left">
+                    <label class="form-group has-float-label">
+                        <input class="input button-fill" type="number" id="gc_window_size" placeholder="" size="4"
+                               value="15"
+                               required min="0" step="1"><span>GC Window-Size</span></label>
+                </div>
+                <div class="column is-2 is-pulled-left button-fill">
+                    <select class="button-fill" id="gc-dropdown">
+                        <!--{% for chart in gc_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="gc"
                                         data-validated="{{ chart.validated }}"
@@ -216,42 +240,45 @@ window.onload = function () {
                             <option data-id="-1" data-type="gc"
                                     data-validated="false" data-isowner="false">New Graph
                             </option>-->
-                        </select>
-                    </td>
-                    <td>
-                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="let dropdown_select = $('#gc-dropdown option:selected');
+                    </select>
+                </div>
+                <div class="column  is-2 is-pulled-left">
+                    <input class="button button-fill" type="button" id="showOvrly"
+                           name="mybutton"
+                           onclick="let dropdown_select = $('#gc-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                               value="Change GC Probability">
-                    </td>
-                </tr>
-                <tr>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>Kmer Window-Size</span></label>
-                    </td>
-                    <td>
-                        <select id="kmer-dropdown"></select>
-                    </td>
-                    <td>
-                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="let dropdown_select = $('#kmer-dropdown option:selected');
+                           value="Change GC Probability">
+                </div>
+                <div class="column is-4"></div>
+                <div class="column is-full">
+                </div>
+                <div class="column is-2 is-pulled-left">
+                    <label class="form-group has-float-label">
+                        <input class="input button-fill" type="number" id="kmer_window_size" placeholder="" size="4"
+                               value="15"
+                               required min="0" step="1"><span>Kmer Window-Size</span></label>
+                </div>
+                <div class="column is-2 is-pulled-left">
+                    <select class="button-fill" id="kmer-dropdown"></select>
+                </div>
+                <div class="column  is-2 is-pulled-left">
+                    <input class="button is-block button-fill" type="button" id="showOvrly" name="mybutton"
+                           onclick="let dropdown_select = $('#kmer-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                               value="Change Kmer Probability">
-                    </td>
-                </tr>
-                <tr>
-                    <td></td>
-                    <td>
-                        <label for="homopolymer-dropdown"></label><select id="homopolymer-dropdown">
-                        <!--{% for chart in homopolymer_charts %}
+                           value="Change Kmer Probability">
+                </div>
+                <div class="column is-full">
+                </div>
+                <div class="column is-2 is-pulled-left"></div>
+                <div class="column is-2 is-pulled-left">
+                    <label for="homopolymer-dropdown"></label><select class="button-fill" id="homopolymer-dropdown">
+                    <!--{% for chart in homopolymer_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="homopolymer"
                                         data-validated="{{ chart.validated }}"
@@ -261,19 +288,18 @@ window.onload = function () {
                             <option data-id="-1" data-type="homopolymer"
                                     data-validated="false" data-isowner="false">New Graph
                             </option>-->
-                    </select>
-                    </td>
-                    <td>
-                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
+                </select>
+                </div>
+                <div class="column is-2 is-pulled-left">
+                    <input class="button is-block is-info-deactivated" type="button" id="showOvrly" name="mybutton"
+                           onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                               value="Change Homopolymer Probability">
-                    </td>
-                </tr>
-            </table>
+                           value="Change Homopolymer Probability">
+                </div>
+            </div>
             <br/>
             <input type="checkbox" id="spoiler"/>
             <label style="white-space: nowrap; display:unset" for="spoiler">Manage Subsequences</label>
@@ -333,19 +359,15 @@ window.onload = function () {
                     </div>
                 {% endfor %}
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Submit</button>
+            <button class="button is-block is-info-deactivated is-large is-fullwidth" id="submit_seq_btn">Submit
+            </button>
         </form>
     </div>
-
-    <script type="text/javascript">
-        //TODO improve me !
-
-    </script>
 
     <h2 class="subtitle"> Your Results: </h2>
     <div class="box">
         <h3 class="subtitle" style="color: black"> Homopolymers: </h3>
-        <div class="text_lettering" id="homopolymer"></div>
+        <div class="text_lettering" id="homopolymer" t></div>
     </div>
     <div class="box">
         <h3 class="subtitle" style="color: black"> GC-Content: </h3>

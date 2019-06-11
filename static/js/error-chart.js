@@ -1,8 +1,10 @@
 let curr_chart, curr_dataset, element, datasetIndex, index, scale, org_pos, org_data, org_options;
 let useCubicInterpolation = true;
 let toogleDragXaxis = false;
-let dragXcol = '#209cee';
-let interpolcol = '#50ee0a';
+let offColor = '#baa861';
+let onColor = '#50ee0a';
+let dragXcol = offColor;
+let interpolcol = onColor;
 let xLabelString = 'Homopolymer length';
 
 let default_graph_name = "Default Graph"; //"New Graph";
@@ -134,9 +136,9 @@ function toogleCubicInterpolation() {
     });
     curr_chart.update();
     if (useCubicInterpolation) {
-        interpolcol = '#50ee0a';
+        interpolcol = onColor;
     } else {
-        interpolcol = '#209cee';
+        interpolcol = offColor; //'#209cee';
     }
     $('#toogleinterpolation').css('background-color', interpolcol);
 }
@@ -185,9 +187,9 @@ function toogleDragX() {
     curr_chart.options.dragX = toogleDragXaxis;
     curr_chart.update();
     if (toogleDragXaxis) {
-        dragXcol = '#50ee0a';
+        dragXcol = onColor;
     } else {
-        dragXcol = '#209cee';
+        dragXcol = offColor; //'#209cee';
     }
     $('#toogleDragX').css('background-color', dragXcol);
 }
@@ -262,9 +264,9 @@ function constructDataset(datalist, lbl, useInterpolation) {
         // update color and global var!
         useCubicInterpolation = useInterpolation;
         if (useCubicInterpolation) {
-            interpolcol = '#50ee0a';
+            interpolcol = onColor;
         } else {
-            interpolcol = '#209cee';
+            interpolcol = offColor; //'#209cee';
         }
         $('#toogleinterpolation').css('background-color', interpolcol);
     }
@@ -447,7 +449,8 @@ function closeOverlay() {
         "display": "none",
     }).show().animate({opacity: 0}, 100).hide()*/
     //todo save values to the corresponding array
-    overlay.css("display", "none");
+    overlay.fadeOut(175, "linear");
+    //overlay.css("display", "none");
 }
 
 function showOverlay(validated, editable, id, text, type) {
@@ -470,7 +473,8 @@ function showOverlay(validated, editable, id, text, type) {
     chartName.data("validated", validated);
     chartName.data("type", type);
 
-    overlay.css("display", "block");
+    overlay.fadeIn(100, "linear");
+    //overlay.css("display", "block");
     //setYValueAfterX(curr_chart, 0, 3);
 }
 

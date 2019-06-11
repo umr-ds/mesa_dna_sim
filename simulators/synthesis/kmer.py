@@ -22,6 +22,10 @@ def kmer_counting(seq, k=20, upper_bound=1, error_function=default_error_functio
                        'identifier': i} for i, v in kmer_dict.items() if v > upper_bound for elem in
                       kmer_pos[i]]
 
+    high_occ_kmers = [x for x in high_occ_kmers if x['errorprob'] > 0.0]
+    # optimally this check should be done during first list comprehension,
+    # but the main speedup will be seen at the frontend
+
     if high_occ_kmers:
         return high_occ_kmers  # sum(list(zip(*high_occ_kmers.values()))[1]), high_occ_kmers
     else:
