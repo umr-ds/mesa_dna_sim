@@ -57,28 +57,28 @@
                                     <table>
                                         <tr>
                                             <td style="width:53%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input" type="text" name="sequence"
+                                                <input style="width:100%" class="input is-rounded" type="text" name="sequence"
                                                        placeholder="" size="50" value="{{ subsequence.sequence }}"
                                                        required><span>Sequence</span></label></td>
                                             <td style="width:15%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input" type="number" name="error_prob"
+                                                <input style="width:100%" class="input is-rounded" type="number" name="error_prob"
                                                        placeholder="" size="30"
                                                        value="{{ subsequence.error_prob }}"
                                                        required min="0.0"
                                                        max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
                                             </td>
                                             <td style="width:15%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input"
+                                                <input style="width:100%" class="input is-rounded"
                                                        type="text" name="description" placeholder="Description"
                                                        size="20"
                                                         {% if subsequence.description != None %}
                                                        value="{{ subsequence.description }}"
                                                         {% endif %}
                                                        required><span>Description</span></label></td>
-                                            <td style="width:7%"> Validated: <input type="checkbox" id="validated"
+                                            <td style="width:7%"><label class="checkbox">Validated: <input type="checkbox" id="validated"
                                                                                     value="{{ subsequence.id }}"
                                                                                     disabled
-                                                    {% if subsequence.validated %} checked {% endif %}/></td>
+                                                    {% if subsequence.validated %} checked {% endif %}/></label></td>
                                             <td style="width:5%">
                                                 <button class="button"
                                                         data-balloon="Updating will remove the Validation!"
@@ -109,16 +109,16 @@
                             <table>
                                 <tr>
                                     <td style="width:55%"><label class="form-group has-float-label">
-                                        <input class="input" type="text" id="addsequence" name="sequence"
+                                        <input class="input is-rounded" type="text" id="addsequence" name="sequence"
                                                placeholder="Undesired Subsequence" size="58" value=""
                                                required><span>Sequence</span></label></td>
                                     <td style="width:15%"><label class="form-group has-float-label">
-                                        <input class="input" type="number" id="errorprob" name="error_prob"
+                                        <input class="input is-rounded" type="number" id="errorprob" name="error_prob"
                                                placeholder="0,5" size="30" value="" required min="0.0"
                                                max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
                                     </td>
                                     <td style="width:29%"><label class="form-group has-float-label">
-                                        <input class="input" type="text" id="description" name="description"
+                                        <input class="input is-rounded" type="text" id="description" name="description"
                                                placeholder="Description" size="31" value=""
                                                required><span>Description</span></label>
                                     </td>
@@ -230,13 +230,13 @@
                         subseq_box.append("<div class=\"control\" id=\"subseq_" + data.id + "\">\n" +
                             "<table>\n" +
                             "<tr>\n" +
-                            "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"text\" name=\"sequence\"\n" +
+                            "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"sequence\"\n" +
                             "placeholder=\"\" size=\"50\" value=\"" + data.sequence + "\" required><span>Sequence</span></label></td>\n" +
-                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"number\" name=\"error_prob\"\n" +
+                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"number\" name=\"error_prob\"\n" +
                             "placeholder=\"\" size=\"30\" value=\"" + data.error_prob + "\" required\n" +
                             "min=\"0.0\"\n" +
                             "max=\"1.0\" step=\"0.01\"><span><nobr>Errpr Probability</nobr></span></label></td>\n" +
-                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"text\" name=\"description\"\n" +
+                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
                             "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                             "required><span>Description</span></label></td>" +
                             "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated\"\n" +

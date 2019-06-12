@@ -70,7 +70,7 @@ function makeHoverGroups(user_borders, full_border, force) {
 function extractUndesiredToJson() {
     let res = [];
     $('[id^="subseq_"]').each(function () {
-        let enabled = $(this).children().find("[id='enabled']")[0];
+        let enabled = $(this).children().find("[id^='enabled']")[0];
         if (enabled.checked) {
             let id = $(this).children().find("[id='validated']");
             let sequence = $(this).children().find("[name='sequence']");

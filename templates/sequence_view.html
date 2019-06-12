@@ -3,15 +3,13 @@
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@0.3.0/dist/chartjs-plugin-dragData.min.js"></script>
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
-    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/dropdown.css') }}>-->
-    <script src="{{ url_for('static',filename='js/error-chart.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/autoscroll.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/ajax-api.js') }}"></script>
-    <script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>-->
+    <!--------<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/seq_view.min.css') }}>------>
+    <!--------<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>-------->
+    <!--<link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">-->
+    <!--<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@0.3.0/dist/chartjs-plugin-dragData.min.js"></script>-->
+    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/dropdown.css_old') }}>-->
+    <!--<script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>-->
 {% endblock %}
 {% block content %}
     <!--<script type = "text/javascript" >
@@ -202,17 +200,19 @@ window.onload = function () {
 
             <div class="columns is-gapless is-multiline">
                 <div class="column is-1 is-pulled-left">
-                    <label class="switch"
-                           data-balloon="Limit Alphabet"
-                           data-balloon-pos="up">
-                        <input class="switch" type="checkbox" id="limitedChars" checked/>
-                        <span class="slider round"></span></label>
+                    <label data-balloon="Limit Alphabet"
+                           data-balloon-pos="up"><input type="checkbox"
+                                                        class="switch is-rounded is-large button-fill no-outline"
+                                                        name="enableall"
+                                                        id="limitedChars" checked/>
+                        <label for="limitedChars" class="no-outline"></label></label>
+
                 </div>
                 <div class="column is-pulled-left">
                     <div class="field">
                         <div class="control">
                             <label class="form-group has-float-label">
-                    <textarea class="input is-large" rows="5" id="sequence" name="sequence" placeholder="AAACCAGT"
+                    <textarea class="textarea" rows="1" id="sequence" name="sequence" placeholder="AAACCAGT"
                               required></textarea>
                                 <span>Sequence to Analyse</span>
                             </label>
@@ -224,11 +224,12 @@ window.onload = function () {
                 </div>
                 <div class="column is-2 is-pulled-left">
                     <label class="form-group has-float-label">
-                        <input class="input button-fill" type="number" id="gc_window_size" placeholder="" size="4"
+                        <input class="input button-fill is-rounded" type="number" id="gc_window_size" placeholder=""
+                               size="4"
                                value="15"
                                required min="0" step="1"><span>GC Window-Size</span></label>
                 </div>
-                <div class="column is-2 is-pulled-left button-fill">
+                <div class="column is-2 is-pulled-left select is-primary is-rounded">
                     <select class="button-fill" id="gc-dropdown">
                         <!--{% for chart in gc_charts %}
 
@@ -257,11 +258,12 @@ window.onload = function () {
                 </div>
                 <div class="column is-2 is-pulled-left">
                     <label class="form-group has-float-label">
-                        <input class="input button-fill" type="number" id="kmer_window_size" placeholder="" size="4"
+                        <input class="input button-fill is-rounded" type="number" id="kmer_window_size" placeholder=""
+                               size="4"
                                value="15"
                                required min="0" step="1"><span>Kmer Window-Size</span></label>
                 </div>
-                <div class="column is-2 is-pulled-left">
+                <div class="column is-2 is-pulled-left select is-rounded is-primary">
                     <select class="button-fill" id="kmer-dropdown"></select>
                 </div>
                 <div class="column  is-2 is-pulled-left">
@@ -276,7 +278,7 @@ window.onload = function () {
                 <div class="column is-full">
                 </div>
                 <div class="column is-2 is-pulled-left"></div>
-                <div class="column is-2 is-pulled-left">
+                <div class="column is-2 is-pulled-left select is-rounded is-primary">
                     <label for="homopolymer-dropdown"></label><select class="button-fill" id="homopolymer-dropdown">
                     <!--{% for chart in homopolymer_charts %}
 
@@ -291,13 +293,14 @@ window.onload = function () {
                 </select>
                 </div>
                 <div class="column is-2 is-pulled-left">
-                    <input class="button is-block is-info-deactivated" type="button" id="showOvrly" name="mybutton"
+                    <input class="button is-block is-info-deactivated button-fill" type="button" id="showOvrly"
+                           name="mybutton"
                            onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                           value="Change Homopolymer Probability">
+                           value="Change Homopolymer Prob.">
                 </div>
             </div>
             <br/>
@@ -311,31 +314,28 @@ window.onload = function () {
                     <div class="control" id="subseq_{{ subsequence.id }}">
                         <table>
                             <tr>
-                                <td><label class="switch">
-                                    <input class="switch" type="checkbox"
-                                           id="enabled"
+                                <td><input type="checkbox"
+                                           class="switch is-large is-rounded button-fill no-outline"
+                                           id="enabled{{ subsequence.id }}" name="switchRoundedDefault"
                                            value="{{ subsequence.id }}" checked/>
-                                    <span class="slider round"></span></label>
+                                    <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
                                 </td>
                                 <td style="width:50%"><label class="form-group has-float-label">
-                                    <input style="width:100%" type="text" name="sequence" id="sequence" placeholder=""
-                                            {% if subsequence.validated %}
-                                           readonly{% endif %}
+                                    <input class="input is-rounded" style="width:100%" type="text" name="sequence"
+                                           id="sequence" placeholder=""
+                                            {% if subsequence.validated %} readonly {% endif %}
                                            value="{{ subsequence.sequence }}" required>
                                     <span>Sequence</span></label></td>
                                 <td style="width:15%"><label class="form-group has-float-label">
-                                    <input style="width:100%" type="number" id="error_prob" name="error_prob"
-                                           placeholder=""
-                                            {% if subsequence.validated %} disabled
-                                           readonly {% endif %}
+                                    <input class="input is-rounded" style="width:100%" type="number" id="error_prob"
+                                           name="error_prob" placeholder=""
+                                            {% if subsequence.validated %} readonly {% endif %}
                                            value="{{ subsequence.error_prob }}"
                                            required min="0.0" max="1.0" step="0.01">
                                     <span><nobr>Error Probability</nobr></span></label></td>
                                 <td style="width:30%"><label class="form-group has-float-label">
-                                    <input style="width:100%" type="text" name="description" id="description"
-                                           placeholder="No Description" size="30"
-                                            {% if subsequence.validated %}
-                                           readonly {% endif %}
+                                    <input class="input is-rounded" style="width:100%" type="text" name="description"
+                                           id="description" placeholder="No Description" size="30"
                                             {% if subsequence.description != None %}
                                            value="{{ subsequence.description }}"
                                             {% endif %} readonly><span>Description</span></label></td>
@@ -345,9 +345,11 @@ window.onload = function () {
                             {% else %}
                                 No Description
                             {% endif %}-->
-                                <td><span><nobr>Public / Validated: <input type="checkbox" id="validated"
-                                                                           value="{{ subsequence.id }}" disabled
-                                        {% if subsequence.validated %} checked {% endif %}/></nobr></span></td>
+                                <td><span><nobr><label class="checkbox">Public / Validated: <input type="checkbox"
+                                                                                                   id="validated"
+                                                                                                   value="{{ subsequence.id }}"
+                                                                                                   disabled
+                                        {% if subsequence.validated %} checked {% endif %}/></label></nobr></span></td>
                             </tr>
                         </table>
                         <!--<nobr>
