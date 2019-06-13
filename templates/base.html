@@ -3,43 +3,30 @@
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">-->
 <html lang="en">
 <head>
+    <title>{% block title %}MOSLA DNA Simulator{% endblock %}</title>
     {% block head %}
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <title>MOSLA DNA Simulator</title>
+        <meta name="Description" content="MOSLA DNA-Synthesis-, Storage-, Mutation- and Sequencing-Simulator">
+
         <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-150x150.png') }}" sizes="32x32"/>
         <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}" sizes="192x192"/>
         <link rel="apple-touch-icon-precomposed" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
         <meta name="msapplication-TileImage" content="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
 
-
-        <script type="text/javascript"src="{{ url_for('static',filename='js/all.min.js') }}"></script>
-        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
-        <!-- TODO EXCHANGE FILES WITH
-
-        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
-        -->
-
-        <!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.2/css/bulma.min.css"/>-->
-        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
-        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
-        <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/checkbox_switch.css_old') }}>
-        <!- ENTWEDER: ->
-        <link rel="stylesheet"
-              href="https://cdn.rawgit.com/tonystar/bootstrap-float-label/v4.0.2/bootstrap-float-label.min.css"/> -->
-        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>-->
-        <!--funktioniert nicht wirklich in Chromium, dafür (z.B. in Firefox) deutlich schoener als : -->
-        <!-- ODER: -->
-        <!--<link rel="stylesheet" href="https://cdn.rawgit.com/tonystar/float-label-css/v1.0.2/dist/float-label.min.css"/>-->
-
-
-        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/inputanimation.css_old') }}>-->
-
-        <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/fancytextinputs.css_old') }}>-->
-        <!-----------<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>-------->
-        <!--<link rel="script" href="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.8/angular.min.js"/>-->
-        <!--<script src={{ url_for('static',filename='js/jquery-3.4.1.js') }}></script>-->
+        {% if config['DEBUG'] or config['TESTING'] %}
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
+            <link rel="stylesheet" type="text/css"
+                  href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>
+            <link rel="stylesheet" type="text/css"
+                  href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
+        {% else %}
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
+        {% endif %}
     {% endblock %}
 </head>
 
@@ -49,23 +36,29 @@
         <nav class="navbar">
             <div class="container">
                 <div class="navbar-brand">
-                    <a class="navbar-item" href="#" style="font-weight:bold;">
-                        <img src="{{ url_for('static',filename='img/header_logo_sm.png') }}" alt=""/>
+                    <a class="navbar-item" href="{{ url_for('main_page.home') }}" aria-label="MOSLA Image"
+                       style="font-weight:bold;">
+                        <img src="{{ url_for('static',filename='img/header_logo_sm.png') }}" alt="MOSLA"/>
                     </a>
                 </div>
                 <div id="navbarMenuHeroA" class="navbar-menu">
                     <div class="navbar-end">
-                        <a href="{{ url_for('main_page.home') }}" class="navbar-item"> Home </a>
+                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item"> Home </a>
                         {% if session['user_id'] %}
-                            <a href="{{ url_for('main_page.query_sequence') }}" class="navbar-item"> Simulate </a>
-                            <a href="{{ url_for('main_page.undesired_subsequences') }}" class="navbar-item">
+                            <a href="{{ url_for('main_page.query_sequence') }}" aria-label="Simulation System"
+                               class="navbar-item"> Simulate </a>
+                            <a href="{{ url_for('main_page.undesired_subsequences') }}" aria-label="Simulation Settings"
+                               class="navbar-item">
                                 Simulation Settings
                             </a>
-                            <a href="{{ url_for('main_page.profile') }}" class="navbar-item"> Profile </a>
-                            <a href="{{ url_for('logout.do_logout') }}" class="navbar-item"> Logout </a>
+                            <a href="{{ url_for('main_page.profile') }}" aria-label="Profile" class="navbar-item">
+                                Profile </a>
+                            <a href="{{ url_for('logout.do_logout') }}" aria-label="Logout" class="navbar-item">
+                                Logout </a>
                         {% else %}
-                            <a href="{{ url_for('login.do_login') }}" class="navbar-item"> Login </a>
-                            <a href="{{ url_for('signup.register') }}" class="navbar-item"> Sign Up </a>
+                            <a href="{{ url_for('login.do_login') }}" aria-label="Login" class="navbar-item"> Login </a>
+                            <a href="{{ url_for('signup.register') }}" aria-label="Signup" class="navbar-item"> Sign
+                                Up </a>
                         {% endif %}
                     </div>
                 </div>
@@ -74,20 +67,7 @@
                             <span aria-hidden="true"></span>
                             <span aria-hidden="true"></span>
                             <span aria-hidden="true"></span>
-                <!--
-                        <span><a href="{{ url_for('main_page.home') }}" class="navbar-item"> Home </a></span>
-                        {% if session['user_id'] %}
-                            <span><a href="{{ url_for('main_page.query_sequence') }}" class="navbar-item"> Simulate </a></span>
-                            <span><a href="{{ url_for('main_page.undesired_subsequences') }}" class="navbar-item">
-                                Simulation Settings
-                            </a></span>
-                            <span><a href="{{ url_for('main_page.profile') }}" class="navbar-item"> Profile </a></span>
-                            <span><a href="{{ url_for('logout.do_logout') }}" class="navbar-item"> Logout </a></span>
-                        {% else %}
-                            <span><a href="{{ url_for('login.do_login') }}" class="navbar-item"> Login </a></span>
-                            <span><a href="{{ url_for('signup.register') }}" class="navbar-item"> Sign Up </a></span>
-                        {% endif %}-->
-                      </span>
+            </span>
         </nav>
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -105,42 +85,99 @@
             {% endblock %}
         </div>
     </div>
+    <footer class="footer" style="border-top: 3px solid #ad9843;">
+        {% block footer %}
+            <div class="content has-text-centered">
+                <div class="content is-small is-text" style="color: black">© 2019 MOSLA</div>
+                <div class="columns is-centered no-margin-bottom">
+                    <!--<div class="column content is-centered is-2 no-margin-bottom">
+                        <figure class="is-centered">
+                            <a href="http://www.mosla.de/"
+                               aria-label="MOSLA" style="font-weight:bold;">
+                                <img style="height: 60px" src="{{ url_for('static',filename='img/logo_mosla_rgb.png') }}"
+                                     alt="mosla.de"/>
+                            </a>
+                        </figure>
+                    </div>-->
+                    <div class="column content is-centered is-3 no-margin-bottom">
+                        <figure class="is-centered">
+                            <!--<a href="https://uni-marburg.de"
+                               aria-label="Uni Marburg" style="font-weight:bold;">-->
+                            <img style="height: 60px; min-width:174px"
+                                 src="{{ url_for('static',filename='img/umr.png') }}"
+                                 alt="uni-marburg.de"/>
+                            <!--</a>-->
+                        </figure>
+                    </div>
+                    <div class="column content is-centered is-3 no-margin-bottom">
+                        <figure class="is-centered">
+                            <!--<a href="https://uni-giessen.de"
+                               aria-label="Uni Giessen" style="font-weight:bold;">-->
+                            <img style="height: 60px; min-width:166px"
+                                 src="{{ url_for('static',filename='img/jlu.png') }}"
+                                 alt="uni-marburg.de"/>
+                            <!--</a>-->
+                        </figure>
+                    </div>
+                    <div class="column content is-centered is-3 no-margin-bottom">
+                        <figure class="is-centered">
+                            <!--<a href="http://www.proloewe.de/"
+                               aria-label="LOEWE" style="font-weight:bold;">-->
+                            <img style="height: 60px; min-width:147px"
+                                 src="{{ url_for('static',filename='img/loewe.png') }}"
+                                 alt="proloewe.de; min-width:145px"/>
+                            <!--</a>-->
+                        </figure>
+                    </div>
+
+                </div>
+            </div>
+        {% endblock footer %}
+    </footer>
 </section>
-<script type="text/javascript">
-    document.addEventListener('DOMContentLoaded', () => {
 
-        // Get all "navbar-burger" elements
-        const $navbarBurgers = $('.navbar-burger');
+{% block javascript %}
+    {% if config['DEBUG'] or config['TESTING'] %}
+        <script src={{ url_for('static',filename='js/jquery.min.js') }}></script>
+    {% else %}
+        <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
+    {% endif %}
+    <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', () => {
 
-        // Check if there are any navbar burgers
-        if ($navbarBurgers.length > 0) {
+            // Get all "navbar-burger" elements
+            const $navbarBurgers = $('.navbar-burger');
 
-            // Add a click event on each of them
-            $navbarBurgers.each(el => {
-                $navbarBurgers[el].addEventListener('click', () => {
+            // Check if there are any navbar burgers
+            if ($navbarBurgers.length > 0) {
 
-                    // Get the target from the "data-target" attribute
-                    const target = $navbarBurgers[el].dataset.target;
-                    const tget = $('#' + target);
+                // Add a click event on each of them
+                $navbarBurgers.each(el => {
+                    $navbarBurgers[el].addEventListener('click', () => {
 
-                    // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-                    $navbarBurgers[el].classList.toggle('is-active');
-                    tget.toggleClass('is-active');
+                        // Get the target from the "data-target" attribute
+                        const target = $navbarBurgers[el].dataset.target;
+                        const tget = $('#' + target);
+
+                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                        $navbarBurgers[el].classList.toggle('is-active');
+                        tget.toggleClass('is-active');
+                    });
                 });
-            });
-        }
-
-    });
-
-    $(document).ready(function () {
-        // Check for click events on the navbar burger icon
-        $(".navbar-burger").click(function () {
-            // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-            $(".navbar-burger").toggleClass("is-active");
-            $(".navbar-menu").toggleClass("is-active");
+            }
 
         });
-    });</script>
-</body>
 
+        $(document).ready(function () {
+            // Check for click events on the navbar burger icon
+            $(".navbar-burger").click(function () {
+                // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
+                $(".navbar-burger").toggleClass("is-active");
+                $(".navbar-menu").toggleClass("is-active");
+
+            });
+        });</script>
+
+{% endblock javascript %}
+</body>
 </html>

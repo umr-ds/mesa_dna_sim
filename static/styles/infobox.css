@@ -215,21 +215,31 @@ br {
     margin-bottom: 5px;
 }
 
-
-.button-fill {
-    width: 100%;
-    height: 100%;
+@media screen and (min-width: 1408px) {
+    .button-fill {
+        width: 100%;
+        height: 100%;
+    }
 }
 
-input:-moz-read-only { /* For Firefox */
-    background-color: #f5f5f5;
-}
-
-input:read-only {
-    background-color: #f5f5f5;
+@media screen and (max-width: 1407px) {
+    .button-fill {
+        width: 100%;
+        height: 100%;
+        min-width: -moz-min-content; /* Firefox */
+        min-width: -webkit-min-content; /* Chrome */
+    }
 }
 
 .no-outline {
     outline: none;
     border: none;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0 !important;
+}
+
+input.is-grayable:read-only {
+    background-color: #F1F1F1;
 }

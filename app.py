@@ -14,14 +14,14 @@ from usersettings.register import signup
 from usersettings.validate import validate
 
 
-def main():
+def main(cfg=Config):
     # for debug purpose:
     # os.environ['REDIS_SERVER'] = '172.23.0.2'
     # os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.23.0.3:5432/dna_sim'
     # ENVIRONMENT VARIABLE 'API_PORT' CAN CHANGE THE API PORT (e.g. for DOCKER)
     # app = create_app()
     app = Flask(__name__)
-    app.config.from_object(Config)  # Choose from the different configs...
+    app.config.from_object(cfg)  # Choose from the different configs...
 
     db.init_app(app)
     mail.init_app(app)

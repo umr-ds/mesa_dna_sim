@@ -57,11 +57,13 @@
                                     <table>
                                         <tr>
                                             <td style="width:53%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input is-rounded" type="text" name="sequence"
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                                       name="sequence"
                                                        placeholder="" size="50" value="{{ subsequence.sequence }}"
                                                        required><span>Sequence</span></label></td>
                                             <td style="width:15%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input is-rounded" type="number" name="error_prob"
+                                                <input style="width:100%" class="input is-rounded" type="number"
+                                                       name="error_prob"
                                                        placeholder="" size="30"
                                                        value="{{ subsequence.error_prob }}"
                                                        required min="0.0"
@@ -75,9 +77,10 @@
                                                        value="{{ subsequence.description }}"
                                                         {% endif %}
                                                        required><span>Description</span></label></td>
-                                            <td style="width:7%"><label class="checkbox">Validated: <input type="checkbox" id="validated"
-                                                                                    value="{{ subsequence.id }}"
-                                                                                    disabled
+                                            <td style="width:7%"><label class="checkbox">Validated: <input
+                                                    type="checkbox" id="validated"
+                                                    value="{{ subsequence.id }}"
+                                                    disabled
                                                     {% if subsequence.validated %} checked {% endif %}/></label></td>
                                             <td style="width:5%">
                                                 <button class="button"
@@ -134,10 +137,11 @@
                 <!--<button class="button is-block is-info is-large is-fullwidth" id="update">Update</button>-->
             </form>
         </div>
-        <br/>
-        <hr/>
-        <br/>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
     <script>
         function deleteSeq(id) {
             $.post({
