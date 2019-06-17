@@ -78,7 +78,7 @@
                                                         {% endif %}
                                                        required><span>Description</span></label></td>
                                             <td style="width:7%"><label class="checkbox">Validated: <input
-                                                    type="checkbox" id="validated"
+                                                    type="checkbox" id="validated_{{ subsequence.id }}"
                                                     value="{{ subsequence.id }}"
                                                     disabled
                                                     {% if subsequence.validated %} checked {% endif %}/></label></td>
@@ -98,11 +98,6 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <script>
-                                        let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000
-                                        ).toUTCString();
-                                        $('#delete_subseq_{{ subsequence.id }}').attr('data-balloon', "Created at: " + dattim_{{ subsequence.id }});
-                                    </script>
                                     <br/>
                                 </div>
 
@@ -243,7 +238,7 @@
                             "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
                             "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                             "required><span>Description</span></label></td>" +
-                            "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated\"\n" +
+                            "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated_" + data.id + "\"\n" +
                             "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
                             "<td style=\"width:5%\"><button class=\"button\" data-balloon=\"Updating will remove the Validation!\"\n" +
                             "data-balloon-pos=\"up\" id=\"update_subseq_" + data.id + "\"\n" +
@@ -273,5 +268,13 @@
             })
             ;
         })
+    </script>
+
+    <script>
+        {% for subsequence in usubsequence %}
+            let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000
+            ).toUTCString();
+            $('#delete_subseq_{{ subsequence.id }}').attr('data-balloon', "Created at: " + dattim_{{ subsequence.id }});
+        {% endfor %}
     </script>
 {% endblock %}

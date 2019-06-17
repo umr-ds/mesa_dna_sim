@@ -286,7 +286,7 @@ window.onload = function () {
                                 No Description
                             {% endif %}-->
                                 <td><span class="" style="white-space: nowrap;"><label class="checkbox">Validated: <input type="checkbox"
-                                                                                                   id="validated"
+                                                                                                   id="validated_{{ subsequence.id }}"
                                                                                                    value="{{ subsequence.id }}"
                                                                                                    disabled
                                         {% if subsequence.validated %} checked {% endif %}/></label></span></td>

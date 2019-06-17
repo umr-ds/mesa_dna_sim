@@ -1,0 +1,34 @@
+#FROM python:3.6-slim
+#FROM python:3.6-alpine
+#FROM tiangolo/uwsgi-nginx-flask:python3.7
+FROM tiangolo/uwsgi-nginx:python3.7-alpine3.8
+MAINTAINER Peter Michael Schwarz "peter.schwarz@uni-marburg.de"
+#RUN echo "http://dl-8.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories
+RUN apk add --no-cache --update linux-headers libc-dev libffi-dev py3-numpy py3-scipy py3-bcrypt gcc postgresql-dev postgresql-libs --repository http://dl-cdn.alpinelinux.org/alpine/v3.8/community && \
+    rm -rf /var/cache/apk/* && set -x ; addgroup -g 82 -S www-data ; \
+    adduser -u 82 -D -S -G www-data www-data && exit 0 ; exit 1
+#inux-headers
+# libffi lapack-dev
+#RUN echo "http://dl-8.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories \
+#  && apk update \
+#  && apk add --update-cache --no-cache libgcc libquadmath musl \
+#  && apk add --update-cache --no-cache libgfortran \
+#  && apk add --update-cache --no-cache lapack-dev \
+#  && apk --no-cache --update-cache add gcc gfortran build-base openblas-dev \
+#  && ln -s /usr/include/locale.h /usr/include/xlocale.h
+#RUN apt-get update -y
+#RUN apk add nginx
+#RUN apk add uwsgi-python3
+#RUN apk add --no-cache --virtual .build-deps gcc musl-dev libffi-dev
+#RUN apt-get install -y nginx python3-pip python3-dev build-essential uwsgi-plugin-python3
+COPY . /dna_sim
+WORKDIR /dna_sim
+ 
+#RUN pip3 install --upgrade pip==18.1 &&\
+RUN pip3 install --no-cache-dir -r requirements.txt
+#&& apk del .build-deps
+#ENTRYPOINT ["python3"]
+COPY nginx.conf /etc/nginx
+RUN chmod +x ./start.sh
+CMD ["./start.sh"]
+#CMD ["app.py"]
