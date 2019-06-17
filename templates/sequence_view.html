@@ -415,6 +415,34 @@ window.onload = function () {
                             <option value="9">Rates and Attributes</option>
                           </optgroup>
                         </select>
+                        <!-- values 1-10 correspond to the error_correction id in the database -->
+                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                        <!-- or intercept these values before the database request.  -->
+                        <label for="synthmeth">Synthesis Method:</label>
+                        <select id="synthmeth">
+                          <optgroup label="None">
+                            <option value="0" selected>None</option>
+                          </optgroup>
+                          <optgroup label="Column synthesized oligos">
+                            <option value="1">MutS</option>
+                            <option value="2">Consensus shuffle</option>
+                            <option value="3">ErrASE</option>
+                            <option value="9">No error correction</option>
+                          </optgroup>
+                          <optgroup label="Microarray based oligo pools">
+                            <option value="4">Oligo hybridization based</option>
+                            <option value="5">High-temperature ligation/hybridization based</option>
+                            <option value="6">ErrASE</option>
+                            <option value="7">Nuclease-based</option>
+                            <option value="8">NGS-based</option>
+                            <option value="10">No error correction</option>
+                          </optgroup>
+                          <optgroup label="User defined">
+                            <option value="11">Error Rates</option>
+                            <option value="12">Error Attributes</option>
+                            <option value="13">Rates and Attributes</option>
+                          </optgroup>
+                        </select>
                     </td>
                 </tr>
             </table>
@@ -542,7 +570,9 @@ window.onload = function () {
                 let sequences = $('#subsequences');
                 let kmer = $('#kmer');
                 let overall = $('#overall');
-                let mod_seq  = $('#mod_seq');
+                let seq_seq  = $('#seq_seq');
+                let synth_seq = $('#synth_seq');
+                let mod_seq = $('#mod_seq');
 
                 homopolymer.text(sequence);
                 gccontent.text(sequence);
@@ -564,7 +594,7 @@ window.onload = function () {
 
                 //for (var mode in endpoints) {
 
-                let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences", "sequencing"];
+                let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences", "sequencing", "synthesis", "modify"];
                 endpoints.forEach(function (mode) {
                     let error_prob = undefined;
                     if (mode === "gccontent") {
@@ -594,7 +624,8 @@ window.onload = function () {
                             kmer_windowsize: $('#kmer_window_size').val(),
                             gc_windowsize: $('#gc_window_size').val(),
                             error_prob: error_prob,
-                            sequence_method: $("#seqmeth option:selected").val()
+                            sequence_method: $("#seqmeth option:selected").val(),
+                            synthesis_method: $("#synthmeth option:selected").val()
                         }),
                         async: true,
                         beforeSend: function (xhr) {
@@ -605,6 +636,12 @@ window.onload = function () {
                         success: function (data) {
                             //$("#spoiler3_label").click();
                             if( mode == "sequencing") {
+                                seq_seq.text(data);
+                            }
+                            if ( mode == "synthesis") {
+                                synth_seq.text(data);
+                            }
+                            if ( mode = "modify") {
                                 mod_seq.text(data);
                             }
                             let curr_group = 0;
@@ -724,7 +761,43 @@ window.onload = function () {
 
             // and add the change handler
             mainDropdown.on('change', updateSubmethods);
+
         });
+
+        $(function () {
+            var subDropdown = $("#synthmeth"),
+                mainDropdown = $('<select></select>'),
+                error_correction = []; // ordered list of submethods
+
+            subDropdown.children().each(function () {
+                var group = $(this),
+                    mainName = group.attr('label'),
+                    option;
+
+                option = $('<option></option>').text(mainName);
+
+                option.data('error_correction', group.children());
+
+                if( group.find(':selected').length > 0 ) {
+                    option.prop('selected', true);
+                }
+
+                mainDropdown.append(option);
+            });
+
+            subDropdown.before(mainDropdown);
+
+            function updateErrCorrection() {
+                var main = mainDropdown.find(':selected');
+                subDropdown.empty().append(main.data('error_correction'));
+            }
+
+            updateErrCorrection();
+
+            mainDropdown.on('change', updateErrCorrection);
+        });
+
+
     </script>
 
     <h2 class="subtitle"> Your Results: </h2>
@@ -750,7 +823,15 @@ window.onload = function () {
     </div>
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
     <div class="box">
-        <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>
+        <h3 class="subtitle" style="color: black"> Sequence with only Synthesis errors: </h3>
+        <ul class="text_lettering" id="synth_seq" style="overflow-x: auto;"></ul>
+    </div>
+    <div class="box">
+        <h3 class="subtitle" style="color: black"> Sequence with only Sequencing errors: </h3>
+        <ul class="text_lettering" id="seq_seq" style="overflow-x: auto;"></ul>
+    </div>
+    <div class="box">
+        <h3 class="subtitle" style="color: black"> Fully modified Sequence: </h3>
         <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
     </div>
 

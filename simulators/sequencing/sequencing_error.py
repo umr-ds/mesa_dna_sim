@@ -53,6 +53,8 @@ mutation_attributes = {"1": {"deletion": {"position": {"random": 1},
                                            "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
                              "mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}}
 
+synt_err_rates = {}
+
 
 class SequencingError:
     """
@@ -260,7 +262,6 @@ class SequencingError:
         for mutation_type in mutation_list:
             if self.error_rates is not None:
                 err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
-                print(err_rate)
             else:
                 err_rate = 0
             if self.attributes is False:
