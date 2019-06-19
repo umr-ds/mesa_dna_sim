@@ -53,7 +53,7 @@
                     <div class="control">
                         <div class="control" id="existing_subseqs">
                             {% for subsequence in usubsequence %}
-                                <div class="control" id="subseq_{{ subsequence.id }}">
+                                <div class="control has-padding-03" id="subseq_{{ subsequence.id }}">
                                     <table>
                                         <tr>
                                             <td style="width:53%"><label class="form-group has-float-label">
@@ -98,7 +98,6 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <br/>
                                 </div>
 
                             {% endfor %}
@@ -226,7 +225,7 @@
                     if (data.did_succeed) {
                         let subseq_box = $('#existing_subseqs');
                         let dattime = new Date(data.created * 1000).toUTCString();
-                        subseq_box.append("<div class=\"control\" id=\"subseq_" + data.id + "\">\n" +
+                        subseq_box.append("<div class=\"control has-padding-03\" id=\"subseq_" + data.id + "\">\n" +
                             "<table>\n" +
                             "<tr>\n" +
                             "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"sequence\"\n" +

@@ -28,43 +28,49 @@ function makeHoverGroups(user_borders, full_border, force) {
         lettering.css('overflow-y', 'hidden');
         //$('#text_lettering').css('height', '80%');
     }
-    all_groups.each(function () {
+    if (all_groups.length > 1000 && !force) {
+        all_groups.unbind();
+    } else {
+        all_groups.each(function () {
 
-        let cls = $(this).attr('class').split(" ");
-        let tmp = $("." + cls[cls.length - 1]);
-        //user_borders = !(cls[cls.length - 1].startsWith("g_A") || cls[cls.length - 1].startsWith("g_C") || cls[cls.length - 1].startsWith("g_T") || cls[cls.length - 1].startsWith("g_G"));
-        if (user_borders) {
-            tmp.data('depth_id', x);
-        }
-        tmp.hover(function () {
-            let curr_elem = $("." + cls[cls.length - 1]);
-            if (user_borders) {
-                const i = curr_elem.data('depth_id');
-                curr_elem.css('border-bottom', '2px solid');
-                if (full_border)
-                    curr_elem.css('border', '1px solid');
-                curr_elem.css('border-color', 'black');
-                curr_elem.css('padding-bottom', (i % 30) + 'px');
-                //curr_elem.css('overflow-y', 'hidden');
-            } else {
-                curr_elem.css('border-bottom', '5px solid'); // underline should be faster then bold font
-                //curr_elem.css('overflow-y','initial')
-                //curr_elem.css('font-weight', "bold");
+                let cls = $(this).attr('class').split(" ");
+                let tmp = $("." + cls[cls.length - 1]);
+                //user_borders = !(cls[cls.length - 1].startsWith("g_A") || cls[cls.length - 1].startsWith("g_C") || cls[cls.length - 1].startsWith("g_T") || cls[cls.length - 1].startsWith("g_G"));
+                if (user_borders) {
+                    tmp.data('depth_id', x);
+                }
+
+                tmp.hover(function () {
+                    let curr_elem = $("." + cls[cls.length - 1]);
+                    if (user_borders) {
+                        const i = curr_elem.data('depth_id');
+                        curr_elem.css('border-bottom', '2px solid');
+                        if (full_border)
+                            curr_elem.css('border', '1px solid');
+                        curr_elem.css('border-color', 'black');
+                        curr_elem.css('padding-bottom', (i % 30) + 'px');
+                        //curr_elem.css('overflow-y', 'hidden');
+                    } else {
+                        curr_elem.css('border-bottom', '5px solid'); // underline should be faster then bold font
+                        //curr_elem.css('overflow-y','initial')
+                        //curr_elem.css('font-weight', "bold");
+                    }
+                }, function () {
+                    let curr_elem = $("." + cls[cls.length - 1]);
+                    if (user_borders) {
+                        curr_elem.css('border-bottom', '');
+                        curr_elem.css('padding-bottom', '');
+                        if (full_border)
+                            curr_elem.css('border', '');
+                    } else {
+                        curr_elem.css('border-bottom', ''); // underline should be faster then bold font
+                        //curr_elem.css('font-weight', "normal");
+                    }
+                });
+                x++;
             }
-        }, function () {
-            let curr_elem = $("." + cls[cls.length - 1]);
-            if (user_borders) {
-                curr_elem.css('border-bottom', '');
-                curr_elem.css('padding-bottom', '');
-                if (full_border)
-                    curr_elem.css('border', '');
-            } else {
-                curr_elem.css('border-bottom', ''); // underline should be faster then bold font
-                //curr_elem.css('font-weight', "normal");
-            }
-        });
-        x++;
-    });
+        );
+    }
 }
 
 function extractUndesiredToJson() {
@@ -116,10 +122,11 @@ $(document).ready(function () {
         let kmer = $('#kmer');
         let overall = $('#overall');
 
-        for (let i = 0; i <= overall.text().length; i++) {
+        /*for (let i = 0; i <= overall.text().length; i++) {
             let curr_char = $(".overall_char" + (i + 1));
             curr_char.data('errorprob', 0.0);
-        }
+        }*/
+
         //var endpoints = ['gccontent', 'homopolymers'];
 
         //for (var mode in endpoints) {
@@ -148,7 +155,7 @@ $(document).ready(function () {
         if (typeof (kmer_error_prob) === "string")
             kmer_error_prob = JSON5.parse(kmer_error_prob);
 
-
+        let res = $('#results');
         for (let mode in {"all": overall}) {
             $.post({
                 url: "http://" + host + "/api/" + mode,
@@ -169,6 +176,10 @@ $(document).ready(function () {
                 async: true,
                 beforeSend: function () {
                     submit_seq_btn.addClass('is-loading');
+                    for (let error_source in endpoints) {
+                        endpoints[error_source].html("");
+                    }
+                    res.css('display', 'none');
                 },
                 success: function (data) {
                     for (let error_source in data) {
@@ -176,12 +187,16 @@ $(document).ready(function () {
                     }
                     makeHoverGroups();
                     submit_seq_btn.removeClass('is-loading');
+
+                    res.css('display', 'initial');
+                    $('html, body').animate({scrollTop: res.offset().top}, 500);
                 },
                 fail: function (data) {
                     console.log(data);
                     //$('#text_lettering').text(data);
                     submit_seq_btn.removeClass('is-loading');
-                },
+                }
+                ,
                 error: function (jqXHR, textStatus, errorThrown) {
                     console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
                     submit_seq_btn.removeClass('is-loading');

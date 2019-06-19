@@ -31,7 +31,7 @@
 </head>
 
 <body>
-<section class="hero is-primary is-fullheight">
+<section class="hero is-light is-fullheight">
     <div class="hero-head">
         <nav class="navbar">
             <div class="container">
@@ -43,7 +43,7 @@
                 </div>
                 <div id="navbarMenuHeroA" class="navbar-menu">
                     <div class="navbar-end">
-                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item"> Home </a>
+                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item is-black"> Home </a>
                         {% if session['user_id'] %}
                             <a href="{{ url_for('main_page.query_sequence') }}" aria-label="Simulation System"
                                class="navbar-item"> Simulate </a>

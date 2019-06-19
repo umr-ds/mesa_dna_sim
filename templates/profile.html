@@ -26,27 +26,30 @@
         <br/>
 
         <input type="checkbox" id="spoiler2"/>
-        <label style="white-space: nowrap;" for="spoiler2">Change Email</label>
+        <label style="white-space: nowrap;" for="spoiler2">Change E-Mail</label>
         <div class="spoiler">
             <div class="box">
                 <form method="POST" action="{{ url_for('main_page.profile') }}">
                     <div class="field">
                         <div class="control">
-                            <label>
-                                <input class="input is-large" type="email" name="current_email" disabled
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="email" name="current_email"
+                                       disabled
                                        value="{{ current_email }}"
-                                       autofocus="">
-                            </label>
+                                       autofocus=""><span>Current E-mail</span> </label>
                         </div>
                     </div>
 
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="email" name="new_email"
-                                   placeholder="New E-Mail" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="email" name="new_email"
+                                       placeholder="New E-Mail" required>
+                                <span>New E-mail</span>
+                            </label>
                         </div>
                     </div>
-                    <button class="button is-large is-fullwidth">Change Email</button>
+                    <button class="button is-large is-fullwidth">Change E-Mail</button>
                 </form>
             </div>
         </div>
@@ -61,21 +64,30 @@
                 <form method="POST" action="{{ url_for('main_page.profile') }}">
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="password" name="old_password" placeholder="Old Password"
-                                   autofocus="" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="password" name="old_password"
+                                       placeholder="Old Password"
+                                       autofocus="" required><span>Old Password</span>
+                            </label>
                         </div>
                     </div>
 
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="password" name="new_password" id="new_password"
-                                   placeholder="New Password" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="password" name="new_password"
+                                       id="new_password"
+                                       placeholder="New Password" required><span>New Password</span>
+                            </label>
                         </div>
                     </div>
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="password" name="new_password2" id="new_password2"
-                                   placeholder="Repeat new Password" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="password"
+                                       name="new_password2" id="new_password2"
+                                       placeholder="Repeat new Password" required><span>Repeat new Password</span>
+                            </label>
                         </div>
                     </div>
                     <button class="button is-block is-large is-fullwidth" id="submit">Change Password</button>
