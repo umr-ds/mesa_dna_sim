@@ -199,11 +199,15 @@ class SequencingError:
             return self._no_pattern_mismatch()
 
         if type(pattern[chosen_ele[1]]) == dict:
-            new_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
+            final_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
                                        p=list(pattern[chosen_ele[1]].values()))
         else:
             new_ele = pattern[chosen_ele[1]]
-        return self.seq[:chosen_ele[0][0]] + new_ele + self.seq[chosen_ele[0][1]:]
+            if type(new_ele) == list:
+                final_ele = np.random.choice(new_ele)
+            else:
+                final_ele = new_ele
+        return self.seq[:chosen_ele[0][0]] + final_ele + self.seq[chosen_ele[0][1]:]
 
     # Not really random and could end up in an infinite loop, but
     # better than to take all indices which satisfy the condition

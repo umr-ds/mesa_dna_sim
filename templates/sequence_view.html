@@ -635,41 +635,44 @@ window.onload = function () {
                         },
                         success: function (data) {
                             //$("#spoiler3_label").click();
-                            if( mode == "sequencing") {
-                                seq_seq.text(data);
-                            }
-                            if ( mode == "synthesis") {
-                                synth_seq.text(data);
-                            }
-                            if ( mode = "modify") {
-                                mod_seq.text(data);
-                            }
-                            let curr_group = 0;
-                            for (let block_num in data) {
-                                for (let i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
-                                    let curr_char = $("." + mode + "_char" + (i + 1));
-                                    curr_char.data('errorprob', Math.min(data[block_num].errorprob, 1.0));
-                                    curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
-                                    curr_char.css("color", "gray");
-                                    curr_char.attr('title', "Error Probability: " + round(curr_char.data('errorprob') * 100.0, 2) + " %");
-                                    if (mode === "kmer") {
-                                        curr_char.addClass('group_' + data[block_num].kmer);
-                                    } else {
-                                        curr_char.addClass('group_' + mode + '_' + curr_group);
+                            switch (mode) {
+                                case "sequencing":
+                                    seq_seq.text(data);
+                                    break;
+                                case "synthesis":
+                                    synth_seq.text(data);
+                                    break;
+                                case "modify":
+                                    mod_seq.text(data);
+                                    break;
+                                default:
+                                    let curr_group = 0;
+                                    for (let block_num in data) {
+                                        for (let i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
+                                            let curr_char = $("." + mode + "_char" + (i + 1));
+                                            curr_char.data('errorprob', Math.min(data[block_num].errorprob, 1.0));
+                                            curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
+                                            curr_char.css("color", "gray");
+                                            curr_char.attr('title', "Error Probability: " + round(curr_char.data('errorprob') * 100.0, 2) + " %");
+                                            if (mode === "kmer") {
+                                                curr_char.addClass('group_' + data[block_num].kmer);
+                                            } else {
+                                                curr_char.addClass('group_' + mode + '_' + curr_group);
+                                            }
+                                            let overall_curr_char = $(".overall_char" + (i + 1));
+                                            overall_curr_char.data('errorprob', Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0));
+                                            overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
+                                            overall_curr_char.css("color", "gray");
+                                            overall_curr_char.attr('title', "Error Probability: " + round((overall_curr_char.data('errorprob') * 100.0), 2) + " %");
+                                            if (mode === "kmer") {
+                                                overall_curr_char.addClass('group_' + data[block_num].kmer);
+                                            } else {
+                                                overall_curr_char.addClass('group_' + mode + '_' + curr_group);
+                                            }
+                                            //$('#text_lettering').text(data[i].base);
+                                        }
+                                        curr_group++;
                                     }
-                                    let overall_curr_char = $(".overall_char" + (i + 1));
-                                    overall_curr_char.data('errorprob', Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0));
-                                    overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
-                                    overall_curr_char.css("color", "gray");
-                                    overall_curr_char.attr('title', "Error Probability: " + round((overall_curr_char.data('errorprob') * 100.0), 2) + " %");
-                                    if (mode === "kmer") {
-                                        overall_curr_char.addClass('group_' + data[block_num].kmer);
-                                    } else {
-                                        overall_curr_char.addClass('group_' + mode + '_' + curr_group);
-                                    }
-                                    //$('#text_lettering').text(data[i].base);
-                                }
-                                curr_group++;
                             }
                             makeHoverGroups();
                         },

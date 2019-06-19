@@ -139,7 +139,8 @@ def add_synthesis_errors():
         res = seqerr.lit_error_rate_mutations()
     return jsonify(res)
 
-
+# This is dumb as it does calculate the errors new and therefore gets different errors
+# Than the sequencing and synthesis by them self
 @simulator_api.route('/api/modify', methods=['GET', 'POST'])
 # @require_apikey
 def add_errors():

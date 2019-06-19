@@ -16,9 +16,9 @@ from usersettings.validate import validate
 if __name__ == "__main__":
     # for debug purpose:
     # os.environ['REDIS_SERVER'] = '172.23.0.2'
-    # os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.23.0.3:5432/dna_sim'
-    os.environ['REDIS_SERVER'] = '172.20.0.2'
-    os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.20.0.3:5432/dna_sim'
+    os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.22.0.2:5432/dna_sim'
+    os.environ['REDIS_SERVER'] = '172.22.0.4'
+    # os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.20.0.2:5432/dna_sim'
     # ENVIRONMENT VARIABLE 'API_PORT' CAN CHANGE THE API PORT (e.g. for DOCKER)
     # app = create_app()
     app = Flask(__name__)

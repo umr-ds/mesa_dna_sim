@@ -8,8 +8,8 @@
     <list default="true" id="0e6c12f1-3d8a-410d-935d-7248db6ee34f" name="Default Changelist" comment="fixed gc window and allowed multiple jax requests &amp; rendering such">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/api/simulator_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/simulator_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/database/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/database/models.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/postgres/pg_dumpall.sql" beforeDir="false" afterPath="$PROJECT_DIR$/postgres/pg_dumpall.sql" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/simulators/sequencing/sequencing_error.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/sequencing/sequencing_error.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/templates/sequence_view.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sequence_view.html" afterDir="false" />
     </list>
@@ -34,13 +34,13 @@
     <select />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.34369886">
+    <splitter split-orientation="horizontal" split-proportion="0.16024464">
       <split-first>
         <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
           <file pinned="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/database/models.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="580">
+                <state relative-caret-position="2655">
                   <caret line="177" column="20" selection-start-line="177" selection-start-column="20" selection-end-line="177" selection-end-column="20" />
                   <folding>
                     <element signature="e#0#11#0" expanded="true" />
@@ -52,8 +52,8 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/api/simulator_api.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="180">
-                  <caret line="12" column="63" lean-forward="true" selection-start-line="12" selection-start-column="63" selection-end-line="12" selection-end-column="63" />
+                <state relative-caret-position="339">
+                  <caret line="180" column="14" lean-forward="true" selection-start-line="180" selection-start-column="14" selection-end-line="180" selection-end-column="14" />
                   <folding>
                     <element signature="e#0#45#0" expanded="true" />
                   </folding>
@@ -68,35 +68,26 @@
           <file pinned="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="117">
-                  <caret line="698" column="17" lean-forward="true" selection-start-line="698" selection-start-column="17" selection-end-line="698" selection-end-column="17" />
-                  <folding>
-                    <element signature="n#style#0;n#h3#0;n#div#2;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#2;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#3;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#3;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#4;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#4;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#5;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#5;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#6;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#6;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#7;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#7;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#7;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#7;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#h3#0;n#div#9;n#!!top" expanded="true" />
-                    <element signature="n#style#0;n#ul#0;n#div#9;n#!!top" expanded="true" />
-                  </folding>
+                <state relative-caret-position="403">
+                  <caret line="646" column="42" lean-forward="true" selection-start-line="646" selection-start-column="42" selection-end-line="646" selection-end-column="42" />
                 </state>
               </provider>
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/api/main_page.py">
+            <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="105">
-                  <caret line="10" column="46" selection-start-line="10" selection-start-column="46" selection-end-line="10" selection-end-column="46" />
+                <state relative-caret-position="457">
+                  <caret line="915" column="28" selection-start-line="915" selection-start-column="28" selection-end-line="915" selection-end-column="28" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/app.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="183">
+                  <caret line="19" column="44" selection-start-line="19" selection-start-column="44" selection-end-line="19" selection-end-column="44" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -105,10 +96,28 @@
             </entry>
           </file>
           <file pinned="false" current-in-tab="false">
-            <entry file="file://$PROJECT_DIR$/app.py">
+            <entry file="file://$PROJECT_DIR$/config.py">
               <provider selected="true" editor-type-id="text-editor">
-                <state relative-caret-position="300">
-                  <caret line="20" column="4" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
+                <state relative-caret-position="165">
+                  <caret line="11" column="58" selection-start-line="11" selection-start-column="58" selection-end-line="11" selection-end-column="58" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/api/error_handle.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="105">
+                  <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/api/main_page.py">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="-2196">
+                  <caret line="86" column="60" lean-forward="true" selection-start-line="86" selection-start-column="60" selection-end-line="86" selection-end-column="60" />
                   <folding>
                     <element signature="e#0#9#0" expanded="true" />
                   </folding>
@@ -132,13 +141,6 @@
   </component>
   <component name="FindInProjectRecents">
     <findStrings>
-      <find>AAAGTAGGGGGGAACCAAAAAAAAATATAATCAGTCCCCCCCCCC</find>
-      <find />
-      <find>query_sequence</find>
-      <find>ENTWEDER</find>
-      <find>&lt;section class=&quot;hero is-primary is-fullheight&quot;&gt;</find>
-      <find>{</find>
-      <find>error_</find>
       <find>err_rates</find>
       <find>err_</find>
       <find>mutation_attributes</find>
@@ -162,6 +164,13 @@
       <find>mod_seq</find>
       <find>print</find>
       <find>kmer</find>
+      <find>_patter</find>
+      <find>[CA, TG]</find>
+      <find>&quot;CG&quot;</find>
+      <find>makeHoverGroups</find>
+      <find>alert</find>
+      <find>getColorForPercentage</find>
+      <find>ode</find>
     </findStrings>
     <replaceStrings>
       <replace>json</replace>
@@ -220,14 +229,14 @@
         <option value="$PROJECT_DIR$/simulators/sequencing/nanopore.py" />
         <option value="$PROJECT_DIR$/postgres/seqmeth_dumpall.sql" />
         <option value="$PROJECT_DIR$/simulators/sequencing/sequencing.py" />
-        <option value="$PROJECT_DIR$/config.py" />
-        <option value="$PROJECT_DIR$/simulators/sequencing/sequencing_error.py" />
-        <option value="$PROJECT_DIR$/postgres/pg_dumpall.sql" />
-        <option value="$PROJECT_DIR$/app.py" />
         <option value="$PROJECT_DIR$/database/models.py" />
-        <option value="$PROJECT_DIR$/api/simulator_api.py" />
         <option value="$PROJECT_DIR$/api/main_page.py" />
+        <option value="$PROJECT_DIR$/simulators/sequencing/sequencing_error.py" />
+        <option value="$PROJECT_DIR$/api/simulator_api.py" />
         <option value="$PROJECT_DIR$/templates/sequence_view.html" />
+        <option value="$PROJECT_DIR$/postgres/pg_dumpall.sql" />
+        <option value="$PROJECT_DIR$/config.py" />
+        <option value="$PROJECT_DIR$/app.py" />
       </list>
     </option>
   </component>
@@ -242,7 +251,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="ProjectPane" />
       <pane id="Scope">
         <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
           <expand>
@@ -314,6 +322,7 @@
           <select />
         </subPane>
       </pane>
+      <pane id="ProjectPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -525,7 +534,9 @@
       <workItem from="1559906503949" duration="1126000" />
       <workItem from="1560243356876" duration="3773000" />
       <workItem from="1560315839647" duration="13634000" />
-      <workItem from="1560761335993" duration="9739000" />
+      <workItem from="1560761335993" duration="9842000" />
+      <workItem from="1560926666146" duration="6280000" />
+      <workItem from="1560933950797" duration="4392000" />
     </task>
     <task id="LOCAL-00001" summary="fixed gc window and allowed multiple jax requests &amp; rendering such">
       <created>1557931757727</created>
@@ -538,13 +549,13 @@
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="266498000" />
+    <option name="totallyTimeSpent" value="277273000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="38" y="0" width="1885" height="1203" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" weight="0.33006" />
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10801964" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
@@ -640,7 +651,7 @@
     <SUITE FILE_PATH="coverage/dna_sim$gc_content.coverage" NAME="gc_content Coverage Results" MODIFIED="1557915036143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
     <SUITE FILE_PATH="coverage/dna_sim$error_sim.coverage" NAME="error_sim Coverage Results" MODIFIED="1557997920045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Code" />
     <SUITE FILE_PATH="coverage/dna_sim$undesired_subsequences.coverage" NAME="undesired_subsequences Coverage Results" MODIFIED="1558079653570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
-    <SUITE FILE_PATH="coverage/dna_sim$app.coverage" NAME="app Coverage Results" MODIFIED="1560779216531" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/dna_sim$app.coverage" NAME="app Coverage Results" MODIFIED="1560935761428" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/dna_sim$kmer.coverage" NAME="kmer Coverage Results" MODIFIED="1558001263187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
   </component>
   <component name="debuggerHistoryManager">
@@ -740,9 +751,6 @@ x.id</expression-string>
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="480">
           <caret line="40" selection-start-line="40" selection-end-line="44" selection-end-column="31" />
-          <folding>
-            <element signature="e#0#11#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -875,13 +883,6 @@ x.id</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/api/error_handle.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="105">
-          <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/api/mail.py">
       <provider selected="true" editor-type-id="text-editor">
         <state>
@@ -891,20 +892,7 @@ x.id</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql_bk">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="322">
-          <caret line="314" column="13" selection-start-line="314" selection-start-column="13" selection-end-line="314" selection-end-column="13" />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/config.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="435">
-          <caret line="29" column="23" selection-start-line="29" selection-start-column="23" selection-end-line="29" selection-end-column="23" />
-        </state>
-      </provider>
-    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql_bk" />
     <entry file="file://$PROJECT_DIR$/templates/undesired_subsequences.html">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="-1380">
@@ -982,16 +970,6 @@ x.id</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="300">
-          <caret line="20" column="4" selection-start-line="20" selection-start-column="4" selection-end-line="20" selection-end-column="4" />
-          <folding>
-            <element signature="e#0#9#0" expanded="true" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/database/db.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="30">
@@ -1004,24 +982,17 @@ x.id</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/simulators/sequencing/sequencing_error.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="2427">
-          <caret line="208" column="65" lean-forward="true" selection-start-line="208" selection-start-column="65" selection-end-line="208" selection-end-column="65" />
+        <state relative-caret-position="594">
+          <caret line="208" column="35" selection-start-line="208" selection-start-column="35" selection-end-line="208" selection-end-column="35" />
           <folding>
             <element signature="e#0#61#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql">
-      <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="34">
-          <caret line="880" column="25" selection-start-line="880" selection-start-column="12" selection-end-line="880" selection-end-column="25" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/database/models.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="580">
+        <state relative-caret-position="2655">
           <caret line="177" column="20" selection-start-line="177" selection-start-column="20" selection-end-line="177" selection-end-column="20" />
           <folding>
             <element signature="e#0#11#0" expanded="true" />
@@ -1029,10 +1000,41 @@ x.id</expression-string>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/api/main_page.py">
+    <entry file="file://$PROJECT_DIR$/api/error_handle.py">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="105">
-          <caret line="10" column="46" selection-start-line="10" selection-start-column="46" selection-end-line="10" selection-end-column="46" />
+          <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/main_page.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2196">
+          <caret line="86" column="60" lean-forward="true" selection-start-line="86" selection-start-column="60" selection-end-line="86" selection-end-column="60" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="457">
+          <caret line="915" column="28" selection-start-line="915" selection-start-column="28" selection-end-line="915" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="165">
+          <caret line="11" column="58" selection-start-line="11" selection-start-column="58" selection-end-line="11" selection-end-column="58" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="183">
+          <caret line="19" column="44" selection-start-line="19" selection-start-column="44" selection-end-line="19" selection-end-column="44" />
           <folding>
             <element signature="e#0#9#0" expanded="true" />
           </folding>
@@ -1041,33 +1043,15 @@ x.id</expression-string>
     </entry>
     <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="117">
-          <caret line="698" column="17" lean-forward="true" selection-start-line="698" selection-start-column="17" selection-end-line="698" selection-end-column="17" />
-          <folding>
-            <element signature="n#style#0;n#h3#0;n#div#2;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#2;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#3;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#3;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#4;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#4;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#5;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#5;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#6;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#6;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#7;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#7;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#7;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#7;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#h3#0;n#div#9;n#!!top" expanded="true" />
-            <element signature="n#style#0;n#ul#0;n#div#9;n#!!top" expanded="true" />
-          </folding>
+        <state relative-caret-position="403">
+          <caret line="646" column="42" lean-forward="true" selection-start-line="646" selection-start-column="42" selection-end-line="646" selection-end-column="42" />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/api/simulator_api.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="180">
-          <caret line="12" column="63" lean-forward="true" selection-start-line="12" selection-start-column="63" selection-end-line="12" selection-end-column="63" />
+        <state relative-caret-position="339">
+          <caret line="180" column="14" lean-forward="true" selection-start-line="180" selection-start-column="14" selection-end-line="180" selection-end-column="14" />
           <folding>
             <element signature="e#0#45#0" expanded="true" />
           </folding>
