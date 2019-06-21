@@ -1,9 +1,13 @@
 let curr_chart, curr_dataset, element, datasetIndex, index, scale, org_pos, org_data, org_options;
 let useCubicInterpolation = true;
 let toogleDragXaxis = false;
-let dragXcol = '#209cee';
-let interpolcol = '#50ee0a';
+let offColor = '#baa861';
+let onColor = '#50ee0a';
+let dragXcol = offColor;
+let interpolcol = onColor;
 let xLabelString = 'Homopolymer length';
+
+let default_graph_name = "Default Graph"; //"New Graph";
 
 let xRoundingFactor = 0;
 let yRoundingFactor = 2;
@@ -15,6 +19,10 @@ let default_homopolymer_data = "{\"data\":[{\"x\":0,\"y\":0},{\"x\":2,\"y\":0},{
     "{\"x\":6,\"y\":80},{\"x\":7,\"y\":100},{\"x\":20,\"y\":100}],\"interpolation\":true,\"maxX\":20," +
     "\"maxY\":100,\"xRound\":0,\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"Homopolymer length\"}";
 
+let default_kmer_data = "{\"data\":[{\"x\":0,\"y\":0},{\"x\":6,\"y\":0.15},{\"x\":12,\"y\":0.85},{\"x\":22,\"y\":4.73}," +
+    "{\"x\":40,\"y\":18.2},{\"x\":60,\"y\":40.7},{\"x\":79,\"y\":67.36},{\"x\":100,\"y\":100}],\"interpolation\":true," +
+    "\"maxX\":20,\"maxY\":100,\"xRound\":0,\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"Kmer repeats\"}";
+
 let default_gc_content_data = "{\"data\":[{\"x\":0,\"y\":100},{\"x\":30,\"y\":100},{\"x\":40,\"y\":0},{\"x\":60.17,\"y\":0}," +
     "{\"x\":70,\"y\":100},{\"x\":100,\"y\":100}],\"interpolation\":true,\"maxX\":100,\"maxY\":100,\"xRound\":0," +
     "\"yRound\":2,\"label\":\"Error Probability\",\"xLabel\":\"GC-Percentage\"}";
@@ -25,19 +33,29 @@ let default_gc_content_data_obj = {
     "label": "Error Probability", "xLabel": "GC-Percentage"
 };
 
+
 const default_homopolymer_data_obj = {
     "data": [{"x": 0, "y": 0}, {"x": 2, "y": 0}, {"x": 4, "y": 20}, {"x": 5, "y": 50},
         {"x": 6, "y": 80}, {"x": 7, "y": 100}, {"x": 20, "y": 100}], "interpolation": true, "maxX": 20,
     "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Homopolymer length"
 };
 
+const default_kmer_data_obj = {
+    "data": [{"x": 0, "y": 0}, {"x": 6, "y": 0.15}, {"x": 12, "y": 0.85}, {"x": 22, "y": 4.73}, {"x": 40, "y": 18.2},
+        {"x": 60, "y": 40.7}, {"x": 79, "y": 67.36}, {"x": 100, "y": 100}], "interpolation": true, "maxX": 20,
+    "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Homopolymer length"
+};
+
 const default_data_obj = {
     'gc': default_gc_content_data_obj,
-    'homopolymer': default_homopolymer_data_obj
+    'homopolymer': default_homopolymer_data_obj,
+    'kmer': default_kmer_data_obj
 };
+
 const defaults = {
     "homopolymer": default_homopolymer_data,
     "gc": default_gc_content_data,
+    'kmer': default_kmer_data,
     undefined: default_gc_content_data
 };
 
@@ -118,9 +136,9 @@ function toogleCubicInterpolation() {
     });
     curr_chart.update();
     if (useCubicInterpolation) {
-        interpolcol = '#50ee0a';
+        interpolcol = onColor;
     } else {
-        interpolcol = '#209cee';
+        interpolcol = offColor; //'#209cee';
     }
     $('#toogleinterpolation').css('background-color', interpolcol);
 }
@@ -169,15 +187,15 @@ function toogleDragX() {
     curr_chart.options.dragX = toogleDragXaxis;
     curr_chart.update();
     if (toogleDragXaxis) {
-        dragXcol = '#50ee0a';
+        dragXcol = onColor;
     } else {
-        dragXcol = '#209cee';
+        dragXcol = offColor; //'#209cee';
     }
     $('#toogleDragX').css('background-color', dragXcol);
 }
 
 function addPoint(x_val, y_val) {
-    x_val = Math.min(round(Number(x_val), xRoundingFactor), maximumX);
+    x_val = round(Number(x_val), xRoundingFactor); // we might want to enforce using Math.min(maximumX, ...)
     y_val = Math.min(round(Number(y_val), yRoundingFactor), maximumY);
     curr_chart.data.datasets.forEach((dataset) => {
         var found = dataset.data.findIndex(function (element) {
@@ -246,9 +264,9 @@ function constructDataset(datalist, lbl, useInterpolation) {
         // update color and global var!
         useCubicInterpolation = useInterpolation;
         if (useCubicInterpolation) {
-            interpolcol = '#50ee0a';
+            interpolcol = onColor;
         } else {
-            interpolcol = '#209cee';
+            interpolcol = offColor; //'#209cee';
         }
         $('#toogleinterpolation').css('background-color', interpolcol);
     }
@@ -420,4 +438,147 @@ function buildDropdown(result, dropdown, emptyMessage) {
                 v.name + '</option>');
         });
     }
+}
+
+/* Overlay / Chart-Display */
+
+function closeOverlay() {
+    let overlay = $("#overlay");
+    /*$("#overlay").css({
+        "opacity": "0",
+        "display": "none",
+    }).show().animate({opacity: 0}, 100).hide()*/
+    //todo save values to the corresponding array
+    overlay.fadeOut(175, "linear");
+    //overlay.css("display", "none");
+}
+
+function showOverlay(validated, editable, id, text, type) {
+    let overlay = $("#overlay");
+    let chartName = $("#chart-name");
+    /*$("#overlay").css({
+        "opacity": "1",
+        "display": "block",
+    }).show().animate({opacity: 1}, 100)*/
+    /*
+     * if editable == false, we can only safe a copy via "Save as ________"
+     * otherwise we want an "Update" Button +  "Delete" Buttton as well as an Option for "Save as ________"
+     * additinally we want to show Validated true false
+     */
+
+    $("#update-chart").prop('disabled', !editable);
+    $("#delete-chart").prop('disabled', !editable);
+    chartName.val(text);
+    chartName.data("id", id);
+    chartName.data("validated", validated);
+    chartName.data("type", type);
+
+    overlay.fadeIn(100, "linear");
+    //overlay.css("display", "block");
+    //setYValueAfterX(curr_chart, 0, 3);
+}
+
+function saveChart(host, apikey, create_copy) {
+    const chart_name = $('#chart-name');
+    $.post({
+        url: "http://" + host + "/api/update_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            name: chart_name.val(),
+            key: apikey,
+            chart_id: chart_name.data('id'),
+            jsonblob: serializeData(),
+            copy: create_copy,
+            type: chart_name.data('type')
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data["did_succeed"] === true) {
+                updateDropdown(host, apikey, chart_name.data('type'));
+                showOverlay(data["validated"], true, data["id"], data["name"], data["type"])
+            } else {
+                console.log(data)
+                //TODO show error
+            }
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function deleteChart(host, apikey) {
+    const chart_name = $('#chart-name');
+    $.post({
+        url: "http://" + host + "/api/delete_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            name: chart_name.val(),
+            key: apikey,
+            chart_id: chart_name.data('id'),
+            type: chart_name.data('type')
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data["did_succeed"] === true) {
+                updateDropdown(host, apikey, chart_name.data('type'));
+                deserializeDataAndLoadDraw(undefined, chart_name.data('type'));
+                showOverlay(true, false, -1, default_graph_name, chart_name.data('type'));
+            } else {
+                console.log(data)
+                //TODO show error
+            }
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function updateDropdown(host, apikey, type) {
+    $.post({
+        url: "http://" + host + "/api/get_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            key: apikey,
+            type: type
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            let el = $('#' + type + '-dropdown');
+            el.empty(); // remove old options
+            $.each(data['charts'], function (id) {
+                let elem = data['charts'][id];
+                el.append($("<option></option>").text(elem['name']).data('jsonblob', elem['jsonblob'])
+                    .data('id', elem['id']).data('validated', elem['validated'])
+                    .data('isowner', elem['isowner']).data('type', elem['type']));
+            });
+            el.append($("<option></option>").text(default_graph_name).data('id', -1).data('validated', true)
+                .data('isowner', false).data('type', type).data('jsonblob', default_data_obj[type]));
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
 }

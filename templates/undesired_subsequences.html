@@ -53,32 +53,35 @@
                     <div class="control">
                         <div class="control" id="existing_subseqs">
                             {% for subsequence in usubsequence %}
-                                <div class="control" id="subseq_{{ subsequence.id }}">
+                                <div class="control has-padding-03" id="subseq_{{ subsequence.id }}">
                                     <table>
                                         <tr>
                                             <td style="width:53%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input" type="text" name="sequence"
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                                       name="sequence"
                                                        placeholder="" size="50" value="{{ subsequence.sequence }}"
                                                        required><span>Sequence</span></label></td>
                                             <td style="width:15%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input" type="number" name="error_prob"
+                                                <input style="width:100%" class="input is-rounded" type="number"
+                                                       name="error_prob"
                                                        placeholder="" size="30"
                                                        value="{{ subsequence.error_prob }}"
                                                        required min="0.0"
                                                        max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
                                             </td>
                                             <td style="width:15%"><label class="form-group has-float-label">
-                                                <input style="width:100%" class="input"
+                                                <input style="width:100%" class="input is-rounded"
                                                        type="text" name="description" placeholder="Description"
                                                        size="20"
                                                         {% if subsequence.description != None %}
                                                        value="{{ subsequence.description }}"
                                                         {% endif %}
                                                        required><span>Description</span></label></td>
-                                            <td style="width:7%"> Validated: <input type="checkbox" id="validated"
-                                                                                    value="{{ subsequence.id }}"
-                                                                                    disabled
-                                                    {% if subsequence.validated %} checked {% endif %}/></td>
+                                            <td style="width:7%"><label class="checkbox">Validated: <input
+                                                    type="checkbox" id="validated_{{ subsequence.id }}"
+                                                    value="{{ subsequence.id }}"
+                                                    disabled
+                                                    {% if subsequence.validated %} checked {% endif %}/></label></td>
                                             <td style="width:5%">
                                                 <button class="button"
                                                         data-balloon="Updating will remove the Validation!"
@@ -95,12 +98,6 @@
                                             </td>
                                         </tr>
                                     </table>
-                                    <script>
-                                        let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000
-                                        ).toUTCString();
-                                        $('#delete_subseq_{{ subsequence.id }}').attr('data-balloon', "Created at: " + dattim_{{ subsequence.id }});
-                                    </script>
-                                    <br/>
                                 </div>
 
                             {% endfor %}
@@ -109,16 +106,16 @@
                             <table>
                                 <tr>
                                     <td style="width:55%"><label class="form-group has-float-label">
-                                        <input class="input" type="text" id="addsequence" name="sequence"
+                                        <input class="input is-rounded" type="text" id="addsequence" name="sequence"
                                                placeholder="Undesired Subsequence" size="58" value=""
                                                required><span>Sequence</span></label></td>
                                     <td style="width:15%"><label class="form-group has-float-label">
-                                        <input class="input" type="number" id="errorprob" name="error_prob"
+                                        <input class="input is-rounded" type="number" id="errorprob" name="error_prob"
                                                placeholder="0,5" size="30" value="" required min="0.0"
                                                max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
                                     </td>
                                     <td style="width:29%"><label class="form-group has-float-label">
-                                        <input class="input" type="text" id="description" name="description"
+                                        <input class="input is-rounded" type="text" id="description" name="description"
                                                placeholder="Description" size="31" value=""
                                                required><span>Description</span></label>
                                     </td>
@@ -134,10 +131,11 @@
                 <!--<button class="button is-block is-info is-large is-fullwidth" id="update">Update</button>-->
             </form>
         </div>
-        <br/>
-        <hr/>
-        <br/>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
     <script>
         function deleteSeq(id) {
             $.post({
@@ -227,19 +225,19 @@
                     if (data.did_succeed) {
                         let subseq_box = $('#existing_subseqs');
                         let dattime = new Date(data.created * 1000).toUTCString();
-                        subseq_box.append("<div class=\"control\" id=\"subseq_" + data.id + "\">\n" +
+                        subseq_box.append("<div class=\"control has-padding-03\" id=\"subseq_" + data.id + "\">\n" +
                             "<table>\n" +
                             "<tr>\n" +
-                            "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"text\" name=\"sequence\"\n" +
+                            "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"sequence\"\n" +
                             "placeholder=\"\" size=\"50\" value=\"" + data.sequence + "\" required><span>Sequence</span></label></td>\n" +
-                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"number\" name=\"error_prob\"\n" +
+                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"number\" name=\"error_prob\"\n" +
                             "placeholder=\"\" size=\"30\" value=\"" + data.error_prob + "\" required\n" +
                             "min=\"0.0\"\n" +
                             "max=\"1.0\" step=\"0.01\"><span><nobr>Errpr Probability</nobr></span></label></td>\n" +
-                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input\" type=\"text\" name=\"description\"\n" +
+                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
                             "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                             "required><span>Description</span></label></td>" +
-                            "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated\"\n" +
+                            "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated_" + data.id + "\"\n" +
                             "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
                             "<td style=\"width:5%\"><button class=\"button\" data-balloon=\"Updating will remove the Validation!\"\n" +
                             "data-balloon-pos=\"up\" id=\"update_subseq_" + data.id + "\"\n" +
@@ -269,5 +267,13 @@
             })
             ;
         })
+    </script>
+
+    <script>
+        {% for subsequence in usubsequence %}
+            let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000
+            ).toUTCString();
+            $('#delete_subseq_{{ subsequence.id }}').attr('data-balloon', "Created at: " + dattim_{{ subsequence.id }});
+        {% endfor %}
     </script>
 {% endblock %}

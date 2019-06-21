@@ -4,58 +4,6 @@
 
 
 {% block content %}
-    <!--<script type="text/javascript">
-        function checkPass() {
-            //Store the password field objects into variables ...
-            var password = document.getElementById('new_password');
-            var confirm = document.getElementById('new_password2');
-            //Store the Confirmation Message Object ...
-            var message = document.getElementById('confirm-message2');
-            //Set the colors we will be using ...
-            var good_color = "#66cc66";
-            var bad_color = "#ff6666";
-            //Compare the values in the password field
-            //and the confirmation field
-            if (password.value == confirm.value) {
-                //The passwords match.
-                //Set the color to the good color and inform
-                //the user that they have entered the correct password
-                confirm.style.backgroundColor = good_color;
-                message.style.color = good_color;
-                message.innerHTML = '<img src="/wp-content/uploads/2019/04/tick.png" alt="Passwords Match!">';
-                return true;
-            } else {
-                //The passwords do not match.
-                //Set the color to the bad color and
-                //notify the user.
-                confirm.style.backgroundColor = bad_color;
-                message.style.color = bad_color;
-                message.innerHTML = '<img src="/wp-content/uploads/2019/04/publish_x.png" alt="Passwords Do Not Match!">';
-                return false;
-            }
-        }
-    </script>-->
-    <script type="text/javascript">
-        window.onload = function () {
-            document.getElementById("new_password").onkeyup = validatePassword;
-            document.getElementById("new_password2").onkeyup = validatePassword;
-        }
-
-        function validatePassword() {
-            var pass2 = document.getElementById("new_password").value;
-            var pass1 = document.getElementById("new_password2").value;
-            if (pass1 !== pass2) {
-                document.getElementById('new_password2').style.backgroundColor = "#ff6666";
-                document.getElementById('new_password').style.backgroundColor = "#ff6666";
-                document.getElementById("new_password2").setCustomValidity("Passwords Don't Match");
-            } else {
-                document.getElementById('new_password2').style.backgroundColor = "";
-                document.getElementById('new_password').style.backgroundColor = "";
-                document.getElementById("new_password2").setCustomValidity('');
-            }
-//empty string means no validation error
-        }
-    </script>
     <div class="column is-6 is-offset-3">
         <h3 class="title">Profile</h3>
 
@@ -78,27 +26,30 @@
         <br/>
 
         <input type="checkbox" id="spoiler2"/>
-        <label style="white-space: nowrap;" for="spoiler2">Change Email</label>
+        <label style="white-space: nowrap;" for="spoiler2">Change E-Mail</label>
         <div class="spoiler">
             <div class="box">
                 <form method="POST" action="{{ url_for('main_page.profile') }}">
                     <div class="field">
                         <div class="control">
-                            <label>
-                                <input class="input is-large" type="email" name="current_email" disabled
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="email" name="current_email"
+                                       disabled
                                        value="{{ current_email }}"
-                                       autofocus="">
-                            </label>
+                                       autofocus=""><span>Current E-mail</span> </label>
                         </div>
                     </div>
 
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="email" name="new_email"
-                                   placeholder="New E-Mail" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="email" name="new_email"
+                                       placeholder="New E-Mail" required>
+                                <span>New E-mail</span>
+                            </label>
                         </div>
                     </div>
-                    <button class="button is-block is-info is-large is-fullwidth">Change Password</button>
+                    <button class="button is-large is-fullwidth">Change E-Mail</button>
                 </form>
             </div>
         </div>
@@ -113,24 +64,33 @@
                 <form method="POST" action="{{ url_for('main_page.profile') }}">
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="password" name="old_password" placeholder="Old Password"
-                                   autofocus="" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="password" name="old_password"
+                                       placeholder="Old Password"
+                                       autofocus="" required><span>Old Password</span>
+                            </label>
                         </div>
                     </div>
 
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="password" name="new_password" id="new_password"
-                                   placeholder="New Password" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="password" name="new_password"
+                                       id="new_password"
+                                       placeholder="New Password" required><span>New Password</span>
+                            </label>
                         </div>
                     </div>
                     <div class="field">
                         <div class="control">
-                            <input class="input is-large" type="password" name="new_password2" id="new_password2"
-                                   placeholder="Repeat new Password" required>
+                            <label class="form-group has-float-label">
+                                <input class="input is-large button-fill is-rounded" type="password"
+                                       name="new_password2" id="new_password2"
+                                       placeholder="Repeat new Password" required><span>Repeat new Password</span>
+                            </label>
                         </div>
                     </div>
-                    <button class="button is-block is-info is-large is-fullwidth" id="submit">Change Password</button>
+                    <button class="button is-block is-large is-fullwidth" id="submit">Change Password</button>
                 </form>
             </div>
         </div>
@@ -143,4 +103,29 @@
         </a></span> your account. THIS CAN NOT BE UNDONE.
         </span>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
+    <script type="text/javascript">
+        window.onload = function () {
+            document.getElementById("new_password").onkeyup = validatePassword;
+            document.getElementById("new_password2").onkeyup = validatePassword;
+        }
+
+        function validatePassword() {
+            var pass2 = document.getElementById("new_password").value;
+            var pass1 = document.getElementById("new_password2").value;
+            if (pass1 !== pass2) {
+                document.getElementById('new_password2').style.backgroundColor = "#ff6666";
+                document.getElementById('new_password').style.backgroundColor = "#ff6666";
+                document.getElementById("new_password2").setCustomValidity("Passwords Don't Match");
+            } else {
+                document.getElementById('new_password2').style.backgroundColor = "";
+                document.getElementById('new_password').style.backgroundColor = "";
+                document.getElementById("new_password2").setCustomValidity('');
+            }
+//empty string means no validation error
+        }
+    </script>
 {% endblock %}

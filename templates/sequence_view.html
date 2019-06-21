@@ -3,14 +3,6 @@
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.js"></script>
-    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-dragdata@0.3.0/dist/chartjs-plugin-dragData.min.js"></script>
-    <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
-    <!--<link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/dropdown.css') }}>-->
-    <script src="{{ url_for('static',filename='js/error-chart.js') }}"></script>
-    <script src="{{ url_for('static',filename='js/autoscroll.js') }}"></script>
-    <script src="https://unpkg.com/json5@^2.0.0/dist/index.min.js"></script>
 {% endblock %}
 {% block content %}
     <!--<script type = "text/javascript" >
@@ -25,351 +17,157 @@ window.onload = function () {
     <div class="control" id="overlay">
         <div class="box control" id="inneroverlay">
             <a href="javascript:void(0)" class="closebtn" onclick="closeOverlay()">&times;</a>
-            <div class="box overlay-content" id="overlay-content">
-                <canvas id="myChart" width="1600" height="900"></canvas>
-            </div>
-            <br/>
-            <div class="overlay-managebox" id="overlay-managebox">
-                <table>
-                    <tr>
-                        <td>
+            <div class="box overlay-all">
+                <div class="box overlay-content" id="overlay-content">
+                    <canvas id="myChart"></canvas>
+                </div>
+                <br/>
+                <div class="overlay-managebox" id="overlay-managebox">
+                    <div class="columns">
+                        <div class="column is-pulled-left is-2 is-one-">
                             <label class="form-group has-float-label">
                                 <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
-                                       required min="0.0" step="1"><span>X-value</span></label></td>
-                        <td>
+                                       required min="0.0" step="1"><span>X-value</span></label>
+                        </div>
+                        <div class="column is-pulled-left is-2">
                             <label class="form-group has-float-label">
                                 <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
-                                       required min="0.0" step="1"><span>Y-value</span></label></td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="addpoint" name="addpoint"
+                                       required min="0.0" step="1"><span>Y-value</span></label>
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button" id="addpoint"
+                                    name="addpoint"
                                     onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Modify is based on X-Value!" data-balloon-pos="up"> Add / Modify point
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="removePoint" name="removePoint"
-                                    onclick="removePoint($('#x-val').val());return false;"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="removePoint"
+                                    name="removePoint" onclick="removePoint($('#x-val').val());return false;"
                                     data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove point
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="setybeforex" name="setybeforex"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="setybeforex"
+                                    name="setybeforex"
                                     onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Changes all Y-Values of Points with a smaller X-Value"
                                     data-balloon-pos="up">
                                 Set Y-Values before X
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="setyafterx" name="setyafterx"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="setyafterx"
+                                    name="setyafterx"
                                     onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Changes all Y-Values of Points with a greater X-Value"
                                     data-balloon-pos="up">
                                 Set Y-Values after X
                             </button>
-                        </td>
-                    </tr>
-                </table>
-                X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will be
-                mapped to the last Y-Value
-                <br/>
-                <table>
-                    <tr>
-                        <td>
-                            <input class="button is-block is-info" type="button" id="doReset" name="doReset"
+                        </div>
+                    </div>
+                    <!--<span>
+                    X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
+                    be mapped to the last Y-Value</span>-->
+                    <div class="columns">
+                        <div class="column is-pulled-left">
+                            <input class="button is-block is-info-deactivated button-fill" type="button" id="doReset"
+                                   name="doReset"
                                    onclick="resetChanges();return false;" value="Reset">
-                        <td>
-                            <input class="button is-block is-info" type="button" id="toogleinterpolation"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <input class="button is-block is-info-deactivated button-fill" type="button"
+                                   id="toogleinterpolation"
                                    name="toogleinterpolation" onclick="toogleCubicInterpolation();return false;"
                                    value="Use Interpolation">
-                        </td>
-                        <td>
-                            <input class="button is-block is-info" type="button" id="toogleDragX"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <input class="button is-block is-info-deactivated button-fill" type="button"
+                                   id="toogleDragX"
                                    name="toogleDragX" onclick="toogleDragX();return false;"
                                    value="Allow drag along X-Axis">
-                        </td>
-                        <td>
-                            <label class="form-group has-float-label">
+                        </div>
+                        <div class="column is-pulled-left is-2">
+                            <label class="form-group has-float-label button-fill">
                                 <input class="input" type="text" id="chart-name" placeholder="" size="20"
-                                       required><span>Name</span></label></td>
-                        <td>
-
-                        <td>
-                            <button class="button is-block is-info" type="button" id="update-chart" name="update-chart"
-                                    onclick="saveChart(false);return false;"
+                                       required><span>Name</span></label>
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="update-chart"
+                                    name="update-chart"
+                                    onclick="saveChart('{{ host }}', '{{ apikey }}', false);return false;"
                                     data-balloon="Update current Error-Probability Graph" data-balloon-pos="up"> Update
                                 Template
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="delete-chart" name="delete-chart"
-                                    onclick="deleteChart($('#x-val').val(), $('#y-val').val());return false;"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="delete-chart"
+                                    name="delete-chart"
+                                    onclick="deleteChart('{{ host }}', '{{ apikey }}', $('#x-val').val(), $('#y-val').val());return false;"
                                     data-balloon="Delete current Error-Probability Graph" data-balloon-pos="up"> Delete
                             </button>
-                        </td>
-                        <td>
-                            <button class="button is-block is-info" type="button" id="save-chart" name="save-chart"
-                                    onclick="saveChart(true);return false;" data-balloon="Save Copy"
+                        </div>
+                        <div class="column is-pulled-left">
+                            <button class="button is-block is-info-deactivated button-fill" type="button"
+                                    id="save-chart"
+                                    name="save-chart"
+                                    onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
+                                    data-balloon="Save Copy"
                                     data-balloon-pos="up"> Save copy of Template
                             </button>
-                        </td>
-                    </tr>
-                </table>
+                        </div>
+
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-    <script>
-        function saveChart(create_copy) {
-            const chart_name = $('#chart-name');
-            $.post({
-                url: "http://{{ host }}/api/update_error_prob_charts",
-                dataType: 'json',
-                contentType: 'application/json;charset=UTF-8',
-                data: JSON.stringify({
-                    name: chart_name.val(),
-                    key: '{{apikey}}',
-                    chart_id: chart_name.data('id'),
-                    jsonblob: serializeData(),
-                    copy: create_copy,
-                    type: chart_name.data('type')
-                }),
-                async: true,
-                beforeSend: function (xhr) {
-                    if (xhr && xhr.overrideMimeType) {
-                        xhr.overrideMimeType('application/json;charset=utf-8');
-                    }
-                },
-                success: function (data) {
-                    if (data["did_succeed"] === true) {
-                        updateDropdown(chart_name.data('type'));
-                        showOverlay(data["validated"], true, data["id"], data["name"], data["type"])
-                    } else {
-                        console.log(data)
-                        //TODO show error
-                    }
-                },
-                fail: function (data) {
-                    console.log(data)
-                    //TODO show error message on screen
-                }
-            });
-        }
 
-        function deleteChart() {
-            const chart_name = $('#chart-name');
-            $.post({
-                url: "http://{{ host }}/api/delete_error_prob_charts",
-                dataType: 'json',
-                contentType: 'application/json;charset=UTF-8',
-                data: JSON.stringify({
-                    name: chart_name.val(),
-                    key: '{{apikey}}',
-                    chart_id: chart_name.data('id'),
-                    type: chart_name.data('type')
-                }),
-                async: true,
-                beforeSend: function (xhr) {
-                    if (xhr && xhr.overrideMimeType) {
-                        xhr.overrideMimeType('application/json;charset=utf-8');
-                    }
-                },
-                success: function (data) {
-                    if (data["did_succeed"] === true) {
-                        updateDropdown(chart_name.data('type'));
-                        deserializeDataAndLoadDraw(undefined, chart_name.data('type'));
-                        showOverlay(true, false, -1, "New Graph", chart_name.data('type'));
-                    } else {
-                        console.log(data)
-                        //TODO show error
-                    }
-                },
-                fail: function (data) {
-                    console.log(data)
-                    //TODO show error message on screen
-                }
-            });
-        }
-
-        function updateDropdown(type) {
-            const chart_name = $('#chart-name');
-            $.post({
-                url: "http://{{ host }}/api/get_error_prob_charts",
-                dataType: 'json',
-                contentType: 'application/json;charset=UTF-8',
-                data: JSON.stringify({
-                    key: '{{apikey}}',
-                    type: type
-                }),
-                async: true,
-                beforeSend: function (xhr) {
-                    if (xhr && xhr.overrideMimeType) {
-                        xhr.overrideMimeType('application/json;charset=utf-8');
-                    }
-                },
-                success: function (data) {
-                    let el = $('#' + type + '-dropdown');
-                    el.empty(); // remove old options
-                    $.each(data['charts'], function (id) {
-                        let elem = data['charts'][id];
-                        el.append($("<option></option>").text(elem['name']).data('jsonblob', elem['jsonblob'])
-                            .data('id', elem['id']).data('validated', elem['validated'])
-                            .data('isowner', elem['isowner']).data('type', elem['type']));
-                    });
-                    el.append($("<option></option>").text("New Graph").data('id', -1).data('validated', true)
-                        .data('isowner', false).data('type', type).data('jsonblob', default_data_obj[type]));
-                },
-                fail: function (data) {
-                    console.log(data)
-                    //TODO show error message on screen
-                }
-            });
-        }
-    </script>
-    <script>
-        jQuery(document).ready(function () {
-            updateDropdown("gc");
-            updateDropdown("homopolymer");
-        });
-        let chart = $('#myChart');
-        chart.dblclick(function (e) {
-            //getting value by pressing on dataset
-            curr_chart.data.datasets.forEach((dataset) => {
-                for (var scaleName in curr_chart.scales) {
-                    var scale = curr_chart.scales[scaleName];
-                    if (scale.isHorizontal()) {
-                        valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
-                    } else {
-                        valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
-                    }
-                }
-                curr_chart.data.datasets.forEach((dataset) => {
-                    dataset.data.push({x: valueX, y: valueY});
-                });
-                dataset.data.sort(function (a, b) {
-                    return a.x - b.x;
-                });
-                //curr_chart.data.labels.push("tmp");
-            });
-            removeDuplicatesX();
-            curr_chart.update();
-        });
-        chart.click(function (e) {
-            curr_chart.data.datasets.forEach((dataset) => {
-                for (var scaleName in curr_chart.scales) {
-                    var scale = curr_chart.scales[scaleName];
-                    if (scale.isHorizontal()) {
-                        valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
-                    } else {
-                        valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
-                    }
-                }
-                $('#x-val').val(valueX);
-                $('#y-val').val(valueY);
-                //curr_chart.data.labels.push("tmp");
-            });
-        });
-
-        $(function () {
-            $("body").click(function (event) {
-                if (!$(event.target).closest("#inneroverlay,#overlay-content,#showOvrly").length) {
-                    closeOverlay();
-                }
-            });
-        });
-
-        function closeOverlay() {
-            let overlay = $("#overlay");
-            /*$("#overlay").css({
-                "opacity": "0",
-                "display": "none",
-            }).show().animate({opacity: 0}, 100).hide()*/
-            //todo save values to the corresponding array
-            overlay.css("display", "none");
-        }
-
-        function showOverlay(validated, editable, id, text, type) {
-            let overlay = $("#overlay");
-            let chartName = $("#chart-name");
-            /*$("#overlay").css({
-                "opacity": "1",
-                "display": "block",
-            }).show().animate({opacity: 1}, 100)*/
-            /*
-             * if editable == false, we can only safe a copy via "Save as ________"
-             * otherwise we want an "Update" Button +  "Delete" Buttton as well as an Option for "Save as ________"
-             * additinally we want to show Validated true false
-             */
-
-            $("#update-chart").prop('disabled', !editable);
-            $("#delete-chart").prop('disabled', !editable);
-            chartName.val(text);
-            chartName.data("id", id);
-            chartName.data("validated", validated);
-            chartName.data("type", type);
-
-            overlay.css("display", "block");
-            //setYValueAfterX(curr_chart, 0, 3);
-        }
-    </script>
     <h2 class="subtitle">
         Your Query:
     </h2>
 
     <div class="box">
         <form id="submit_sequence">
-            <div class="field">
-                <div class="control">
-                    <label class="form-group has-float-label">
-                    <textarea class="input is-large" rows="5" id="sequence" name="sequence" placeholder="AAACCAGT"
-                              required></textarea>
-                        <span>Sequence to Analyse</span>
+            <div class="columns is-gapless is-multiline">
+                <div class="column is-1 is-pulled-left">
+                    <label data-balloon="Limit Alphabet"
+                           data-balloon-pos="up">ACGT only
+                        <input type="checkbox" aria-label="Limit Alphabet to ACGT" id="limitedChars" checked
+                               class="switch is-rounded is-large button-fill no-outline" name="enableall"/>
+                        <label for="limitedChars" class="no-outline"></label>
                     </label>
                 </div>
-            </div>
-            <table>
-                <tr>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="gc_window_size" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>GC Window-Size</span></label>
-                    </td>
-                    <td>
-                        <label class="form-group has-float-label">
-                            <input class="input" type="number" id="kmer_window_size" placeholder="" size="4" value="15"
-                                   required min="0" step="1"><span>Kmer Window-Size</span></label>
-                    </td>
-                    <td>
-                        <nobr><span>Limit Alphabet: </span><label class="switch">
-                            <input class="switch" type="checkbox" id="limitedChars" checked/>
-                            <span class="slider round"></span></label>
-                        </nobr>
-                    </td>
-                    <td>
-                        <select id="homopolymer-dropdown">
-                            <!--{% for chart in homopolymer_charts %}
+                <div class="column is-pulled-left">
+                    <div class="field">
+                        <div class="control">
+                            <label class="form-group has-float-label">
+                    <textarea class="textarea" rows="3" id="sequence" name="sequence" placeholder="AAACCAGT"
+                              required></textarea>
+                                <span>Sequence to Analyse</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
 
-                                <option data-id="{{ chart.id }}" data-type="homopolymer"
-                                        data-validated="{{ chart.validated }}"
-                                        data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
-                            {% endfor %}
-                            <option data-id="-1" data-type="homopolymer"
-                                    data-validated="false" data-isowner="false">New Graph
-                            </option>-->
-                        </select>
-                    </td>
-                    <td>
-                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
-                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
-                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
-                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'));"
-                               value="Change Homopolymer Probability">
-                    </td>
-                    <td>
-                        <select id="gc-dropdown">
-                            <!--{% for chart in gc_charts %}
+                <div class="column is-full">
+                </div>
+                <div class="column is-1 is-pulled-left">
+                    <label class="form-group has-float-label">
+                        <input class="input button-fill is-rounded" type="number" id="gc_window_size" placeholder=""
+                               size="4"
+                               value="15"
+                               required min="0" step="1"><span>GC Window</span></label>
+                </div>
+                <div class="column is-2 is-pulled-left select is-primary is-rounded">
+                    <label for="gc-dropdown" aria-label="GC-Method"></label><select class="button-fill"
+                                                                                    id="gc-dropdown">
+                    <!--{% for chart in gc_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="gc"
                                         data-validated="{{ chart.validated }}"
@@ -379,22 +177,74 @@ window.onload = function () {
                             <option data-id="-1" data-type="gc"
                                     data-validated="false" data-isowner="false">New Graph
                             </option>-->
-                        </select>
-                    </td>
-                    <td>
-                        <input class="button is-block is-info" type="button" id="showOvrly" name="mybutton"
-                               onclick="let dropdown_select = $('#gc-dropdown option:selected');
+                </select>
+                </div>
+                <div class="column is-2 is-pulled-left">
+                    <input class="button is-block button-fill" type="button" id="showOvrly"
+                           name="mybutton"
+                           onclick="let dropdown_select = $('#gc-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                               value="Change GC Probability">
-                    </td>
-                </tr>
-            </table>
+                           value="Change GC Probability">
+                </div>
+                <div class="column is-4"></div>
+                <div class="column is-full">
+                </div>
+                <div class="column is-1 is-pulled-left">
+                    <label class="form-group has-float-label">
+                        <input class="input button-fill is-rounded" type="number" id="kmer_window_size" placeholder=""
+                               size="4"
+                               value="15"
+                               required min="0" step="1"><span>Kmer Window</span></label>
+                </div>
+                <div class="column is-2 is-pulled-left select is-rounded is-primary">
+                    <label for="kmer-dropdown" aria-label="Kmer-Method"></label><select class="button-fill"
+                                                                                        id="kmer-dropdown"></select>
+                </div>
+                <div class="column  is-2 is-pulled-left">
+                    <input class="button is-block button-fill" type="button" id="showOvrly" name="mybutton"
+                           onclick="let dropdown_select = $('#kmer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'));"
+                           value="Change Kmer Probability">
+                </div>
+                <div class="column is-full">
+                </div>
+                <div class="column is-1 is-pulled-left"></div>
+                <div class="column is-2 is-pulled-left select is-rounded is-primary">
+                    <label for="homopolymer-dropdown" aria-label="Homopolymer-Method"></label><select
+                        class="button-fill" id="homopolymer-dropdown">
+                    <!--{% for chart in homopolymer_charts %}
+
+                                <option data-id="{{ chart.id }}" data-type="homopolymer"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
+                            {% endfor %}
+                            <option data-id="-1" data-type="homopolymer"
+                                    data-validated="false" data-isowner="false">New Graph
+                            </option>-->
+                </select>
+                </div>
+                <div class="column is-2 is-pulled-left">
+                    <input class="button is-block is-info-deactivated button-fill" type="button" id="showOvrly"
+                           name="mybutton"
+                           onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'));"
+                           value="Change Homopolymer Prob.">
+                </div>
+            </div>
             <br/>
             <input type="checkbox" id="spoiler"/>
-            <label style="white-space: nowrap; display:unset" for="spoiler">Manage Subsequences</label>
+            <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
+                Subsequences</label>
             <div class="spoiler">
                 <h3>Changes here wont be saved in your profile!</h3>
                 <br/>
@@ -403,31 +253,35 @@ window.onload = function () {
                     <div class="control" id="subseq_{{ subsequence.id }}">
                         <table>
                             <tr>
-                                <td><label class="switch">
-                                    <input class="switch" type="checkbox"
-                                           id="enabled"
+                                <td><input type="checkbox"
+                                           class="switch is-large is-rounded button-fill no-outline"
+                                           id="enabled{{ subsequence.id }}" name="switchRoundedDefault"
+                                           aria-label="Enable Rule"
                                            value="{{ subsequence.id }}" checked/>
-                                    <span class="slider round"></span></label>
+                                    <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
                                 </td>
                                 <td style="width:50%"><label class="form-group has-float-label">
-                                    <input style="width:100%" type="text" name="sequence" id="sequence" placeholder=""
-                                            {% if subsequence.validated %}
-                                           readonly{% endif %}
+                                    <input class="input is-rounded is-grayable" style="width:100%" type="text"
+                                           name="sequence"
+                                           aria-label="Sequence"
+                                           id="sequence" placeholder=""
+                                            {% if subsequence.validated %} readonly {% endif %}
                                            value="{{ subsequence.sequence }}" required>
                                     <span>Sequence</span></label></td>
                                 <td style="width:15%"><label class="form-group has-float-label">
-                                    <input style="width:100%" type="number" id="error_prob" name="error_prob"
-                                           placeholder=""
-                                            {% if subsequence.validated %} disabled
-                                           readonly {% endif %}
+                                    <input class="input is-rounded is-grayable" style="width:100%" type="number"
+                                           id="error_prob"
+                                           aria-label="Error Probability"
+                                           name="error_prob" placeholder=""
+                                            {% if subsequence.validated %} readonly {% endif %}
                                            value="{{ subsequence.error_prob }}"
                                            required min="0.0" max="1.0" step="0.01">
                                     <span><nobr>Error Probability</nobr></span></label></td>
                                 <td style="width:30%"><label class="form-group has-float-label">
-                                    <input style="width:100%" type="text" name="description" id="description"
-                                           placeholder="No Description" size="30"
-                                            {% if subsequence.validated %}
-                                           readonly {% endif %}
+                                    <input class="input is-rounded is-grayable" style="width:100%" type="text"
+                                           name="description"
+                                           aria-label="Description"
+                                           id="description" placeholder="No Description" size="30"
                                             {% if subsequence.description != None %}
                                            value="{{ subsequence.description }}"
                                             {% endif %} readonly><span>Description</span></label></td>
@@ -437,9 +291,13 @@ window.onload = function () {
                             {% else %}
                                 No Description
                             {% endif %}-->
-                                <td><span><nobr>Public / Validated: <input type="checkbox" id="validated"
-                                                                           value="{{ subsequence.id }}" disabled
-                                        {% if subsequence.validated %} checked {% endif %}/></nobr></span></td>
+                                <td><span class="" style="white-space: nowrap;"><label
+                                        class="checkbox">Validated: <input type="checkbox"
+                                                                           id="validated_{{ subsequence.id }}"
+                                                                           value="{{ subsequence.id }}"
+                                                                           aria-label="Validated"
+                                                                           disabled
+                                        {% if subsequence.validated %} checked {% endif %}/></label></span></td>
                             </tr>
                         </table>
                         <!--<nobr>
@@ -451,230 +309,33 @@ window.onload = function () {
                     </div>
                 {% endfor %}
             </div>
-            <button class="button is-block is-info is-large is-fullwidth">Submit</button>
+            <button class="button is-block is-info-deactivated is-large is-fullwidth" id="submit_seq_btn">Submit
+            </button>
         </form>
     </div>
-
-    <script type="text/javascript">
-        //TODO improve me !
-        function makeHoverGroups() {
-            $('span[class^="group_" ],span[class*=" group_"]').each(function () {
-                let cls = $(this).attr('class').split(" ");
-                $("." + cls[cls.length - 1]).hover(function () {
-                    $("." + cls[cls.length - 1]).css('font-weight', "bold");
-                }, function () {
-                    $("." + cls[cls.length - 1]).css('font-weight', "normal");
-                });
-            });
-        }
-
-        function extractUndesiredToJson() {
-            let res = [];
-            $('[id^="subseq_"]').each(function () {
-                let enabled = $(this).children().find("[id='enabled']")[0];
-                if (enabled.checked) {
-                    let id = $(this).children().find("[id='validated']");
-                    let sequence = $(this).children().find("[name='sequence']");
-                    let error_prob = $(this).children().find("[name='error_prob']");
-                    res.push({
-                        id: id.val(),
-                        sequence: sequence.val(),
-                        error_prob: error_prob.val(),
-                        enabled: enabled.checked
-                    });
-                }
-            });
-            return res;
-        }
-
-        function round(value, decimals) {
-            return Number(Math.round(value + 'e' + decimals) + 'e-' + decimals);
-        }
-
-        $(document).ready(function () {
-            let seq = $("#sequence");
-            seq.keypress(function (e) {
-                let chr = String.fromCharCode(e.which);
-                let limitAlphabet = $('#limitedChars')[0].checked;
-                if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
-                    return false;
-                }
-            });
-            /*seq.keyup(function () {
-                var start = this.selectionStart,
-                    end = this.selectionEnd;
-                $(this).val($(this).val().toUpperCase());
-                this.setSelectionRange(start, end);
-            });*/
-            let submit_seq = $("#submit_sequence");
-            submit_seq.submit(function (event) {
-                event.preventDefault();
-                let sequence = $("#sequence").val().toUpperCase();
-                let homopolymer = $('#homopolymer');
-                let gccontent = $('#gccontent');
-                let sequences = $('#subsequences');
-                let kmer = $('#kmer');
-                let overall = $('#overall');
-                homopolymer.text(sequence);
-                gccontent.text(sequence);
-                sequences.text(sequence);
-                kmer.text(sequence);
-                overall.text(sequence);
-
-                homopolymer.lettering();
-                gccontent.lettering();
-                sequences.lettering();
-                kmer.lettering();
-                overall.lettering();
-
-                for (let i = 0; i <= overall.text().length; i++) {
-                    let curr_char = $(".overall_char" + (i + 1));
-                    curr_char.data('errorprob', 0.0);
-                }
-                //var endpoints = ['gccontent', 'homopolymers'];
-
-                //for (var mode in endpoints) {
-
-                let endpoints = ["gccontent", "homopolymer", "kmer", "subsequences"];
-                endpoints.forEach(function (mode) {
-                    let error_prob = undefined;
-                    if (mode === "gccontent") {
-                        let dropdown_select = $('#gc-dropdown option:selected');
-                        error_prob = dropdown_select.data('jsonblob');
-                        if (typeof (error_prob) === "string")
-                            error_prob = JSON5.parse(error_prob);
-                    } else if (mode === "homopolymer") {
-                        let dropdown_select = $('#homopolymer-dropdown option:selected');
-                        error_prob = dropdown_select.data('jsonblob');
-                        if (typeof (error_prob) === "string")
-                            error_prob = JSON5.parse(error_prob);
-                    } else {
-                        let dropdown_select = $('#homopolymer-dropdown option:selected');
-                        error_prob = dropdown_select.data('jsonblob');
-                        if (typeof (error_prob) === "string")
-                            error_prob = JSON5.parse(error_prob);
-                    }
-                    $.post({
-                        url: "http://{{ host }}/api/" + mode,
-                        dataType: 'json',
-                        contentType: 'application/json;charset=UTF-8',
-                        data: JSON.stringify({
-                            sequence: sequence,
-                            key: '{{apikey}}',
-                            enabledUndesiredSeqs: extractUndesiredToJson(),
-                            kmer_windowsize: $('#kmer_window_size').val(),
-                            gc_windowsize: $('#gc_window_size').val(),
-                            error_prob: error_prob
-                        }),
-                        async: true,
-                        beforeSend: function (xhr) {
-                            if (xhr && xhr.overrideMimeType) {
-                                xhr.overrideMimeType('application/json;charset=utf-8');
-                            }
-                        },
-                        success: function (data) {
-                            //$("#spoiler3_label").click();
-                            //let obj = jQuery.parseJSON(data);
-                            let curr_group = 0;
-                            for (let block_num in data) {
-                                for (let i = data[block_num].startpos; i <= data[block_num].endpos; i++) {
-                                    let curr_char = $("." + mode + "_char" + (i + 1));
-                                    curr_char.data('errorprob', Math.min(data[block_num].errorprob, 1.0));
-                                    curr_char.css("background-color", getColorForPercentage(curr_char.data('errorprob')));
-                                    curr_char.css("color", "gray");
-                                    curr_char.attr('title', "Error Probability: " + round(curr_char.data('errorprob') * 100.0, 2) + " %");
-                                    if (mode === "kmer") {
-                                        curr_char.addClass('group_' + data[block_num].kmer);
-                                    } else {
-                                        curr_char.addClass('group_' + mode + '_' + curr_group);
-                                    }
-                                    let overall_curr_char = $(".overall_char" + (i + 1));
-                                    overall_curr_char.data('errorprob', Math.min(overall_curr_char.data('errorprob') + data[block_num].errorprob, 1.0));
-                                    overall_curr_char.css("background-color", getColorForPercentage(overall_curr_char.data('errorprob')));
-                                    overall_curr_char.css("color", "gray");
-                                    overall_curr_char.attr('title', "Error Probability: " + round((overall_curr_char.data('errorprob') * 100.0), 2) + " %");
-                                    if (mode === "kmer") {
-                                        overall_curr_char.addClass('group_' + data[block_num].kmer);
-                                    } else {
-                                        overall_curr_char.addClass('group_' + mode + '_' + curr_group);
-                                    }
-                                    //$('#text_lettering').text(data[i].base);
-                                }
-                                curr_group++;
-                            }
-                            makeHoverGroups();
-                        },
-                        fail: function (data) {
-                            let obj = jQuery.parseJSON(data);
-                            for (let i in obj) {
-                                $('#text_lettering').text(data[i].base);
-                            }
-                            //$('#text_lettering').text(data);
-                        }
-                    });
-                });
-                //alert("Handler for .submit() called.");
-            });
-        });
-
-        const percentColors = [
-            {pct: 0.0, color: {r: 0xff, g: 0x00, b: 0}},
-            {pct: 0.5, color: {r: 0xff, g: 0xff, b: 0}},
-            {pct: 1.0, color: {r: 0x00, g: 0xff, b: 0}}];
-
-        var getColorForPercentage = function (pct) {
-            pct = 1.0 - pct;
-            for (var i = 1; i < percentColors.length - 1; i++) {
-                if (pct < percentColors[i].pct) {
-                    break;
-                }
-            }
-            const lower = percentColors[i - 1];
-            const upper = percentColors[i];
-            const range = upper.pct - lower.pct;
-            const rangePct = (pct - lower.pct) / range;
-            const pctLower = 1 - rangePct;
-            const pctUpper = rangePct;
-            const color = {
-                r: Math.floor(lower.color.r * pctLower + upper.color.r * pctUpper),
-                g: Math.floor(lower.color.g * pctLower + upper.color.g * pctUpper),
-                b: Math.floor(lower.color.b * pctLower + upper.color.b * pctUpper)
-            };
-            return 'rgb(' + [color.r, color.g, color.b].join(',') + ')';
-            // or output as hex if preferred
-        };
-
-        /*for (var i = 0, l = $('#text_lettering').text().length; i <= l; i++) {
-            let curr_char = $(".char" + (i + 1));
-            curr_char.css("background-color", getColorForPercentage(i / l));
-            curr_char.css("color", "gray");
-            curr_char.attr('title', (i / l));
-            //$(".text_lettering").append(li);
-        }*/
-    </script>
-
-    <h2 class="subtitle"> Your Results: </h2>
-    <div class="box">
-        <h3 class="subtitle" style="color: black"> Homopolymers: </h3>
-        <ul class="text_lettering" id="homopolymer" style="overflow-x: auto;"></ul>
+    <div id="results" style="display: none">
+        <h2 class="subtitle"> Your Results: </h2>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Homopolymers: </h3>
+            <div class="text_lettering" id="homopolymer" t></div>
+        </div>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> GC-Content: </h3>
+            <div class="text_lettering" id="gccontent"></div>
+        </div>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Kmer: </h3>
+            <div class="text_lettering" id="kmer"></div>
+        </div>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Subsequences: </h3>
+            <div class="text_lettering" id="subsequences"></div>
+        </div>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Overall: </h3>
+            <div class="text_lettering" id="overall"></div>
+        </div>
     </div>
-    <div class="box">
-        <h3 class="subtitle" style="color: black"> GC-Content: </h3>
-        <ul class="text_lettering" id="gccontent" style="overflow-x: auto;"></ul>
-    </div>
-    <div class="box">
-        <h3 class="subtitle" style="color: black"> Kmer: </h3>
-        <ul class="text_lettering" id="kmer" style="overflow-x: auto;"></ul>
-    </div>
-    <div class="box">
-        <h3 class="subtitle" style="color: black"> Subsequences: </h3>
-        <ul class="text_lettering" id="subsequences" style="overflow-x: auto;"></ul>
-    </div>
-    <div class="box">
-        <h3 class="subtitle" style="color: black"> Overall: </h3>
-        <ul class="text_lettering" id="overall" style="overflow-x: auto;"></ul>
-    </div>
-
     <!--
     <script>
         $(function () {
@@ -688,4 +349,75 @@ window.onload = function () {
     -->
     <!--{{ apikey }}-->
 
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
+    {% if config['DEBUG'] or config['TESTING'] %}
+        <script src={{ url_for('static',filename='js/jquery.lettering.js') }}></script>
+        <script src={{ url_for('static',filename='js/Chart.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/chartjs-plugin-dragData.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/error-chart.js') }}></script>
+        <script src={{ url_for('static',filename='js/autoscroll.js') }}></script>
+        <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
+        <script src={{ url_for('static',filename='js/index.min.js') }}></script>
+    {% endif %}
+
+    <script>
+        jQuery(document).ready(function () {
+            setApikey("{{ host }}", "{{ apikey }}");
+            updateDropdown("{{ host }}", "{{ apikey }}", "gc");
+            updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
+            updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
+
+            $(document).keyup(function (e) {
+                if (e.keyCode === 27) closeOverlay();
+            });
+
+            let chart = $('#myChart');
+            chart.dblclick(function (e) {
+                //getting value by pressing on dataset
+                curr_chart.data.datasets.forEach((dataset) => {
+                    for (var scaleName in curr_chart.scales) {
+                        var scale = curr_chart.scales[scaleName];
+                        if (scale.isHorizontal()) {
+                            valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
+                        } else {
+                            valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
+                        }
+                    }
+                    curr_chart.data.datasets.forEach((dataset) => {
+                        dataset.data.push({x: valueX, y: valueY});
+                    });
+                    dataset.data.sort(function (a, b) {
+                        return a.x - b.x;
+                    });
+                    //curr_chart.data.labels.push("tmp");
+                });
+                removeDuplicatesX();
+                curr_chart.update();
+            });
+            chart.click(function (e) {
+                curr_chart.data.datasets.forEach((dataset) => {
+                    for (var scaleName in curr_chart.scales) {
+                        var scale = curr_chart.scales[scaleName];
+                        if (scale.isHorizontal()) {
+                            valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
+                        } else {
+                            valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
+                        }
+                    }
+                    $('#x-val').val(valueX);
+                    $('#y-val').val(valueY);
+                    //curr_chart.data.labels.push("tmp");
+                });
+            });
+
+            $("body").click(function (event) {
+                if (!$(event.target).closest("#inneroverlay,#overlay-content,#showOvrly").length) {
+                    closeOverlay();
+                }
+            });
+        });
+    </script>
 {% endblock %}

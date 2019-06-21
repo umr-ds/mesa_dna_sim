@@ -26,8 +26,8 @@ input[id^="spoiler"] + label {
     width: 200px;
     margin: 0 auto;
     padding: 5px 0px;
-    background: mediumblue;
-    color: #fff;
+    background: #baa861; /*mediumblue;*/
+    /*color: #fff;*/
     text-align: center;
     font-size: 24px;
     border-radius: 8px;
@@ -47,7 +47,7 @@ input[id^="spoiler"] ~ .spoiler {
     opacity: 0;
     margin: 10px auto 0;
     padding: 10px;
-    background: #eee;
+    background: #f5f5f5;
     border: 1px solid #ccc;
     color: black;
     border-radius: 8px;
@@ -155,7 +155,7 @@ Sequence coloring:
 .text_lettering {
     width: 80%;
 }
-
+has-float-label
 .text_lettering ul {
     width: 50px;
     border: 2px solid white;
@@ -200,6 +200,9 @@ Sequence coloring:
 
 #sequence {
     text-transform: uppercase;
+    width: 100%;
+    min-width: 100%;
+    max-width: 100%;
 }
 
 .sequence {
@@ -210,4 +213,41 @@ br {
     line-height: 1;
     display: block;
     margin-bottom: 5px;
+}
+
+@media screen and (min-width: 1408px) {
+    .button-fill {
+        width: 100%;
+        height: 100%;
+    }
+}
+
+@media screen and (max-width: 1407px) {
+    .button-fill {
+        width: 100%;
+        height: 100%;
+        min-width: -moz-min-content; /* Firefox */
+        min-width: -webkit-min-content; /* Chrome */
+    }
+}
+
+.no-outline {
+    outline: none;
+    border: none;
+}
+
+.no-margin-bottom {
+    margin-bottom: 0 !important;
+}
+
+/*input.is-grayable:read-only {
+    background-color: #F1F1F1;
+}*/
+
+[readonly].is-grayable {
+    background-color: #F1F1F1;
+}
+
+.has-padding-03 {
+    padding-bottom: 0.3rem;
 }

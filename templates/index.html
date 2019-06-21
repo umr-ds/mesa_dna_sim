@@ -3,10 +3,19 @@
 {% extends "base.html" %}
 
 {% block content %}
-<h1 class="title">
-  MOSLA DNA Simulator
-</h1>
-<h2 class="subtitle">
-  Easy and extendable DNA Simulation at your hands.
-</h2>
+    <div class="content is-centered">
+        <figure class="is-centered">
+            <!--<a href="http://www.mosla.de/"
+               aria-label="MOSLA" style="font-weight:bold;">-->
+                <img style="height: 100px" src="{{ url_for('static',filename='img/logo_mosla_rgb.png') }}"
+                     alt="mosla.de"/>
+            </a>
+        </figure>
+    </div>
+    <h1 class="title">
+        DNA-Synthesis, -Storage and -Sequencing Simulator
+    </h1>
+    <h2 class="subtitle">
+        Easy and extendable DNA-Simulation at your hands.
+    </h2>
 {% endblock %}

@@ -19,10 +19,13 @@ def undesired_subsequences(sequence, dict_of_subsequences=None):
     res = []
     # for undesired_sequence, error_prob in list_of_subsequences:
     regextext = "|".join(dict_of_subsequences.keys())
+    i = 0
     for m in re.finditer(regextext, sequence, overlapped=True):
         res.append({'startpos': m.start(), 'endpos': m.start() + len(m.group(0)) - 1,
                     'errorprob': dict_of_subsequences[m.group(0)],
+                    'identifier': "subsequences_" + str(i),
                     'undesired_sequence': m.group(0)})
+        i += 1
     return res
 
 
