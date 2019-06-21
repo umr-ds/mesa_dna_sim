@@ -212,8 +212,35 @@ window.onload = function () {
                                dropdown_select.data('type'));"
                            value="Change Kmer Probability">
                 </div>
-                <div class="column is-full">
+                <div class="column is-4 select is-rounded is-primary">
+                    <!-- values 1-7 correspond to the submethod id in the database -->
+                    <!-- I either have to change the database entries for 0, 8 and 9 -->
+                    <!-- or intercept these values before the database request.  -->
+                    <label for="seqmeth" aria-label="Sequencing Method">Sequencing Method:</label>
+                    <select  id="seqmeth">
+                        <optgroup label="None">
+                            <option value="0" selected>None</option>
+                        </optgroup>
+                        <optgroup label="Illumina">
+                            <option value="1">Single End</option>
+                            <option value="2">Paired End</option>
+                        </optgroup>
+                        <optgroup label="PacBio">
+                            <option value="4">Subread</option>
+                            <option value="3">CCS</option>
+                        </optgroup>
+                        <optgroup label="Nanopore">
+                            <option value="5">1D</option>
+                            <option value="6">2D</option>
+                        </optgroup>
+                        <optgroup label="User defined">
+                            <option value="7">Error Rates</option>
+                            <option value="8">Error Attributes</option>
+                            <option value="9">Rates and Attributes</option>
+                        </optgroup>
+                    </select>
                 </div>
+                <div class="column is-full"></div>
                 <div class="column is-1 is-pulled-left"></div>
                 <div class="column is-2 is-pulled-left select is-rounded is-primary">
                     <label for="homopolymer-dropdown" aria-label="Homopolymer-Method"></label><select
@@ -239,6 +266,36 @@ window.onload = function () {
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
                            value="Change Homopolymer Prob.">
+                </div>
+                <div class="column is-4 is-pulled-left">
+                    <!-- values 1-10 correspond to the error_correction id in the database -->
+                    <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                    <!-- or intercept these values before the database request.  -->
+                    <label for="synthmeth">Synthesis Method:</label>
+                    <select id="synthmeth">
+                        <optgroup label="None">
+                            <option value="0" selected>None</option>
+                        </optgroup>
+                        <optgroup label="Column synthesized oligos">
+                            <option value="1">MutS</option>
+                            <option value="2">Consensus shuffle</option>
+                            <option value="3">ErrASE</option>
+                            <option value="9">No error correction</option>
+                        </optgroup>
+                        <optgroup label="Microarray based oligo pools">
+                            <option value="4">Oligo hybridization based</option>
+                            <option value="5">High-temperature ligation/hybridization based</option>
+                            <option value="6">ErrASE</option>
+                            <option value="7">Nuclease-based</option>
+                            <option value="8">NGS-based</option>
+                            <option value="10">No error correction</option>
+                        </optgroup>
+                        <optgroup label="User defined">
+                            <option value="11">Error Rates</option>
+                            <option value="12">Error Attributes</option>
+                            <option value="13">Rates and Attributes</option>
+                        </optgroup>
+                    </select>
                 </div>
             </div>
             <br/>
@@ -335,7 +392,22 @@ window.onload = function () {
             <h3 class="subtitle" style="color: black"> Overall: </h3>
             <div class="text_lettering" id="overall"></div>
         </div>
+        <h2 class="subtitle"> Result of the Error Simulation: </h2>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Sequence with only Synthesis errors: </h3>
+            <ul class="text_lettering" id="synth_seq" style="overflow-x: auto;"></ul>
+        </div>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Sequence with only Sequencing errors: </h3>
+            <ul class="text_lettering" id="seq_seq" style="overflow-x: auto;"></ul>
+        </div>
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Fully modified Sequence: </h3>
+            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
+        </div>
     </div>
+
+
     <!--
     <script>
         $(function () {
@@ -418,6 +490,82 @@ window.onload = function () {
                     closeOverlay();
                 }
             });
+        });
+
+        $(function () { // wait for page to load
+            var subDropdown = $("#seqmeth"),
+                mainDropdown = $('<select></select>'), // create a method dropdown
+                submethods = []; // ordered list of submethods
+
+            // parse the nested dropdown
+            subDropdown.children().each(function () {
+                var group = $(this),
+                    mainName = group.attr('label'),
+                    option;
+
+                // create an option for the method
+                option = $('<option></option>').text(mainName);
+
+                // store the associated submethod options
+                option.data('subMethods', group.children());
+
+                // check if the method should be selected
+                if (group.find(':selected').length > 0) {
+                    option.prop('selected', true);
+                }
+
+                // add the method to the dropdown
+                mainDropdown.append(option);
+            });
+
+            // add the method dropdown to the page
+            subDropdown.before(mainDropdown);
+
+            // this function updates the submethod dropdown based on the selected method
+            function updateSubmethods() {
+                var main = mainDropdown.find(':selected');
+                subDropdown.empty().append(main.data('subMethods'));
+            }
+
+            // call the function to set the initial subMethods
+            updateSubmethods();
+
+            // and add the change handler
+            mainDropdown.on('change', updateSubmethods);
+
+        });
+
+        $(function () {
+            var subDropdown = $("#synthmeth"),
+                mainDropdown = $('<select></select>'),
+                error_correction = []; // ordered list of submethods
+
+            subDropdown.children().each(function () {
+                var group = $(this),
+                    mainName = group.attr('label'),
+                    option;
+
+                option = $('<option></option>').text(mainName);
+
+                option.data('error_correction', group.children());
+
+                if (group.find(':selected').length > 0) {
+                    option.prop('selected', true);
+                }
+
+                mainDropdown.append(option);
+            });
+
+            subDropdown.before(mainDropdown);
+
+            function updateErrCorrection() {
+                var main = mainDropdown.find(':selected');
+                subDropdown.empty().append(main.data('error_correction'));
+            }
+
+            updateErrCorrection();
+
+            mainDropdown.on('change', updateErrCorrection);
         });
     </script>
 {% endblock %}

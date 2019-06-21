@@ -15,11 +15,6 @@ from usersettings.validate import validate
 
 
 def main(cfg=Config):
-    # for debug purpose:
-    # os.environ['REDIS_SERVER'] = '172.23.0.2'
-    # os.environ['SQLALCHEMY_DATABASE_URI'] = 'postgresql://dna_sim:***REMOVED***@172.23.0.3:5432/dna_sim'
-    # ENVIRONMENT VARIABLE 'API_PORT' CAN CHANGE THE API PORT (e.g. for DOCKER)
-    # app = create_app()
     app = Flask(__name__)
     app.config.from_object(cfg)  # Choose from the different configs...
 

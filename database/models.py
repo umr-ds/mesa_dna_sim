@@ -121,4 +121,61 @@ class ErrorProbability(db.Model):
         if owner_id is not None:
             tmp['isowner'] = owner_id == ob.user_id
         return tmp
+
+###############################################
+
+
+class SequencingErrorRates(db.Model):
+    __tablename__ = 'err_rates'
+    id = db.Column(db.Integer, primary_key=True)
+    method_id = db.Column(db.Integer, nullable=False)
+    submethod_id = db.Column(db.Integer, nullable=False)
+    err_data = db.Column(db.JSON)
+
+    def __repr__(self):
+        return '<SequencingErrorRates(id={}, method_id={}, submethod_id={}, err_data={}'.format(
+            self.id, self.method, self.submethod_id, self.err_data)
+
+###############################################
+
+
+class SequencingErrorAttributes(db.Model):
+    __tablename__ = 'mutation_attributes'
+    id = db.Column(db.Integer, primary_key=True)
+    method_id = db.Column(db.Integer, nullable=False)
+    submethod_id = db.Column(db.Integer, nullable=False)
+    attributes = db.Column(db.JSON)
+
+    def __repr__(self):
+        return '<SequencingErrorAttributes(id={}, method_id={}, submethod_id={}, attributes={}'.format(
+            self.id, self.method, self.submethod_id, self.attributes)
+
+###############################################
+
+
+class SynthesisErrorRates(db.Model):
+    __tablename__ = 'synth_err_rates'
+    id = db.Column(db.Integer, primary_key=True)
+    method_id = db.Column(db.Integer, nullable=False)
+    correction_id = db.Column(db.Integer, nullable=False)
+    err_data = db.Column(db.JSON)
+
+    def __repr__(self):
+        return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
+            self.id, self.method, self.correction_id, self.err_data)
+
+###############################################
+
+
+class SynthesisErrorAttributes(db.Model):
+    __tablename__ = 'synth_err_att'
+    id = db.Column(db.Integer, primary_key=True)
+    method_id = db.Column(db.Integer, nullable=False)
+    correction_id = db.Column(db.Integer, nullable=False)
+    err_data = db.Column(db.JSON)
+
+    def __repr__(self):
+        return '<SequencingErrorAttributes(id={}, method_id={}, correction_id={}, err_data={}'.format(
+            self.id, self.method, self.correction_id, self.err_data)
+
 ###############################################

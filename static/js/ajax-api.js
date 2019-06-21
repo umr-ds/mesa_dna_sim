@@ -121,6 +121,9 @@ $(document).ready(function () {
         let sequences = $('#subsequences');
         let kmer = $('#kmer');
         let overall = $('#overall');
+        let seq_seq = $('#seq_seq');
+        let synth_seq = $('#synth_seq');
+        let mod_seq = $('#mod_seq');
 
         /*for (let i = 0; i <= overall.text().length; i++) {
             let curr_char = $(".overall_char" + (i + 1));
@@ -136,7 +139,10 @@ $(document).ready(function () {
             "homopolymer": homopolymer,
             "kmer": kmer,
             "subsequences": sequences,
-            "all": overall
+            "all": overall,
+            "sequencing": seq_seq,
+            "synthesis": synth_seq,
+            "modify": mod_seq
         };
         //endpoints.keys().forEach(function (mode) {
 
@@ -171,6 +177,8 @@ $(document).ready(function () {
                     gc_error_prob: gc_error_prob,
                     homopolymer_error_prob: homopolymer_error_prob,
                     kmer_error_prob: kmer_error_prob,
+                    sequence_method: $("#seqmeth option:selected").val(),
+                    synthesis_method: $("#synthmeth option:selected").val(),
                     asHTML: true
                 }),
                 async: true,

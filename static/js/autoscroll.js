@@ -4,6 +4,10 @@ jQuery(document).ready(function () {
     const kmer = $("#kmer");
     const sequences = $('#subsequences');
     const overall = $('#overall');
+
+    const seq_seq = $('#seq_seq');
+    const synth_seq = $('#synth_seq');
+    const mod_seq = $('#mod_seq');
     kmer.scroll(function () {
         homopolymer.scrollTop(kmer.scrollTop());
         homopolymer.scrollLeft(kmer.scrollLeft());
@@ -13,6 +17,12 @@ jQuery(document).ready(function () {
         overall.scrollLeft(kmer.scrollLeft());
         sequences.scrollTop(kmer.scrollTop());
         sequences.scrollLeft(kmer.scrollLeft());
+        seq_seq.scrollTop(kmer.scrollTop());
+        seq_seq.scrollLeft(kmer.scrollLeft());
+        synth_seq.scrollTop(kmer.scrollTop());
+        synth_seq.scrollLeft(kmer.scrollLeft());
+        mod_seq.scrollTop(kmer.scrollTop());
+        mod_seq.scrollLeft(kmer.scrollLeft());
 
     });
     overall.scroll(function () {
@@ -24,6 +34,12 @@ jQuery(document).ready(function () {
         kmer.scrollLeft(overall.scrollLeft());
         sequences.scrollTop(overall.scrollTop());
         sequences.scrollLeft(overall.scrollLeft());
+        seq_seq.scrollTop(overall.scrollTop());
+        seq_seq.scrollLeft(overall.scrollLeft());
+        synth_seq.scrollTop(overall.scrollTop());
+        synth_seq.scrollLeft(overall.scrollLeft());
+        mod_seq.scrollTop(overall.scrollTop());
+        mod_seq.scrollLeft(overall.scrollLeft());
     });
     gccontent.scroll(function () {
         homopolymer.scrollTop(gccontent.scrollTop());
@@ -34,6 +50,12 @@ jQuery(document).ready(function () {
         kmer.scrollLeft(gccontent.scrollLeft());
         sequences.scrollTop(gccontent.scrollTop());
         sequences.scrollLeft(gccontent.scrollLeft());
+        seq_seq.scrollTop(gccontent.scrollTop());
+        seq_seq.scrollLeft(gccontent.scrollLeft());
+        synth_seq.scrollTop(gccontent.scrollTop());
+        synth_seq.scrollLeft(gccontent.scrollLeft());
+        mod_seq.scrollTop(gccontent.scrollTop());
+        mod_seq.scrollLeft(gccontent.scrollLeft());
     });
     sequences.scroll(function () {
         homopolymer.scrollTop(sequences.scrollTop());
@@ -44,6 +66,12 @@ jQuery(document).ready(function () {
         kmer.scrollLeft(sequences.scrollLeft());
         gccontent.scrollTop(sequences.scrollTop());
         gccontent.scrollLeft(sequences.scrollLeft());
+        seq_seq.scrollTop(sequences.scrollTop());
+        seq_seq.scrollLeft(sequences.scrollLeft());
+        synth_seq.scrollTop(sequences.scrollTop());
+        synth_seq.scrollLeft(sequences.scrollLeft());
+        mod_seq.scrollTop(sequences.scrollTop());
+        mod_seq.scrollLeft(sequences.scrollLeft());
     });
     homopolymer.scroll(function () {
         gccontent.scrollTop(homopolymer.scrollTop());
@@ -54,5 +82,59 @@ jQuery(document).ready(function () {
         kmer.scrollLeft(homopolymer.scrollLeft());
         sequences.scrollTop(homopolymer.scrollTop());
         sequences.scrollLeft(homopolymer.scrollLeft());
+        seq_seq.scrollTop(homopolymer.scrollTop());
+        seq_seq.scrollLeft(homopolymer.scrollLeft());
+        synth_seq.scrollTop(homopolymer.scrollTop());
+        synth_seq.scrollLeft(homopolymer.scrollLeft());
+        mod_seq.scrollTop(homopolymer.scrollTop());
+        mod_seq.scrollLeft(homopolymer.scrollLeft());
+    });
+    seq_seq.scroll(function () {
+        gccontent.scrollTop(seq_seq.scrollTop());
+        gccontent.scrollLeft(seq_seq.scrollLeft());
+        overall.scrollLeft(seq_seq.scrollLeft());
+        overall.scrollTop(seq_seq.scrollTop());
+        kmer.scrollTop(seq_seq.scrollTop());
+        kmer.scrollLeft(seq_seq.scrollLeft());
+        sequences.scrollTop(seq_seq.scrollTop());
+        sequences.scrollLeft(seq_seq.scrollLeft());
+        homopolymer.scrollTop(seq_seq.scrollTop());
+        homopolymer.scrollLeft(seq_seq.scrollLeft());
+        synth_seq.scrollTop(seq_seq.scrollTop());
+        synth_seq.scrollLeft(seq_seq.scrollLeft());
+        mod_seq.scrollTop(seq_seq.scrollTop());
+        mod_seq.scrollLeft(seq_seq.scrollLeft());
+    });
+    synth_seq.scroll(function () {
+        gccontent.scrollTop(synth_seq.scrollTop());
+        gccontent.scrollLeft(synth_seq.scrollLeft());
+        overall.scrollLeft(synth_seq.scrollLeft());
+        overall.scrollTop(synth_seq.scrollTop());
+        kmer.scrollTop(synth_seq.scrollTop());
+        kmer.scrollLeft(synth_seq.scrollLeft());
+        sequences.scrollTop(synth_seq.scrollTop());
+        sequences.scrollLeft(synth_seq.scrollLeft());
+        homopolymer.scrollTop(synth_seq.scrollTop());
+        homopolymer.scrollLeft(synth_seq.scrollLeft());
+        seq_seq.scrollTop(synth_seq.scrollTop());
+        seq_seq.scrollLeft(synth_seq.scrollLeft());
+        mod_seq.scrollTop(synth_seq.scrollTop());
+        mod_seq.scrollLeft(synth_seq.scrollLeft());
+    });
+    mod_seq.scroll(function () {
+        gccontent.scrollTop(mod_seq.scrollTop());
+        gccontent.scrollLeft(mod_seq.scrollLeft());
+        overall.scrollLeft(mod_seq.scrollLeft());
+        overall.scrollTop(mod_seq.scrollTop());
+        kmer.scrollTop(mod_seq.scrollTop());
+        kmer.scrollLeft(mod_seq.scrollLeft());
+        sequences.scrollTop(mod_seq.scrollTop());
+        sequences.scrollLeft(mod_seq.scrollLeft());
+        homopolymer.scrollTop(mod_seq.scrollTop());
+        homopolymer.scrollLeft(mod_seq.scrollLeft());
+        seq_seq.scrollTop(mod_seq.scrollTop());
+        seq_seq.scrollLeft(mod_seq.scrollLeft());
+        synth_seq.scrollTop(mod_seq.scrollTop());
+        synth_seq.scrollLeft(mod_seq.scrollLeft());
     });
 });

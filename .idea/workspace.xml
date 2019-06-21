@@ -1,0 +1,1188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="BookmarkManager">
+    <bookmark url="file://$PROJECT_DIR$/database/models.py" description="@staticmethod" line="45" />
+    <bookmark url="file://$PROJECT_DIR$/database/models.py" description="def verify_password_reset_token(token):" line="46" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="0e6c12f1-3d8a-410d-935d-7248db6ee34f" name="Default Changelist" comment="fixed gc window and allowed multiple jax requests &amp; rendering such">
+      <change afterPath="$PROJECT_DIR$/.dockerignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/Dockerfile_experimental" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/appprofile.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/buildBulma.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dev_requirements.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/nginx.conf" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma-switch/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma-switch/src/sass/index.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/CHANGELOG.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/LICENSE" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/bulma.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/css/bulma.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/css/bulma.css.map" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/css/bulma.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/base/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/base/generic.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/base/helpers.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/base/minireset.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/breadcrumb.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/card.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/dropdown.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/level.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/list.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/media.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/menu.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/message.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/modal.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/navbar.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/pagination.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/panel.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/components/tabs.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/box.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/button.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/container.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/content.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/form.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/icon.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/image.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/notification.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/other.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/progress.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/table.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/tag.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/elements/title.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/checkbox-radio.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/file.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/input-textarea.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/select.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/shared.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/form/tools.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/grid/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/grid/columns.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/grid/tiles.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/layout/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/layout/footer.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/layout/hero.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/layout/section.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/mosla.scss" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/_all.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/animations.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/controls.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/derived-variables.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/functions.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/initial-variables.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/bulma/sass/utilities/mixins.sass" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/AUTHORS.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/bower.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/external/sizzle/LICENSE.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/.eslintrc.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/ajax.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/ajax/jsonp.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/ajax/load.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/ajax/parseXML.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/ajax/script.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/ajax/xhr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/attributes.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/attributes/attr.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/attributes/classes.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/attributes/prop.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/attributes/support.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/attributes/val.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/callbacks.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/DOMEval.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/access.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/camelCase.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/init.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/isAttached.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/nodeName.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/parseHTML.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/ready-no-deferred.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/ready.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/readyException.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/stripAndCollapse.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/support.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/core/toType.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/addGetHookIf.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/adjustCSS.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/curCSS.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/finalPropName.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/hiddenVisibleSelectors.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/showHide.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/css/support.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/data.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/data/Data.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/deferred.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/deferred/exceptionHook.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/deprecated.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/dimensions.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/effects.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/effects/Tween.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/effects/animatedSelector.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/event.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/event/ajax.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/event/alias.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/event/focusin.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/event/support.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/event/trigger.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/exports/amd.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/exports/global.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/jquery.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation/_evalUrl.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation/buildFragment.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation/getAll.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation/setGlobalEval.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation/support.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/manipulation/wrapMap.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/offset.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/queue.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/queue/delay.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/selector-native.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/selector-sizzle.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/selector.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/serialize.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/traversing.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/traversing/findFilter.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/node_modules/jquery/src/wrap.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/old_webpack.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/start.sh" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/img/header_logo_sm.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/img/jlu.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/img/loewe.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/img/logo_mosla_rgb.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/img/umr.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/Chart.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/ajax-api.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/ajax-api.js_old" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/all.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/chartjs-plugin-dragData.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/index.min.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/js/jquery.lettering.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/styles/Chart.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/styles/all.min.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/styles/checkbox_switch.css_old" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/static/styles/simptip.min.css_old" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/uwsgi.ini" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/webpack.config.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/wsgi.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/dna_sim.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/dna_sim.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/main_page.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/main_page.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/api/simulator_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/api/simulator_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/config.py" beforeDir="false" afterPath="$PROJECT_DIR$/config.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/docker-compose.yml" beforeDir="false" afterPath="$PROJECT_DIR$/docker-compose.yml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/forceRebuildAll.sh" beforeDir="false" afterPath="$PROJECT_DIR$/forceRebuildAll.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/postgres/Dockerfile" beforeDir="false" afterPath="$PROJECT_DIR$/postgres/Dockerfile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulators/error_probability.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/error_probability.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulators/error_sources/gc_content.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/error_sources/gc_content.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulators/error_sources/homopolymers.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/error_sources/homopolymers.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulators/error_sources/kmer.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/error_sources/kmer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/simulators/error_sources/undesired_subsequences.py" beforeDir="false" afterPath="$PROJECT_DIR$/simulators/error_sources/undesired_subsequences.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/autoscroll.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/autoscroll.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/error-chart.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/error-chart.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery-3.4.1.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery-3.4.1.min.js" beforeDir="false" afterPath="$PROJECT_DIR$/static/js/jquery.min.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/js/jquery.lettering-0.6.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/bootstrap-float-label.min.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/bulma.min.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/bulma.min.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/checkbox_switch.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/dropdown.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/dropdown.css_old" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/fancytextinputs.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/fancytextinputs.css_old" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/infobox.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/infobox.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/inputanimation.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/inputanimation.css_old" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/overlay.css" beforeDir="false" afterPath="$PROJECT_DIR$/static/styles/overlay.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static/styles/simptip.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/base.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/base.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/delete.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/delete.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/index.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/profile.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/profile.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/sequence_view.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/sequence_view.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/templates/undesired_subsequences.html" beforeDir="false" afterPath="$PROJECT_DIR$/templates/undesired_subsequences.html" afterDir="false" />
+    </list>
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="DatabaseView">
+    <option name="SHOW_INTERMEDIATE" value="true" />
+    <option name="GROUP_DATA_SOURCES" value="true" />
+    <option name="GROUP_SCHEMA" value="true" />
+    <option name="GROUP_CONTENTS" value="false" />
+    <option name="SORT_POSITIONED" value="false" />
+    <option name="SHOW_EMPTY_GROUPS" value="false" />
+    <option name="AUTO_SCROLL_FROM_SOURCE" value="false" />
+    <option name="HIDDEN_KINDS">
+      <set />
+    </option>
+    <expand />
+    <select />
+  </component>
+  <component name="FileEditorManager">
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="104">
+              <caret line="216" column="88" lean-forward="true" selection-start-line="216" selection-start-column="88" selection-end-line="216" selection-end-column="88" />
+              <folding>
+                <element signature="e#22991#23012#0#HTML" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="255">
+              <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/api/simulator_api.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="465">
+              <caret line="238" selection-start-line="238" selection-end-line="238" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/api/main_page.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="435">
+              <caret line="219" column="11" selection-start-line="219" selection-start-column="11" selection-end-line="219" selection-end-column="11" />
+              <folding>
+                <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/config.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="450">
+              <caret line="30" column="27" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/static/js/ajax-api.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-138">
+              <caret line="180" column="76" selection-start-line="180" selection-start-column="76" selection-end-line="180" selection-end-column="76" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/static/js/autoscroll.js">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="539">
+              <caret line="137" column="17" selection-start-line="137" selection-start-column="17" selection-end-line="137" selection-end-column="17" />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Flask Main" />
+        <option value="CSS File" />
+        <option value="HTML File" />
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>err_</find>
+      <find>mutation_attributes</find>
+      <find>User_user_id_seq</find>
+      <find>UndesiredSubsequences</find>
+      <find>updateSubmethods</find>
+      <find>update</find>
+      <find>sub</find>
+      <find>post</find>
+      <find>json</find>
+      <find>all</find>
+      <find>synth_seq</find>
+      <find>add_sequencing_errors</find>
+      <find>sequence_method</find>
+      <find>submethod_id</find>
+      <find>synthmeth</find>
+      <find>syn</find>
+      <find>attributes</find>
+      <find>synthesis_method</find>
+      <find>mod_seq</find>
+      <find>print</find>
+      <find>kmer</find>
+      <find>_patter</find>
+      <find>[CA, TG]</find>
+      <find>&quot;CG&quot;</find>
+      <find>makeHoverGroups</find>
+      <find>alert</find>
+      <find>getColorForPercentage</find>
+      <find>ode</find>
+      <find>seq_meth</find>
+      <find>synthesis</find>
+    </findStrings>
+    <replaceStrings>
+      <replace>json</replace>
+      <replace>ATAACTTCGTATAGTATACCTTATACGAAGTTAT</replace>
+    </replaceStrings>
+    <dirStrings>
+      <dir>$PROJECT_DIR$/</dir>
+    </dirStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/manage.py" />
+        <option value="$PROJECT_DIR$/__init__.py" />
+        <option value="$PROJECT_DIR$/database/config.py" />
+        <option value="$PROJECT_DIR$/simulators/__init__.py" />
+        <option value="$PROJECT_DIR$/database/db.py" />
+        <option value="$PROJECT_DIR$/api/register.py" />
+        <option value="$PROJECT_DIR$/usermanagement/login.py" />
+        <option value="$PROJECT_DIR$/api/auth.py" />
+        <option value="$PROJECT_DIR$/templates/unconfirmed.html" />
+        <option value="$PROJECT_DIR$/templates/infobox.css" />
+        <option value="$PROJECT_DIR$/templates/index.html" />
+        <option value="$PROJECT_DIR$/usersettings/logout.py" />
+        <option value="$PROJECT_DIR$/usersettings/validate.py" />
+        <option value="$PROJECT_DIR$/templates/delete.html" />
+        <option value="$PROJECT_DIR$/usersettings/login.py" />
+        <option value="$PROJECT_DIR$/templates/signup.html" />
+        <option value="$PROJECT_DIR$/usersettings/register.py" />
+        <option value="$PROJECT_DIR$/usersettings/delete.py" />
+        <option value="$PROJECT_DIR$/templates/profile.html" />
+        <option value="$PROJECT_DIR$/templates/404.html" />
+        <option value="$PROJECT_DIR$/static/styles/infobox.css" />
+        <option value="$PROJECT_DIR$/static/js/jquery.lettering-0.6.1.min.js" />
+        <option value="$PROJECT_DIR$/simulators/synthesis/gc_content.py" />
+        <option value="$USER_HOME$/Code/error_sim.py" />
+        <option value="$PROJECT_DIR$/Dockerfile" />
+        <option value="$PROJECT_DIR$/simulators/synthesis/kmer.py" />
+        <option value="$PROJECT_DIR$/api/error_handle.py" />
+        <option value="$PROJECT_DIR$/simulators/synthesis/homopolymers.py" />
+        <option value="$PROJECT_DIR$/docker-compose.yml" />
+        <option value="$PROJECT_DIR$/api/__init__.py" />
+        <option value="$PROJECT_DIR$/templates/base.html" />
+        <option value="$PROJECT_DIR$/api/apikey.py" />
+        <option value="$PROJECT_DIR$/postgres/new_pg_backup.sql" />
+        <option value="$PROJECT_DIR$/simulators/synthesis/undesired_subsequences.py" />
+        <option value="$PROJECT_DIR$/templates/undesired_subsequences.html" />
+        <option value="$PROJECT_DIR$/requirements.txt" />
+        <option value="$PROJECT_DIR$/simulators/sequencing/pacbio.py" />
+        <option value="$PROJECT_DIR$/simulators/sequencing/nanopore.py" />
+        <option value="$PROJECT_DIR$/postgres/seqmeth_dumpall.sql" />
+        <option value="$PROJECT_DIR$/simulators/sequencing/sequencing.py" />
+        <option value="$PROJECT_DIR$/database/models.py" />
+        <option value="$PROJECT_DIR$/api/main_page.py" />
+        <option value="$PROJECT_DIR$/simulators/sequencing/sequencing_error.py" />
+        <option value="$PROJECT_DIR$/postgres/pg_dumpall.sql" />
+        <option value="$PROJECT_DIR$/.gitignore" />
+        <option value="$PROJECT_DIR$/static/js/ajax-api.js" />
+        <option value="$PROJECT_DIR$/app.py" />
+        <option value="$PROJECT_DIR$/api/simulator_api.py" />
+        <option value="$PROJECT_DIR$/config.py" />
+        <option value="$PROJECT_DIR$/static/js/autoscroll.js" />
+        <option value="$PROJECT_DIR$/templates/sequence_view.html" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="1920" />
+    <option name="y" value="25" />
+    <option name="width" value="1920" />
+    <option name="height" value="1110" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator currentView="Scope" currentSubView="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope" proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="ProjectPane" />
+      <pane id="Scope">
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="api" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="simulators" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="static" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="static" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+              <item name="js" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="templates" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+            <path>
+              <item name="dna_sim" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="~/PycharmProjects/dna_sim" type="442cc68d:ScopeViewTreeModel$RootNode" />
+              <item name="usersettings" type="9f88c78c:ScopeViewTreeModel$FileNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
+    <property name="SONARLINT_PRECOMMIT_ANALYSIS" value="true" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/postgres" />
+    <property name="list.type.of.created.stylesheet" value="CSS" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="restartRequiresConfirmation" value="false" />
+    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+  </component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/simulators/error_sources" />
+      <recent name="$PROJECT_DIR$/static/js" />
+      <recent name="$PROJECT_DIR$/static/styles" />
+      <recent name="$PROJECT_DIR$/usermanagement" />
+      <recent name="$PROJECT_DIR$" />
+    </key>
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/postgres" />
+      <recent name="$PROJECT_DIR$/static/js" />
+      <recent name="$PROJECT_DIR$/static" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="RunManager" selected="Python.app">
+    <configuration name="app" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="dna_sim" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="$PROJECT_DIR$/venv/bin/python" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/app.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="error_sim" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="dna_sim" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$USER_HOME$/Code" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$USER_HOME$/Code/error_sim.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="kmer" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="dna_sim" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/simulators/synthesis" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/simulators/error_sources/kmer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="undesired_subsequences" type="PythonConfigurationType" factoryName="Python" temporary="true">
+      <module name="dna_sim" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/simulators/synthesis" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/simulators/error_sources/undesired_subsequences.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="dna_sim" type="Python.FlaskServer">
+      <module name="dna_sim" />
+      <option name="target" value="$PROJECT_DIR$/app.py" />
+      <option name="targetType" value="PATH" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="" />
+      <option name="IS_MODULE_SDK" value="false" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="launchJavascriptDebuger" value="false" />
+      <method v="2" />
+    </configuration>
+    <configuration name="flask" type="docker-deploy" factoryName="dockerfile" temporary="true" server-name="Docker">
+      <deployment type="dockerfile">
+        <settings>
+          <option name="buildCliOptions" value="" />
+          <option name="command" value="" />
+          <option name="containerName" value="" />
+          <option name="entrypoint" value="" />
+          <option name="imageTag" value="" />
+          <option name="commandLineOptions" value="" />
+          <option name="sourceFilePath" value="Dockerfile" />
+        </settings>
+      </deployment>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Docker.flask" />
+      <item itemvalue="Flask server.dna_sim" />
+      <item itemvalue="Python.app" />
+      <item itemvalue="Python.error_sim" />
+      <item itemvalue="Python.kmer" />
+      <item itemvalue="Python.undesired_subsequences" />
+    </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.app" />
+        <item itemvalue="Docker.flask" />
+        <item itemvalue="Python.undesired_subsequences" />
+        <item itemvalue="Python.kmer" />
+        <item itemvalue="Python.error_sim" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="0e6c12f1-3d8a-410d-935d-7248db6ee34f" name="Default Changelist" comment="" />
+      <created>1557385294219</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1557385294219</updated>
+      <workItem from="1557385301872" duration="10692000" />
+      <workItem from="1557397379310" duration="14613000" />
+      <workItem from="1557470949531" duration="22744000" />
+      <workItem from="1557726818866" duration="8414000" />
+      <workItem from="1557745717272" duration="8845000" />
+      <workItem from="1557817131891" duration="22080000" />
+      <workItem from="1557906544970" duration="19909000" />
+      <workItem from="1557989644492" duration="18747000" />
+      <workItem from="1558076198699" duration="16378000" />
+      <workItem from="1558334642096" duration="20796000" />
+      <workItem from="1558425472610" duration="1637000" />
+      <workItem from="1558448451476" duration="6293000" />
+      <workItem from="1558510284312" duration="13030000" />
+      <workItem from="1559113396234" duration="8459000" />
+      <workItem from="1559126091605" duration="3638000" />
+      <workItem from="1559279816111" duration="591000" />
+      <workItem from="1559281636064" duration="374000" />
+      <workItem from="1559282020897" duration="2207000" />
+      <workItem from="1559542625761" duration="14922000" />
+      <workItem from="1559629271237" duration="4775000" />
+      <workItem from="1559800736367" duration="1973000" />
+      <workItem from="1559804571018" duration="17109000" />
+      <workItem from="1559906503949" duration="1126000" />
+      <workItem from="1560243356876" duration="3773000" />
+      <workItem from="1560315839647" duration="13634000" />
+      <workItem from="1560761335993" duration="9842000" />
+      <workItem from="1560926666146" duration="6280000" />
+      <workItem from="1560933950797" duration="4392000" />
+      <workItem from="1561106165804" duration="10204000" />
+    </task>
+    <task id="LOCAL-00001" summary="fixed gc window and allowed multiple jax requests &amp; rendering such">
+      <created>1557931757727</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1557931757728</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="287477000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="1920" y="25" width="1920" height="1110" extended-state="6" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.10885806" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3283721" />
+      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.27522936" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.3985729" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" weight="0.32925585" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.32925585" />
+      <window_info anchor="bottom" id="Database Changes" order="9" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" />
+      <window_info anchor="bottom" id="Terminal" order="11" weight="0.21302326" />
+      <window_info anchor="bottom" id="Python Console" order="12" weight="0.3293023" />
+      <window_info anchor="bottom" id="SonarLint" order="13" weight="0.32744187" />
+      <window_info anchor="right" x="0" y="0" width="430" height="910" id="Documentation" side_tool="true" visible="true" weight="0.09338314" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+      <window_info anchor="right" id="SciView" order="3" />
+      <window_info anchor="right" id="R Graphics" order="4" />
+      <window_info anchor="right" id="R Packages" order="5" />
+      <window_info anchor="right" id="Database" order="6" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="fixed gc window and allowed multiple jax requests &amp; rendering such" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed gc window and allowed multiple jax requests &amp; rendering such" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/usersettings/login.py</url>
+          <line>42</line>
+          <option name="timeStamp" value="5" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/usersettings/register.py</url>
+          <line>32</line>
+          <option name="timeStamp" value="6" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/usersettings/validate.py</url>
+          <line>65</line>
+          <option name="timeStamp" value="7" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/usersettings/login.py</url>
+          <line>46</line>
+          <option name="timeStamp" value="8" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/usersettings/register.py</url>
+          <line>16</line>
+          <option name="timeStamp" value="9" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/api/main_page.py</url>
+          <line>124</line>
+          <option name="timeStamp" value="31" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/api/main_page.py</url>
+          <line>140</line>
+          <option name="timeStamp" value="32" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/api/main_page.py</url>
+          <line>162</line>
+          <option name="timeStamp" value="33" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/api/main_page.py</url>
+          <line>201</line>
+          <option name="timeStamp" value="45" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="sequence" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/dna_sim$dna_sim.coverage" NAME="dna_sim Coverage Results" MODIFIED="1559546707740" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+    <SUITE FILE_PATH="coverage/dna_sim$app.coverage" NAME="app Coverage Results" MODIFIED="1561116424016" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/dna_sim$error_sim.coverage" NAME="error_sim Coverage Results" MODIFIED="1557997920045" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$USER_HOME$/Code" />
+    <SUITE FILE_PATH="coverage/dna_sim$undesired_subsequences.coverage" NAME="undesired_subsequences Coverage Results" MODIFIED="1558079653570" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
+    <SUITE FILE_PATH="coverage/dna_sim$homopolymers.coverage" NAME="homopolymers Coverage Results" MODIFIED="1557822091260" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
+    <SUITE FILE_PATH="coverage/dna_sim$gc_content.coverage" NAME="gc_content Coverage Results" MODIFIED="1557915036143" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
+    <SUITE FILE_PATH="coverage/dna_sim$kmer.coverage" NAME="kmer Coverage Results" MODIFIED="1558001263187" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/simulators/synthesis" />
+    <SUITE FILE_PATH="coverage/dna_sim$Flask__app_py_.coverage" NAME="Flask (app.py) Coverage Results" MODIFIED="1557386848287" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="" />
+  </component>
+  <component name="debuggerHistoryManager">
+    <expressions id="evaluateCodeFragment">
+      <expression>
+        <expression-string>SequencingErrorRates.query.filter(SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>SequencingErrorRates.query.filter(SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>SequencingErrorRates.query.filter(SequencingErrorRates.submethod_id == int(seq_meth)).first()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>SequencingErrorRates.query.filter(SequencingErrorRates.submethod_id == int(seq_meth))</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>SequencingErrorRates.query.filter(SequencingErrorRates.submethod_id == int(seq_meth)).order_by(
+            SequencingErrorRates.err_data).first()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>x = SequencingErrorAttributes.query.filter_by(id=1).all()
+print(x)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>x = SequencingErrorAttributes.query.filter_by(id=1).first()
+print(x.id)</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>x = SequencingErrorAttributes.query.filter_by(id=1).first()
+x.id</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+      <expression>
+        <expression-string>x = SequencingErrorAttributes.query.filter_by(id=1).first()</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>CODE_FRAGMENT</evaluation-mode>
+      </expression>
+    </expressions>
+    <expressions id="setValue">
+      <expression>
+        <expression-string>'postgresql://dna_sim:***REMOVED***@localhost:5432/dna_sim'</expression-string>
+        <language-id>Python</language-id>
+        <evaluation-mode>EXPRESSION</evaluation-mode>
+      </expression>
+    </expressions>
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/werkzeug/test.py" />
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.6/site-packages/flask/app.py" />
+    <entry file="file://$PROJECT_DIR$/templates/profile.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="1185">
+          <caret line="79" column="8" lean-forward="true" selection-start-line="79" selection-start-column="8" selection-end-line="80" selection-end-column="79" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/usersettings/register.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="480">
+          <caret line="40" selection-start-line="40" selection-end-line="44" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/usersettings/delete.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="870">
+          <caret line="62" column="3" selection-start-line="62" selection-start-column="3" selection-end-line="62" selection-end-column="3" />
+          <folding>
+            <element signature="e#0#88#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/venv/pyvenv.cfg">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/parser.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="45">
+          <caret line="3" selection-start-line="3" selection-end-line="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/error_sources/gc_content.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="780">
+          <caret line="52" column="103" lean-forward="true" selection-start-line="52" selection-start-column="103" selection-end-line="52" selection-end-column="103" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/requirements.txt">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="23" column="16" selection-start-line="23" selection-start-column="16" selection-end-line="23" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/docker-compose.yml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="60">
+          <caret line="4" column="10" lean-forward="true" selection-start-line="4" selection-start-column="10" selection-end-line="4" selection-end-column="10" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="135">
+          <caret line="9" selection-start-line="9" selection-end-line="9" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/secret_page.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="15" selection-start-column="15" selection-end-column="15" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/error_probability.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="210">
+          <caret line="14" column="1" lean-forward="true" selection-start-line="14" selection-start-column="1" selection-end-line="14" selection-end-column="1" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/old_pg_backup.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-2070" />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/RateLimit.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="405">
+          <caret line="31" selection-start-line="31" selection-end-line="31" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/Dockerfile">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/sequencing/pacbio.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="690">
+          <caret line="46" column="29" selection-start-line="46" selection-start-column="29" selection-end-line="46" selection-end-column="29" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/database/schema.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="26" lean-forward="true" selection-start-column="26" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/sequencing/sequencing.py" />
+    <entry file="file://$PROJECT_DIR$/simulators/sequencing/nanopore.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="995">
+          <caret line="84" column="26" selection-start-line="84" selection-start-column="26" selection-end-line="84" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/error_sources/homopolymers.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="735">
+          <caret line="49" column="4" selection-start-line="49" selection-start-column="4" selection-end-line="49" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/apikey.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="31" column="22" selection-start-line="31" selection-start-column="22" selection-end-line="31" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/mail.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <folding>
+            <element signature="e#0#36#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql_bk" />
+    <entry file="file://$PROJECT_DIR$/templates/undesired_subsequences.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1380">
+          <caret line="103" column="38" lean-forward="true" selection-start-line="103" selection-start-column="38" selection-end-line="103" selection-end-column="38" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/error_sources/kmer.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="315">
+          <caret line="21" selection-start-line="20" selection-end-line="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/error-chart.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="705">
+          <caret line="405" column="21" selection-start-line="405" selection-start-column="15" selection-end-line="405" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///usr/lib/python3.7/socketserver.py" />
+    <entry file="file:///usr/lib/python3.7/http/server.py" />
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/werkzeug/debug/__init__.py" />
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/werkzeug/serving.py" />
+    <entry file="file://$PROJECT_DIR$/venv/lib/python3.7/site-packages/flask/app.py" />
+    <entry file="file://$PROJECT_DIR$/postgres/pg_backup.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4335">
+          <caret line="289" selection-start-line="289" selection-end-line="289" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/seqmeth_dumpall.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4545">
+          <caret line="303" column="72" selection-start-line="303" selection-start-column="62" selection-end-line="303" selection-end-column="72" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/error_sources/undesired_subsequences.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="390">
+          <caret line="26" selection-start-line="26" selection-end-line="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/database/db.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="30">
+          <caret line="2" column="17" selection-start-line="2" selection-start-column="17" selection-end-line="2" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall_bk.sql">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/simulators/sequencing/sequencing_error.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="594">
+          <caret line="208" column="35" selection-start-line="208" selection-start-column="35" selection-end-line="208" selection-end-column="35" />
+          <folding>
+            <element signature="e#0#61#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/database/models.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2550">
+          <caret line="177" column="20" selection-start-line="177" selection-start-column="20" selection-end-line="177" selection-end-column="20" />
+          <folding>
+            <element signature="e#0#11#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/error_handle.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="105">
+          <caret line="7" column="4" selection-start-line="7" selection-start-column="4" selection-end-line="7" selection-end-column="4" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.dockerignore">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/base.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="202">
+          <caret line="65" column="26" selection-start-line="65" selection-start-column="26" selection-end-line="65" selection-end-column="26" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/postgres/pg_dumpall.sql">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="457">
+          <caret line="915" column="28" selection-start-line="915" selection-start-column="28" selection-end-line="915" selection-end-column="28" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/main_page.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="435">
+          <caret line="219" column="11" selection-start-line="219" selection-start-column="11" selection-end-line="219" selection-end-column="11" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="255">
+          <caret line="17" column="4" selection-start-line="17" selection-start-column="4" selection-end-line="17" selection-end-column="4" />
+          <folding>
+            <element signature="e#0#9#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/api/simulator_api.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="465">
+          <caret line="238" selection-start-line="238" selection-end-line="238" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/ajax-api.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-138">
+          <caret line="180" column="76" selection-start-line="180" selection-start-column="76" selection-end-line="180" selection-end-column="76" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/tmp.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="345">
+          <caret line="59" column="44" lean-forward="true" selection-start-line="59" selection-start-column="44" selection-end-line="62" selection-end-column="44" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/static/js/autoscroll.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="539">
+          <caret line="137" column="17" selection-start-line="137" selection-start-column="17" selection-end-line="137" selection-end-column="17" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/config.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="450">
+          <caret line="30" column="27" selection-start-line="30" selection-start-column="27" selection-end-line="30" selection-end-column="27" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/templates/sequence_view.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="104">
+          <caret line="216" column="88" lean-forward="true" selection-start-line="216" selection-start-column="88" selection-end-line="216" selection-end-column="88" />
+          <folding>
+            <element signature="e#22991#23012#0#HTML" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

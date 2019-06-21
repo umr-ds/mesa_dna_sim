@@ -1,11 +1,14 @@
 from flask import jsonify, request, Blueprint
 from math import floor
 from api.apikey import require_apikey
+from database.models import SequencingErrorRates, SequencingErrorAttributes, \
+    SynthesisErrorRates, SynthesisErrorAttributes
 from simulators.error_probability import create_error_prob_function
-from simulators.synthesis.gc_content import overall_gc_content, windowed_gc_content
-from simulators.synthesis.homopolymers import homopolymer
-from simulators.synthesis.kmer import kmer_counting
-from simulators.synthesis.undesired_subsequences import undesired_subsequences
+from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
+from simulators.error_sources.homopolymers import homopolymer
+from simulators.error_sources.kmer import kmer_counting
+from simulators.error_sources.undesired_subsequences import undesired_subsequences
+from simulators.sequencing.sequencing_error import err_rates, mutation_attributes, SequencingError
 
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
@@ -102,6 +105,85 @@ def do_undesired_sequences():
     return jsonify(res)
 
 
+@simulator_api.route('/api/sequencing', methods=['GET', 'POST'])
+@require_apikey
+def add_sequencing_errors():
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+
+    sequence = r_method.get('sequence')
+    seq_meth = r_method.get('sequence_method')
+
+    # 0 = none, 7,8,9 = user defined
+    if seq_meth in {"0", "7", "8", "9"}:
+        res = sequence
+    else:
+        err_rate = SequencingErrorRates.query.filter(
+            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
+        err_att = SequencingErrorAttributes.query.filter(
+            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
+        seqerr = SequencingError(sequence, err_att, err_rate)
+        res = seqerr.lit_error_rate_mutations()
+    return jsonify(res)
+
+
+# undesired_sub_seq = UndesiredSubsequences.query.filter(
+#    or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
+#    desc(UndesiredSubsequences.id)).all()
+
+
+@simulator_api.route('/api/synthesis', methods=['GET', 'POST'])
+@require_apikey
+def add_synthesis_errors():
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+
+    sequence = r_method.get('sequence')
+    synth_meth = r_method.get('synthesis_method')
+
+    # 0 = none, 11,12,13 = user defined
+    if synth_meth in {"0", "11", "12", "13"}:
+        res = sequence
+    else:
+        err_rate = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first().err_data
+        err_att = SynthesisErrorAttributes.query.filter(
+            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+        seqerr = SequencingError(sequence, err_att, err_rate)
+        res = seqerr.lit_error_rate_mutations()
+    return jsonify(res)
+
+
+# This is dumb as it does calculate the errors new and therefore gets different errors
+# Than the sequencing and synthesis by them self
+@simulator_api.route('/api/modify', methods=['GET', 'POST'])
+@require_apikey
+def add_errors():
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+
+    sequence = r_method.get('sequence')
+    seq_meth = r_method.get('sequence_method')
+    synth_meth = r_method.get('synthesis_method')
+
+    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
+        res = sequence
+    elif synth_meth in {"0", "11", "12", "13"}:
+        res = sequencing_error(seq_meth, sequence)
+    elif seq_meth in {"0", "7", "8", "9"}:
+        res = synthesis_error(synth_meth, sequence)
+    else:
+        synthesis_error_seq = synthesis_error(synth_meth, sequence)
+        res = sequencing_error(seq_meth, synthesis_error_seq)
+    return jsonify(res)
+
+
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
 @require_apikey
 def do_all():
@@ -114,6 +196,8 @@ def do_all():
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
+    seq_meth = r_method.get('sequence_method')
+    synth_meth = r_method.get('synthesis_method')
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -150,16 +234,69 @@ def do_all():
 
     res.extend(gc_window_res)
     homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
-
     res.extend(homopolymer_res)
+
+    if synth_meth in {"0", "11", "12", "13"}:
+        synth_res = sequence
+    else:
+        err_rate = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first().err_data
+        err_att = SynthesisErrorAttributes.query.filter(
+            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+        seqerr = SequencingError(sequence, err_att, err_rate)
+        synth_res = seqerr.lit_error_rate_mutations()
+        # todo htmlify synthesis
+
+    if seq_meth in {"0", "7", "8", "9"}:
+        seq_res = sequence
+    else:
+        err_rate = SequencingErrorRates.query.filter(
+            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
+        err_att = SequencingErrorAttributes.query.filter(
+            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
+        seqerr = SequencingError(sequence, err_att, err_rate)
+        seq_res = seqerr.lit_error_rate_mutations()
+        # todo htmlify synthesis
+
+    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
+        mod_res = sequence
+    elif synth_meth in {"0", "11", "12", "13"}:
+        mod_res = sequencing_error(seq_meth, sequence)
+    elif seq_meth in {"0", "7", "8", "9"}:
+        mod_res = synthesis_error(synth_meth, sequence)
+    else:
+        synthesis_error_seq = synthesis_error(synth_meth, sequence)
+        mod_res = sequencing_error(seq_meth, synthesis_error_seq)
+
     if as_html:
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)
         homopolymer_html = htmlify(homopolymer_res, sequence)
         return jsonify(
-            {'subsequences': usubseq_html, 'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+            {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
+             'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
              'all': htmlify(res, sequence)})
     return jsonify(res)
+
+
+# Helper
+def synthesis_error(synth_meth, sequence):
+    err_rate_syn = SynthesisErrorRates.query.filter(
+        SynthesisErrorRates.id == int(synth_meth)).first().err_data
+    err_att_syn = SynthesisErrorAttributes.query.filter(
+        SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+    synth_err = SequencingError(sequence, err_att_syn, err_rate_syn)
+    return synth_err.lit_error_rate_mutations()
+
+
+def sequencing_error(seq_meth, sequence):
+    err_rate_seq = SequencingErrorRates.query.filter(
+        SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
+    err_att_seq = SequencingErrorAttributes.query.filter(
+        SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
+
+    seq_err = SequencingError(sequence, err_att_seq, err_rate_seq)
+    return seq_err.lit_error_rate_mutations()
 
 
 def htmlify(input, sequence):
