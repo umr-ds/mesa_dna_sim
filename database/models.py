@@ -122,6 +122,7 @@ class ErrorProbability(db.Model):
             tmp['isowner'] = owner_id == ob.user_id
         return tmp
 
+
 ###############################################
 
 
@@ -136,6 +137,7 @@ class SequencingErrorRates(db.Model):
         return '<SequencingErrorRates(id={}, method_id={}, submethod_id={}, err_data={}'.format(
             self.id, self.method, self.submethod_id, self.err_data)
 
+
 ###############################################
 
 
@@ -145,10 +147,13 @@ class SequencingErrorAttributes(db.Model):
     method_id = db.Column(db.Integer, nullable=False)
     submethod_id = db.Column(db.Integer, nullable=False)
     attributes = db.Column(db.JSON)
+    user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    validated = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return '<SequencingErrorAttributes(id={}, method_id={}, submethod_id={}, attributes={}'.format(
             self.id, self.method, self.submethod_id, self.attributes)
+
 
 ###############################################
 
@@ -156,26 +161,68 @@ class SequencingErrorAttributes(db.Model):
 class SynthesisErrorRates(db.Model):
     __tablename__ = 'synth_err_rates'
     id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, nullable=False)
-    correction_id = db.Column(db.Integer, nullable=False)
+    method_id = db.Column(db.Integer, ForeignKey('synth_meth.id'), nullable=False)
+    correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
     err_data = db.Column(db.JSON)
+    user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    validated = db.Column(db.Boolean, default=False, nullable=False)
+    err_attributes = db.Column(db.JSON)
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
             self.id, self.method, self.correction_id, self.err_data)
 
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+
 ###############################################
-
-
+"""
 class SynthesisErrorAttributes(db.Model):
     __tablename__ = 'synth_err_att'
     id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, nullable=False)
-    correction_id = db.Column(db.Integer, nullable=False)
-    err_data = db.Column(db.JSON)
+    method_id = db.Column(db.Integer, ForeignKey('synth_meth.id'), nullable=False)
+    correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
+    err_att = db.Column(db.JSON)
+    user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    validated = db.Column(db.Boolean, default=False, nullable=False)
+
+    def __repr__(self):
+        return '<SequencingErrorAttributes(id={}, method_id={}, correction_id={}, err_data={}'.format(
+            self.id, self.method, self.correction_id, self.err_att)
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+"""
+
+
+###############################################
+
+class SynthesisMethods(db.Model):
+    __tablename__ = 'synth_meth'
+    id = db.Column(db.Integer, primary_key=True)
+    method = db.Column(db.String(128), nullable=False)
+
+    def __repr__(self):
+        return '<SequencingErrorAttributes(id={}, method_id={}, correction_id={}, err_data={}'.format(
+            self.id, self.err_, self.correction_id, self.err_data)
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+
+###############################################
+
+class SynthesisErrorCorrection(db.Model):
+    __tablename__ = 'synth_err_correction'
+    id = db.Column(db.Integer, primary_key=True)
+    data = db.Column(db.String(128), nullable=False)
 
     def __repr__(self):
         return '<SequencingErrorAttributes(id={}, method_id={}, correction_id={}, err_data={}'.format(
             self.id, self.method, self.correction_id, self.err_data)
+
+    def as_dict(self):
+        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 ###############################################

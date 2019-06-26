@@ -1,8 +1,7 @@
 from flask import jsonify, request, Blueprint
 from math import floor
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SequencingErrorAttributes, \
-    SynthesisErrorRates, SynthesisErrorAttributes
+from database.models import SequencingErrorRates, SequencingErrorAttributes, SynthesisErrorRates
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer

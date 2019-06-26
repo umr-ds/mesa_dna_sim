@@ -248,3 +248,38 @@ var getColorForPercentage = function (pct) {
     curr_char.attr('title', (i / l));
     //$(".text_lettering").append(li);
 }*/
+
+function updateSynthDropdown(host, apikey, type) {
+    $.post({
+        url: "http://" + host + "/api/get_error_probs",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            key: apikey,
+            type: type
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            let el = $('#synthmeth');
+            el.empty(); // remove old options
+            $.each(data['res'], function (name) {
+                let elem = data['res'][name];
+                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
+                optgroup.appendTo(el);
+                $.each(elem, function (inner_id) {
+                    let id_name = "" + name + "_" + elem[inner_id]['id'];
+                    optgroup.append($("<option></option>").attr('id', id_name).text(elem[inner_id]['data']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                });
+            });
+        },
+        fail: function (data) {
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}

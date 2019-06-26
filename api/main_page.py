@@ -1,12 +1,15 @@
+import json
 import re
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
 from sqlalchemy import desc, or_, and_
+from sqlalchemy.orm import Query
 
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
-from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability
+from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
+    SynthesisErrorCorrection, SynthesisMethods
 from usersettings.login import require_logged_in, check_password
 from usersettings.register import gen_password
 
@@ -101,13 +104,17 @@ def query_sequence():
     if request.method == "POST":
         sequence = request.json.get('sequence')
         return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence,
-                               usubsequence=undesired_sub_seq, gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in homopolymer_charts])
+                               usubsequence=undesired_sub_seq,
+                               gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
+                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in
+                                                   homopolymer_charts])
     else:
         sequence = request.args.get('sequence')
         return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host,
-                               usubsequence=undesired_sub_seq, gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in homopolymer_charts])
+                               usubsequence=undesired_sub_seq,
+                               gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
+                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in
+                                                   homopolymer_charts])
 
 
 @main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
@@ -249,7 +256,7 @@ def delete_error_prob_chart():
 
 @main_page.route("/api/get_error_prob_charts", methods=['GET', 'POST'])
 @require_logged_in
-def get_error_prob_chart():
+def get_error_prob_charts():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -267,6 +274,48 @@ def get_error_prob_chart():
         else:
             return jsonify({'did_succeed': False})
     except Exception as x:
+        return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def get_synth_error_probs():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    try:
+        if user_id and user:
+            res = db.session.query(SynthesisErrorCorrection, SynthesisErrorRates).join(
+                SynthesisErrorCorrection).filter(
+                or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
+                desc(SynthesisErrorRates.id)).all()
+            methods = [x.as_dict() for x in SynthesisMethods.query.all()]
+            # res = db.session.query(SynthesisErrorCorrection.data.label("name"),
+            #                       SynthesisMethods.method.label("category"), SynthesisErrorRates.err_data,
+            #                       SynthesisErrorRates.err_attributes, SynthesisErrorRates.validated).join(
+            #    SynthesisErrorCorrection).join(SynthesisMethods).filter(
+            #    or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
+            #    desc(SynthesisErrorRates.id)).all()
+            tmp = [{**x.SynthesisErrorCorrection.as_dict(), **x.SynthesisErrorRates.as_dict()} for x in res]
+            res = dict()
+            for x in tmp:
+                x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
+                x['err_data'] = json.loads(x['err_data'].replace("'", '"'))
+                id = int(x['method_id']) - 1
+                meth_str = methods[id].get('method')
+                if meth_str not in res:
+                    res[meth_str] = []
+                x.pop('method_id')
+                x.pop('correction_id')
+                x.pop('user_id')
+                x['id'] = int(x['id'])
+                x['validated'] = bool(x['validated'])
+                res[meth_str].append(x)
+            return jsonify(
+                {'did_succeed': True, 'res': res})
+        else:
+            return jsonify({'did_succeed': False})
+    except Exception as x:
+        # raise x
         return jsonify({'did_succeed': False})
 
 

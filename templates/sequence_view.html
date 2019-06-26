@@ -448,7 +448,7 @@ window.onload = function () {
             updateDropdown("{{ host }}", "{{ apikey }}", "gc");
             updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
             updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
-
+            updateSynthDropdown("{{ host }}", "{{ apikey }}");
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) closeOverlay();
             });
