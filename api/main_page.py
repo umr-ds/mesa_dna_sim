@@ -125,7 +125,19 @@ def undesired_subsequences():
     if user_id and user:
         undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id).order_by(
             desc(UndesiredSubsequences.id)).all()
-        return render_template('undesired_subsequences.html', usubsequence=undesired_sub_seq, host=request.host)
+        res = db.session.query(SynthesisErrorCorrection, SynthesisErrorRates).join(
+            SynthesisErrorCorrection).filter(
+            or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
+            desc(SynthesisErrorRates.id)).all()
+        out = [{**x.SynthesisErrorCorrection.as_dict(), **x.SynthesisErrorRates.as_dict()} for x in res]
+        id_out = {}
+        for x in out:
+            x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
+            x['err_data'] = json.loads(x['err_data'].replace("'", '"'))
+            id_out[int(x['id'])] = x
+        return render_template('undesired_subsequences.html', synthesis_errors=id_out,
+                               usubsequence=undesired_sub_seq,
+                               host=request.host)
     else:
         flash("Could not find user, please login again", 'warning')
         session.pop('user_id')
@@ -282,6 +294,11 @@ def get_error_prob_charts():
 def get_synth_error_probs():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
+    if request.method == "POST":
+        req = request.json
+    else:
+        req = request.args
+    flat = "flat" in req and bool(req["flat"])
     try:
         if user_id and user:
             res = db.session.query(SynthesisErrorCorrection, SynthesisErrorRates).join(
@@ -304,14 +321,18 @@ def get_synth_error_probs():
                 meth_str = methods[id].get('method')
                 if meth_str not in res:
                     res[meth_str] = []
-                x.pop('method_id')
-                x.pop('correction_id')
-                x.pop('user_id')
+                # x.pop('method_id')
+                x['is_owner'] = int(x['user_id']) == user_id
+                if not flat:
+                    x.pop('correction_id')
+                    x.pop('user_id')
+                else:
+                    x['method'] = methods
                 x['id'] = int(x['id'])
                 x['validated'] = bool(x['validated'])
                 res[meth_str].append(x)
             return jsonify(
-                {'did_succeed': True, 'res': res})
+                {'did_succeed': True, 'res': res, 'methods': methods})
         else:
             return jsonify({'did_succeed': False})
     except Exception as x:

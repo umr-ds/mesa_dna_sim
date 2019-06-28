@@ -13,6 +13,7 @@
     "jquery": "^3.4.1",
     "json5": "^2.1.0",
     "letteringjs": "^0.7.0",
+    "nouislider": "^14.0.1",
     "uglify-es": "^3.3.9",
     "uglifycss": "0.0.29"
   },

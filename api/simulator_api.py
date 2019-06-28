@@ -148,10 +148,10 @@ def add_synthesis_errors():
     if synth_meth in {"0", "11", "12", "13"}:
         res = sequence
     else:
-        err_rate = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first().err_data
-        err_att = SynthesisErrorAttributes.query.filter(
-            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+        tmp = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first()
+        err_rate = tmp.err_data
+        err_att = tmp.err_attributes
         seqerr = SequencingError(sequence, err_att, err_rate)
         res = seqerr.lit_error_rate_mutations()
     return jsonify(res)
@@ -238,10 +238,10 @@ def do_all():
     if synth_meth in {"0", "11", "12", "13"}:
         synth_res = sequence
     else:
-        err_rate = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first().err_data
-        err_att = SynthesisErrorAttributes.query.filter(
-            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+        tmp = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first()
+        err_rate = tmp.err_data
+        err_att = tmp.err_attributes
         seqerr = SequencingError(sequence, err_att, err_rate)
         synth_res = seqerr.lit_error_rate_mutations()
         # todo htmlify synthesis
@@ -257,6 +257,7 @@ def do_all():
         seq_res = seqerr.lit_error_rate_mutations()
         # todo htmlify synthesis
 
+    """
     if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
         mod_res = sequence
     elif synth_meth in {"0", "11", "12", "13"}:
@@ -264,8 +265,9 @@ def do_all():
     elif seq_meth in {"0", "7", "8", "9"}:
         mod_res = synthesis_error(synth_meth, sequence)
     else:
-        synthesis_error_seq = synthesis_error(synth_meth, sequence)
-        mod_res = sequencing_error(seq_meth, synthesis_error_seq)
+    """
+    synthesis_error_seq = synthesis_error(synth_meth, sequence)
+    mod_res = synthesis_error_seq  # sequencing_error(seq_meth, synthesis_error_seq)
 
     if as_html:
         kmer_html = htmlify(kmer_res, sequence)
@@ -280,10 +282,10 @@ def do_all():
 
 # Helper
 def synthesis_error(synth_meth, sequence):
-    err_rate_syn = SynthesisErrorRates.query.filter(
-        SynthesisErrorRates.id == int(synth_meth)).first().err_data
-    err_att_syn = SynthesisErrorAttributes.query.filter(
-        SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+    tmp = SynthesisErrorRates.query.filter(
+        SynthesisErrorRates.id == int(synth_meth)).first()
+    err_rate_syn = tmp.err_data
+    err_att_syn = tmp.err_attributes
     synth_err = SequencingError(sequence, err_att_syn, err_rate_syn)
     return synth_err.lit_error_rate_mutations()
 

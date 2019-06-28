@@ -272,8 +272,9 @@ function updateSynthDropdown(host, apikey, type) {
                 let optgroup = $("<optgroup label='" + name + "'></optgroup>");
                 optgroup.appendTo(el);
                 $.each(elem, function (inner_id) {
-                    let id_name = "" + name + "_" + elem[inner_id]['id'];
-                    optgroup.append($("<option></option>").attr('id', id_name).text(elem[inner_id]['data']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                    let id = elem[inner_id]['id'];
+                    let id_name = "" + name + "_" + id;
+                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['data']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
             });
         },

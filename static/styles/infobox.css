@@ -251,3 +251,47 @@ br {
 .has-padding-03 {
     padding-bottom: 0.3rem;
 }
+
+.c-1-color {
+    background: red !important;
+}
+
+.c-2-color {
+    background: yellow !important;
+}
+
+.c-3-color {
+    background: green !important;
+}
+
+.c-4-color {
+    background: blue !important;
+}
+
+.c-5-color {
+    background: purple !important;
+}
+
+.noUi-tooltip {
+    display: none !important;
+}
+
+.noUi-active .noUi-tooltip {
+    display: block !important;
+}
+
+.has-horizontal-padding-0 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.hide-spiinbutton input::-webkit-outer-spin-button,
+.hide-spiinbutton input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.hide-spiinbutton input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
