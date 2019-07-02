@@ -14,17 +14,16 @@
         <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}" sizes="192x192"/>
         <link rel="apple-touch-icon-precomposed" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
         <meta name="msapplication-TileImage" content="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
-
         {% if config['DEBUG'] or config['TESTING'] %}
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
             <link rel="stylesheet" type="text/css"
                   href={{ url_for('static',filename='styles/bootstrap-float-label.min.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/balloon.min.css') }}>
-            <link rel="stylesheet" type="text/css"
-                  href="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.8.0/Chart.min.css">
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/Chart.min.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/nouislider.css') }}>
+            <script defer src="{{ url_for('static',filename='js/fontawesome.min.js') }}"></script>
         {% else %}
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
         {% endif %}
@@ -44,7 +43,8 @@
                 </div>
                 <div id="navbarMenuHeroA" class="navbar-menu">
                     <div class="navbar-end">
-                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item is-black"> Home </a>
+                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item is-black">
+                            Home </a>
                         {% if session['user_id'] %}
                             <a href="{{ url_for('main_page.query_sequence') }}" aria-label="Simulation System"
                                class="navbar-item"> Simulate </a>

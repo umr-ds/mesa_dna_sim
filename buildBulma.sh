@@ -10,13 +10,16 @@ cp node_modules/json5/dist/index.min.js static/js/index.min.js
 cp node_modules/jquery/dist/jquery.min.js static/js/jquery.min.js
 cp node_modules/letteringjs/jquery.lettering.js static/js/jquery.lettering.js
 
-cp node_modules/nouislider/distribute/nouislider.css static/style/nouislider.css
+cp node_modules/nouislider/distribute/nouislider.css static/styles/nouislider.css
 cp node_modules/nouislider/distribute/nouislider.min.js static/js/nouislider.min.js
+
+cp node_modules/@fortawesome/fontawesome-free/js/all.min.js static/js/fontawesome.min.js
+#cp node_modules/@fortawesome/fontawesome-free/css/all.min.css static/style/fontawesome.min.css
 
 rm static/js/all.min.js
 rm static/styles/all.min.css
 cd static/js
 
-uglifyjs -c --output all.min.js -- jquery.min.js jquery.lettering.js Chart.min.js chartjs-plugin-dragData.min.js error-chart.js autoscroll.js ajax-api.js index.min.js nouislider.min.js
+uglifyjs -c --output all.min.js -- jquery.min.js jquery.lettering.js Chart.min.js chartjs-plugin-dragData.min.js fontawesome.min.js error-chart.js autoscroll.js ajax-api.js index.min.js nouislider.min.js
 cd ../styles
-uglifycss --output all.min.css bulma.min.css infobox.css bootstrap-float-label.min.css balloon.min.css Chart.min.css overlay.css nouislider.min.css #bulma-switch.min.css
+uglifycss --output all.min.css bulma.min.css infobox.css bootstrap-float-label.min.css balloon.min.css Chart.min.css overlay.css nouislider.css #fontawesome.min.js #bulma-switch.min.css

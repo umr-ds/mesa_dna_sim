@@ -18,6 +18,7 @@
     "uglifycss": "0.0.29"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.9.0",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
   },

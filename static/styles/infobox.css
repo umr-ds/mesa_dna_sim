@@ -295,3 +295,19 @@ br {
 .hide-spiinbutton input[type=number] {
     -moz-appearance: textfield; /* Firefox */
 }
+
+.has-no-margin-left {
+    margin-left: 0 !important;
+}
+
+.has-no-padding-left {
+    padding-left: 0 !important;
+}
+
+.has-no-padding-bottom {
+    padding-bottom: 0 !important;
+}
+
+.has-overflow-unset {
+    overflow: unset !important;
+}

@@ -125,19 +125,18 @@ def undesired_subsequences():
     if user_id and user:
         undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id).order_by(
             desc(UndesiredSubsequences.id)).all()
-        res = db.session.query(SynthesisErrorCorrection, SynthesisErrorRates).join(
-            SynthesisErrorCorrection).filter(
+        res = db.session.query(SynthesisErrorRates).filter(
             or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
             desc(SynthesisErrorRates.id)).all()
-        out = [{**x.SynthesisErrorCorrection.as_dict(), **x.SynthesisErrorRates.as_dict()} for x in res]
+        out = [x.as_dict() for x in res]
         id_out = {}
+        default_eobj = {'id': 'new', 'name': 'New'}
         for x in out:
-            x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
-            x['err_data'] = json.loads(x['err_data'].replace("'", '"'))
+            # x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
+            # x['err_data'] = json.loads(x['err_data'].replace("'", '"'))
             id_out[int(x['id'])] = x
-        return render_template('undesired_subsequences.html', synthesis_errors=id_out,
-                               usubsequence=undesired_sub_seq,
-                               host=request.host)
+        return render_template('undesired_subsequences.html', synthesis_errors=id_out, usubsequence=undesired_sub_seq,
+                               default_eobj=default_eobj, host=request.host)
     else:
         flash("Could not find user, please login again", 'warning')
         session.pop('user_id')
@@ -301,8 +300,7 @@ def get_synth_error_probs():
     flat = "flat" in req and bool(req["flat"])
     try:
         if user_id and user:
-            res = db.session.query(SynthesisErrorCorrection, SynthesisErrorRates).join(
-                SynthesisErrorCorrection).filter(
+            res = db.session.query(SynthesisErrorRates).filter(
                 or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
                 desc(SynthesisErrorRates.id)).all()
             methods = [x.as_dict() for x in SynthesisMethods.query.all()]
@@ -312,19 +310,21 @@ def get_synth_error_probs():
             #    SynthesisErrorCorrection).join(SynthesisMethods).filter(
             #    or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
             #    desc(SynthesisErrorRates.id)).all()
-            tmp = [{**x.SynthesisErrorCorrection.as_dict(), **x.SynthesisErrorRates.as_dict()} for x in res]
+            tmp = [x.as_dict() for x in res]
             res = dict()
             for x in tmp:
-                x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
-                x['err_data'] = json.loads(x['err_data'].replace("'", '"'))
+                # x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
+                # x['err_data'] = json.loads(x['err_data'].replace("'", '"'))
                 id = int(x['method_id']) - 1
                 meth_str = methods[id].get('method')
                 if meth_str not in res:
                     res[meth_str] = []
                 # x.pop('method_id')
+                if x['name'] == "" or x['name'] is None:
+                    x['name'] = "None"
                 x['is_owner'] = int(x['user_id']) == user_id
                 if not flat:
-                    x.pop('correction_id')
+                    # x.pop('correction_id')
                     x.pop('user_id')
                 else:
                     x['method'] = methods
@@ -338,6 +338,62 @@ def get_synth_error_probs():
     except Exception as x:
         # raise x
         return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/add_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def add_synth_error_probs():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_conf_str = request.json.get('synth_conf')
+    if user_id and user and synth_conf_str is not None:
+        try:
+            synth_conf = json.loads(synth_conf_str)
+            err_data = synth_conf['err_data']
+            err_attributes = synth_conf['err_attributes']
+            name = sanitize_input(synth_conf['name'])
+
+            new_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                            err_data=err_data, err_attributes=err_attributes)
+
+            db.session.add(new_synth)
+            db.session.commit()
+            return render_template('error_probs.html', e_obj=new_synth.as_dict())
+        except Exception as x:
+            return jsonify({'did_succeed': False})
+    return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/update_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def update_synth_error_probs():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_conf_str = request.json.get('synth_conf')
+    if user_id and user and synth_conf_str is not None:
+        try:
+            synth_conf = json.loads(synth_conf_str)
+            err_data = synth_conf['err_data']
+            err_attributes = synth_conf['err_attributes']
+            name = sanitize_input(synth_conf['name'])
+            copy = bool(request.json.get('copy'))
+            id = int(synth_conf['id'])
+            curr_synth = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+
+            if curr_synth is None or copy:
+                curr_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                                 err_data=err_data, err_attributes=err_attributes)
+                db.session.add(curr_synth)
+            else:
+                curr_synth.validated = False
+                curr_synth.name = name
+                curr_synth.err_data = err_data
+                curr_synth.err_attributes = err_attributes
+            db.session.commit()
+            return jsonify({'did_succeed': True})
+        except Exception as x:
+            return jsonify({'did_succeed': False})
+    return jsonify({'did_succeed': False})
 
 
 def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):

@@ -355,7 +355,7 @@ def htmlify(input, sequence):
             # res += str(sequence[seq_pos])
     # after the last base: if our tmp is still filled, write it out
     if buildup != "":
-        res.append((buildup_resmap, buildup_errorprob, buildup))
+        res.append((buildup_resmap, buildup_errorprob, buildup,))
     return build_html(res, reducesets)
 
 
@@ -379,11 +379,12 @@ def build_html(res_list, reducesets=True):
     return res
 
 
-def colorize(error_prob):
-    percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
-                      {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},
-                      {"pct": 0.5, "color": {"r": 0xff, "g": 0xff, "b": 0, "a": 1.0}},
-                      {"pct": 1.0, "color": {"r": 0xff, "g": 0x00, "b": 0, "a": 1.0}}]
+def colorize(error_prob, percent_colors=None):
+    if percent_colors is None:
+        percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
+                          {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},
+                          {"pct": 0.5, "color": {"r": 0xff, "g": 0xff, "b": 0, "a": 1.0}},
+                          {"pct": 1.0, "color": {"r": 0xff, "g": 0x00, "b": 0, "a": 1.0}}]
     i = 0
     for x in range(len(percent_colors)):
         i = x

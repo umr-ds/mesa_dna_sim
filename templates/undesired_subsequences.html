@@ -61,12 +61,21 @@
                                                    placeholder="" size="50" value="{{ subsequence.sequence }}"
                                                    required><span>Sequence</span></label></td>
                                         <td style="width:15%"><label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded" type="number"
-                                                   name="error_prob"
-                                                   placeholder="" size="30"
-                                                   value="{{ subsequence.error_prob }}"
-                                                   required min="0.0"
-                                                   max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
+                                            <p class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded" type="number"
+                                                       name="error_prob"
+                                                       placeholder="" size="30"
+                                                       value="{{ subsequence.error_prob }}"
+                                                       required min="0.0"
+                                                       max="1.0" step="0.01">
+
+                                                <span class="icon is-right">
+                                                    <i class="fas fa-percentage"></i>
+                                                </span>
+                                            </p>
+                                            <span><nobr>Error Probability</nobr></span>
+                                        </label>
                                         </td>
                                         <td style="width:15%"><label class="form-group has-float-label">
                                             <input style="width:100%" class="input is-rounded"
@@ -109,9 +118,17 @@
                                            placeholder="Undesired Subsequence" size="58" value=""
                                            required><span>Sequence</span></label></td>
                                 <td style="width:15%"><label class="form-group has-float-label">
-                                    <input class="input is-rounded" type="number" id="errorprob" name="error_prob"
-                                           placeholder="0,5" size="30" value="" required min="0.0"
-                                           max="1.0" step="0.01"><span><nobr>Error Probability</nobr></span></label>
+                                    <p class="form-group has-float-label">
+                                    <p class="control has-icons-right">
+                                        <input class="input is-rounded" type="number" id="errorprob"
+                                               name="error_prob" placeholder="0,5" size="30" value="" required
+                                               min="0.0" max="1.0" step="0.01">
+                                        <span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                    </p>
+                                    <span><nobr>Error Probability</nobr></span>
+                                </label>
                                 </td>
                                 <td style="width:29%"><label class="form-group has-float-label">
                                     <input class="input is-rounded" type="text" id="description" name="description"
@@ -134,156 +151,22 @@
         <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
             <div class="field">
                 <div class="control">
-                    <div class="control columns is-multiline" id="synthesis_errors">
+                    <div class="control columns is-full is-multiline has-no-margin-left" id="synthesis_errors">
                         {% for error_id in synthesis_errors %}
-                            <div class="column is-full">
-                                <label class="form-group has-float-label">
-                                    <input style="width:100%" class="input is-rounded"
-                                           type="text" name="description" placeholder="Description"
-                                           size="20"
-                                            {% if synthesis_errors[error_id].data != None %}
-                                           value="{{ synthesis_errors[error_id].data }}"
-                                            {% endif %}
-                                           required><span>Description</span></label>
-                            </div>
-                            <div class="control column is-one-third has-padding-03"
-                                 id="synth_error_deletion_{{ synthesis_errors[error_id].id }}">
-                                <div class="column has-horizontal-padding-0">
-                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                         id="synth-slider-deletion-{{ synthesis_errors[error_id].id }}"
-                                         data-eid="{{ synthesis_errors[error_id].id }}" data-etype="deletion">
-                                    </div>
-                                </div>
-
-                                <div class="columns">
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_deletion_A_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="A" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>A</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_deletion_C_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="C" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>C</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_deletion_G_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="G" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>G</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_deletion_T_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="T" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>T</span></label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="control column is-one-third has-padding-03"
-                                 id="synth_error_insertion_{{ synthesis_errors[error_id].id }}">
-                                <div class="column has-horizontal-padding-0">
-                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                         id="synth-slider-insertion-{{ synthesis_errors[error_id].id }}"
-                                         data-eid="{{ synthesis_errors[error_id].id }}" data-etype="insertion">
-                                    </div>
-                                </div>
-
-                                <div class="columns">
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_insertion_A_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="A" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>A</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_insertion_C_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="C" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>C</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_insertion_G_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="G" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>G</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_insertion_T_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="T" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>T</span></label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="control column is-one-third has-padding-03"
-                                 id="synth_error_mismatch_{{ synthesis_errors[error_id].id }}">
-                                <div class="column has-horizontal-padding-0">
-                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                         id="synth-slider-mismatch-{{ synthesis_errors[error_id].id }}"
-                                         data-eid="{{ synthesis_errors[error_id].id }}" data-etype="mismatch">
-                                    </div>
-                                </div>
-
-                                <div class="columns">
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_mismatch_A_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="A" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>A</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_mismatch_C_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="C" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>C</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_mismatch_G_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="G" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>G</span></label>
-                                    </div>
-                                    <div class="column is-one-quarter">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="synth_error_mismatch_T_{{ synthesis_errors[error_id].id }}"
-                                                   type="number" name="description" placeholder="T" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span>T</span></label>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="column is-full"></div>
+                            {% with e_obj=synthesis_errors[error_id] %}
+                                {% include "error_probs.html" %}
+                            {% endwith %}
                         {% endfor %}
                     </div>
                 </div>
+            </div>
+            <div class="field control columns is-full is-multiline" style="padding-top: 40px;"
+                 id="new_synthesis_errors">
+                {% with e_obj=default_eobj %}
+                    {% include "error_probs.html" %}
+                {% endwith %}
+            </div>
+            <div class="field">
             </div>
         </form>
     </div>
@@ -439,7 +322,11 @@
             let tmp = $(this)[0];
             let etype = tmp.getAttribute('data-etype');
             let eid = tmp.getAttribute('data-eid');
-            let pattern = synthesis_errors[eid].err_attributes[etype].pattern;
+
+            let pattern = undefined;
+            if (eid !== "new") {
+                pattern = synthesis_errors[eid].err_attributes[etype].pattern;
+            }
             let startvar = [25, 50, 75];
             if (pattern !== undefined) {
                 startvar = [pattern.A * 100, (pattern.A + pattern.C) * 100, (pattern.A + pattern.C + pattern.G) * 100];
@@ -454,6 +341,7 @@
                     'max': 100
                 },
             });
+
 
             tmp.noUiSlider.on('update', function (values, handle) {
                 //if (handle) {
@@ -490,5 +378,52 @@
             }
         });
 
+
+        $('[id^="synth-position-slider"]').each(function () {
+            let tmp = $(this)[0];
+            let etype = tmp.getAttribute('data-etype');
+            let eid = tmp.getAttribute('data-eid');
+            let position = undefined;
+            if (eid !== "new") {
+                position = synthesis_errors[eid].err_attributes[etype].position;
+            }
+            let startvar = 50;
+            if (position !== undefined) {
+                startvar = position.homopolymer * 100;
+            }
+            noUiSlider.create($(this)[0], {
+                start: startvar, // T MUST be the remainder
+                connect: [true, true],
+                tooltips: true,
+                behaviour: 'drag',
+                range: {
+                    'min': 0,
+                    'max': 100
+                },
+            });
+
+            tmp.noUiSlider.on('update', function (values, handle) {
+                //if (handle) {
+                //$('#synth_error_mismatch_deletion-homopolymer_');
+                $('#synth_error_' + etype + "_homopolymer_" + eid)[0].value = round(values[0] - 0, 4);
+                $('#synth_error_' + etype + "_random_" + eid)[0].value = round(100.0 - values[0], 4);
+                //}
+            });
+
+            $('#synth_error_' + etype + "_homopolymer_" + eid)[0].addEventListener('change', function () {
+                tmp.noUiSlider.set([this.value]);
+            });
+
+            $('#synth_error_' + etype + "_random_" + eid)[0].addEventListener('change', function () {
+                tmp.noUiSlider.set([null, null, 100.00 - parseFloat(this.value)]);
+            });
+
+
+            var connect = $(this)[0].querySelectorAll('.noUi-connect');
+            var classes = ['c-1-color', 'c-2-color'];
+            for (var i = 0; i < connect.length; i++) {
+                connect[i].classList.add(classes[i]);
+            }
+        });
     </script>
 {% endblock %}

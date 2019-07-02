@@ -274,7 +274,7 @@ function updateSynthDropdown(host, apikey, type) {
                 $.each(elem, function (inner_id) {
                     let id = elem[inner_id]['id'];
                     let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['data']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
             });
         },
