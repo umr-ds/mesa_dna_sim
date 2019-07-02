@@ -9,6 +9,7 @@ from simulators.error_sources.homopolymers import homopolymer
 from simulators.error_sources.kmer import kmer_counting
 from simulators.error_sources.undesired_subsequences import undesired_subsequences
 from simulators.sequencing.sequencing_error import err_rates, mutation_attributes, SequencingError
+from simulators.error_graph import Graph
 
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
@@ -172,16 +173,21 @@ def add_errors():
     seq_meth = r_method.get('sequence_method')
     synth_meth = r_method.get('synthesis_method')
 
+    g = Graph(None, sequence)
+
     if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        res = sequence
+        pass
     elif synth_meth in {"0", "11", "12", "13"}:
-        res = sequencing_error(seq_meth, sequence)
+        sequencing_error(sequence, g, seq_meth, process="sequencing")
     elif seq_meth in {"0", "7", "8", "9"}:
-        res = synthesis_error(synth_meth, sequence)
+        print(g.graph.nodes[0]['seq'])
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+        print(g.graph.nodes[0]['seq'])
     else:
-        synthesis_error_seq = synthesis_error(synth_meth, sequence)
-        res = sequencing_error(seq_meth, synthesis_error_seq)
-    return jsonify(res)
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+        synthesis_error_seq = g.graph.nodes[0]['seq']
+        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+    return jsonify(g.graph.nodes[0]['seq'])
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
@@ -236,66 +242,50 @@ def do_all():
     homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
     res.extend(homopolymer_res)
 
-    if synth_meth in {"0", "11", "12", "13"}:
-        synth_res = sequence
-    else:
-        err_rate = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first().err_data
-        err_att = SynthesisErrorAttributes.query.filter(
-            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        synth_res = seqerr.lit_error_rate_mutations()
-        # todo htmlify synthesis
-
-    if seq_meth in {"0", "7", "8", "9"}:
-        seq_res = sequence
-    else:
-        err_rate = SequencingErrorRates.query.filter(
-            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-        err_att = SequencingErrorAttributes.query.filter(
-            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        seq_res = seqerr.lit_error_rate_mutations()
-        # todo htmlify synthesis
+    g = Graph(None, sequence)
 
     if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        mod_res = sequence
+        pass
     elif synth_meth in {"0", "11", "12", "13"}:
-        mod_res = sequencing_error(seq_meth, sequence)
+        sequencing_error(sequence, g, seq_meth, process="sequencing")
     elif seq_meth in {"0", "7", "8", "9"}:
-        mod_res = synthesis_error(synth_meth, sequence)
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+
     else:
-        synthesis_error_seq = synthesis_error(synth_meth, sequence)
-        mod_res = sequencing_error(seq_meth, synthesis_error_seq)
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+        synthesis_error_seq = g.graph.nodes[0]['seq']
+        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+    mod_res = g.graph.nodes[0]['seq']
 
     if as_html:
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)
         homopolymer_html = htmlify(homopolymer_res, sequence)
         return jsonify(
-            {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
+            {'modify': mod_res, 'subsequences': usubseq_html,
              'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
              'all': htmlify(res, sequence)})
     return jsonify(res)
 
 
 # Helper
-def synthesis_error(synth_meth, sequence):
+def synthesis_error(sequence, g, synth_meth, process="synthesis"):
     err_rate_syn = SynthesisErrorRates.query.filter(
         SynthesisErrorRates.id == int(synth_meth)).first().err_data
     err_att_syn = SynthesisErrorAttributes.query.filter(
         SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
-    synth_err = SequencingError(sequence, err_att_syn, err_rate_syn)
+
+    synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn)
     return synth_err.lit_error_rate_mutations()
 
 
-def sequencing_error(seq_meth, sequence):
+def sequencing_error(sequence, g, seq_meth, process="sequencing"):
     err_rate_seq = SequencingErrorRates.query.filter(
         SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
     err_att_seq = SequencingErrorAttributes.query.filter(
         SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
 
-    seq_err = SequencingError(sequence, err_att_seq, err_rate_seq)
+    seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq)
     return seq_err.lit_error_rate_mutations()
 
 
