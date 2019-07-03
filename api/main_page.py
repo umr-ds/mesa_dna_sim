@@ -130,7 +130,7 @@ def undesired_subsequences():
             desc(SynthesisErrorRates.id)).all()
         out = [x.as_dict() for x in res]
         id_out = {}
-        default_eobj = {'id': 'new', 'name': 'New'}
+        default_eobj = {'id': 'new', 'name': 'New', 'err_attributes': {'mismatch': {}}}
         for x in out:
             # x['err_attributes'] = json.loads(x['err_attributes'].replace("'", '"'))
             # x['err_data'] = json.loads(x['err_data'].replace("'", '"'))

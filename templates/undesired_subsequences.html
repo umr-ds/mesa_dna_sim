@@ -147,11 +147,13 @@
             <!--<button class="button is-block is-info is-large is-fullwidth" id="update">Update</button>-->
         </form>
     </div>
-    <div class="box is-large">
+    <div>Your custom Synthesis-Errors:</div>
+    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
         <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
             <div class="field">
                 <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left" id="synthesis_errors">
+                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                         id="synthesis_errors">
                         {% for error_id in synthesis_errors %}
                             {% with e_obj=synthesis_errors[error_id] %}
                                 {% include "error_probs.html" %}
@@ -160,7 +162,7 @@
                     </div>
                 </div>
             </div>
-            <div class="field control columns is-full is-multiline" style="padding-top: 40px;"
+            <div class="field control columns is-full is-multiline has-no-margin-top" style="padding-top: 40px;"
                  id="new_synthesis_errors">
                 {% with e_obj=default_eobj %}
                     {% include "error_probs.html" %}
@@ -420,7 +422,57 @@
 
 
             var connect = $(this)[0].querySelectorAll('.noUi-connect');
-            var classes = ['c-1-color', 'c-2-color'];
+            var classes = ['homopolymer-color', 'random-color'];
+            for (var i = 0; i < connect.length; i++) {
+                connect[i].classList.add(classes[i]);
+            }
+        });
+
+
+        $('[id^="err_data-synth-slider-"]').each(function () {
+            let tmp = $(this)[0];
+            let eid = tmp.getAttribute('data-eid');
+            let err_data = undefined;
+            if (eid !== "new") {
+                err_data = synthesis_errors[eid].err_data;
+            }
+            let startvar = [33.33, 66.66];
+            if (err_data !== undefined) {
+                startvar = [err_data.deletion * 100, (err_data.deletion + err_data.insertion) * 100]
+            }
+            noUiSlider.create($(this)[0], {
+                start: startvar, // T MUST be the remainder
+                connect: [true, true, true],
+                tooltips: [true, true],
+                behaviour: 'drag',
+                range: {
+                    'min': 0,
+                    'max': 100
+                },
+            });
+
+            tmp.noUiSlider.on('update', function (values, handle) {
+                $('#synth_error_raw_rate_deletion_' + eid)[0].value = round(values[0] - 0, 4);
+                $("#synth_error_raw_rate_insertion_" + eid)[0].value = round(values[1] - values[0], 4);
+                $("#synth_error_raw_rate_mismatch_" + eid)[0].value = round(100.0 - values[1], 4);
+                //}
+            });
+
+            $("#synth_error_raw_rate_deletion_" + eid)[0].addEventListener('change', function () {
+                tmp.noUiSlider.set([this.value, null]);
+            });
+
+            $('#synth_error_raw_rate_insertion_' + eid)[0].addEventListener('change', function () {
+                tmp.noUiSlider.set([null, parseFloat(this.value) + parseFloat(tmp.noUiSlider.get()[0])]);
+            });
+
+            $('#synth_error_raw_rate_mismatch_' + eid)[0].addEventListener('change', function () {
+                tmp.noUiSlider.set([null, 100.00 - parseFloat(this.value)]);
+            });
+
+
+            var connect = $(this)[0].querySelectorAll('.noUi-connect');
+            var classes = ['deletion-color', 'insertion-color', 'mismatch-color'];
             for (var i = 0; i < connect.length; i++) {
                 connect[i].classList.add(classes[i]);
             }

@@ -1,7 +1,7 @@
-<div class="control columns has-no-margin-left is-multiline">
-    <div class="column is-full has-no-padding-left">
+<div class="control columns has-no-margin-left is-multiline has-margin-bottom-20">
+    <div class="column is-full has-no-padding-left has-no-padding-top">
         <div class="columns has-no-margin-left">
-            <div class="column has-no-padding-left has-no-padding-bottom gaple
+            <div class="column has-no-padding-left has-no-padding-bottom has-no-padding-top
                     {% if e_obj.id == "new" %}{% else %}is-three-quarters{% endif %}">
                 <label class="form-group has-float-label">
                     <input style="width:100%" class="input is-rounded"
@@ -14,11 +14,11 @@
             </div>
 
             {% if e_obj.id == "new" %}
-                <div class="column button-fill" style="flex: none;width: fit-content">
+                <div class="column button-fill has-no-padding-top" style="flex: none;width: fit-content">
                     <button class="button"
                             data-balloon="Add"
                             data-balloon-pos="up" id="update_synth_{{ e_obj.id }}"
-                            onclick="addSynth({{ e_obj.id }}); return false;">Add
+                            onclick="addSynth('{{ e_obj.id }}'); return false;">Add
                     </button>
                 </div>
             {% else %}
@@ -27,179 +27,361 @@
                         value="{{ e_obj.id }}"
                         disabled
                         {% if e_obj.validated %} checked {% endif %}/></label></div>-->
-                <div class="column has-no-padding-bottom button-fill">
-                    <button class="button"
-                            data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
-                            data-balloon-pos="up" id="update_synth_{{ e_obj.id }}"
-                            onclick="updateSynth({{ e_obj.id }}); return false;">Update
-                    </button>
-                </div>
-                <div class="column has-no-padding-bottom button-fill">
-                    <button class="button" id="delete_synth_{{ e_obj.id }}"
-                            data-balloon="Created at: "
-                            data-balloon-pos="up"
-                            onclick="deleteSynth({{ e_obj.id }}); return false;">Delete
-                    </button>
-                </div>
-                <div class="column has-no-padding-bottom button-fill">
-                    <label style="white-space: nowrap;" for="spoiler-{{ e_obj.id }}"
-                           class="column button is-flex">Modify</label>
+                <div class="columns has-no-margin-top has-no-margin-left has-no-margin-right button-fill">
+                    <div class="column has-no-padding-bottom button-fill has-no-padding-top">
+                        <button class="button button-fill"
+                                data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
+                                data-balloon-pos="up" id="update_synth_{{ e_obj.id }}"
+                                onclick="updateSynth({{ e_obj.id }}); return false;">Update
+                        </button>
+                    </div>
+                    <div class="column has-no-padding-bottom has-no-padding-top button-fill">
+                        <button class="button button-fill" id="delete_synth_{{ e_obj.id }}"
+                                data-balloon="Created at: "
+                                data-balloon-pos="up"
+                                onclick="deleteSynth({{ e_obj.id }}); return false;">Delete
+                        </button>
+                    </div>
+                    <div class="column has-no-padding-bottom has-no-padding-top button-fill">
+                        <label style="white-space: nowrap;" for="spoiler-{{ e_obj.id }}"
+                               class="column button is-flex">Modify</label>
+                    </div>
                 </div>
             {% endif %}
         </div>
     </div>
-    <input type="checkbox" id="spoiler-{{ e_obj.id }}"/>
-    <label style="white-space: nowrap; display: none" for="spoiler-{{ e_obj.id }}"></label>
-    <div class="spoiler has-overflow-unset is-paddingless control columns is-multiline synthesis-editor-{{ e_obj.id }}"
+    {% if e_obj.id != "new" %}
+        <input type="checkbox" id="spoiler-{{ e_obj.id }}"/>
+        <label style="white-space: nowrap; display: none" for="spoiler-{{ e_obj.id }}"></label>
+    {% endif %}
+    <div class="{% if e_obj.id != "new" %}spoiler{% endif %} has-no-padding-left has-margin-bottom-12 has-overflow-unset has-no-padding-top has-no-padding-bottom control columns is-multiline synthesis-editor-{{ e_obj.id }}"
          style="margin-right: 20px;">
         <!--<div class="column is-full"></div>-->
-        <div class="control column is-one-third has-no-margin-left"
-             id="synth_error_deletion_{{ e_obj.id }}">
-            <div class="column has-horizontal-padding-0">
-                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                     id="synth-slider-deletion-{{ e_obj.id }}"
-                     data-eid="{{ e_obj.id }}" data-etype="deletion">
+        <div class="column is-half has-no-padding-left">
+            <div class="columns is-full is-multiline" id="left-column-{{ e_obj.id }}">
+                <div class="box is-settings-box button-fill">
+                    <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                         id="synth_error_deletion_{{ e_obj.id }}">
+                        <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
+                            <p>Deletion</p>
+                        </div>
+                        <div class="column has-horizontal-padding-0">
+                            <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                 id="synth-slider-deletion-{{ e_obj.id }}"
+                                 data-eid="{{ e_obj.id }}" data-etype="deletion">
+                            </div>
+                        </div>
+
+                        <div class="columns has-padding-03">
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_deletion_A_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="A" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>A%</span></label>
+                            </div>
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_deletion_C_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="C" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>C%</span></label>
+                            </div>
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_deletion_G_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="G" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>G%</span></label>
+                            </div>
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_deletion_T_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="T" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>T%</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                         id="synth_error_position_deletion_{{ e_obj.id }}">
+                        <div class="column has-horizontal-padding-0">
+                            <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                 id="synth-position-slider-deletion-{{ e_obj.id }}"
+                                 data-eid="{{ e_obj.id }}" data-etype="deletion">
+                            </div>
+                        </div>
+
+                        <div class="columns">
+                            <div class="column is-half">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_deletion_homopolymer_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="Homopolymer"
+                                           step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Homopolymer%</span></label>
+                            </div>
+                            <div class="column is-half">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_deletion_random_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="Random" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Random%</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box is-settings-box button-fill">
+                    <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                         id="synth_error_insertion_{{ e_obj.id }}">
+                        <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
+                            <p>Insertion</p>
+                        </div>
+                        <div class="column has-horizontal-padding-0">
+                            <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                 id="synth-slider-insertion-{{ e_obj.id }}"
+                                 data-eid="{{ e_obj.id }}" data-etype="insertion">
+                            </div>
+                        </div>
+
+                        <div class="columns">
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_insertion_A_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="A" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>A%</span></label>
+                            </div>
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_insertion_C_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="C" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>C%</span></label>
+                            </div>
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_insertion_G_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="G" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>G%</span></label>
+                            </div>
+                            <div class="column is-one-quarter">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_insertion_T_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="T" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>T%</span></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                         id="synth_error_position_insertion_{{ e_obj.id }}">
+                        <div class="column has-horizontal-padding-0">
+                            <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                 id="synth-position-slider-insertion-{{ e_obj.id }}"
+                                 data-eid="{{ e_obj.id }}" data-etype="insertion">
+                            </div>
+                        </div>
+
+                        <div class="columns">
+                            <div class="column is-half">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_insertion_homopolymer_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="Homopolymer"
+                                           step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Homopolymer%</span></label>
+                            </div>
+                            <div class="column is-half">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_insertion_random_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="Random" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Random%</span></label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="box is-settings-box button-fill">
+                    <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                         id="mismatch-{{ e_obj.id }}">
+                        <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
+                            <p>Distribution</p>
+                        </div>
+                        <div class="column is-full has-horizontal-padding-0">
+                            <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                 id="err_data-synth-slider-{{ e_obj.id }}"
+                                 data-eid="{{ e_obj.id }}" data-etype="err_data">
+                            </div>
+                        </div>
+                        <div class="columns">
+                            <div class="column is-one-third">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_raw_rate_deletion_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Deletion%</span></label>
+                            </div>
+                            <div class="column is-one-third">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_raw_rate_insertion_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Insertion%</span></label>
+                            </div>
+                            <div class="column is-one-third">
+                                <label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_raw_rate_mismatch_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="" step="0.01"
+                                           min="0.00" max="100.00"
+                                           required><span>Mismatch%</span></label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </div>
+        <div class="column is-half">
+            <div class="columns is-full is-multiline" id="right-column-{{ e_obj.id }}">
+                <div class="column is-full">
+                    <div class="field columns is-full is-multiline">
+                        <div class="column is-full has-no-padding-left has-no-padding-right"
+                             id="synth_error_raw_{{ e_obj.id }}">
+                            <label class="form-group has-float-label">
+                                <p class="form-group has-float-label">
+                                <p class="control has-icons-right">
+                                    <input style="width:100%" class="input is-rounded"
+                                           id="synth_error_raw_rate_{{ e_obj.id }}"
+                                           type="number" name="description" placeholder="Raw Rate" step="0.01"
+                                           min="0.00" max="100.00"
 
-            <div class="columns has-padding-03">
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_deletion_A_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="A" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>A%</span></label>
+                                           value="{% if e_obj.id == "new" %}0.05{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|round(6, 'common') }}{% endif %}"
+                                           required>
+                                    <span class="icon is-right">
+                        <i class="fas fa-percentage"></i>
+                        </span>
+                                </p>
+                                <span><nobr>Raw Error Rate%</nobr></span>
+                            </label>
+                        </div>
+                    </div>
                 </div>
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_deletion_C_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="C" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>C%</span></label>
-                </div>
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_deletion_G_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="G" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>G%</span></label>
-                </div>
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_deletion_T_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="T" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>T%</span></label>
+                <div class="box is-settings-box has-no-margin-left has-no-margin-right button-fill has-padding-right-10">
+                    <div class="column is-full has-no-padding-top" id="synth_error_mismatch_{{ e_obj.id }}">
+                        <div class="columns is-multiline has-no-margin-left has-no-margin-top has-padding-right-10">
+                            <div class="column has-horizontal-padding-0 has-no-padding-top is-text has-text-centered has-text-black is-gapless is-marginless">
+                                <p>Mismatch</p>
+                            </div>
+                            {% for key, value in e_obj.err_attributes.mismatch.items() %}
+                                <div class="columns is-full">
+                                    <div class="column">
+                                        <label class="form-group has-float-label">
+                                            <p class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="synth_error_mismatched_org_seq_{{ e_obj.id }}"
+                                                       type="text" name="Original DNA-Sequence"
+                                                       placeholder="DNA-Sequence"
+                                                       value="{% if e_obj.id != "new" %}{{ key }}{% endif %}"
+                                                       required>
+                                                <span class="icon is-right">
+                        <i class="fas fa-dna"></i>
+                        </span>
+                                            </p>
+                                            <span><nobr>Original DNA-Sequence</nobr></span>
+                                        </label>
+                                    </div>
+                                    <div class="column">
+                                        <label class="form-group has-float-label">
+                                            <p class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="synth_error_mismatched_seq_{{ e_obj.id }}"
+                                                       type="text" name="Mismatched DNA-Sequence"
+                                                       placeholder="Mismatched DNA-Sequence"
+                                                       value="{% if e_obj.id != "new" %}{{ value }}{% endif %}"
+                                                       required>
+                                                <span class="icon is-right">
+                        <i class="fas fa-dna"></i>
+                        </span>
+                                            </p>
+                                            <span><nobr>Mismatched DNA-Sequence</nobr></span>
+                                        </label>
+                                    </div>
+                                    <div class="column is-one-fifth button-fill">
+                                        <button class="button button-fill" id="add_mismatch_{{ e_obj.id }}"
+                                                data-balloon="Remove this Mismatch (Rule has to be Updated for this change to take effect!)"
+                                                data-balloon-pos="up"
+                                                onclick="deleteMismatch('{{ e_obj.id }}'); return false;">Delete
+                                        </button>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                            <div class="columns is-full">
+                                <div class="column">
+                                    <label class="form-group has-float-label">
+                                        <p class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input style="width:100%" class="input is-rounded"
+                                                   id="synth_error_mismatched_org_seq_{{ e_obj.id }}"
+                                                   type="text" name="Original DNA-Sequence" placeholder="DNA-Sequence"
+                                                   value=""
+                                                   required>
+                                            <span class="icon is-right">
+                        <i class="fas fa-dna"></i>
+                        </span>
+                                        </p>
+                                        <span><nobr>DNA-Sequence</nobr></span>
+                                    </label>
+                                </div>
+                                <div class="column">
+                                    <label class="form-group has-float-label">
+                                        <p class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input style="width:100%" class="input is-rounded"
+                                                   id="synth_error_mismatched_seq_{{ e_obj.id }}"
+                                                   type="text" name="Mismatched DNA-Sequence"
+                                                   placeholder="Mismatched DNA-Seq."
+                                                   value=""
+                                                   required>
+                                            <span class="icon is-right">
+                        <i class="fas fa-dna"></i>
+                        </span>
+                                        </p>
+                                        <span><nobr>Mismatched DNA-Sequence</nobr></span>
+                                    </label>
+                                </div>
+                                <div class="column is-one-fifth button-fill">
+                                    <button class="button button-fill" id="add_mismatch_{{ e_obj.id }}"
+                                            data-balloon="Add this Mismatch (Rule has to be Updated for this change to take effect!)"
+                                            data-balloon-pos="up"
+                                            onclick="addMismatch('{{ e_obj.id }}'); return false;">Add
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
 
-        <div class="control column is-one-third has-padding-03"
-             id="synth_error_insertion_{{ e_obj.id }}">
-            <div class="column has-horizontal-padding-0">
-                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                     id="synth-slider-insertion-{{ e_obj.id }}"
-                     data-eid="{{ e_obj.id }}" data-etype="insertion">
-                </div>
-            </div>
 
-            <div class="columns">
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_insertion_A_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="A" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>A%</span></label>
-                </div>
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_insertion_C_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="C" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>C%</span></label>
-                </div>
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_insertion_G_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="G" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>G%</span></label>
-                </div>
-                <div class="column is-one-quarter">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_insertion_T_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="T" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>T%</span></label>
-                </div>
-            </div>
-        </div>
-        <div class="column is-one-third has-padding-03"></div>
-        <div class="control column is-one-third has-padding-03"
-             id="synth_error_position_deletion_{{ e_obj.id }}">
-            <div class="column has-horizontal-padding-0">
-                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                     id="synth-position-slider-deletion-{{ e_obj.id }}"
-                     data-eid="{{ e_obj.id }}" data-etype="deletion">
-                </div>
-            </div>
-
-            <div class="columns">
-                <div class="column is-half">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_deletion_homopolymer_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="Homopolymer"
-                               step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>Homopolymer%</span></label>
-                </div>
-                <div class="column is-half">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_deletion_random_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="Random" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>Random%</span></label>
-                </div>
-            </div>
-        </div>
-        <div class="control column is-one-third has-padding-03"
-             id="synth_error_position_insertion_{{ e_obj.id }}">
-            <div class="column has-horizontal-padding-0">
-                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                     id="synth-position-slider-insertion-{{ e_obj.id }}"
-                     data-eid="{{ e_obj.id }}" data-etype="insertion">
-                </div>
-            </div>
-
-            <div class="columns">
-                <div class="column is-half">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_insertion_homopolymer_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="Homopolymer"
-                               step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>Homopolymer%</span></label>
-                </div>
-                <div class="column is-half">
-                    <label class="form-group has-float-label">
-                        <input style="width:100%" class="input is-rounded"
-                               id="synth_error_insertion_random_{{ e_obj.id }}"
-                               type="number" name="description" placeholder="Random" step="0.01"
-                               min="0.00" max="100.00"
-                               required><span>Random%</span></label>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
