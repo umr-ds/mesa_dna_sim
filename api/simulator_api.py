@@ -180,9 +180,7 @@ def add_errors():
     elif synth_meth in {"0", "11", "12", "13"}:
         sequencing_error(sequence, g, seq_meth, process="sequencing")
     elif seq_meth in {"0", "7", "8", "9"}:
-        print(g.graph.nodes[0]['seq'])
         synthesis_error(sequence, g, synth_meth, process="synthesis")
-        print(g.graph.nodes[0]['seq'])
     else:
         synthesis_error(sequence, g, synth_meth, process="synthesis")
         synthesis_error_seq = g.graph.nodes[0]['seq']
@@ -255,14 +253,16 @@ def do_all():
         synthesis_error(sequence, g, synth_meth, process="synthesis")
         synthesis_error_seq = g.graph.nodes[0]['seq']
         sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
-    mod_res = g.graph.nodes[0]['seq']
+    mod_seq = g.graph.nodes[0]['seq']
+    mod_res = g.get_lineages()
 
     if as_html:
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)
         homopolymer_html = htmlify(homopolymer_res, sequence)
+        mod_html = htmlify(mod_res, mod_seq, modification=True)
         return jsonify(
-            {'modify': mod_res, 'subsequences': usubseq_html,
+            {'modify': mod_html, 'subsequences': usubseq_html,
              'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
              'all': htmlify(res, sequence)})
     return jsonify(res)
@@ -289,9 +289,10 @@ def sequencing_error(sequence, g, seq_meth, process="sequencing"):
     return seq_err.lit_error_rate_mutations()
 
 
-def htmlify(input, sequence):
+def htmlify(input, sequence, modification=False):
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
     error_prob = {}
+    err_lin = {}
     # reduce the span-classes list in case we wont underline / highlight the error classes anyway:
     reducesets = len(input) > 800
     for error in input:
@@ -303,16 +304,28 @@ def htmlify(input, sequence):
                 resmapping[pos].add(error['identifier'] + "_" + error["kmer"])
             else:
                 resmapping[pos].add(error['identifier'])
-            error_prob[pos] += error["errorprob"]
+            if modification:
+                err_lin[pos] = error["errors"]
+                # For the modifications the errorprobs are only for the identification of the process
+                # in which they occured (sequencing, synthesis etc.) for the purpose of coloring, there
+                # is therefore no need for additive errorprobs.
+                error_prob[pos] = error["errorprob"]
+            else:
+                error_prob[pos] += error["errorprob"]
 
     res = []
     buildup = ""
+    lineage = ""
     buildup_errorprob = -1.0
     buildup_resmap = []
 
     for seq_pos in range(len(sequence)):
         if seq_pos in resmapping:
-            curr_err_prob = round(min(100, error_prob[seq_pos] * 100), 2)
+            if modification:
+                curr_err_prob = error_prob[seq_pos]
+            else:
+                curr_err_prob = round(min(100, error_prob[seq_pos] * 100), 2)
+
             if buildup_errorprob == curr_err_prob and buildup_resmap == resmapping[seq_pos]:
                 # current base belongs to the same error classes as previous, just add it to our tmp string
                 buildup += sequence[seq_pos]
@@ -321,11 +334,13 @@ def htmlify(input, sequence):
                 # (either because prev base had no error class or we are at the start of our sequence)
                 buildup += sequence[seq_pos]
                 buildup = sequence[seq_pos]
+                if modification:
+                    lineage = err_lin[seq_pos]
                 buildup_errorprob = curr_err_prob
                 buildup_resmap = resmapping[seq_pos]
             else:
                 # current base has a different error prob / error class than previous base, finish previous group
-                res.append((buildup_resmap, buildup_errorprob, buildup))
+                res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
                 # and initialize current group with current base error classes
                 buildup = sequence[seq_pos]
                 buildup_errorprob = curr_err_prob
@@ -334,17 +349,18 @@ def htmlify(input, sequence):
             # current base does not have any error probability
             if buildup != "":
                 # if previous base / group is still in our tmp group, write it out
-                res.append((buildup_resmap, buildup_errorprob, buildup))
+                res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
                 # and reset tmp group
                 buildup = ""
+                lineage = ""
                 buildup_errorprob = -1.0
                 buildup_resmap = []
             # no need to write current base to tmp since it does not belong to any error group
-            res.append(({}, 0.0, sequence[seq_pos]))
+            res.append(({}, 0.0, sequence[seq_pos], lineage))
             # res += str(sequence[seq_pos])
     # after the last base: if our tmp is still filled, write it out
     if buildup != "":
-        res.append((buildup_resmap, buildup_errorprob, buildup))
+        res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
     return build_html(res, reducesets)
 
 
@@ -352,8 +368,9 @@ def build_html(res_list, reducesets=True):
     res = ""
     cname_id = 0
     for elem in res_list:
-        resmap, error_prob, seq = elem
-        error_prob = min(100.0, error_prob)
+        resmap, error_prob, seq, lineage = elem
+        if not lineage:
+            error_prob = min(100.0, error_prob)
         if seq != "":
             if error_prob <= 0.000000001:
                 res += str(seq)
@@ -363,8 +380,13 @@ def build_html(res_list, reducesets=True):
                     cname_id += 1
                 else:
                     cname = " g_".join([str(x) for x in resmap])
-                res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
-                       "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
+                if lineage == "":
+                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
+                           "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
+                else:
+                    print(error_prob)
+                    res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
+                           "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
     return res
 
 
@@ -372,7 +394,20 @@ def colorize(error_prob):
     percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
                       {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},
                       {"pct": 0.5, "color": {"r": 0xff, "g": 0xff, "b": 0, "a": 1.0}},
-                      {"pct": 1.0, "color": {"r": 0xff, "g": 0x00, "b": 0, "a": 1.0}}]
+                      {"pct": 1.0, "color": {"r": 0xff, "g": 0x00, "b": 0, "a": 1.0}},
+                      {"pct": 2.0, "color": {"r": 0xff, "g": 0x99, "b": 0xcc, "a": 1.0}},
+                      {"pct": 2.3, "color": {"r": 0xff, "g": 0x00, "b": 0xff, "a": 1.0}},
+                      {"pct": 2.6, "color": {"r": 0x80, "g": 0x00, "b": 0x80, "a": 1.0}},
+                      {"pct": 2.9, "color": {"r": 0xcc, "g": 0x99, "b": 0xFF, "a": 1.0}},
+                      {"pct": 3.0, "color": {"r": 0x99, "g": 0xcc, "b": 0xff, "a": 1.0}},
+                      {"pct": 3.3, "color": {"r": 0x00, "g": 0xcc, "b": 0xff, "a": 1.0}},
+                      {"pct": 3.6, "color": {"r": 0x00, "g": 0xff, "b": 0xff, "a": 1.0}},
+                      {"pct": 3.9, "color": {"r": 0xcc, "g": 0x80, "b": 0x80, "a": 1.0}},
+                      {"pct": 4.0, "color": {"r": 0xff, "g": 0xff, "b": 0x99, "a": 1.0}},
+                      {"pct": 4.3, "color": {"r": 0x99, "g": 0xcc, "b": 0x00, "a": 1.0}},
+                      {"pct": 4.6, "color": {"r": 0xff, "g": 0xff, "b": 0xf00, "a": 1.0}},
+                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 1.0}}
+                      ]
     i = 0
     for x in range(len(percent_colors)):
         i = x

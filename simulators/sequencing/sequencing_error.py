@@ -146,16 +146,9 @@ class SequencingError:
         norm_poly_weights = {k: float(v) / s for k, v in poly_weights.items()}
 
         # Choose which base will be deleted / inserted.
-        try:
-            choose_ele = np.random.choice(list(norm_poly_weights.keys()),
-                                          p=list(norm_poly_weights.values()))
-        except ValueError as e:
-            print('Error: ', e)
-            print(poly)
-            print('Poly_b: ', poly_b)
-            print('poly_weights: ', poly_weights)
-            print()
-            print(norm_poly_weights)
+
+        choose_ele = np.random.choice(list(norm_poly_weights.keys()),
+                                      p=list(norm_poly_weights.values()))
 
         # Choose the homopolymer whose base will be deleted/in which
         # an insertion event will take place
@@ -196,7 +189,7 @@ class SequencingError:
             pos = np.random.choice(range(len(self.seq)))
         return self._indel_mismatch_base(pos, mode='mismatch')
 
-    # A problem with pattern mismatches is now that it does not find patterns seperated by a
+    # A problem with pattern mismatches is now that it does not find patterns separated by a
     # deletion.
     def _pattern_mismatch(self, pattern):
         reg = re.compile("|".join(pattern.keys()))
@@ -215,7 +208,7 @@ class SequencingError:
                 final_ele = np.random.choice(new_ele)
             else:
                 final_ele = new_ele
-        self.g.add_node(orig=chosen_ele[1], mod=final_ele, orig_start=chosen_ele[0][0],
+        self.g.add_node(orig=chosen_ele[1], mod=final_ele,
                         orig_end=chosen_ele[0][1], mod_start=chosen_ele[0][0],
                         mod_end=chosen_ele[0][0] + len(final_ele),
                         mode="pattern_mismatch", process=self.process)
@@ -247,18 +240,18 @@ class SequencingError:
     def _indel_mismatch_base(self, pos, mode):
         assert mode in ['deletion', 'insertion', 'mismatch']
         if mode == 'deletion':
-            self.g.add_node(orig=self.seq[pos], mod=" ", orig_start=pos, orig_end=pos + 1,
+            self.g.add_node(orig=self.seq[pos], mod=" ", orig_end=pos + 1,
                             mod_start=pos, mod_end=pos + 1, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + " " + self.seq[pos + 1:]
         elif mode == 'insertion':
             ele = random.choice(self.bases)
             self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos],
-                            orig_start=pos, orig_end=pos + 1, mod_start=pos,
+                            orig_end=pos + 1, mod_start=pos,
                             mod_end=pos + 2, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos:]
         else:
             ele = random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele, orig_start=pos,
+            self.g.add_node(orig=self.seq[pos], mod=ele,
                             orig_end=pos + 1, mod_start=pos, mod_end=pos + 1, mode=mode,
                             process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos + 1:]
@@ -303,5 +296,15 @@ class SequencingError:
             m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]
             mut_type = np.random.choice(m_types, p=m_weights)
             att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
-            self.out_seq = eval('self.' + mut_type)(self.seq, att)
+            self.out_seq = eval('self.' + mut_type)(att)
         return self.out_seq
+
+
+if __name__ == "__main__":
+    seq = "ATCGAATCGGGATAGATAATCGAATCGGGATAGATA"
+    g = Graph(None, seq)
+    t = SequencingError(seq, g, process="sequencing", attributes=mutation_attributes["3"],
+                        error_rates=err_rates["5"])  # err_rate 5
+    t.lit_error_rate_mutations()
+    set(['deletion', 'insertion', 'mismatch', 'pattern_mismatch']).issubset(
+        nx.get_node_attributes(t.g.graph, 'mode').values())
