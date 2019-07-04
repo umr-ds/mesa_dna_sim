@@ -362,6 +362,10 @@ br {
     padding-right: 10px;
 }
 
+.has-padding-bottom-20 {
+    padding-bottom: 20px;
+}
+
 .is-settings-box {
     padding-left: 0;
     margin-left: 20px;

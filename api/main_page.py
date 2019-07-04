@@ -340,17 +340,19 @@ def get_synth_error_probs():
         return jsonify({'did_succeed': False})
 
 
-@main_page.route("/api/add_error_probs", methods=['GET', 'POST'])
+@main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_synth_error_probs():
-    user_id = session.get('user_id')
-    user = User.query.filter_by(user_id=user_id).first()
-    synth_conf_str = request.json.get('synth_conf')
-    if user_id and user and synth_conf_str is not None:
-        try:
-            synth_conf = json.loads(synth_conf_str)
-            err_data = synth_conf['err_data']
-            err_attributes = synth_conf['err_attributes']
+    try:
+        user_id = session.get('user_id')
+        user = User.query.filter_by(user_id=user_id).first()
+        synth_conf = request.json.get('synth_data')
+        asHTML = request.json.get('asHTML')
+        if user_id and user and synth_conf is not None:
+
+            # synth_conf = json.loads(synth_data)
+            err_data = floatify(synth_conf['err_data'])
+            err_attributes = floatify(synth_conf['err_attributes'])
             name = sanitize_input(synth_conf['name'])
 
             new_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
@@ -358,10 +360,27 @@ def add_synth_error_probs():
 
             db.session.add(new_synth)
             db.session.commit()
-            return render_template('error_probs.html', e_obj=new_synth.as_dict())
-        except Exception as x:
-            return jsonify({'did_succeed': False})
-    return jsonify({'did_succeed': False})
+            res = {'did_succeed': True, 'id': new_synth.id}
+
+            if asHTML is not None and asHTML:
+                res['new_synth'] = render_template('error_probs.html', e_obj=new_synth.as_dict(), host=request.host)
+            else:
+                res['new_synth'] = new_synth.as_dict()
+            return jsonify(res)
+        return jsonify({'did_succeed': False})
+    except Exception as x:
+        raise x
+        return jsonify({'did_succeed': False})
+
+
+def floatify(x):
+    for key in x:
+        if key != "mismatch" or key != "name":
+            if isinstance(x[key], dict):
+                x[key] = floatify(x[key])
+            else:  # if isinstance(value, str):
+                x[key] = float(x[key])
+    return x
 
 
 @main_page.route("/api/update_error_probs", methods=['GET', 'POST'])
@@ -394,6 +413,24 @@ def update_synth_error_probs():
         except Exception as x:
             return jsonify({'did_succeed': False})
     return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/delete_synth", methods=['POST'])
+@require_logged_in
+def delete_synth():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_id = request.form.get('synth_id')
+    if user_id and user and synth_id is not None:
+        try:
+            undesired_sub_seq = SynthesisErrorRates.query.filter_by(user_id=user_id, id=synth_id).first()
+            db.session.delete(undesired_sub_seq)
+            db.session.commit()
+            return jsonify({'did_succeed': True, 'deleted_id': synth_id})
+        except Exception as ex:
+            return jsonify({'did_succeed': False, 'deleted_id': synth_id})
+    else:
+        return jsonify({'did_succeed': False, 'deleted_id': synth_id})
 
 
 def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
