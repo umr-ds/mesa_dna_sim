@@ -76,59 +76,58 @@ class SequencingError:
         self.process = process
         self.g = graph
 
-    def insertion(self, prob=None):
-        if prob is not None:
-            return ''.join('{}{}'.format(char, random.choice(self.bases) if random.random() <= prob else '')
-                           for char in self.seq)
+    def insertion(self, att=None):
+        if att:
+            print('ins')
+            position, pattern, position_range = self._get_atts(att)
         else:
             res = self.attributes['insertion']
             position, pattern, position_range = self._get_atts(res)
 
-            if not position or position == 'random':
+        if not position or position == 'random':
+            return self._indel(pattern, position_range, mode='insertion')
+
+        if position == 'homopolymer':
+            poly = homopolymer(self.seq)
+            if poly:
+                return self._homopolymer_indel(poly, pattern, mode='insertion')
+            else:
                 return self._indel(pattern, position_range, mode='insertion')
 
-            if position == 'homopolymer':
-                poly = homopolymer(self.seq)
-                if poly:
-                    return self._homopolymer_indel(poly, pattern, mode='insertion')
-                else:
-                    return self._indel(pattern, position_range, mode='insertion')
-
-    def deletion(self, prob=None):
-        if prob is not None:
-            return "".join(filter(lambda x: random.random() <= prob, self.seq))
+    def deletion(self, att=None):
+        if att:
+            print('del ' + str(att))
+            position, pattern, pattern_range = self._get_atts(att)
         else:
             res = self.attributes["deletion"]
             position, pattern, pattern_range = self._get_atts(res)
 
-            if not position or position == 'random':
+        if not position or position == 'random':
+            return self._indel(pattern, pattern_range, mode='deletion')
+
+        if position == 'homopolymer':
+            poly = homopolymer(self.seq)
+            if poly:
+                return self._homopolymer_indel(poly, pattern, mode='deletion')
+            else:
                 return self._indel(pattern, pattern_range, mode='deletion')
 
-            if position == 'homopolymer':
-                poly = homopolymer(self.seq)
-                if poly:
-                    return self._homopolymer_indel(poly, pattern, mode='deletion')
-                else:
-                    return self._indel(pattern, pattern_range, mode='deletion')
-
-    def mismatch(self, prob=None):
-        if prob is not None:
-            return "".join('{}'.format(random.choice(self.bases)
-                                       if random.random() <= prob else char) for char in self.seq)
+    def mismatch(self, att=None):
+        if att:
+            print('mis ' + str(att))
+            position, pattern, position_range = self._get_atts(att)
         else:
             res = self.attributes["mismatch"]
             position, pattern, position_range = self._get_atts(res)
 
-            if not position or position == 'random':
-                return self._random_position_mismatch(pattern)
-            else:
-                # Placeholder until we can find some positional
-                # mismatching information.
-                pass
+        if not position or position == 'random':
+            return self._positional_mismatch(pattern, position_range=position_range)
+        else:
+            pass
 
     def _homopolymer_indel(self, poly, pattern, mode):
         poly_b = {ele['base'] for ele in poly if ele['base'] is not " "}
-        # If the only homopolymer found was empty spaces (deletions), randomly indel a base 
+        # If the only homopolymer found was empty spaces (deletions), randomly indel a base
         if not poly_b:
             return self._indel(pattern=None, position_range=None, mode=mode)
         if pattern:
@@ -146,7 +145,6 @@ class SequencingError:
         norm_poly_weights = {k: float(v) / s for k, v in poly_weights.items()}
 
         # Choose which base will be deleted / inserted.
-
         choose_ele = np.random.choice(list(norm_poly_weights.keys()),
                                       p=list(norm_poly_weights.values()))
 
@@ -177,25 +175,36 @@ class SequencingError:
             return self._randomly_indel_base(chosen_ele, position_range, mode)
 
     # Checking for all matches using regex is quite slow.
-    def _random_position_mismatch(self, pattern):
+    def _positional_mismatch(self, pattern=None, position_range=None):
         if not pattern:
-            return self._no_pattern_mismatch()
+            return self._no_pattern_mismatch(position_range)
         else:
-            return self._pattern_mismatch(pattern)
+            return self._pattern_mismatch(pattern, position_range)
 
-    def _no_pattern_mismatch(self):
+    def _no_pattern_mismatch(self, position_range=None):
+        if position_range:
+            check_range = range(position_range[0], position_range[1] + 1)
+            if seq[position_range[0]:position_range[1] + 1] == ' ':
+                return
+            print(check_range)
+        else:
+            check_range = range(len(self.seq))
         pos = " "
         while pos == " ":
-            pos = np.random.choice(range(len(self.seq)))
+            pos = np.random.choice(check_range)
         return self._indel_mismatch_base(pos, mode='mismatch')
 
     # A problem with pattern mismatches is now that it does not find patterns separated by a
     # deletion.
-    def _pattern_mismatch(self, pattern):
+    def _pattern_mismatch(self, pattern, position_range):
         reg = re.compile("|".join(pattern.keys()))
+        if position_range:
+            check_seq_range = self.seq[position_range[0]:position_range[1] + 1]
+        else:
+            check_seq_range = self.seq
         try:
             chosen_ele = random.choice([(match.span(), match.group())
-                                        for match in re.finditer(reg, self.seq)])
+                                        for match in re.finditer(reg, check_seq_range)])
         except IndexError:
             return self._no_pattern_mismatch()
 
@@ -208,9 +217,8 @@ class SequencingError:
                 final_ele = np.random.choice(new_ele)
             else:
                 final_ele = new_ele
-        self.g.add_node(orig=chosen_ele[1], mod=final_ele,
-                        orig_end=chosen_ele[0][1], mod_start=chosen_ele[0][0],
-                        mod_end=chosen_ele[0][0] + len(final_ele),
+        self.g.add_node(orig=chosen_ele[1], mod=final_ele, orig_end=chosen_ele[0][1],
+                        mod_start=chosen_ele[0][0], mod_end=chosen_ele[0][0] + len(final_ele),
                         mode="pattern_mismatch", process=self.process)
         self.seq = self.seq[:chosen_ele[0][0]] + final_ele + self.seq[chosen_ele[0][1]:]
 
@@ -240,21 +248,19 @@ class SequencingError:
     def _indel_mismatch_base(self, pos, mode):
         assert mode in ['deletion', 'insertion', 'mismatch']
         if mode == 'deletion':
-            self.g.add_node(orig=self.seq[pos], mod=" ", orig_end=pos + 1,
-                            mod_start=pos, mod_end=pos + 1, mode=mode, process=self.process)
+            self.g.add_node(orig=self.seq[pos], mod=" ",  orig_end=pos+1,
+                            mod_start=pos, mod_end=pos+1, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + " " + self.seq[pos + 1:]
         elif mode == 'insertion':
             ele = random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos],
-                            orig_end=pos + 1, mod_start=pos,
-                            mod_end=pos + 2, mode=mode, process=self.process)
+            self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos], orig_end=pos+1, mod_start=pos,
+                            mod_end=pos+2, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos:]
         else:
             ele = random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele,
-                            orig_end=pos + 1, mod_start=pos, mod_end=pos + 1, mode=mode,
+            self.g.add_node(orig=self.seq[pos], mod=ele, orig_end=pos+1, mod_start=pos, mod_end=pos + 1, mode=mode,
                             process=self.process)
-            self.seq = self.seq[:pos] + ele + self.seq[pos + 1:]
+            self.seq = self.seq[:pos] + ele + self.seq[pos+1:]
 
     @staticmethod
     def _get_atts(res):
@@ -277,7 +283,6 @@ class SequencingError:
     def lit_error_rate_mutations(self, mutation_list=['insertion', 'mismatch', 'deletion']):
         assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
                    mutation_list), 'Supported types of mutation are: "deletion", "mismatch" and "insertion".'
-        out_seq = self.seq
         for mutation_type in mutation_list:
             if self.error_rates is not None:
                 err_rate = self.error_rates["raw_rate"] * self.error_rates[str(mutation_type)]
@@ -286,7 +291,7 @@ class SequencingError:
             if self.attributes is False:
                 eval('self.' + mutation_type)(err_rate)
             else:
-                for n in range(round((len(out_seq) * err_rate))):
+                for n in range(round((len(self.seq) * err_rate))):
                     eval('self.' + mutation_type)()
         self.g.graph.nodes[0]['seq'] = self.seq
 
@@ -295,9 +300,9 @@ class SequencingError:
             m_types = ['deletion', 'insertion', 'mismatch']
             m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]
             mut_type = np.random.choice(m_types, p=m_weights)
-            att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
-            self.out_seq = eval('self.' + mut_type)(att)
-        return self.out_seq
+            att = {'position_range': [error['startpos'], error['endpos']]}
+            eval('self.' + mut_type)(att)
+        self.g.graph.nodes[0]['seq'] = self.seq
 
 
 if __name__ == "__main__":
