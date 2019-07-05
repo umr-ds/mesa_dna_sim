@@ -344,8 +344,8 @@ window.onload = function () {
                                            aria-label="Error Probability"
                                            name="error_prob" placeholder=""
                                             {% if subsequence.validated %} readonly {% endif %}
-                                           value="{{ subsequence.error_prob }}"
-                                           required min="0.0" max="1.0" step="0.01">
+                                           value="{{ subsequence.error_prob * 100 }}"
+                                           required min="0.0" max="100.0" step="0.01">
                                     <span><nobr>Error Probability</nobr></span></label></td>
                                 <td style="width:30%"><label class="form-group has-float-label">
                                     <input class="input is-rounded is-grayable" style="width:100%" type="text"

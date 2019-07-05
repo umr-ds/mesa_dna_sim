@@ -1,7 +1,7 @@
 from flask import jsonify, request, Blueprint
 from math import floor
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SequencingErrorAttributes, SynthesisErrorRates
+from database.models import SequencingErrorRates, SynthesisErrorRates
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
@@ -291,13 +291,13 @@ def synthesis_error(synth_meth, sequence):
 
 
 def sequencing_error(seq_meth, sequence):
-    err_rate_seq = SequencingErrorRates.query.filter(
-        SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-    err_att_seq = SequencingErrorAttributes.query.filter(
-        SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-
+    tmp = SequencingErrorRates.query.filter(
+        SequencingErrorRates.id == int(seq_meth)).first()
+    err_rate_seq = tmp.err_data
+    err_att_seq = tmp.err_attributes
     seq_err = SequencingError(sequence, err_att_seq, err_rate_seq)
     return seq_err.lit_error_rate_mutations()
+
 
 
 def htmlify(input, sequence):

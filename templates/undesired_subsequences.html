@@ -4,37 +4,6 @@
 
 
 {% block content %}
-    <!--<script type="text/javascript">
-        function checkPass() {
-            //Store the password field objects into variables ...
-            var password = document.getElementById('new_password');
-            var confirm = document.getElementById('new_password2');
-            //Store the Confirmation Message Object ...
-            var message = document.getElementById('confirm-message2');
-            //Set the colors we will be using ...
-            var good_color = "#66cc66";
-            var bad_color = "#ff6666";
-            //Compare the values in the password field
-            //and the confirmation field
-            if (password.value == confirm.value) {
-                //The passwords match.
-                //Set the color to the good color and inform
-                //the user that they have entered the correct password
-                confirm.style.backgroundColor = good_color;
-                message.style.color = good_color;
-                message.innerHTML = '<img src="/wp-content/uploads/2019/04/tick.png" alt="Passwords Match!">';
-                return true;
-            } else {
-                //The passwords do not match.
-                //Set the color to the bad color and
-                //notify the user.
-                confirm.style.backgroundColor = bad_color;
-                message.style.color = bad_color;
-                message.innerHTML = '<img src="/wp-content/uploads/2019/04/publish_x.png" alt="Passwords Do Not Match!">';
-                return false;
-            }
-        }
-    </script>-->
     <h3 class="title">Simulation Settings</h3>
 
     <hr/>
@@ -72,9 +41,9 @@
                                                 <input style="width:100%" class="input is-rounded" type="number"
                                                        name="error_prob"
                                                        placeholder="" size="30"
-                                                       value="{{ subsequence.error_prob }}"
+                                                       value="{{ subsequence.error_prob * 100 }}"
                                                        required min="0.0"
-                                                       max="1.0" step="0.01">
+                                                       max="100.0" step="0.01">
 
                                                 <span class="icon is-right">
                                                     <i class="fas fa-percentage"></i>
@@ -100,14 +69,16 @@
                                             <button class="button"
                                                     data-balloon="Updating will remove the Validation!"
                                                     data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
-                                                    onclick="updateSeq({{ subsequence.id }}); return false;">Update
+                                                    onclick="updateSeq('{{ host }}',{{ subsequence.id }}); return false;">
+                                                Update
                                             </button>
                                         </td>
                                         <td style="width:5%">
                                             <button class="button" id="delete_subseq_{{ subsequence.id }}"
                                                     data-balloon="Created at: "
                                                     data-balloon-pos="up"
-                                                    onclick="deleteSeq({{ subsequence.id }}); return false;">Delete
+                                                    onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
@@ -132,8 +103,8 @@
                                     <p class="form-group has-float-label">
                                     <p class="control has-icons-right">
                                         <input class="input is-rounded" type="number" id="errorprob"
-                                               name="error_prob" placeholder="0,5" size="30" value="" required
-                                               min="0.0" max="1.0" step="0.01">
+                                               name="error_prob" placeholder="50,0" size="30" value="" required
+                                               min="0.0" max="100.0" step="0.01">
                                         <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
@@ -164,9 +135,9 @@
             <div class="field">
                 <div class="control">
                     <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="synthesis_errors">
+                         id="synth_errors">
                         {% for error_id in synthesis_errors %}
-                            {% with e_obj=synthesis_errors[error_id] %}
+                            {% with e_obj=synthesis_errors[error_id], mode='synth' %}
                                 {% include "error_probs.html" %}
                             {% endwith %}
                         {% endfor %}
@@ -175,7 +146,32 @@
             </div>
             <div class="field control columns is-full is-multiline has-no-margin-top" style="padding-top: 40px;"
                  id="new_synthesis_errors">
-                {% with e_obj=default_eobj %}
+                {% with e_obj=default_eobj, mode='synth' %}
+                    {% include "error_probs.html" %}
+                {% endwith %}
+            </div>
+            <div class="field">
+            </div>
+        </form>
+    </div>
+    <div>Your custom Sequencing-Errors:</div>
+    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
+        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+            <div class="field">
+                <div class="control">
+                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                         id="seq_errors">
+                        {% for error_id in sequencing_errors %}
+                            {% with e_obj=sequencing_errors[error_id], mode='seq' %}
+                                {% include "error_probs.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="field control columns is-full is-multiline has-no-margin-top" style="padding-top: 40px;"
+                 id="new_sequencing_errors">
+                {% with e_obj=default_eobj, mode='seq' %}
                     {% include "error_probs.html" %}
                 {% endwith %}
             </div>
@@ -194,31 +190,6 @@
     {% endif %}
     <script>
 
-        function deleteSeq(id) {
-            $.post({
-                url: "http://{{ host }}/api/delete_subsequence",
-                data: {sequence_id: id, do_delete: true},
-                async: true,
-                beforeSend: function (xhr) {
-                    if (xhr && xhr.overrideMimeType) {
-                        xhr.overrideMimeType('application/json;charset=utf-8');
-                    }
-                },
-                dataType: 'json',
-                success: function (data) {
-                    if (data.did_succeed) {
-                        let toRemove = $('#subseq_' + data.deleted_id);
-                        toRemove.remove()
-                    } else {
-                        console.log("Error while deleting Sequence " + id);
-                    }
-                },
-                fail: function (data) {
-                    console.log("Error while deleting Sequence" + id);
-                    //$('#text_lettering').text(data);
-                }
-            });
-        }
 
         $('[id^="delete_subseq_"]').each(function () {
             $(this).click(function (event) {
@@ -226,35 +197,6 @@
             });
         });
 
-        function updateSeq(id) {
-            let curr_subseq = $('#subseq_' + id);
-            let sequence = curr_subseq.children().find("[name='sequence']");
-            let error_prob = curr_subseq.children().find("[name='error_prob']");
-            let desc = curr_subseq.children().find("[name='description']");
-            $.post({
-                url: "http://{{ host }}/api/update_subsequence",
-                data: {
-                    sequence_id: id,
-                    sequence: sequence.val(),
-                    error_prob: error_prob.val(),
-                    description: desc.val()
-                },
-                async: true,
-                beforeSend: function (xhr) {
-                    if (xhr && xhr.overrideMimeType) {
-                        xhr.overrideMimeType('application/json;charset=utf-8');
-                    }
-                },
-                dataType: 'json',
-                success: function (data) {
-                    console.log("Update successful for id=")
-                },
-                fail: function (data) {
-                    console.log("Update failed for id=" + id);
-                    //$('#text_lettering').text(data);
-                }
-            });
-        }
 
         $('[id^="update_subseq_"]').each(function () {
             $(this).click(function (event) {
@@ -265,66 +207,10 @@
 
         $('#add_new_subseq').click(function (event) {
             event.preventDefault();
-            let sequence = $('#addsequence').val();
-            let error_prob = $('#errorprob').val();
-            let description = $('#description').val();
-            $.post({
-                url: "http://{{ host }}/api/add_subsequence",
-                data: {sequence: sequence, error_prob: error_prob, description: description},
-                async: true,
-                beforeSend: function (xhr) {
-                    if (xhr && xhr.overrideMimeType) {
-                        xhr.overrideMimeType('application/json;charset=utf-8');
-                    }
-                },
-                dataType: 'json',
-                success: function (data) {
-                    if (data.did_succeed) {
-                        let subseq_box = $('#existing_subseqs');
-                        let dattime = new Date(data.created * 1000).toUTCString();
-                        subseq_box.append("<div class=\"control has-padding-03\" id=\"subseq_" + data.id + "\">\n" +
-                            "<table>\n" +
-                            "<tr>\n" +
-                            "<td style=\"width:53%\"><label class=\"form-group has-float-label\"><p class=\"control has-icons-right\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"sequence\"\n" +
-                            "placeholder=\"\" size=\"50\" value=\"" + data.sequence + "\" required><span class=\"icon is-right\">\n" +
-                            "<i class=\"fas fa-dna\"></i></span></p><span>Sequence</span></label></td>\n" +
-                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"number\" name=\"error_prob\"\n" +
-                            "placeholder=\"\" size=\"30\" value=\"" + data.error_prob + "\" required\n" +
-                            "min=\"0.0\"\n" +
-                            "max=\"1.0\" step=\"0.01\"><span><nobr>Errpr Probability</nobr></span></label></td>\n" +
-                            "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
-                            "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
-                            "required><span>Description</span></label></td>" +
-                            "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated_" + data.id + "\"\n" +
-                            "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
-                            "<td style=\"width:5%\"><button class=\"button\" data-balloon=\"Updating will remove the Validation!\"\n" +
-                            "data-balloon-pos=\"up\" id=\"update_subseq_" + data.id + "\"\n" +
-                            "onclick=\"updateSeq(" + data.id + "); return false;\"> Update<\/button>" +
-                            "<\/td>" +
-                            "<td style=\"width:5%\">\n" +
-                            "<button class=\"button\" id=\"delete_subseq_" + data.id + "\" data-balloon=\"Delete this Subsequence created at: " + dattime + "\"" +
-                            "data-balloon-pos=\"up\" onclick=\"deleteSeq(" + data.id + "); return false;\">Delete\n" +
-                            "</button>\n" +
-                            "</td>\n" +
-                            "</tr>\n" +
-                            "</table>\n" +
-                            "<br/><\/div>"
-                        ).fadeIn(400)
-                        ;
-                        $('#addsequence').val('');
-                        $('#errorprob').val('');
-                        $('#description').val('');
-                    } else {
-                        console.log("Error while adding new Sequence ");
-                    }
-                },
-                fail: function (data) {
-                    console.log("Error while adding new Sequence");
-                    //$('#text_lettering').text(data);
-                }
-            })
-            ;
+            addSubSeq('{{ host }}')
         });
+
+
 
         {% for subsequence in usubsequence %}
             let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000
@@ -332,163 +218,23 @@
             $('#delete_subseq_{{ subsequence.id }}').attr('data-balloon', "Created at: " + dattim_{{ subsequence.id }});
         {% endfor %}
 
-        let synthesis_errors = {{ synthesis_errors|tojson|safe }};
-        $('[id^="synth-slider"]').each(function () {
-            let tmp = $(this)[0];
-            let etype = tmp.getAttribute('data-etype');
-            let eid = tmp.getAttribute('data-eid');
+        let synth_errors = {{ synthesis_errors|tojson|safe }};
+        let seq_errors = {{ sequencing_errors|tojson|safe }};
 
-            let pattern = undefined;
-            if (eid !== "new") {
-                pattern = synthesis_errors[eid].err_attributes[etype].pattern;
-            }
-            let startvar = [25, 50, 75];
-            if (pattern !== undefined) {
-                startvar = [pattern.A * 100, (pattern.A + pattern.C) * 100, (pattern.A + pattern.C + pattern.G) * 100];
-            }
-            noUiSlider.create($(this)[0], {
-                start: startvar, // T MUST be the remainder
-                connect: [true, true, true, true],
-                tooltips: [true, true, true],
-                behaviour: 'drag',
-                range: {
-                    'min': 0,
-                    'max': 100
-                },
+        {%  for mode in ['synth','seq'] %}
+            $('[id^="{{ mode }}-slider"]').each(function () {
+                initACGTSlider('{{ mode }}', $(this)[0]);
             });
 
 
-            tmp.noUiSlider.on('update', function (values, handle) {
-                //if (handle) {
-                $('#synth_error_' + etype + "_A_" + eid)[0].value = round(values[0] - 0, 4);
-                $('#synth_error_' + etype + "_C_" + eid)[0].value = round(values[1] - values[0], 4);
-                $('#synth_error_' + etype + "_G_" + eid)[0].value = round(values[2] - values[1], 4);
-                $('#synth_error_' + etype + "_T_" + eid)[0].value = round(100.0 - values[2], 4);
-                //}
+            $('[id^="{{ mode }}-position-slider"]').each(function () {
+                    initSlider('{{ mode }}', $(this)[0]);
+                }
+            );
+
+            $('[id^="err_data-{{ mode }}-slider-"]').each(function () {
+                initErrorSliders('{{ mode }}', $(this)[0])
             });
-
-            $('#synth_error_' + etype + "_A_" + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([this.value, null, null]);
-            });
-
-            $('#synth_error_' + etype + "_C_" + eid)[0].addEventListener('change', function () {
-
-                tmp.noUiSlider.set([null, parseFloat(this.value) + parseFloat(tmp.noUiSlider.get()[0]), null]);
-            });
-
-            $('#synth_error_' + etype + "_G_" + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([null, null, parseFloat(this.value) + parseFloat(tmp.noUiSlider.get()[1])]);
-            });
-
-            $('#synth_error_' + etype + "_T_" + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([null, null, 100.00 - parseFloat(this.value)]);
-            });
-
-
-            var connect = $(this)[0].querySelectorAll('.noUi-connect');
-            var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color', 'c-5-color'];
-
-            for (var i = 0; i < connect.length; i++) {
-                connect[i].classList.add(classes[i]);
-            }
-        });
-
-
-        $('[id^="synth-position-slider"]').each(function () {
-            let tmp = $(this)[0];
-            let etype = tmp.getAttribute('data-etype');
-            let eid = tmp.getAttribute('data-eid');
-            let position = undefined;
-            if (eid !== "new") {
-                position = synthesis_errors[eid].err_attributes[etype].position;
-            }
-            let startvar = 50;
-            if (position !== undefined) {
-                startvar = position.homopolymer * 100;
-            }
-            noUiSlider.create($(this)[0], {
-                start: startvar, // T MUST be the remainder
-                connect: [true, true],
-                tooltips: true,
-                behaviour: 'drag',
-                range: {
-                    'min': 0,
-                    'max': 100
-                },
-            });
-
-            tmp.noUiSlider.on('update', function (values, handle) {
-                //if (handle) {
-                //$('#synth_error_mismatch_deletion-homopolymer_');
-                $('#synth_error_' + etype + "_homopolymer_" + eid)[0].value = round(values[0] - 0, 4);
-                $('#synth_error_' + etype + "_random_" + eid)[0].value = round(100.0 - values[0], 4);
-                //}
-            });
-
-            $('#synth_error_' + etype + "_homopolymer_" + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([this.value]);
-            });
-
-            $('#synth_error_' + etype + "_random_" + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([null, null, 100.00 - parseFloat(this.value)]);
-            });
-
-
-            var connect = $(this)[0].querySelectorAll('.noUi-connect');
-            var classes = ['homopolymer-color', 'random-color'];
-            for (var i = 0; i < connect.length; i++) {
-                connect[i].classList.add(classes[i]);
-            }
-        });
-
-
-        $('[id^="err_data-synth-slider-"]').each(function () {
-            let tmp = $(this)[0];
-            let eid = tmp.getAttribute('data-eid');
-            let err_data = undefined;
-            if (eid !== "new") {
-                err_data = synthesis_errors[eid].err_data;
-            }
-            let startvar = [33.33, 66.66];
-            if (err_data !== undefined) {
-                startvar = [err_data.deletion * 100, (err_data.deletion + err_data.insertion) * 100]
-            }
-            noUiSlider.create($(this)[0], {
-                start: startvar, // T MUST be the remainder
-                connect: [true, true, true],
-                tooltips: [true, true],
-                behaviour: 'drag',
-                range: {
-                    'min': 0,
-                    'max': 100
-                },
-            });
-
-            tmp.noUiSlider.on('update', function (values, handle) {
-                $('#synth_error_raw_rate_deletion_' + eid)[0].value = round(values[0] - 0, 4);
-                $("#synth_error_raw_rate_insertion_" + eid)[0].value = round(values[1] - values[0], 4);
-                $("#synth_error_raw_rate_mismatch_" + eid)[0].value = round(100.0 - values[1], 4);
-                //}
-            });
-
-            $("#synth_error_raw_rate_deletion_" + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([this.value, null]);
-            });
-
-            $('#synth_error_raw_rate_insertion_' + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([null, parseFloat(this.value) + parseFloat(tmp.noUiSlider.get()[0])]);
-            });
-
-            $('#synth_error_raw_rate_mismatch_' + eid)[0].addEventListener('change', function () {
-                tmp.noUiSlider.set([null, 100.00 - parseFloat(this.value)]);
-            });
-
-
-            var connect = $(this)[0].querySelectorAll('.noUi-connect');
-            var classes = ['deletion-color', 'insertion-color', 'mismatch-color'];
-            for (var i = 0; i < connect.length; i++) {
-                connect[i].classList.add(classes[i]);
-            }
-        });
+        {% endfor %}
     </script>
 {% endblock %}

@@ -127,32 +127,23 @@ class ErrorProbability(db.Model):
 
 
 class SequencingErrorRates(db.Model):
-    __tablename__ = 'err_rates'
+    __tablename__ = 'seq_err_rates'
     id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, nullable=False)
-    submethod_id = db.Column(db.Integer, nullable=False)
+    method_id = db.Column(db.Integer, ForeignKey('meth_categories.id'), nullable=False)
+    # correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
     err_data = db.Column(db.JSON)
-
-    def __repr__(self):
-        return '<SequencingErrorRates(id={}, method_id={}, submethod_id={}, err_data={}'.format(
-            self.id, self.method, self.submethod_id, self.err_data)
-
-
-###############################################
-
-
-class SequencingErrorAttributes(db.Model):
-    __tablename__ = 'mutation_attributes'
-    id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, nullable=False)
-    submethod_id = db.Column(db.Integer, nullable=False)
-    attributes = db.Column(db.JSON)
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
     validated = db.Column(db.Boolean, default=False, nullable=False)
+    err_attributes = db.Column(db.JSON)
+    name = db.Column(db.TEXT)
 
     def __repr__(self):
-        return '<SequencingErrorAttributes(id={}, method_id={}, submethod_id={}, attributes={}'.format(
-            self.id, self.method, self.submethod_id, self.attributes)
+        return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
+            self.id, self.method, self.correction_id, self.err_data)
+
+    def as_dict(self):
+        return dict((col, getattr(self, col)) for col in
+                    self.__table__.columns.keys())  # {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
 
 
 ###############################################
@@ -161,7 +152,7 @@ class SequencingErrorAttributes(db.Model):
 class SynthesisErrorRates(db.Model):
     __tablename__ = 'synth_err_rates'
     id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, ForeignKey('synth_meth.id'), nullable=False)
+    method_id = db.Column(db.Integer, ForeignKey('meth_categories.id'), nullable=False)
     # correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
     err_data = db.Column(db.JSON)
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
@@ -200,8 +191,8 @@ class SynthesisErrorAttributes(db.Model):
 
 ###############################################
 
-class SynthesisMethods(db.Model):
-    __tablename__ = 'synth_meth'
+class MethodCategories(db.Model):
+    __tablename__ = 'meth_categories'
     id = db.Column(db.Integer, primary_key=True)
     method = db.Column(db.String(128), nullable=False)
 
