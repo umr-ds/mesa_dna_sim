@@ -26,7 +26,6 @@ class Graph:
             error_prob = 4.0
         else:
             error_prob = 5.0
-        print(mode)
         if mode == 'insertion':
             error_prob += 0.3
         elif mode == 'deletion':
@@ -40,8 +39,9 @@ class Graph:
             self.shift_indices(offset, orig_end)
             orig = ' ' + orig
         for i in range(len(mod)):
-            # In the case of an mismatch where one of the mismatched bases stayed the same
-            if mod[i] == orig[i]:
+            # In the case of an mismatch where one of the mismatched bases stayed the same or if a mismatch happens
+            # at a deleted position.
+            if mod[i] == orig[i] or orig[i] == ' ':
                 pass
             else:
                 self.graph.add_node(len(self.graph.nodes), startpos=mod_start + i, endpos=mod_start + i,

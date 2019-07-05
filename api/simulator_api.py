@@ -384,7 +384,6 @@ def build_html(res_list, reducesets=True):
                     res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
                            "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 else:
-                    print(error_prob)
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
     return res
@@ -405,8 +404,8 @@ def colorize(error_prob):
                       {"pct": 3.9, "color": {"r": 0xcc, "g": 0x80, "b": 0x80, "a": 1.0}},
                       {"pct": 4.0, "color": {"r": 0xff, "g": 0xff, "b": 0x99, "a": 1.0}},
                       {"pct": 4.3, "color": {"r": 0x99, "g": 0xcc, "b": 0x00, "a": 1.0}},
-                      {"pct": 4.6, "color": {"r": 0xff, "g": 0xff, "b": 0xf00, "a": 1.0}},
-                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 1.0}}
+                      {"pct": 4.6, "color": {"r": 0xff, "g": 0xff, "b": 0x00, "a": 1.0}},
+                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 0.5}}
                       ]
     i = 0
     for x in range(len(percent_colors)):
