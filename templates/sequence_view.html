@@ -113,12 +113,11 @@ window.onload = function () {
                             </button>
                         </div>
                         <div class="column is-pulled-left">
-                            <button class="button is-block is-info-deactivated button-fill" type="button"
-                                    id="save-chart"
-                                    name="save-chart"
+                            <button class="button is-block is-info-deactivated button-fill"
+                                    type="button" id="save-chart" name="save-chart"
                                     onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
-                                    data-balloon="Save Copy"
-                                    data-balloon-pos="up"> Save copy of Template
+                                    data-balloon="Save Copy" data-balloon-pos="up"
+                                    {% if user_id == None %}disabled{% endif %}> Save copy of Template
                             </button>
                         </div>
 
@@ -455,6 +454,11 @@ window.onload = function () {
             updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
             updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
             updateSynthDropdown("{{ host }}", "{{ apikey }}");
+            {%  if uuid != None %}
+                queryServer('{{ uuid }}');
+            {% endif %}
+
+
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) closeOverlay();
             });

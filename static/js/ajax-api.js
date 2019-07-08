@@ -112,107 +112,125 @@ $(document).ready(function () {
         this.setSelectionRange(start, end);
     });*/
     let submit_seq = $("#submit_sequence");
-    let submit_seq_btn = $('#submit_seq_btn');
     submit_seq.submit(function (event) {
         event.preventDefault();
-        let sequence = $("#sequence").val().toUpperCase();
-        let homopolymer = $('#homopolymer');
-        let gccontent = $('#gccontent');
-        let sequences = $('#subsequences');
-        let kmer = $('#kmer');
-        let overall = $('#overall');
-        let seq_seq = $('#seq_seq');
-        let synth_seq = $('#synth_seq');
-        let mod_seq = $('#mod_seq');
-
-        /*for (let i = 0; i <= overall.text().length; i++) {
-            let curr_char = $(".overall_char" + (i + 1));
-            curr_char.data('errorprob', 0.0);
-        }*/
-
-        //var endpoints = ['gccontent', 'homopolymers'];
-
-        //for (var mode in endpoints) {
-
-        let endpoints = {
-            "gccontent": gccontent,
-            "homopolymer": homopolymer,
-            "kmer": kmer,
-            "subsequences": sequences,
-            "all": overall,
-            "sequencing": seq_seq,
-            "synthesis": synth_seq,
-            "modify": mod_seq
-        };
-        //endpoints.keys().forEach(function (mode) {
-
-        let gc_dropdown_select = $('#gc-dropdown option:selected');
-        let gc_error_prob = gc_dropdown_select.data('jsonblob');
-        if (typeof (gc_error_prob) === "string")
-            gc_error_prob = JSON5.parse(gc_error_prob);
-
-        let homopolymer_dropdown_select = $('#homopolymer-dropdown option:selected');
-        let homopolymer_error_prob = homopolymer_dropdown_select.data('jsonblob');
-        if (typeof (homopolymer_error_prob) === "string")
-            homopolymer_error_prob = JSON5.parse(homopolymer_error_prob);
-
-        let kmer_dropdown_select = $('#kmer-dropdown option:selected');
-        let kmer_error_prob = kmer_dropdown_select.data('jsonblob');
-        if (typeof (kmer_error_prob) === "string")
-            kmer_error_prob = JSON5.parse(kmer_error_prob);
-
-        let res = $('#results');
-        for (let mode in {"all": overall}) {
-            $.post({
-                url: "http://" + host + "/api/" + mode,
-                contentType: 'application/json;charset=UTF-8',
-                dataType: 'json',
-                data: JSON.stringify({
-                    sequence: sequence,
-                    key: apikey,
-                    enabledUndesiredSeqs: extractUndesiredToJson(),
-                    kmer_windowsize: $('#kmer_window_size').val(),
-                    gc_windowsize: $('#gc_window_size').val(),
-                    error_prob: gc_error_prob,
-                    gc_error_prob: gc_error_prob,
-                    homopolymer_error_prob: homopolymer_error_prob,
-                    kmer_error_prob: kmer_error_prob,
-                    sequence_method: $("#seqmeth option:selected").val(),
-                    synthesis_method: $("#synthmeth option:selected").val(),
-                    asHTML: true
-                }),
-                async: true,
-                beforeSend: function () {
-                    submit_seq_btn.addClass('is-loading');
-                    for (let error_source in endpoints) {
-                        endpoints[error_source].html("");
-                    }
-                    res.css('display', 'none');
-                },
-                success: function (data) {
-                    for (let error_source in data) {
-                        endpoints[error_source].html(data[error_source]);
-                    }
-                    makeHoverGroups();
-                    submit_seq_btn.removeClass('is-loading');
-
-                    res.css('display', 'initial');
-                    $('html, body').animate({scrollTop: res.offset().top}, 500);
-                },
-                fail: function (data) {
-                    console.log(data);
-                    //$('#text_lettering').text(data);
-                    submit_seq_btn.removeClass('is-loading');
-                }
-                ,
-                error: function (jqXHR, textStatus, errorThrown) {
-                    console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
-                    submit_seq_btn.removeClass('is-loading');
-                }
-            });
-        }
+        queryServer(undefined);
     });
 });
+
+function queryServer(uuid) {
+
+    let submit_seq_btn = $('#submit_seq_btn');
+    let sequence = $("#sequence").val().toUpperCase();
+    let homopolymer = $('#homopolymer');
+    let gccontent = $('#gccontent');
+    let sequences = $('#subsequences');
+    let kmer = $('#kmer');
+    let overall = $('#overall');
+    let seq_seq = $('#seq_seq');
+    let synth_seq = $('#synth_seq');
+    let mod_seq = $('#mod_seq');
+
+    /*for (let i = 0; i <= overall.text().length; i++) {
+        let curr_char = $(".overall_char" + (i + 1));
+        curr_char.data('errorprob', 0.0);
+    }*/
+
+    //var endpoints = ['gccontent', 'homopolymers'];
+
+    //for (var mode in endpoints) {
+
+    let endpoints = {
+        "gccontent": gccontent,
+        "homopolymer": homopolymer,
+        "kmer": kmer,
+        "subsequences": sequences,
+        "all": overall,
+        "sequencing": seq_seq,
+        "synthesis": synth_seq,
+        "modify": mod_seq
+    };
+    //endpoints.keys().forEach(function (mode) {
+
+    let gc_dropdown_select = $('#gc-dropdown option:selected');
+    let gc_error_prob = gc_dropdown_select.data('jsonblob');
+    if (typeof (gc_error_prob) === "string")
+        gc_error_prob = JSON5.parse(gc_error_prob);
+
+    let homopolymer_dropdown_select = $('#homopolymer-dropdown option:selected');
+    let homopolymer_error_prob = homopolymer_dropdown_select.data('jsonblob');
+    if (typeof (homopolymer_error_prob) === "string")
+        homopolymer_error_prob = JSON5.parse(homopolymer_error_prob);
+
+    let kmer_dropdown_select = $('#kmer-dropdown option:selected');
+    let kmer_error_prob = kmer_dropdown_select.data('jsonblob');
+    if (typeof (kmer_error_prob) === "string")
+        kmer_error_prob = JSON5.parse(kmer_error_prob);
+
+    let send_data = undefined;
+    if (uuid === undefined) {
+        send_data = JSON.stringify({
+            sequence: sequence,
+            key: apikey,
+            enabledUndesiredSeqs: extractUndesiredToJson(),
+            kmer_windowsize: $('#kmer_window_size').val(),
+            gc_windowsize: $('#gc_window_size').val(),
+            error_prob: gc_error_prob,
+            gc_error_prob: gc_error_prob,
+            homopolymer_error_prob: homopolymer_error_prob,
+            kmer_error_prob: kmer_error_prob,
+            sequence_method: $("#seqmeth option:selected").val(),
+            synthesis_method: $("#synthmeth option:selected").val(),
+            asHTML: true
+        });
+    } else {
+        send_data = JSON.stringify(
+            {
+                key: apikey,
+                uuid: uuid
+            });
+    }
+    let res = $('#results');
+    for (let mode in {"all": overall}) {
+        $.post({
+            url: "http://" + host + "/api/" + mode,
+            contentType: 'application/json;charset=UTF-8',
+            dataType: 'json',
+            data: send_data,
+            async: true,
+            beforeSend: function () {
+                submit_seq_btn.addClass('is-loading');
+                for (let error_source in endpoints) {
+                    endpoints[error_source].html("");
+                }
+                res.css('display', 'none');
+            },
+            success: function (data) {
+                if (uuid !== undefined) {
+                    data = data['res'];
+                }
+                for (let error_source in data) {
+                    endpoints[error_source].html(data[error_source]);
+                }
+                makeHoverGroups();
+                submit_seq_btn.removeClass('is-loading');
+
+                res.css('display', 'initial');
+                $('html, body').animate({scrollTop: res.offset().top}, 500);
+            },
+            fail: function (data) {
+                console.log(data);
+                //$('#text_lettering').text(data);
+                submit_seq_btn.removeClass('is-loading');
+            }
+            ,
+            error: function (jqXHR, textStatus, errorThrown) {
+                console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+                submit_seq_btn.removeClass('is-loading');
+            }
+        });
+    }
+}
 
 const percentColors = [
     {pct: 0.0, color: {r: 0xff, g: 0x00, b: 0}},

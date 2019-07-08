@@ -1,5 +1,11 @@
+import json
+import uuid
+
+import redis
 from flask import jsonify, request, Blueprint
 from math import floor
+
+from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
 from database.models import SequencingErrorRates, SynthesisErrorRates
 from simulators.error_probability import create_error_prob_function
@@ -191,6 +197,13 @@ def do_all():
         r_method = request.json
     else:
         r_method = request.args
+    r_uid = r_method.get('uuid')
+    if r_uid is not None:
+        r_res = json.loads(read_from_redis(r_uid))
+        if r_res is not None:
+            return jsonify(r_res)
+        else:
+            return jsonify({'did_succeed': False})
     sequence = r_method.get('sequence')
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
@@ -235,27 +248,21 @@ def do_all():
     homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
     res.extend(homopolymer_res)
 
-    if synth_meth in {"0", "11", "12", "13"}:
-        synth_res = sequence
-    else:
-        tmp = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first()
-        err_rate = tmp.err_data
-        err_att = tmp.err_attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        synth_res = seqerr.lit_error_rate_mutations()
-        # todo htmlify synthesis
+    tmp = SynthesisErrorRates.query.filter(
+        SynthesisErrorRates.id == int(synth_meth)).first()
+    err_rate = tmp.err_data
+    err_att = tmp.err_attributes
+    seqerr = SequencingError(sequence, err_att, err_rate)
+    synth_res = seqerr.lit_error_rate_mutations()
+    # todo htmlify synthesis
 
-    if seq_meth in {"0", "7", "8", "9"}:
-        seq_res = sequence
-    else:
-        err_rate = SequencingErrorRates.query.filter(
-            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-        err_att = SequencingErrorAttributes.query.filter(
-            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        seq_res = seqerr.lit_error_rate_mutations()
-        # todo htmlify synthesis
+    tmp = SequencingErrorRates.query.filter(
+        SequencingErrorRates.id == int(seq_meth)).first()
+    err_rate = tmp.err_data
+    err_att = tmp.err_attributes
+    seqerr = SequencingError(sequence, err_att, err_rate)
+    seq_res = seqerr.lit_error_rate_mutations()
+    # todo htmlify synthesis
 
     """
     if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
@@ -273,10 +280,16 @@ def do_all():
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)
         homopolymer_html = htmlify(homopolymer_res, sequence)
-        return jsonify(
+        res = jsonify(
             {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
              'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
              'all': htmlify(res, sequence)})
+        try:
+            save_to_redis(str(uuid.uuid1()), json.dumps({'res': res.json, 'query': r_method}), 1209600)
+        except redis.exceptions.ConnectionError as ex:
+            print('Could not connect to Redis-Server')
+        return res
+
     return jsonify(res)
 
 
@@ -297,7 +310,6 @@ def sequencing_error(seq_meth, sequence):
     err_att_seq = tmp.err_attributes
     seq_err = SequencingError(sequence, err_att_seq, err_rate_seq)
     return seq_err.lit_error_rate_mutations()
-
 
 
 def htmlify(input, sequence):

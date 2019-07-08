@@ -88,10 +88,21 @@ def index():
 
 
 @main_page.route("/query_sequence", methods=['GET', 'POST'])
-@require_logged_in
+# @require_logged_in
 def query_sequence():
     user_id = session.get('user_id')
-    apikey_obj = Apikey.query.filter_by(owner_id=user_id).first()
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    sequence = r_method.get('sequence')
+    r_uid = r_method.get('uuid')
+    if user_id is None:
+        flash("Please log in to use all available features!", 'warning')
+        apikey = Apikey.query.filter_by(owner_id=0).first().apikey
+    else:
+        user_id = int(user_id)
+        apikey = Apikey.query.filter_by(owner_id=user_id).first().apikey
     undesired_sub_seq = UndesiredSubsequences.query.filter(
         or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -101,19 +112,10 @@ def query_sequence():
     homopolymer_charts = ErrorProbability.query.filter(
         and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
              ErrorProbability.type == "homopolymer")).order_by(asc(ErrorProbability.id)).all()
-    if request.method == "POST":
-        sequence = request.json.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence,
-                               usubsequence=undesired_sub_seq,
-                               gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in
-                                                   homopolymer_charts])
-    else:
-        sequence = request.args.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host,
-                               usubsequence=undesired_sub_seq,
-                               gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in
+    return render_template('sequence_view.html', apikey=apikey, sequence=sequence, host=request.host,
+                               usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
+                               gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
+                               homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
                                                    homopolymer_charts])
 
 
@@ -273,7 +275,7 @@ def delete_error_prob_chart():
 
 
 @main_page.route("/api/get_error_prob_charts", methods=['GET', 'POST'])
-@require_logged_in
+# @require_logged_in
 def get_error_prob_charts():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
@@ -281,22 +283,28 @@ def get_error_prob_charts():
         typ = request.json.get('type')
     else:
         typ = request.args.get('type')
+    if typ is None:
+        return jsonify({'did_succeed': False})
+
     try:
-        if user_id and user and typ is not None:
+        if user_id and user:
             charts = ErrorProbability.query.filter(
                 and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated is True),
                      ErrorProbability.type == typ)).order_by(asc(ErrorProbability.id)).all()
-
-            return jsonify(
-                {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
         else:
-            return jsonify({'did_succeed': False})
+            charts = ErrorProbability.query.filter(
+                and_(ErrorProbability.validated is True, ErrorProbability.type == typ)).order_by(
+                asc(ErrorProbability.id)).all()
+        return jsonify(
+            {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
+
+        # return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
 
 
 @main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
-@require_logged_in
+# @require_logged_in
 def get_synth_error_probs():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
@@ -306,13 +314,14 @@ def get_synth_error_probs():
         req = request.args
     flat = "flat" in req and bool(req["flat"])
     try:
-        if user_id and user:
-            methods = [x.as_dict() for x in MethodCategories.query.all()]
-            return jsonify(
-                {'did_succeed': True, 'synth': get_error_probs_dict(SynthesisErrorRates, user_id, flat, methods),
-                 'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods), 'methods': methods})
-        else:
-            return jsonify({'did_succeed': False})
+        # if user_id and user:
+        methods = [x.as_dict() for x in MethodCategories.query.order_by(
+            asc(MethodCategories.id)).all()]
+        return jsonify(
+            {'did_succeed': True, 'synth': get_error_probs_dict(SynthesisErrorRates, user_id, flat, methods),
+             'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods), 'methods': methods})
+        # else:
+        #    return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
 
@@ -324,7 +333,7 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
     tmp = [x.as_dict() for x in db_result]
     db_result = dict()
     for x in tmp:
-        id = int(x['method_id']) - 1
+        id = int(x['method_id'])
         meth_str = methods[id].get('method')
         if meth_str not in db_result:
             db_result[meth_str] = []

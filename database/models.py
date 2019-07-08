@@ -109,17 +109,9 @@ class ErrorProbability(db.Model):
 
     @staticmethod
     def serialize(ob, owner_id=None):
-        tmp = {
-            'id': ob.id,
-            'name': ob.name,
-            'type': ob.type,
-            'jsonblob': ob.jsonblob,
-            'validated': ob.validated,
-            'created': ob.created,
-            'user_id': ob.user_id,
-        }
-        if owner_id is not None:
-            tmp['isowner'] = owner_id == ob.user_id
+        tmp = {'id': ob.id, 'name': ob.name, 'type': ob.type, 'jsonblob': ob.jsonblob, 'validated': ob.validated,
+               'created': ob.created, 'user_id': ob.user_id,
+               'isowner': owner_id == ob.user_id if owner_id is not None else False}
         return tmp
 
 
