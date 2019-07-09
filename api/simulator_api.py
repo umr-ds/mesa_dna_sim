@@ -205,6 +205,8 @@ def do_all():
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
+    use_error_probs = r_method.get('use_error_probs')
+    # print(r_method.get('use_error_probs'))
     as_html = r_method.get('asHTML')
 
     if enabled_undesired_seqs:
@@ -253,6 +255,10 @@ def do_all():
         synthesis_error(sequence, g, synth_meth, process="synthesis")
         synthesis_error_seq = g.graph.nodes[0]['seq']
         sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+
+    if use_error_probs:
+        manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
+
     mod_seq = g.graph.nodes[0]['seq']
     mod_res = g.get_lineages()
 
@@ -287,6 +293,12 @@ def sequencing_error(sequence, g, seq_meth, process="sequencing"):
 
     seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq)
     return seq_err.lit_error_rate_mutations()
+
+def manual_errors(sequence, g, error_res, process='Calculated Error'):
+    seq_err = (SequencingError(sequence, g, process))
+    for att in error_res:
+        for err in att:
+            seq_err.manual_mutation(err)
 
 
 def htmlify(input, sequence, modification=False):

@@ -194,6 +194,7 @@ window.onload = function () {
                 <div class="column is-1">
                 </div>
                 <div class="column is-3 select is-rounded is-primary">
+
                     <!-- values 1-10 correspond to the error_correction id in the database -->
                     <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
                     <!-- or intercept these values before the database request.  -->
@@ -222,6 +223,20 @@ window.onload = function () {
                                 <option value="13">Rates and Attributes</option>
                             </optgroup>
                         </select><span>Synthesis Method</span>
+                    </label>
+                    <p style="text-align:left;">Calculated Error Probabilities</p>
+                      <label data-balloon="Use Calculated Error Probabilities"
+                           data-balloon-pos="right", style="float: left">
+                        <input type="checkbox" aria-label="Use Calculated Error Probabilities" id="calcprobs"
+                               class="switch is-rounded is-large button-fill no-outline" name="cprobs"
+                                onclick="if ($(this).is(':checked')) {
+                                    $('#seqmeth').val(0).prop('disabled', true);
+                                    $('#synthmeth').val(0).prop('disabled', true);
+                                } else if ($(this).not(':checked')){
+                                    $('#seqmeth').prop('disabled', false);
+                                    $('#synthmeth').prop('disabled', false);
+                                }"/>
+                        <label for="calcprobs" style="float:left" class="no-outline"></label>
                     </label>
                 </div>
                 <div class="column is-3 select is-rounded is-primary">
@@ -405,7 +420,6 @@ window.onload = function () {
             <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
         </div>
     </div>
-
 
     <!--
     <script>

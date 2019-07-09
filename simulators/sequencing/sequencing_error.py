@@ -69,7 +69,7 @@ class SequencingError:
     def __init__(self, seq, graph, process, attributes=None, error_rates=None):
         self.bases = ['A', 'T', 'C', 'G']
         self.attributes = attributes
-        self.error_rates = error_rates
+        self.error_rates = error_rates if error_rates else {'insertion': 0.33, 'deletion': 0.34, 'mismatch': 0.33}
         self.seq = seq
         self.modified_positions = set()
         self.out_seq = None
@@ -184,7 +184,7 @@ class SequencingError:
     def _no_pattern_mismatch(self, position_range=None):
         if position_range:
             check_range = range(position_range[0], position_range[1] + 1)
-            if seq[position_range[0]:position_range[1] + 1] == ' ':
+            if self.seq[position_range[0]:position_range[1] + 1] == ' ':
                 return
             print(check_range)
         else:
