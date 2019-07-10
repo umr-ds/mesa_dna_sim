@@ -235,6 +235,10 @@
             $('[id^="err_data-{{ mode }}-slider-"]').each(function () {
                 initErrorSliders('{{ mode }}', $(this)[0])
             });
+
+            $('[id^="mismatch-{{ mode }}-slider-"]').each(function () {
+                initMismatchSlider('{{ mode }}', $(this)[0]);
+            });
         {% endfor %}
     </script>
 {% endblock %}

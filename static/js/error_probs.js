@@ -25,7 +25,7 @@ function addSubSeq(host) {
                     "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"number\" name=\"error_prob\"\n" +
                     "placeholder=\"\" size=\"30\" value=\"" + data.error_prob * 100.0 + "\" required\n" +
                     "min=\"0.0\"\n" +
-                    "max=\"1.0\" step=\"0.01\"><span><nobr>Errpr Probability</nobr></span></label></td>\n" +
+                    "max=\"1.0\" step=\"0.01\"><span><nobr>Error Probability</nobr></span></label></td>\n" +
                     "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
                     "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                     "required><span>Description</span></label></td>" +
@@ -516,6 +516,52 @@ function initACGTSlider(method, elem) {
     var connect = elem.querySelectorAll('.noUi-connect');
     var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color', 'c-5-color'];
 
+    for (var i = 0; i < connect.length; i++) {
+        connect[i].classList.add(classes[i]);
+    }
+}
+
+
+function initMismatchSlider(method, elem) {
+    let etype = elem.getAttribute('data-etype');
+    let mID = elem.getAttribute('data-mid'); // e.g. 19_0, 19_1, ...
+    let mode = elem.getAttribute('data-mode'); // e.g. seq, synth...
+    let dataVals = JSON.parse(elem.getAttribute('data-vals')); //json dict
+
+    let arr = [];
+    let counter = 0;
+    let cnect = [];
+    for (let key in dataVals) {
+        if (arr.length === 0) {
+            arr.push(dataVals[key] * 100);
+        } else {
+            arr.push(arr[arr.length - 1] + (dataVals[key] * 100));
+        }
+        cnect.push(true);
+        $('#' + mode + '_error_mismatched_seq_' + mID + '_' + counter).val(key);
+        $('#' + mode + '_error_mismatched_seq_prob_' + mID + '_' + counter).val(dataVals[key] * 100);
+
+        counter++;
+
+    }
+    arr.pop();
+
+
+    noUiSlider.create(elem, {
+        start: arr, // T MUST be the remainder
+        connect: cnect,
+        tooltips: true,
+        behaviour: 'drag',
+        range: {
+            'min': 0,
+            'max': 100
+        },
+    });
+
+    // TODO connect on change of textboxes / slider! + add these to submit (update button pressed)
+
+    var connect = elem.querySelectorAll('.noUi-connect');
+    var classes = ['homopolymer-color', 'random-color'];
     for (var i = 0; i < connect.length; i++) {
         connect[i].classList.add(classes[i]);
     }
