@@ -36,7 +36,7 @@ mutation_attributes = {"1": {"deletion": {"position": {"random": 1},
                                           "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
                              "insertion": {"position": {"homopolymer": 0.85, "random": 0.15},
                                            "pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},
-                             "mismatch": {"pattern": {"CG": {"CA":0.5, "TG":0.5}}}},
+                             "mismatch": {"pattern": {"CG": {"CA": 0.5, "TG": 0.5}}}},
                        "4": {"deletion": {"position": {"homopolymer": 0.85, "random": 0.15},
                                           "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},
                              "insertion": {"position": {"homopolymer": 0.85, "random": 0.15},
@@ -67,6 +67,7 @@ class SequencingError:
     -- mismatches with and without patterns (preferred bases) randomly or
     specific motives that are switched (e.g. TAC -> TGC)
     """
+
     def __init__(self, seq, attributes=None, error_rates=None):
         self.bases = ['A', 'T', 'C', 'G']
         self.checks = {'ins_no_prob': None, 'ins_no_pos': None, 'ins_poly_w': None, 'ins_poly_wo': None,
@@ -200,7 +201,7 @@ class SequencingError:
 
         if type(pattern[chosen_ele[1]]) == dict:
             final_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
-                                       p=list(pattern[chosen_ele[1]].values()))
+                                         p=list(pattern[chosen_ele[1]].values()))
         else:
             new_ele = pattern[chosen_ele[1]]
             if type(new_ele) == list:
@@ -283,4 +284,3 @@ class SequencingError:
             att = {mut_type: {'position_range': [error['startpos'], error['endpos']]}}
             self.out_seq = eval('self.' + mut_type)(self.seq, att)
         return self.out_seq
-

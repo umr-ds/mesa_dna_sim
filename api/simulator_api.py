@@ -2,7 +2,7 @@ import json
 import uuid
 
 import redis
-from flask import jsonify, request, Blueprint
+from flask import jsonify, request, Blueprint, flash
 from math import floor
 
 from api.RedisStorage import save_to_redis, read_from_redis
@@ -199,9 +199,9 @@ def do_all():
         r_method = request.args
     r_uid = r_method.get('uuid')
     if r_uid is not None:
-        r_res = json.loads(read_from_redis(r_uid))
+        r_res = read_from_redis(r_uid)
         if r_res is not None:
-            return jsonify(r_res)
+            return jsonify(json.loads(r_res))
         else:
             return jsonify({'did_succeed': False})
     sequence = r_method.get('sequence')
@@ -280,12 +280,13 @@ def do_all():
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)
         homopolymer_html = htmlify(homopolymer_res, sequence)
+        uuid_str = str(uuid.uuid4())
         res = jsonify(
-            {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
-             'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-             'all': htmlify(res, sequence)})
+            {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
+                     'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                     'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence})
         try:
-            save_to_redis(str(uuid.uuid1()), json.dumps({'res': res.json, 'query': r_method}), 1209600)
+            save_to_redis(uuid_str, json.dumps({'res': res.json['res'], 'query': r_method, 'uuid': uuid_str}), 31536000)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
         return res

@@ -380,7 +380,7 @@
                                 <div class="has-padding-bottom-20 has-no-margin-bottom"
                                      id="{{ mode }}_mismatch_container_{{ e_obj.id }}">
                                     {% set count = 0 %}{% for key, value in e_obj.err_attributes.mismatch.items() %}
-                                        <div class="columns is-full has-no-margin-bottom"
+                                        <div class="columns is-multiline is-full has-no-margin-bottom"
                                              id="mismatch_{{ e_obj.id }}_{{ count }}">
                                             <div class="column has-no-margin-bottom">
                                                 <label class="form-group has-float-label">
@@ -403,17 +403,18 @@
                                                     <p class="control has-icons-right">
                                                         <input style="width:100%" class="input is-rounded"
                                                                id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}"
-                                                               type="text" name="Mismatched DNA-Sequence"
-                                                               placeholder="Mismatched DNA-Sequence"
+                                                               type="text" name="# possible Mismatches"
+                                                               placeholder="2"
                                                                value="{% if e_obj.id != "new" %}{{ value }}{% endif %}"
-                                                               required>
+                                                               required disabled>
                                                         <span class="icon is-right">
                                                     <i class="fas fa-dna"></i>
                                                 </span>
                                                     </p>
-                                                    <span><nobr>Mismatched DNA-Sequence</nobr></span>
+                                                    <span><nobr># possible Mismatches</nobr></span>
                                                 </label>
                                             </div>
+
                                             <div class="column is-one-fifth button-fill">
                                                 <button class="button button-fill" id="add_mismatch_{{ e_obj.id }}"
                                                         data-balloon="Remove this Mismatch (Rule has to be Updated for this change to take effect!)"
@@ -421,6 +422,13 @@
                                                         onclick="deleteMismatch('{{ mode }}', '{{ e_obj.id }}_{{ count }}'); return false;">
                                                     Delete
                                                 </button>
+                                            </div>
+                                            <div class="column is-full"></div>
+                                            <div class="column has-horizontal-padding-0 has-padding-03">
+                                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                                     id="mismatch-{{ mode }}-slider-{{ e_obj.id }}-{{ count }}"
+                                                     data-eid="{{ e_obj.id }}" data-etype="mismatch">
+                                                </div>
                                             </div>
                                         </div>
                                         {% set count = count + 1 %}{% endfor %}</div>
@@ -443,18 +451,15 @@
                                     </div>
                                     <div class="column">
                                         <label class="form-group has-float-label">
-                                            <p class="control has-icons-right">
+                                            <p class="control">
                                                 <input style="width:100%" class="input is-rounded"
                                                        id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}"
-                                                       type="text" name="Mismatched DNA-Sequence"
-                                                       placeholder="Mismatched DNA-Seq."
+                                                       type="number" name="# possible Mismatches"
+                                                       placeholder="2"
                                                        value=""
                                                        required>
-                                                <span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                            </span>
                                             </p>
-                                            <span><nobr>Mismatched DNA-Sequence</nobr></span>
+                                            <span><nobr># possible Mismatches</nobr></span>
                                         </label>
                                     </div>
                                     <div class="column is-one-fifth button-fill">

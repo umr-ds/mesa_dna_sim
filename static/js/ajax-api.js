@@ -206,17 +206,22 @@ function queryServer(uuid) {
                 res.css('display', 'none');
             },
             success: function (data) {
-                if (uuid !== undefined) {
+                let recv_uuid = data['uuid'];
+                if (recv_uuid !== undefined) {
+                    changeurl("query_sequence?uuid=" + recv_uuid);
+                    const shr_txt = $("#link_to_share");
+                    shr_txt.text(window.location.href);
+                }
+                if (data['did_succeed'] !== false) {
                     data = data['res'];
+                    for (let error_source in data) {
+                        endpoints[error_source].html(data[error_source]);
+                    }
+                    makeHoverGroups();
+                    res.css('display', 'initial');
+                    $('html, body').animate({scrollTop: res.offset().top}, 500);
                 }
-                for (let error_source in data) {
-                    endpoints[error_source].html(data[error_source]);
-                }
-                makeHoverGroups();
                 submit_seq_btn.removeClass('is-loading');
-
-                res.css('display', 'initial');
-                $('html, body').animate({scrollTop: res.offset().top}, 500);
             },
             fail: function (data) {
                 console.log(data);
@@ -267,6 +272,15 @@ var getColorForPercentage = function (pct) {
     //$(".text_lettering").append(li);
 }*/
 
+function copyToClipboard(element) {
+  var $temp = $("<input>");
+  $("body").append($temp);
+  $temp.val($(element).text()).select();
+  document.execCommand("copy");
+  $temp.remove();
+}
+
+
 function updateSynthDropdown(host, apikey, type) {
     $.post({
         url: "http://" + host + "/api/get_error_probs",
@@ -314,4 +328,10 @@ function updateSynthDropdown(host, apikey, type) {
             //TODO show error message on screen
         }
     });
+}
+
+
+function changeurl(new_url) {
+    window.history.pushState("data", "Title", new_url);
+    //document.title = url;
 }
