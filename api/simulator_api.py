@@ -1,14 +1,18 @@
-from flask import jsonify, request, Blueprint
+import json
+import uuid
+import redis
+from flask import jsonify, request, Blueprint, flash
 from math import floor
+from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SequencingErrorAttributes, \
-    SynthesisErrorRates, SynthesisErrorAttributes
+from database.models import SequencingErrorRates, SynthesisErrorRates
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
 from simulators.error_sources.kmer import kmer_counting
 from simulators.error_sources.undesired_subsequences import undesired_subsequences
 from simulators.sequencing.sequencing_error import err_rates, mutation_attributes, SequencingError
+from simulators.error_graph import Graph
 
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
@@ -149,10 +153,10 @@ def add_synthesis_errors():
     if synth_meth in {"0", "11", "12", "13"}:
         res = sequence
     else:
-        err_rate = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first().err_data
-        err_att = SynthesisErrorAttributes.query.filter(
-            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
+        tmp = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first()
+        err_rate = tmp.err_data
+        err_att = tmp.err_attributes
         seqerr = SequencingError(sequence, err_att, err_rate)
         res = seqerr.lit_error_rate_mutations()
     return jsonify(res)
@@ -172,16 +176,19 @@ def add_errors():
     seq_meth = r_method.get('sequence_method')
     synth_meth = r_method.get('synthesis_method')
 
+    g = Graph(None, sequence)
+
     if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        res = sequence
+        pass
     elif synth_meth in {"0", "11", "12", "13"}:
-        res = sequencing_error(seq_meth, sequence)
+        sequencing_error(sequence, g, seq_meth, process="sequencing")
     elif seq_meth in {"0", "7", "8", "9"}:
-        res = synthesis_error(synth_meth, sequence)
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
     else:
-        synthesis_error_seq = synthesis_error(synth_meth, sequence)
-        res = sequencing_error(seq_meth, synthesis_error_seq)
-    return jsonify(res)
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+        synthesis_error_seq = g.graph.nodes[0]['seq']
+        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+    return jsonify(g.graph.nodes[0]['seq'])
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
@@ -192,6 +199,13 @@ def do_all():
         r_method = request.json
     else:
         r_method = request.args
+    r_uid = r_method.get('uuid')
+    if r_uid is not None:
+        r_res = read_from_redis(r_uid)
+        if r_res is not None:
+            return jsonify(json.loads(r_res))
+        else:
+            return jsonify({'did_succeed': False})
     sequence = r_method.get('sequence')
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
@@ -201,6 +215,8 @@ def do_all():
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
+    use_error_probs = r_method.get('use_error_probs')
+    # print(r_method.get('use_error_probs'))
     as_html = r_method.get('asHTML')
 
     if enabled_undesired_seqs:
@@ -236,72 +252,78 @@ def do_all():
     homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
     res.extend(homopolymer_res)
 
-    if synth_meth in {"0", "11", "12", "13"}:
-        synth_res = sequence
-    else:
-        err_rate = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first().err_data
-        err_att = SynthesisErrorAttributes.query.filter(
-            SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        synth_res = seqerr.lit_error_rate_mutations()
-        # todo htmlify synthesis
+    g = Graph(None, sequence)
 
-    if seq_meth in {"0", "7", "8", "9"}:
-        seq_res = sequence
+    seq_res = ""
+    synth_res = ""
+    if use_error_probs:
+        manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
     else:
-        err_rate = SequencingErrorRates.query.filter(
-            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-        err_att = SequencingErrorAttributes.query.filter(
-            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        seq_res = seqerr.lit_error_rate_mutations()
-        # todo htmlify synthesis
+        if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
+            pass
+        elif synth_meth in {"0", "11", "12", "13"}:
+            sequencing_error(sequence, g, seq_meth, process="sequencing")
+            seq_res = g.graph.nodes[0]['seq']
+        elif seq_meth in {"0", "7", "8", "9"}:
+            synthesis_error(sequence, g, synth_meth, process="synthesis")
 
-    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        mod_res = sequence
-    elif synth_meth in {"0", "11", "12", "13"}:
-        mod_res = sequencing_error(seq_meth, sequence)
-    elif seq_meth in {"0", "7", "8", "9"}:
-        mod_res = synthesis_error(synth_meth, sequence)
-    else:
-        synthesis_error_seq = synthesis_error(synth_meth, sequence)
-        mod_res = sequencing_error(seq_meth, synthesis_error_seq)
+        else:
+            synthesis_error(sequence, g, synth_meth, process="synthesis")
+            synthesis_error_seq = g.graph.nodes[0]['seq']
+            synth_res = g.graph.nodes[0]['seq']
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+
+    mod_seq = g.graph.nodes[0]['seq']
+    mod_res = g.get_lineages()
 
     if as_html:
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)
         homopolymer_html = htmlify(homopolymer_res, sequence)
-        return jsonify(
-            {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
-             'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-             'all': htmlify(res, sequence)})
+        mod_html = htmlify(mod_res, mod_seq, modification=True)
+        uuid_str = str(uuid.uuid4())
+        res = jsonify(
+            {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
+                     'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                     'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence})
+        try:
+            save_to_redis(uuid_str, json.dumps({'res': res.json['res'], 'query': r_method, 'uuid': uuid_str}), 31536000)
+        except redis.exceptions.ConnectionError as ex:
+            print('Could not connect to Redis-Server')
+        return res
+
     return jsonify(res)
 
 
-# Helper
-def synthesis_error(synth_meth, sequence):
-    err_rate_syn = SynthesisErrorRates.query.filter(
-        SynthesisErrorRates.id == int(synth_meth)).first().err_data
-    err_att_syn = SynthesisErrorAttributes.query.filter(
-        SynthesisErrorAttributes.id == int(synth_meth)).first().err_data
-    synth_err = SequencingError(sequence, err_att_syn, err_rate_syn)
+def synthesis_error(sequence, g, synth_meth, process="synthesis"):
+    tmp = SynthesisErrorRates.query.filter(
+        SynthesisErrorRates.id == int(synth_meth)).first()
+    err_rate_syn = tmp.err_data
+    err_att_syn = tmp.err_attributes
+    synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn)
     return synth_err.lit_error_rate_mutations()
 
 
-def sequencing_error(seq_meth, sequence):
-    err_rate_seq = SequencingErrorRates.query.filter(
-        SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-    err_att_seq = SequencingErrorAttributes.query.filter(
-        SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-
-    seq_err = SequencingError(sequence, err_att_seq, err_rate_seq)
+def sequencing_error(sequence, g, seq_meth, process="sequencing"):
+    tmp = SequencingErrorRates.query.filter(
+        SequencingErrorRates.id == int(seq_meth)).first()
+    err_rate_seq = tmp.err_data
+    err_att_seq = tmp.err_attributes
+    seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq)
     return seq_err.lit_error_rate_mutations()
 
 
-def htmlify(input, sequence):
+def manual_errors(sequence, g, error_res, process='Calculated Error'):
+    seq_err = (SequencingError(sequence, g, process))
+    for att in error_res:
+        for err in att:
+            seq_err.manual_mutation(err)
+
+
+def htmlify(input, sequence, modification=False):
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
     error_prob = {}
+    err_lin = {}
     # reduce the span-classes list in case we wont underline / highlight the error classes anyway:
     reducesets = len(input) > 800
     for error in input:
@@ -313,16 +335,28 @@ def htmlify(input, sequence):
                 resmapping[pos].add(error['identifier'] + "_" + error["kmer"])
             else:
                 resmapping[pos].add(error['identifier'])
-            error_prob[pos] += error["errorprob"]
+            if modification:
+                err_lin[pos] = error["errors"]
+                # For the modifications the errorprobs are only for the identification of the process
+                # in which they occured (sequencing, synthesis etc.) for the purpose of coloring, there
+                # is therefore no need for additive errorprobs.
+                error_prob[pos] = error["errorprob"]
+            else:
+                error_prob[pos] += error["errorprob"]
 
     res = []
     buildup = ""
+    lineage = ""
     buildup_errorprob = -1.0
     buildup_resmap = []
 
     for seq_pos in range(len(sequence)):
         if seq_pos in resmapping:
-            curr_err_prob = round(min(100, error_prob[seq_pos] * 100), 2)
+            if modification:
+                curr_err_prob = error_prob[seq_pos]
+            else:
+                curr_err_prob = round(min(100, error_prob[seq_pos] * 100), 2)
+
             if buildup_errorprob == curr_err_prob and buildup_resmap == resmapping[seq_pos]:
                 # current base belongs to the same error classes as previous, just add it to our tmp string
                 buildup += sequence[seq_pos]
@@ -331,11 +365,13 @@ def htmlify(input, sequence):
                 # (either because prev base had no error class or we are at the start of our sequence)
                 buildup += sequence[seq_pos]
                 buildup = sequence[seq_pos]
+                if modification:
+                    lineage = err_lin[seq_pos]
                 buildup_errorprob = curr_err_prob
                 buildup_resmap = resmapping[seq_pos]
             else:
                 # current base has a different error prob / error class than previous base, finish previous group
-                res.append((buildup_resmap, buildup_errorprob, buildup))
+                res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
                 # and initialize current group with current base error classes
                 buildup = sequence[seq_pos]
                 buildup_errorprob = curr_err_prob
@@ -344,17 +380,18 @@ def htmlify(input, sequence):
             # current base does not have any error probability
             if buildup != "":
                 # if previous base / group is still in our tmp group, write it out
-                res.append((buildup_resmap, buildup_errorprob, buildup))
+                res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
                 # and reset tmp group
                 buildup = ""
+                lineage = ""
                 buildup_errorprob = -1.0
                 buildup_resmap = []
             # no need to write current base to tmp since it does not belong to any error group
-            res.append(({}, 0.0, sequence[seq_pos]))
+            res.append(({}, 0.0, sequence[seq_pos], lineage))
             # res += str(sequence[seq_pos])
     # after the last base: if our tmp is still filled, write it out
     if buildup != "":
-        res.append((buildup_resmap, buildup_errorprob, buildup))
+        res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
     return build_html(res, reducesets)
 
 
@@ -362,8 +399,9 @@ def build_html(res_list, reducesets=True):
     res = ""
     cname_id = 0
     for elem in res_list:
-        resmap, error_prob, seq = elem
-        error_prob = min(100.0, error_prob)
+        resmap, error_prob, seq, lineage = elem
+        if not lineage:
+            error_prob = min(100.0, error_prob)
         if seq != "":
             if error_prob <= 0.000000001:
                 res += str(seq)
@@ -373,8 +411,12 @@ def build_html(res_list, reducesets=True):
                     cname_id += 1
                 else:
                     cname = " g_".join([str(x) for x in resmap])
-                res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
-                       "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
+                if lineage == "":
+                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
+                           "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
+                else:
+                    res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
+                           "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
     return res
 
 
@@ -382,7 +424,20 @@ def colorize(error_prob):
     percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
                       {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},
                       {"pct": 0.5, "color": {"r": 0xff, "g": 0xff, "b": 0, "a": 1.0}},
-                      {"pct": 1.0, "color": {"r": 0xff, "g": 0x00, "b": 0, "a": 1.0}}]
+                      {"pct": 1.0, "color": {"r": 0xff, "g": 0x00, "b": 0, "a": 1.0}},
+                      {"pct": 2.0, "color": {"r": 0xff, "g": 0x99, "b": 0xcc, "a": 1.0}},
+                      {"pct": 2.3, "color": {"r": 0xff, "g": 0x00, "b": 0xff, "a": 1.0}},
+                      {"pct": 2.6, "color": {"r": 0x80, "g": 0x00, "b": 0x80, "a": 1.0}},
+                      {"pct": 2.9, "color": {"r": 0xcc, "g": 0x99, "b": 0xFF, "a": 1.0}},
+                      {"pct": 3.0, "color": {"r": 0x99, "g": 0xcc, "b": 0xff, "a": 1.0}},
+                      {"pct": 3.3, "color": {"r": 0x00, "g": 0xcc, "b": 0xff, "a": 1.0}},
+                      {"pct": 3.6, "color": {"r": 0x00, "g": 0xff, "b": 0xff, "a": 1.0}},
+                      {"pct": 3.9, "color": {"r": 0xcc, "g": 0x80, "b": 0x80, "a": 1.0}},
+                      {"pct": 4.0, "color": {"r": 0xff, "g": 0xff, "b": 0x99, "a": 1.0}},
+                      {"pct": 4.3, "color": {"r": 0x99, "g": 0xcc, "b": 0x00, "a": 1.0}},
+                      {"pct": 4.6, "color": {"r": 0xff, "g": 0xff, "b": 0x00, "a": 1.0}},
+                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 0.5}}
+                      ]
     i = 0
     for x in range(len(percent_colors)):
         i = x

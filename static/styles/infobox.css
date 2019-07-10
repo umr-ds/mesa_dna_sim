@@ -251,3 +251,128 @@ br {
 .has-padding-03 {
     padding-bottom: 0.3rem;
 }
+
+.c-1-color {
+    background: #7a1219 !important;
+}
+
+.c-2-color {
+    background: #baa861 !important;
+}
+
+.c-3-color {
+    background: #008c00 !important;
+}
+
+.c-4-color {
+    background: #0003a9 !important;
+}
+
+.homopolymer-color {
+    background: #f78000 !important;
+}
+
+.random-color {
+    background: #cd8383 !important;
+}
+
+
+.deletion-color {
+    background: #00aa8c !important;
+}
+
+.insertion-color {
+    background: #a40002 !important;
+}
+
+.mismatch-color {
+    background: #5cc400 !important;
+}
+
+.noUi-tooltip {
+    display: none !important;
+}
+
+.noUi-active .noUi-tooltip {
+    display: block !important;
+}
+
+.has-horizontal-padding-0 {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+}
+
+.hide-spiinbutton input::-webkit-outer-spin-button,
+.hide-spiinbutton input::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+
+.hide-spiinbutton input[type=number] {
+    -moz-appearance: textfield; /* Firefox */
+}
+
+.has-no-margin-left {
+    margin-left: 0 !important;
+}
+
+.has-no-margin-top {
+    margin-top: 0 !important;
+}
+
+.has-no-margin-right {
+    margin-right: 0 !important;
+}
+
+.has-no-margin-bottom {
+    margin-bottom: 0 !important;
+}
+
+.has-no-padding-left {
+    padding-left: 0 !important;
+}
+
+.has-no-padding-right {
+    padding-right: 0 !important;
+}
+
+
+.has-no-padding-bottom {
+    padding-bottom: 0 !important;
+}
+
+.has-no-padding-top {
+    padding-top: 0 !important;
+}
+
+.has-overflow-unset {
+    overflow: unset !important;
+}
+
+.has-margin-bottom-12 {
+    margin-bottom: 12px !important;
+}
+
+.has-margin-bottom-20 {
+    margin-bottom: 20px !important;
+}
+
+.has-padding-right-10 {
+    padding-right: 10px;
+}
+
+.has-padding-bottom-20 {
+    padding-bottom: 20px;
+}
+
+.is-settings-box {
+    padding-left: 0;
+    margin-left: 20px;
+    margin-top: 5px;
+    margin-right: 10px;
+    padding-right: 0;
+    padding-top: 0;
+    padding-bottom: 10px;
+    margin-bottom: 5px !important;
+}

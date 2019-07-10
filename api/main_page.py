@@ -1,12 +1,15 @@
+import json
 import re
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
-from sqlalchemy import desc, or_, and_
+from sqlalchemy import desc, or_, and_, asc
+from sqlalchemy.orm import Query
 
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
-from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability
+from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
+    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates
 from usersettings.login import require_logged_in, check_password
 from usersettings.register import gen_password
 
@@ -85,29 +88,35 @@ def index():
 
 
 @main_page.route("/query_sequence", methods=['GET', 'POST'])
-@require_logged_in
+# @require_logged_in
 def query_sequence():
     user_id = session.get('user_id')
-    apikey_obj = Apikey.query.filter_by(owner_id=user_id).first()
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    sequence = r_method.get('sequence')
+    r_uid = r_method.get('uuid')
+    if user_id is None:
+        flash("Please log in to use all available features!", 'warning')
+        apikey = Apikey.query.filter_by(owner_id=0).first().apikey
+    else:
+        user_id = int(user_id)
+        apikey = Apikey.query.filter_by(owner_id=user_id).first().apikey
     undesired_sub_seq = UndesiredSubsequences.query.filter(
         or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
-        desc(UndesiredSubsequences.id)).all()
+        asc(UndesiredSubsequences.id)).all()
     gc_charts = ErrorProbability.query.filter(
         and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
-             ErrorProbability.type == "gc")).order_by(desc(ErrorProbability.id)).all()
+             ErrorProbability.type == "gc")).order_by(asc(ErrorProbability.id)).all()
     homopolymer_charts = ErrorProbability.query.filter(
         and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
-             ErrorProbability.type == "homopolymer")).order_by(desc(ErrorProbability.id)).all()
-    if request.method == "POST":
-        sequence = request.json.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence,
-                               usubsequence=undesired_sub_seq, gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in homopolymer_charts])
-    else:
-        sequence = request.args.get('sequence')
-        return render_template('sequence_view.html', apikey=apikey_obj.apikey, sequence=sequence, host=request.host,
-                               usubsequence=undesired_sub_seq, gc_charts=[ErrorProbability.serialize(x, int(user_id)) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, int(user_id)) for x in homopolymer_charts])
+             ErrorProbability.type == "homopolymer")).order_by(asc(ErrorProbability.id)).all()
+    return render_template('sequence_view.html', apikey=apikey, sequence=sequence, host=request.host,
+                               usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
+                               gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
+                               homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
+                                                   homopolymer_charts])
 
 
 @main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
@@ -117,8 +126,26 @@ def undesired_subsequences():
     user = User.query.filter_by(user_id=user_id).first()
     if user_id and user:
         undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id).order_by(
-            desc(UndesiredSubsequences.id)).all()
-        return render_template('undesired_subsequences.html', usubsequence=undesired_sub_seq, host=request.host)
+            asc(UndesiredSubsequences.id)).all()
+        res = db.session.query(SynthesisErrorRates).filter(
+            or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
+            asc(SynthesisErrorRates.id)).all()
+        out = [x.as_dict() for x in res]
+        id_out = {}
+        default_eobj = {'id': 'new', 'name': 'New', 'err_attributes': {'mismatch': {}}}
+        for x in out:
+            id_out[int(x['id'])] = x
+
+        seq_res = db.session.query(SequencingErrorRates).filter(
+            or_(SequencingErrorRates.user_id == user_id, SequencingErrorRates.validated.is_(True))).order_by(
+            asc(SequencingErrorRates.id)).all()
+        seq_out = [x.as_dict() for x in seq_res]
+        seq_id_out = {}
+        for x in seq_out:
+            seq_id_out[int(x['id'])] = x
+
+        return render_template('undesired_subsequences.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
+                               usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.host)
     else:
         flash("Could not find user, please login again", 'warning')
         session.pop('user_id')
@@ -248,26 +275,261 @@ def delete_error_prob_chart():
 
 
 @main_page.route("/api/get_error_prob_charts", methods=['GET', 'POST'])
-@require_logged_in
-def get_error_prob_chart():
+# @require_logged_in
+def get_error_prob_charts():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
         typ = request.json.get('type')
     else:
         typ = request.args.get('type')
+    if typ is None:
+        return jsonify({'did_succeed': False})
+
     try:
-        if user_id and user and typ is not None:
+        if user_id and user:
             charts = ErrorProbability.query.filter(
                 and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated is True),
-                     ErrorProbability.type == typ)).order_by(desc(ErrorProbability.id)).all()
-
-            return jsonify(
-                {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
+                     ErrorProbability.type == typ)).order_by(asc(ErrorProbability.id)).all()
         else:
-            return jsonify({'did_succeed': False})
+            charts = ErrorProbability.query.filter(
+                and_(ErrorProbability.validated is True, ErrorProbability.type == typ)).order_by(
+                asc(ErrorProbability.id)).all()
+        return jsonify(
+            {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
+
+        # return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
+# @require_logged_in
+def get_synth_error_probs():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    if request.method == "POST":
+        req = request.json
+    else:
+        req = request.args
+    flat = "flat" in req and bool(req["flat"])
+    try:
+        # if user_id and user:
+        methods = [x.as_dict() for x in MethodCategories.query.order_by(
+            asc(MethodCategories.id)).all()]
+        return jsonify(
+            {'did_succeed': True, 'synth': get_error_probs_dict(SynthesisErrorRates, user_id, flat, methods),
+             'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods), 'methods': methods})
+        # else:
+        #    return jsonify({'did_succeed': False})
+    except Exception as x:
+        return jsonify({'did_succeed': False})
+
+
+def get_error_probs_dict(error_model, user_id, flat, methods):
+    db_result = db.session.query(error_model).filter(
+        or_(error_model.user_id == user_id, error_model.validated.is_(True))).order_by(
+        asc(error_model.id)).all()
+    tmp = [x.as_dict() for x in db_result]
+    db_result = dict()
+    for x in tmp:
+        id = int(x['method_id'])
+        meth_str = methods[id].get('method')
+        if meth_str not in db_result:
+            db_result[meth_str] = []
+        # x.pop('method_id')
+        if x['name'] == "" or x['name'] is None:
+            x['name'] = "None"
+        x['is_owner'] = int(x['user_id']) == user_id
+        if not flat:
+            # x.pop('correction_id')
+            x.pop('user_id')
+        else:
+            x['method'] = methods
+        x['id'] = int(x['id'])
+        x['validated'] = bool(x['validated'])
+        db_result[meth_str].append(x)
+    return db_result
+
+
+@main_page.route("/api/add_seq_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def add_seq_error_probs():
+    try:
+        user_id = session.get('user_id')
+        user = User.query.filter_by(user_id=user_id).first()
+        synth_conf = request.json.get('data')
+        asHTML = request.json.get('asHTML')
+        if user_id and user and synth_conf is not None:
+
+            # synth_conf = json.loads(synth_data)
+            err_data = floatify(synth_conf['err_data'])
+            err_attributes = floatify(synth_conf['err_attributes'])
+            name = sanitize_input(synth_conf['name'])
+
+            new_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                           err_data=err_data, err_attributes=err_attributes)
+            db.session.add(new_seq)
+            db.session.commit()
+            res = {'did_succeed': True, 'id': new_seq.id}
+
+            if asHTML is not None and asHTML:
+                res['content'] = render_template('error_probs.html', e_obj=new_seq.as_dict(), host=request.host,
+                                                 mode='seq')
+            else:
+                res['content'] = new_seq.as_dict()
+            return jsonify(res)
+        return jsonify({'did_succeed': False})
+    except Exception as x:
+        raise x
+        return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def add_synth_error_probs():
+    try:
+        user_id = session.get('user_id')
+        user = User.query.filter_by(user_id=user_id).first()
+        synth_conf = request.json.get('data')
+        asHTML = request.json.get('asHTML')
+        if user_id and user and synth_conf is not None:
+
+            # synth_conf = json.loads(synth_data)
+            err_data = floatify(synth_conf['err_data'])
+            err_attributes = floatify(synth_conf['err_attributes'])
+            name = sanitize_input(synth_conf['name'])
+
+            new_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                            err_data=err_data, err_attributes=err_attributes)
+
+            db.session.add(new_synth)
+            db.session.commit()
+            res = {'did_succeed': True, 'id': new_synth.id}
+
+            if asHTML is not None and asHTML:
+                res['content'] = render_template('error_probs.html', e_obj=new_synth.as_dict(), host=request.host,
+                                                 mode='synth')
+            else:
+                res['content'] = new_synth.as_dict()
+            return jsonify(res)
+        return jsonify({'did_succeed': False})
+    except Exception as x:
+        raise x
+        return jsonify({'did_succeed': False})
+
+
+def floatify(x, sanitize_mode=False):
+    for key in x:
+        if (key == "mismatch" and isinstance(x[key], dict)) or sanitize_mode:
+            if isinstance(x[key], dict):
+                x[key] = floatify(x[key], sanitize_mode=True)
+            else:
+                x[key] = sanitize_input(x[key])
+        else:
+            if isinstance(x[key], dict):
+                x[key] = floatify(x[key], sanitize_mode=sanitize_mode)
+            else:  # if isinstance(value, str):
+                x[key] = float(x[key])
+    return x
+
+
+@main_page.route("/api/update_synth_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def update_synth_error_probs():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_conf = request.json.get('data')
+    if user_id and user and synth_conf is not None:
+        try:
+            err_data = synth_conf['err_data']
+            err_attributes = synth_conf['err_attributes']
+            name = sanitize_input(synth_conf['name'])
+            copy = bool(request.json.get('copy'))
+            id = int(synth_conf['id'])
+            curr_synth = SynthesisErrorRates.query.filter_by(user_id=user_id, id=id).first()
+
+            if curr_synth is None or copy:
+                curr_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                                 err_data=err_data, err_attributes=err_attributes)
+                db.session.add(curr_synth)
+            else:
+                curr_synth.validated = False
+                curr_synth.name = name
+                curr_synth.err_data = err_data
+                curr_synth.err_attributes = err_attributes
+            db.session.commit()
+            return jsonify({'did_succeed': True})
+        except Exception as x:
+            return jsonify({'did_succeed': False})
+    return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/delete_synth", methods=['POST'])
+@require_logged_in
+def delete_synth():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_id = request.form.get('synth_id')
+    if user_id and user and synth_id is not None:
+        try:
+            synth_err_to_delete = SynthesisErrorRates.query.filter_by(user_id=user_id, id=synth_id).first()
+            db.session.delete(synth_err_to_delete)
+            db.session.commit()
+            return jsonify({'did_succeed': True, 'deleted_id': synth_id})
+        except Exception as ex:
+            return jsonify({'did_succeed': False, 'deleted_id': synth_id})
+    else:
+        return jsonify({'did_succeed': False, 'deleted_id': synth_id})
+
+
+@main_page.route("/api/delete_seq", methods=['POST'])
+@require_logged_in
+def delete_seq():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_id = request.form.get('synth_id')
+    if user_id and user and synth_id is not None:
+        try:
+            seq_error_to_delete = SequencingErrorRates.query.filter_by(user_id=user_id, id=synth_id).first()
+            db.session.delete(seq_error_to_delete)
+            db.session.commit()
+            return jsonify({'did_succeed': True, 'deleted_id': synth_id})
+        except Exception as ex:
+            return jsonify({'did_succeed': False, 'deleted_id': synth_id})
+    else:
+        return jsonify({'did_succeed': False, 'deleted_id': synth_id})
+
+
+@main_page.route("/api/update_seq_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def update_seq_error_probs():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    synth_conf = request.json.get('data')
+    if user_id and user and synth_conf is not None:
+        try:
+            err_data = synth_conf['err_data']
+            err_attributes = synth_conf['err_attributes']
+            name = sanitize_input(synth_conf['name'])
+            copy = bool(request.json.get('copy'))
+            id = int(synth_conf['id'])
+            curr_synth = SequencingErrorRates.query.filter_by(user_id=user_id, id=id).first()
+
+            if curr_synth is None or copy:
+                curr_synth = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                                  err_data=err_data, err_attributes=err_attributes)
+                db.session.add(curr_synth)
+            else:
+                curr_synth.validated = False
+                curr_synth.name = name
+                curr_synth.err_data = err_data
+                curr_synth.err_attributes = err_attributes
+            db.session.commit()
+            return jsonify({'did_succeed': True})
+        except Exception as x:
+            return jsonify({'did_succeed': False})
+    return jsonify({'did_succeed': False})
 
 
 def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):

@@ -7,15 +7,18 @@
   "dependencies": {
     "bulma": "^0.7.5",
     "bulma-switch": "^2.0.0",
+    "canvas2svg": "^1.0.16",
     "chart.js": "^2.8.0",
     "chartjs-plugin-dragdata": "^0.3.1",
     "jquery": "^3.4.1",
     "json5": "^2.1.0",
     "letteringjs": "^0.7.0",
+    "nouislider": "^14.0.1",
     "uglify-es": "^3.3.9",
     "uglifycss": "0.0.29"
   },
   "devDependencies": {
+    "@fortawesome/fontawesome-free": "^5.9.0",
     "webpack": "^4.19.1",
     "webpack-cli": "^3.1.0"
   },

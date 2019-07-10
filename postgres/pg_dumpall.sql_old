@@ -1,0 +1,1160 @@
+--
+-- PostgreSQL database cluster dump
+--
+
+SET default_transaction_read_only = off;
+
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+
+--
+-- Roles
+--
+
+CREATE ROLE "NUTZERNAME";
+ALTER ROLE "NUTZERNAME" WITH NOSUPERUSER INHERIT NOCREATEROLE CREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD 'md500d9164a30b70510494edf929a0089eb';
+CREATE ROLE dna_sim;
+ALTER ROLE dna_sim WITH NOSUPERUSER INHERIT NOCREATEROLE CREATEDB LOGIN NOREPLICATION NOBYPASSRLS PASSWORD '***REMOVED***';
+--CREATE ROLE postgres;
+ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION BYPASSRLS PASSWORD '***REMOVED***';
+
+
+
+
+
+
+--
+-- Database creation
+--
+
+CREATE DATABASE dna_sim WITH TEMPLATE = template0 OWNER = dna_sim;
+REVOKE CONNECT,TEMPORARY ON DATABASE template1 FROM PUBLIC;
+GRANT CONNECT ON DATABASE template1 TO PUBLIC;
+CREATE DATABASE "user" WITH TEMPLATE = template0 OWNER = dna_sim;
+
+
+\connect dna_sim
+
+SET default_transaction_read_only = off;
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+SET default_tablespace = '';
+
+SET default_with_oids = false;
+
+--
+-- Name: Apikey; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public."Apikey" (
+    id integer NOT NULL,
+    created integer,
+    apikey text,
+    owner_id integer NOT NULL
+);
+
+
+ALTER TABLE public."Apikey" OWNER TO dna_sim;
+
+--
+-- Name: User; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public."User" (
+    user_id integer NOT NULL,
+    email text,
+    password text NOT NULL,
+    created integer,
+    validated boolean DEFAULT false NOT NULL
+);
+
+
+ALTER TABLE public."User" OWNER TO dna_sim;
+
+--
+-- Name: api_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.api_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.api_id_seq OWNER TO dna_sim;
+
+--
+-- Name: api_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.api_id_seq OWNED BY public."Apikey".id;
+
+
+--
+-- Name: error_probability; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.error_probability (
+    id integer NOT NULL,
+    type text,
+    jsonblob jsonb,
+    user_id integer NOT NULL,
+    validated boolean DEFAULT false,
+    created integer,
+    name text NOT NULL
+);
+
+
+ALTER TABLE public.error_probability OWNER TO dna_sim;
+
+--
+-- Name: error_probability_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.error_probability_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.error_probability_id_seq OWNER TO dna_sim;
+
+--
+-- Name: error_probability_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.error_probability_id_seq OWNED BY public.error_probability.id;
+
+
+--
+-- Name: undesiredsubsequences; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.undesiredsubsequences (
+    id integer NOT NULL,
+    sequence text NOT NULL,
+    error_prob double precision DEFAULT 0.0 NOT NULL,
+    created integer,
+    validated boolean DEFAULT false NOT NULL,
+    owner_id integer,
+    description text
+);
+
+
+ALTER TABLE public.undesiredsubsequences OWNER TO dna_sim;
+
+--
+-- Name: undesiredsubsequences_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.undesiredsubsequences_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.undesiredsubsequences_id_seq OWNER TO dna_sim;
+
+--
+-- Name: undesiredsubsequences_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.undesiredsubsequences_id_seq OWNED BY public.undesiredsubsequences.id;
+
+
+--
+-- Name: user_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.user_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.user_id_seq OWNER TO dna_sim;
+
+--
+-- Name: user_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.user_id_seq OWNED BY public."User".user_id;
+
+
+--
+-- Name: Apikey id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public."Apikey" ALTER COLUMN id SET DEFAULT nextval('public.api_id_seq'::regclass);
+
+
+--
+-- Name: User user_id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public."User" ALTER COLUMN user_id SET DEFAULT nextval('public.user_id_seq'::regclass);
+
+
+--
+-- Name: error_probability id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.error_probability ALTER COLUMN id SET DEFAULT nextval('public.error_probability_id_seq'::regclass);
+
+
+--
+-- Name: undesiredsubsequences id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.undesiredsubsequences ALTER COLUMN id SET DEFAULT nextval('public.undesiredsubsequences_id_seq'::regclass);
+
+
+--
+-- Data for Name: Apikey; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public."Apikey" (id, created, apikey, owner_id) FROM stdin;
+2	1412414	aaa	2
+4	1557491881	WL6JSBbeDrJKX7D8GKJ70eMAzzhz-oC3tZw_0nG1Zq0	4
+5	1557492320	fYhdRlQyDz6h-Lnuj_p2yYNOs_p_Iity3lpSzB8IGug	5
+8	1557737826	9CrqlKG-b6G5AwWw7cgfvwzcw_MRQO2Kj_e44wncGfU	8
+12	1557738792	9-1hqJqlzgXB7qapoyX_2t_5dY7dzrV7qBVVhIhWhno	8
+13	1557739893	TZ49iN5l9zaJyn8g-YMseJwU9izzozhMpGqMbd1OHkY	11
+14	1557739999	dawdBDwadjkbDWDAAKJbdwadkjbADKbMpGqMbd1OHkY	11
+\.
+
+
+--
+-- Data for Name: User; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public."User" (user_id, email, password, created, validated) FROM stdin;
+8	test@test.de	$2b$12$vVMNCKX6T4HbpcVDhP2U9Ox1ZYwINCfDg5NpWR.bUNA0GPb1I3o0m	1557738792	t
+10	asdffff@dawd.de	$2b$12$cvuSXpz93L6h4xcRvunJo.A15YWtkJxWI6qmsCRrIB8v7o6881ehu	1557739731	f
+11	a@b.c	***REMOVED***	1557754416	t
+7	awdwa@abc.de	$2b$12$vVMNCKX6T4HbpcVDhP2U9Ox1ZYwINCfDg5NpWR.bUNA0GPb1I3o0m	1557492440	f
+5	a@b.de	$2b$12$vVMNCKX6T4HbpcVDhP2U9Ox1ZYwINCfDg5NpWR.bUNA0GPb1I3o0m	1557492320	t
+4	ab@cd.de	$2b$12$vVMNCKX6T4HbpcVDhP2U9Ox1ZYwINCfDg5NpWR.bUNA0GPb1I3o0m	1557491881	t
+9	asdf@asdf.de	$2b$12$vVMNCKX6T4HbpcVDhP2U9Ox1ZYwINCfDg5NpWR.bUNA0GPb1I3o0m	1557738951	f
+2	admin@localhost	$2b$12$vVMNCKX6T4HbpcVDhP2U9Ox1ZYwINCfDg5NpWR.bUNA0GPb1I3o0m	1557738292	t
+\.
+
+
+--
+-- Data for Name: error_probability; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.error_probability (id, type, jsonblob, user_id, validated, created, name) FROM stdin;
+18	gc	{"data": [{"x": 0, "y": 0}, {"x": 30, "y": 0}, {"x": 40, "y": 0}, {"x": 60, "y": 0}, {"x": 70, "y": 100}, {"x": 100, "y": 100}], "maxX": 100, "maxY": 100, "label": "Error Probability", "xLabel": "GC-Percentage", "xRound": 0, "yRound": 2, "interpolation": true}	11	f	1559565779	0to60
+19	homopolymer	{"data": [{"x": 0, "y": 0}, {"x": 2, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 0}, {"x": 6, "y": 0}, {"x": 7, "y": 0}, {"x": 14, "y": 0}, {"x": 15, "y": 100}, {"x": 20, "y": 100}], "maxX": 20, "maxY": 100, "label": "Error Probability", "xLabel": "Homopolymer length", "xRound": 0, "yRound": 2, "interpolation": true}	11	f	1559565822	0to14
+23	gc	{"data": [{"x": 0, "y": 100}, {"x": 40, "y": 0}, {"x": 60.17, "y": 0}, {"x": 100, "y": 100}], "maxX": 100, "maxY": 100, "label": "Error Probability", "xLabel": "GC-Percentage", "xRound": 2, "yRound": 2, "interpolation": true}	11	f	1559745908	soft bandpass
+\.
+
+
+--
+-- Data for Name: undesiredsubsequences; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.undesiredsubsequences (id, sequence, error_prob, created, validated, owner_id, description) FROM stdin;
+34	A	0.900000000000000022	1558362965	t	9	abc
+31	TACCGTTCGTATACTATAGCCTATACGAAGTTAT	0.200000000000000011	1558362899	f	11	Test
+24	ATAACTTCGTATAGCATACATTATACGAAGTTAT	0.900000000000000022	1558362741	f	11	\N
+20	TACCGTTCGTATAGCATACATTATACGAAGTTAT	0.900000000000000022	1558362533	f	11	\N
+30	TACCGTTCGTATAGGATACTTTATACGAAGTTAT	0.900000000000000022	1558362887	f	11	\N
+32	ATAACTTCGTATAGTATACCTTATACGAAGTTAT	0.900000000000000022	1558362921	f	11	\N
+36	TACCGTTCGTATATTCTATCTTATACGAAGTTAT	0.900000000000000022	1558362977	f	11	\N
+37	TACCGTTCGTATATACTATACTATACGAAGTTAT	0.900000000000000022	1558362982	f	11	\N
+38	ATAACTTCGTATATGGTATTATATACGAACGGTA	0.900000000000000022	1558362989	f	11	\N
+39	ATAACTTCGTATAGTATACATTATACGAAGTTAT	0.900000000000000022	1558362995	f	11	\N
+35	TACCGTTCGTATAGCATACATTATACGAACGGTA	0.900000000000000022	1558362971	t	11	\N
+18	TACCGTTCGTATATGGTATTATATACGAAGTTAT	0.900000000000000022	1558362774	t	11	\N
+\.
+
+--
+-- Name: err_rates; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.err_rates (
+    id integer NOT NULL,
+    method_id integer NOT NULL,
+    submethod_id integer NOT NULL,
+    err_data jsonb
+);
+
+
+ALTER TABLE public.err_rates OWNER TO dna_sim;
+
+--
+-- Name: err_rates_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.err_rates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.err_rates_id_seq OWNER TO dna_sim;
+
+--
+-- Name: err_rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.err_rates_id_seq OWNED BY public.err_rates.id;
+
+
+--
+-- Name: mutation_attributes; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.mutation_attributes (
+    id integer NOT NULL,
+    method_id integer NOT NULL,
+    submethod_id integer NOT NULL,
+    attributes jsonb
+);
+
+
+ALTER TABLE public.mutation_attributes OWNER TO dna_sim;
+
+--
+-- Name: mutation_attributes_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.mutation_attributes_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.mutation_attributes_id_seq OWNER TO dna_sim;
+
+--
+-- Name: mutation_attributes_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.mutation_attributes_id_seq OWNED BY public.mutation_attributes.id;
+
+
+--
+-- Name: seq_meth; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.seq_meth (
+    id integer NOT NULL,
+    method character varying(50) NOT NULL
+);
+
+
+ALTER TABLE public.seq_meth OWNER TO dna_sim;
+
+--
+-- Name: seq_meth_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.seq_meth_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.seq_meth_id_seq OWNER TO dna_sim;
+
+--
+-- Name: seq_meth_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.seq_meth_id_seq OWNED BY public.seq_meth.id;
+
+
+--
+-- Name: submethod; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.submethod (
+    id integer NOT NULL,
+    method_id integer NOT NULL,
+    name character varying(20)
+);
+
+
+ALTER TABLE public.submethod OWNER TO dna_sim;
+
+--
+-- Name: submethod_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.submethod_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.submethod_id_seq OWNER TO dna_sim;
+
+--
+-- Name: submethod_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.submethod_id_seq OWNED BY public.submethod.id;
+
+
+--
+-- Name: err_rates id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.err_rates ALTER COLUMN id SET DEFAULT nextval('public.err_rates_id_seq'::regclass);
+
+
+--
+-- Name: mutation_attributes id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.mutation_attributes ALTER COLUMN id SET DEFAULT nextval('public.mutation_attributes_id_seq'::regclass);
+
+
+--
+-- Name: seq_meth id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.seq_meth ALTER COLUMN id SET DEFAULT nextval('public.seq_meth_id_seq'::regclass);
+
+
+--
+-- Name: submethod id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.submethod ALTER COLUMN id SET DEFAULT nextval('public.submethod_id_seq'::regclass);
+
+
+--
+-- Data for Name: err_rates; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.err_rates (id, method_id, submethod_id, err_data) FROM stdin;
+1	1	1	{"raw_rate": 0.0021, "mismatch": 0.81, "deletion": 0.0024, "insertion": 0.0013}
+2	1	2	{"raw_rate": 0.0032, "mismatch": 0.79, "deletion": 0.0018, "insertion": 0.0011}
+3	2	3	{"raw_rate": 0.02, "mismatch": 0.75, "deletion": 0.20, "insertion": 0.05}
+4	2	4	{"raw_rate": 0.14, "mismatch": 0.37, "deletion": 0.21, "insertion": 0.42}
+5	3	5	{"raw_rate": 0.2, "mismatch": 0.48, "deletion": 0.37, "insertion": 0.15}
+6	3	6	{"raw_rate": 0.13, "mismatch": 0.41, "deletion": 0.36, "insertion": 0.23}
+7	4	7	{}
+\.
+
+
+--
+-- Data for Name: mutation_attributes; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.mutation_attributes (id, method_id, submethod_id, attributes) FROM stdin;
+1	1	1	{"deletion": {"position": {"random": 1}, "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}}, "insertion": {"position": {"random": 1}, "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}}, "mismatch": {"pattern": {"A": {"G": 0.50, "T": 0.25, "C": 0.25}, "T": {"G": 0.50, "A": 0.25, "C": 0.25}, "C": {"G": 0.50, "A": 0.25, "T": 0.25}, "G": {"T": 0.50, "A": 0.25, "C": 0.25}}}}
+2	1	2	{"deletion": {"position": {"random": 1}, "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}}, "insertion": {"position": {"random": 1}, "pattern": {"G": 0.25, "C": 0.25, "A": 0.25, "T": 0.25}}, "mismatch": {"pattern": {"A": {"G": 0.50, "T": 0.25, "C": 0.25}, "T": {"G": 0.50, "A": 0.25, "C": 0.25}, "C": {"G": 0.50, "A": 0.25, "T": 0.25}, "G": {"T": 0.50, "A": 0.25, "C": 0.25}}}}
+3	2	3	{"deletion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.85, "random": 0.15},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"CG": ["CA", "TG"]}}}
+4	2	4	{"deletion": {"position": {"homopolymer": 0.85, "random": 0.15}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.85, "random": 0.15},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"CG": ["CA", "TG"]}}}
+5	3	5	{"deletion": {"position": {"homopolymer": 0.46, "random": 0.54}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.46, "random": 0.54},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}
+6	3	6	{"deletion": {"position": {"homopolymer": 0.46, "random": 0.54}, "pattern": {"G": 0.35, "C": 0.35, "A": 0.15, "T": 0.15}},"insertion": {"position": {"homopolymer": 0.46, "random": 0.54},"pattern": {"A": 0.35, "T": 0.35, "C": 0.15, "G": 0.15}},"mismatch": {"pattern": {"TAG": "TGG", "TAC": "TGC"}}}
+7	4	7	{}
+\.
+
+
+--
+-- Data for Name: seq_meth; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.seq_meth (id, method) FROM stdin;
+1	Illumina
+2	PacBio
+3	Nanopore
+4	User
+\.
+
+
+--
+-- Data for Name: submethod; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.submethod (id, method_id, name) FROM stdin;
+1	1	Single End
+2	1	Paired End
+3	2	CCS
+4	2	Subread
+5	3	1D
+6	3	2D
+7	4	User
+\.
+
+
+--
+-- Name: err_rates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.err_rates_id_seq', 7, true);
+
+
+--
+-- Name: mutation_attributes_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.mutation_attributes_id_seq', 7, true);
+
+
+--
+-- Name: seq_meth_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.seq_meth_id_seq', 4, true);
+
+
+--
+-- Name: submethod_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.submethod_id_seq', 7, true);
+
+
+--
+-- Name: err_rates err_rates_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.err_rates
+    ADD CONSTRAINT err_rates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: mutation_attributes mutation_attributes_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.mutation_attributes
+    ADD CONSTRAINT mutation_attributes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: seq_meth seq_meth_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.seq_meth
+    ADD CONSTRAINT seq_meth_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: submethod submethod_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.submethod
+    ADD CONSTRAINT submethod_pkey PRIMARY KEY (id);
+
+--
+-- Name: api_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.api_id_seq', 14, true);
+
+
+--
+-- Name: error_probability_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.error_probability_id_seq', 23, true);
+
+
+--
+-- Name: undesiredsubsequences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.undesiredsubsequences_id_seq', 43, true);
+
+--
+-- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.user_id_seq', 11, true);
+
+
+--
+-- Name: Apikey apikey_pk; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public."Apikey"
+    ADD CONSTRAINT apikey_pk PRIMARY KEY (id);
+
+
+--
+-- Name: error_probability error_probability_pk; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.error_probability
+    ADD CONSTRAINT error_probability_pk PRIMARY KEY (id);
+
+
+--
+-- Name: undesiredsubsequences undesiredsubsequences_pk; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.undesiredsubsequences
+    ADD CONSTRAINT undesiredsubsequences_pk PRIMARY KEY (id);
+
+--
+-- Name: User user_pk; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public."User"
+    ADD CONSTRAINT user_pk PRIMARY KEY (user_id);
+
+
+--
+-- Name: apikey_apikey_uindex; Type: INDEX; Schema: public; Owner: dna_sim
+--
+
+CREATE UNIQUE INDEX apikey_apikey_uindex ON public."Apikey" USING btree (apikey);
+
+
+--
+-- Name: error_probability_id_uindex; Type: INDEX; Schema: public; Owner: dna_sim
+--
+
+CREATE UNIQUE INDEX error_probability_id_uindex ON public.error_probability USING btree (id);
+
+
+--
+-- Name: user_email_uindex; Type: INDEX; Schema: public; Owner: dna_sim
+--
+
+CREATE UNIQUE INDEX user_email_uindex ON public."User" USING btree (email);
+
+
+--
+-- Name: user_user_id_uindex; Type: INDEX; Schema: public; Owner: dna_sim
+--
+
+CREATE UNIQUE INDEX user_user_id_uindex ON public."User" USING btree (user_id);
+
+
+--
+-- Name: Apikey apikey_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public."Apikey"
+    ADD CONSTRAINT apikey_user_id_fk FOREIGN KEY (owner_id) REFERENCES public."User"(user_id);
+
+
+--
+-- Name: error_probability error_probability_user_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.error_probability
+    ADD CONSTRAINT error_probability_user_user_id_fk FOREIGN KEY (user_id) REFERENCES public."User"(user_id);
+
+
+--
+-- Name: undesiredsubsequences undesiredsubsequences_user_user_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.undesiredsubsequences
+    ADD CONSTRAINT undesiredsubsequences_user_user_id_fk FOREIGN KEY (owner_id) REFERENCES public."User"(user_id);
+
+
+--
+-- Name: synth_err_att; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.synth_err_att (
+    id integer NOT NULL,
+    method_id integer NOT NULL,
+    correction_id integer NOT NULL,
+    err_data json
+);
+
+
+ALTER TABLE public.synth_err_att OWNER TO dna_sim;
+
+--
+-- Name: synth_err_att_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.synth_err_att_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.synth_err_att_id_seq OWNER TO dna_sim;
+
+--
+-- Name: synth_err_att_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.synth_err_att_id_seq OWNED BY public.synth_err_att.id;
+
+
+--
+-- Name: synth_err_correction; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.synth_err_correction (
+    id integer NOT NULL,
+    data text
+);
+
+
+ALTER TABLE public.synth_err_correction OWNER TO dna_sim;
+
+--
+-- Name: synth_err_correction_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.synth_err_correction_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.synth_err_correction_id_seq OWNER TO dna_sim;
+
+--
+-- Name: synth_err_correction_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.synth_err_correction_id_seq OWNED BY public.synth_err_correction.id;
+
+
+--
+-- Name: synth_err_rates; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.synth_err_rates (
+    id integer NOT NULL,
+    method_id integer NOT NULL,
+    correction_id integer NOT NULL,
+    err_data json
+);
+
+
+ALTER TABLE public.synth_err_rates OWNER TO dna_sim;
+
+--
+-- Name: synth_err_rates_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.synth_err_rates_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.synth_err_rates_id_seq OWNER TO dna_sim;
+
+--
+-- Name: synth_err_rates_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.synth_err_rates_id_seq OWNED BY public.synth_err_rates.id;
+
+
+--
+-- Name: synth_meth; Type: TABLE; Schema: public; Owner: dna_sim
+--
+
+CREATE TABLE public.synth_meth (
+    id integer NOT NULL,
+    method text NOT NULL
+);
+
+
+ALTER TABLE public.synth_meth OWNER TO dna_sim;
+
+--
+-- Name: synth_meth_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public.synth_meth_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public.synth_meth_id_seq OWNER TO dna_sim;
+
+--
+-- Name: synth_meth_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: dna_sim
+--
+
+ALTER SEQUENCE public.synth_meth_id_seq OWNED BY public.synth_meth.id;
+
+
+--
+-- Name: synth_err_att id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_err_att ALTER COLUMN id SET DEFAULT nextval('public.synth_err_att_id_seq'::regclass);
+
+
+--
+-- Name: synth_err_correction id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_err_correction ALTER COLUMN id SET DEFAULT nextval('public.synth_err_correction_id_seq'::regclass);
+
+
+--
+-- Name: synth_err_rates id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_err_rates ALTER COLUMN id SET DEFAULT nextval('public.synth_err_rates_id_seq'::regclass);
+
+
+--
+-- Name: synth_meth id; Type: DEFAULT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_meth ALTER COLUMN id SET DEFAULT nextval('public.synth_meth_id_seq'::regclass);
+
+
+--
+-- Data for Name: synth_err_att; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.synth_err_att (id, method_id, correction_id, err_data) FROM stdin;
+1	1	1	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+2	1	2	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+3	1	3	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+4	2	4	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+5	2	5	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+6	2	3	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+7	2	6	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+8	2	7	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+9	1	8	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+10	2	8	{"deletion": {"position": {"homopolymer": 0.0, "random": 1}, "pattern": {"G": 0.2, "C": 0.2, "A": 0.4, "T": 0.2}},"insertion": {"position": {"homopolymer": 0, "random": 1},"pattern": {"A": 0.25, "T": 0.25, "C": 0.25, "G": 0.25}},"mismatch": {}}
+\.
+
+
+--
+-- Data for Name: synth_err_correction; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.synth_err_correction (id, data) FROM stdin;
+1	MutS
+2	consensus shuffle
+3	ErrASE
+4	oligo hybridization based error correction
+5	High-temperature ligation/hybridization based error correction
+6	Nuclease-based error correction
+7	NGS-based error correction
+8	\N
+\.
+
+
+--
+-- Data for Name: synth_err_rates; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.synth_err_rates (id, method_id, correction_id, err_data) FROM stdin;
+1	1	1	{"raw_rate": 0.0001, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+2	1	2	{"raw_rate": 0.000125, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+3	1	3	{"raw_rate": 0.000025, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+4	2	4	{"raw_rate": 0.0004, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+5	2	5	{"raw_rate": 0.0017, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+6	2	3	{"raw_rate": 0.00125, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+7	2	6	{"raw_rate": 0.0003, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+8	2	7	{"raw_rate": 0.0001, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+9	1	8	{"raw_rate": 0.0006, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+10	2	8	{"raw_rate": 0.003, "mismatch": 0.15, "deletion": 0.7, "insertion": 0.15}
+\.
+
+
+--
+-- Data for Name: synth_meth; Type: TABLE DATA; Schema: public; Owner: dna_sim
+--
+
+COPY public.synth_meth (id, method) FROM stdin;
+1	column_synthesized_oligos
+2	microarray_based_oligo_pools
+\.
+
+
+--
+-- Name: synth_err_att_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.synth_err_att_id_seq', 10, true);
+
+
+--
+-- Name: synth_err_correction_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.synth_err_correction_id_seq', 8, true);
+
+
+--
+-- Name: synth_err_rates_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.synth_err_rates_id_seq', 20, true);
+
+
+--
+-- Name: synth_meth_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public.synth_meth_id_seq', 2, true);
+
+
+--
+-- Name: synth_err_att synth_err_att_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_err_att
+    ADD CONSTRAINT synth_err_att_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: synth_err_correction synth_err_correction_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_err_correction
+    ADD CONSTRAINT synth_err_correction_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: synth_err_rates synth_err_rates_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_err_rates
+    ADD CONSTRAINT synth_err_rates_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: synth_meth synth_meth_pkey; Type: CONSTRAINT; Schema: public; Owner: dna_sim
+--
+
+ALTER TABLE ONLY public.synth_meth
+    ADD CONSTRAINT synth_meth_pkey PRIMARY KEY (id);
+
+
+--
+-- postgreSQL database dump complete
+--
+
+\connect postgres
+
+SET default_transaction_read_only = off;
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: DATABASE postgres; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON DATABASE postgres IS 'default administrative connection database';
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- Name: User_user_id_seq; Type: SEQUENCE; Schema: public; Owner: dna_sim
+--
+
+CREATE SEQUENCE public."User_user_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+ALTER TABLE public."User_user_id_seq" OWNER TO dna_sim;
+
+--
+-- Name: User_user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
+--
+
+SELECT pg_catalog.setval('public."User_user_id_seq"', 1, false);
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\connect template1
+
+SET default_transaction_read_only = off;
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: DATABASE template1; Type: COMMENT; Schema: -; Owner: postgres
+--
+
+COMMENT ON DATABASE template1 IS 'default template for new databases';
+
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+\connect "user"
+
+SET default_transaction_read_only = off;
+
+--
+-- PostgreSQL database dump
+--
+
+-- Dumped from database version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+-- Dumped by pg_dump version 10.8 (Ubuntu 10.8-0ubuntu0.18.04.1)
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+--
+-- Name: plpgsql; Type: EXTENSION; Schema: -; Owner:
+--
+
+CREATE EXTENSION IF NOT EXISTS plpgsql WITH SCHEMA pg_catalog;
+
+
+--
+-- Name: EXTENSION plpgsql; Type: COMMENT; Schema: -; Owner:
+--
+
+COMMENT ON EXTENSION plpgsql IS 'PL/pgSQL procedural language';
+
+
+--
+-- PostgreSQL database dump complete
+--
+
+--
+-- PostgreSQL database cluster dump complete
+--

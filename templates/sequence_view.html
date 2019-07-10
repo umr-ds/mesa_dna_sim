@@ -113,12 +113,11 @@ window.onload = function () {
                             </button>
                         </div>
                         <div class="column is-pulled-left">
-                            <button class="button is-block is-info-deactivated button-fill" type="button"
-                                    id="save-chart"
-                                    name="save-chart"
+                            <button class="button is-block is-info-deactivated button-fill"
+                                    type="button" id="save-chart" name="save-chart"
                                     onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
-                                    data-balloon="Save Copy"
-                                    data-balloon-pos="up"> Save copy of Template
+                                    data-balloon="Save Copy" data-balloon-pos="up"
+                                    {% if user_id == None %}disabled{% endif %}> Save copy of Template
                             </button>
                         </div>
 
@@ -147,10 +146,16 @@ window.onload = function () {
                     <div class="field">
                         <div class="control">
                             <label class="form-group has-float-label">
-                    <textarea class="textarea" rows="3" id="sequence" name="sequence" placeholder="AAACCAGT"
-                              required></textarea>
+                                <!--<p class="control has-icons-left">-->
+                                <textarea class="textarea" rows="3" id="sequence" name="sequence" placeholder="AAACCAGT"
+                                          required></textarea>
+                                <!--<span class="icon is-right">
+                                <i class="fas fa-dna"></i>
+                                    </span>-->
                                 <span>Sequence to Analyse</span>
+                                <!--</p>-->
                             </label>
+
                         </div>
                     </div>
                 </div>
@@ -194,6 +199,7 @@ window.onload = function () {
                 <div class="column is-1">
                 </div>
                 <div class="column is-3 select is-rounded is-primary">
+
                     <!-- values 1-10 correspond to the error_correction id in the database -->
                     <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
                     <!-- or intercept these values before the database request.  -->
@@ -222,6 +228,20 @@ window.onload = function () {
                                 <option value="13">Rates and Attributes</option>
                             </optgroup>
                         </select><span>Synthesis Method</span>
+                    </label>
+                    <p style="text-align:left;">Calculated Error Probabilities</p>
+                      <label data-balloon="Use Calculated Error Probabilities"
+                           data-balloon-pos="right", style="float: left">
+                        <input type="checkbox" aria-label="Use Calculated Error Probabilities" id="calcprobs"
+                               class="switch is-rounded is-large button-fill no-outline" name="cprobs"
+                                onclick="if ($(this).is(':checked')) {
+                                    $('#seqmeth').val(0).prop('disabled', true);
+                                    $('#synthmeth').val(0).prop('disabled', true);
+                                } else if ($(this).not(':checked')){
+                                    $('#seqmeth').prop('disabled', false);
+                                    $('#synthmeth').prop('disabled', false);
+                                }"/>
+                        <label for="calcprobs" style="float:left" class="no-outline"></label>
                     </label>
                 </div>
                 <div class="column is-3 select is-rounded is-primary">
@@ -338,8 +358,8 @@ window.onload = function () {
                                            aria-label="Error Probability"
                                            name="error_prob" placeholder=""
                                             {% if subsequence.validated %} readonly {% endif %}
-                                           value="{{ subsequence.error_prob }}"
-                                           required min="0.0" max="1.0" step="0.01">
+                                           value="{{ subsequence.error_prob * 100 }}"
+                                           required min="0.0" max="100.0" step="0.01">
                                     <span><nobr>Error Probability</nobr></span></label></td>
                                 <td style="width:30%"><label class="form-group has-float-label">
                                     <input class="input is-rounded is-grayable" style="width:100%" type="text"
@@ -380,40 +400,50 @@ window.onload = function () {
     <div id="results" style="display: none">
         <h2 class="subtitle"> Your Results: </h2>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Homopolymers: </h3>
+            <h3 class="subtitle has-text-black"> Homopolymers: </h3>
             <div class="text_lettering" id="homopolymer" t></div>
         </div>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> GC-Content: </h3>
+            <h3 class="subtitle has-text-black"> GC-Content: </h3>
             <div class="text_lettering" id="gccontent"></div>
         </div>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Kmer: </h3>
+            <h3 class="subtitle has-text-black"> Kmer: </h3>
             <div class="text_lettering" id="kmer"></div>
         </div>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Subsequences: </h3>
+            <h3 class="subtitle has-text-black"> Subsequences: </h3>
             <div class="text_lettering" id="subsequences"></div>
         </div>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Overall: </h3>
+            <h3 class="subtitle has-text-black"> Overall: </h3>
             <div class="text_lettering" id="overall"></div>
         </div>
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Sequence with only Synthesis errors: </h3>
+            <h3 class="subtitle has-text-black"> Sequence with only Synthesis errors: </h3>
             <ul class="text_lettering" id="synth_seq" style="overflow-x: auto;"></ul>
         </div>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Sequence with only Sequencing errors: </h3>
+            <h3 class="subtitle has-text-black"> Sequence with only Sequencing errors: </h3>
             <ul class="text_lettering" id="seq_seq" style="overflow-x: auto;"></ul>
         </div>
         <div class="box">
-            <h3 class="subtitle" style="color: black"> Fully modified Sequence: </h3>
+            <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
             <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
         </div>
-    </div>
+        <!--
+        <div class="box">
+            <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>
+            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
+        </div>
+        -->
 
+        <div class="box">
+            <h3 class="subtitle has-text-black">Share this result:</h3>
+            <ul class="share_mosla_link" id="link_to_share"></ul>
+        </div>
+    </div>
 
     <!--
     <script>
@@ -448,6 +478,11 @@ window.onload = function () {
             updateDropdown("{{ host }}", "{{ apikey }}", "gc");
             updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
             updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
+            updateSynthDropdown("{{ host }}", "{{ apikey }}");
+            {%  if uuid != None %}
+                queryServer('{{ uuid }}');
+            {% endif %}
+
 
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) closeOverlay();
