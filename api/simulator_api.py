@@ -254,20 +254,24 @@ def do_all():
 
     g = Graph(None, sequence)
 
-    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        pass
-    elif synth_meth in {"0", "11", "12", "13"}:
-        sequencing_error(sequence, g, seq_meth, process="sequencing")
-    elif seq_meth in {"0", "7", "8", "9"}:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-
-    else:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-        synthesis_error_seq = g.graph.nodes[0]['seq']
-        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
-
+    seq_res = ""
+    synth_res = ""
     if use_error_probs:
         manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
+    else:
+        if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
+            pass
+        elif synth_meth in {"0", "11", "12", "13"}:
+            sequencing_error(sequence, g, seq_meth, process="sequencing")
+            seq_res = g.graph.nodes[0]['seq']
+        elif seq_meth in {"0", "7", "8", "9"}:
+            synthesis_error(sequence, g, synth_meth, process="synthesis")
+
+        else:
+            synthesis_error(sequence, g, synth_meth, process="synthesis")
+            synthesis_error_seq = g.graph.nodes[0]['seq']
+            synth_res = g.graph.nodes[0]['seq']
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
 
     mod_seq = g.graph.nodes[0]['seq']
     mod_res = g.get_lineages()

@@ -1,3 +1,3 @@
 FROM postgres:alpine
 
-COPY pg_dumpall.sql /docker-entrypoint-initdb.d/
+COPY pg_dump.sql /docker-entrypoint-initdb.d/
