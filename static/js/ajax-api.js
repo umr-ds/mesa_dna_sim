@@ -181,6 +181,7 @@ function queryServer(uuid) {
             kmer_error_prob: kmer_error_prob,
             sequence_method: $("#seqmeth option:selected").val(),
             synthesis_method: $("#synthmeth option:selected").val(),
+            use_error_probs: $('#calcprobs').is(":checked"),
             asHTML: true
         });
     } else {
