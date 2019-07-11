@@ -7,7 +7,7 @@ docker-compose down
 
 
 # remove existing data from database
-# sudo rm -rf /srv/docker/postgresql
+sudo rm -rf /srv/docker/postgresql
 
 
 
