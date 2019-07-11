@@ -382,9 +382,9 @@
                                     {% for key1, value1 in e_obj.err_attributes.mismatch.items() %}
                                         {% for key, value in value1.items() %}
                                             {% set count = loop.index - 1 %}
-                                            <div class="columns is-multiline is-full"
+                                            <div class="columns is-multiline is-full box has-no-padding-top has-no-padding-bottom is-marginless"
                                                  id="mismatch_{{ e_obj.id }}_{{ count }}">
-                                                <div class="column has-no-margin-bottom">
+                                                <div class="column has-no-margin-bottom has-no-margin-left has-no-padding-left">
                                                     <label class="form-group has-float-label">
                                                         <p class="control has-icons-right">
                                                             <input style="width:100%" class="input is-rounded"
@@ -400,13 +400,13 @@
                                                         <span><nobr>Original DNA-Sequence</nobr></span>
                                                     </label>
                                                 </div>
-                                                <div class="column">
+                                                <div class="column  has-no-margin-left has-no-padding-left">
                                                     <label class="form-group has-float-label">
                                                         <p class="control has-icons-right">
                                                             <input style="width:100%" class="input is-rounded"
                                                                    id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}"
-                                                                   type="text" name="# possible Mismatches"
-                                                                   placeholder="2"
+                                                                   type="number" name="# possible Mismatches"
+                                                                   placeholder="2" min="1" step="1"
                                                                    value="{% if e_obj.id != "new" %}{{ value.values()|length }}{% endif %}"
                                                                    required disabled>
                                                             <span class="icon is-right">
@@ -417,7 +417,7 @@
                                                     </label>
                                                 </div>
 
-                                                <div class="column is-one-fifth button-fill">
+                                                <div class="column is-one-fifth button-fill has-no-margin-left has-no-padding-left">
                                                     <button class="button button-fill" id="add_mismatch_{{ e_obj.id }}"
                                                             data-balloon="Remove this Mismatch (Rule has to be Updated for this change to take effect!)"
                                                             data-balloon-pos="up"
@@ -428,7 +428,7 @@
                                                 <div class="column is-full is-paddingless"></div>
                                                 {% for change_dna, change_percentage in value.items() %}
                                                     {% set possible_mismatch_no = loop.index - 1 %}
-                                                    <div class="column">
+                                                    <div class="column has-no-margin-left has-no-padding-left">
                                                         <label class="form-group has-float-label">
                                                             <p class="control has-icons-right">
                                                                 <input style="width:100%" class="input is-rounded"
@@ -450,7 +450,8 @@
                                                 <div class="column has-horizontal-padding-0 has-padding-03">
                                                     <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
                                                          id="mismatch-{{ mode }}-slider-{{ e_obj.id }}_{{ count }}"
-                                                         data-eid="{{ e_obj.id }}" data-mode="{{ mode }}" data-mid="{{ e_obj.id }}_{{ count }}"
+                                                         data-eid="{{ e_obj.id }}" data-mode="{{ mode }}"
+                                                         data-mid="{{ e_obj.id }}_{{ count }}"
                                                          data-etype="mismatch" data-vals='{{ value |tojson }}'>
                                                     </div>
                                                 </div>
@@ -458,14 +459,15 @@
 
                                                 {% for change_dna, change_percentage in value.items() %}
                                                     {% set possible_mismatch_no = loop.index - 1 %}
-                                                    <div class="column">
+                                                    <div class="column  has-no-margin-left has-no-padding-left">
                                                         <label class="form-group has-float-label">
                                                             <p class="control has-icons-right">
                                                                 <input style="width:100%" class="input is-rounded"
                                                                        id="{{ mode }}_error_mismatched_seq_prob_{{ e_obj.id }}_{{ count }}_{{ possible_mismatch_no }}"
-                                                                       type="number" name="{{ change_dna }}"
+                                                                       type="number"
                                                                        min="0" max="100" step="0.01"
                                                                        placeholder="{{ change_dna }}"
+                                                                       name="mismatch_{{ possible_mismatch_no }}"
                                                                        value="{% if e_obj.id != "new" %}{{ change_percentage*100 }}{% endif %}"
                                                                        required>
                                                                 <span class="icon is-right">
@@ -477,7 +479,7 @@
                                                     </div>
                                                 {% endfor %}
                                             </div>
-                                            {% endfor %}{% endfor %}</div>
+                                        {% endfor %}{% endfor %}</div>
                                 <div class="columns is-full">
                                     <div class="column">
                                         <label class="form-group has-float-label">
