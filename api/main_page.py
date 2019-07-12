@@ -119,7 +119,7 @@ def query_sequence():
                                                    homopolymer_charts])
 
 
-@main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
+@main_page.route("/settings", methods=['GET', 'POST'])
 @require_logged_in
 def undesired_subsequences():
     user_id = session.get('user_id')
@@ -425,7 +425,8 @@ def floatify(x, sanitize_mode=False):
             if isinstance(x[key], dict):
                 x[key] = floatify(x[key], sanitize_mode=True)
             else:
-                x[key] = sanitize_input(x[key])
+                if not (isinstance(x[key], int) or isinstance(x[key], float)):
+                    x[key] = sanitize_input(x[key])
         else:
             if isinstance(x[key], dict):
                 x[key] = floatify(x[key], sanitize_mode=sanitize_mode)

@@ -76,3 +76,11 @@
     overflow-y: hidden;
     border-color: black;
 }
+
+
+.full_modified_text_lettering {
+    font-family: monospace;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-color: black;
+}

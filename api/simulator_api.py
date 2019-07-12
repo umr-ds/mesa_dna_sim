@@ -201,11 +201,16 @@ def do_all():
         r_method = request.args
     r_uid = r_method.get('uuid')
     if r_uid is not None:
-        r_res = read_from_redis(r_uid)
+        r_res = None
+        try:
+            r_res = read_from_redis(r_uid)
+        except Exception as e:
+            print("Error while talking to Redis-Server:", e)
         if r_res is not None:
             return jsonify(json.loads(r_res))
-        else:
-            return jsonify({'did_succeed': False})
+        # ignore uuid if we can not connect to redis...
+        # else:
+        #    return jsonify({'did_succeed': False})
     sequence = r_method.get('sequence')
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
@@ -417,7 +422,7 @@ def build_html(res_list, reducesets=True):
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
-    return res
+    return "<nobr>" + res + "</nobr>"
 
 
 def colorize(error_prob):

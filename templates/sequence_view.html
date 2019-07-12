@@ -235,11 +235,19 @@ window.onload = function () {
                         <input type="checkbox" aria-label="Use Calculated Error Probabilities" id="calcprobs"
                                class="switch is-rounded is-large button-fill no-outline" name="cprobs"
                                 onclick="if ($(this).is(':checked')) {
-                                    $('#seqmeth').val(0).prop('disabled', true);
-                                    $('#synthmeth').val(0).prop('disabled', true);
+                                    let seq  = $('#seqmeth');
+                                    let synth = $('#synthmeth');
+                                    seq.data('selected', $('#seqmeth option:selected').val());
+                                    synth.data('selected', $('#synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
                                 } else if ($(this).not(':checked')){
-                                    $('#seqmeth').prop('disabled', false);
-                                    $('#synthmeth').prop('disabled', false);
+                                    let seq  = $('#seqmeth');
+                                    let synth = $('#synthmeth');
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
                                 }"/>
                         <label for="calcprobs" style="float:left" class="no-outline"></label>
                     </label>
@@ -401,7 +409,7 @@ window.onload = function () {
         <h2 class="subtitle"> Your Results: </h2>
         <div class="box">
             <h3 class="subtitle has-text-black"> Homopolymers: </h3>
-            <div class="text_lettering" id="homopolymer" t></div>
+            <div class="text_lettering" id="homopolymer"></div>
         </div>
         <div class="box">
             <h3 class="subtitle has-text-black"> GC-Content: </h3>
@@ -430,7 +438,7 @@ window.onload = function () {
         </div>
         <div class="box">
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
-            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
+            <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
         </div>
         <!--
         <div class="box">

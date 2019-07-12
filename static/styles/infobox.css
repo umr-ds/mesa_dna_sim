@@ -376,3 +376,18 @@ br {
     padding-bottom: 10px;
     margin-bottom: 5px !important;
 }
+
+.mismatch_container {
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+    margin: 5px 0 !important;
+}
+
+.mismatch_inputfield {
+    min-width: 25px;
+}
+
+.is-one-sixt {
+    flex: none;
+    width: 16.66%
+}

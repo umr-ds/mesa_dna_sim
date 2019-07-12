@@ -20,6 +20,6 @@ rm static/js/all.min.js
 rm static/styles/all.min.css
 cd static/js
 
-uglifyjs -c --output all.min.js -- jquery.min.js jquery.lettering.js Chart.min.js chartjs-plugin-dragData.min.js fontawesome.min.js error-chart.js autoscroll.js ajax-api.js index.min.js nouislider.min.js
+uglifyjs -c --output all.min.js -- jquery.min.js jquery.lettering.js Chart.min.js chartjs-plugin-dragData.min.js fontawesome.min.js error-chart.js autoscroll.js ajax-api.js index.min.js nouislider.min.js error_probs.js
 cd ../styles
 uglifycss --output all.min.css bulma.min.css infobox.css bootstrap-float-label.min.css balloon.min.css Chart.min.css overlay.css nouislider.css #fontawesome.min.js #bulma-switch.min.css

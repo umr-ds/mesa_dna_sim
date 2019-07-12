@@ -149,9 +149,8 @@ function addMismatch(method, obj_id) {
         "        <p class=\"control has-icons-right\">\n" +
         "            <input style=\"width:100%\" class=\"input is-rounded\"\n" +
         "                   id=\"" + method + "_error_mismatched_seq_" + obj_id + "\"\n" +
-        "                   type=\"text\" name=\"# possible Mismatches\"\n" +
-        "                   placeholder=\"2\"\n" +
-        "                   value=\"" + noPossibleMismatches_val + "\"\n" +
+        "                   type=\"number\" name=\"# possible Mismatches\"\n" +
+        "                   placeholder=\"2\" min=\"1\" max=\"25\" value=\"" + noPossibleMismatches_val + "\"\n" +
         "                   required disabled>\n" +
         "            <span class=\"icon is-right\">\n" +
         "    <i class=\"fas fa-percentage\"></i>\n" +
@@ -171,12 +170,15 @@ function addMismatch(method, obj_id) {
         "</div>\n" +
         "<div class=\"column is-full is-paddingless\"></div>\n";
 
-//buildup_html = buildup_html +
+    let mismatch_class = "";
+    if (noPossibleMismatches_val > 4)
+        mismatch_class = " is-one-quarter";
     for (let possible_mismatch_no = 0; possible_mismatch_no < noPossibleMismatches_val; possible_mismatch_no++) {
-        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left\">\n" +
+        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left"+ mismatch_class +
+            "\">\n" +
             "        <label class=\"form-group has-float-label\">\n" +
             "            <p class=\"control has-icons-right\">\n" +
-            "                <input style=\"width:100%\" class=\"input is-rounded\"\n" +
+            "                <input style=\"width:100%\" class=\"input is-rounded mismatch_inputfield\"\n" +
             "                       id=\"" + method + "_error_mismatched_seq_" + obj_id + "_" + possible_mismatch_no + "\"\n" +
             "                       type=\"text\"\n" +
             "                       name=\"mismatch_changed_" + possible_mismatch_no + "\"\n" +
@@ -191,29 +193,31 @@ function addMismatch(method, obj_id) {
             "        </label>\n" +
             "    </div>\n";
     }
-
-    let tmp_arr = new Array(noPossibleMismatches_val).fill("");
-    for (let i = 0; i < noPossibleMismatches_val; i++) {
-        tmp_arr[i] = '"INVALID_' + i + '":' + (1.00 / (1.0 * noPossibleMismatches_val)).toString()
+    if (noPossibleMismatches_val > 1) {
+        let tmp_arr = new Array(noPossibleMismatches_val).fill("");
+        for (let i = 0; i < noPossibleMismatches_val; i++) {
+            tmp_arr[i] = '"INVALID_' + i + '":' + (1.00 / (1.0 * noPossibleMismatches_val)).toString()
+        }
+        let data_vals = "{" + tmp_arr.join(",") + "}";
+        buildup_html = buildup_html + "<div class=\"column is-full is-paddingless\"></div>\n" +
+            "<div class=\"column has-horizontal-padding-0 has-padding-03\">\n" +
+            "    <div class=\"button-fill sliders noUi-target noUi-ltr noUi-horizontal\"\n" +
+            "         id=\"mismatch-" + method + "-slider-" + obj_id + "\"\n" +
+            "         data-eid=\"" + obj_id + "\" data-mode=\"" + method + "\"\n" +
+            "         data-mid=\"" + obj_id + "\"\n" +
+            "         data-etype=\"mismatch\"  data-vals='" + data_vals + "'>\n" +
+            "    </div>\n" +
+            "</div>\n" +
+            "<div class=\"column is-full is-paddingless is-marginless\"></div>\n" +
+            "\n"
     }
-    let data_vals = "{" + tmp_arr.join(",") + "}";
-    buildup_html = buildup_html + "<div class=\"column is-full is-paddingless\"></div>\n" +
-        "<div class=\"column has-horizontal-padding-0 has-padding-03\">\n" +
-        "    <div class=\"button-fill sliders noUi-target noUi-ltr noUi-horizontal\"\n" +
-        "         id=\"mismatch-" + method + "-slider-" + obj_id + "\"\n" +
-        "         data-eid=\"" + obj_id + "\" data-mode=\"" + method + "\"\n" +
-        "         data-mid=\"" + obj_id + "\"\n" +
-        "         data-etype=\"mismatch\"  data-vals='" + data_vals + "'>\n" +
-        "    </div>\n" +
-        "</div>\n" +
-        "<div class=\"column is-full is-paddingless is-marginless\"></div>\n" +
-        "\n"
 
     for (let possible_mismatch_no = 0; possible_mismatch_no < noPossibleMismatches_val; possible_mismatch_no++) {
-        buildup_html = buildup_html + "    <div class=\"column  has-no-margin-left has-no-padding-left\">\n" +
+        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left"+ mismatch_class
+            + "\">\n" +
             "        <label class=\"form-group has-float-label\">\n" +
             "            <p class=\"control has-icons-right\">\n" +
-            "                <input style=\"width:100%\" class=\"input is-rounded\"\n" +
+            "                <input style=\"width:100%\" class=\"input is-rounded mismatch_inputfield\"\n" +
             "                       id=\"" + method + "_error_mismatched_seq_prob_" + obj_id + "_" + possible_mismatch_no + "\"\n" +
             "                       type=\"number\" name=\"mismatch_" + possible_mismatch_no + "\"\n" +
             "                       min=\"0\" max=\"100\" step=\"0.01\"\n" +
@@ -227,13 +231,14 @@ function addMismatch(method, obj_id) {
             "            <span><nobr>Mismatch " + possible_mismatch_no + "</nobr></span>\n" +
             "        </label>\n" +
             "    </div>\n";
-    }
 
+    }
     buildup_html = buildup_html + "</div>\n"
     host_container.append(buildup_html);
     dna_seq.val("");
-    noPossibleMismatches.val("");
-    initMismatchSlider(method, $("#mismatch-" + method + "-slider-" + obj_id)[0])
+    noPossibleMismatches.val(2);
+    if (noPossibleMismatches_val > 1)
+        initMismatchSlider(method, $("#mismatch-" + method + "-slider-" + obj_id)[0])
 }
 
 function deleteMismatch(method, obj_id) {
@@ -286,6 +291,7 @@ function sendCustomError(host, method, id) {
 
     let org_seq = "";
     let noOfMismatches = 2;
+    let doExit = false;
     $('#' + method + '_mismatch_container_' + id).children().each(function (idx, itm) {
         org_seq = $(itm).children()[0].firstElementChild.firstElementChild.firstElementChild.value;
         noOfMismatches = $(itm).children()[1].firstElementChild.firstElementChild.firstElementChild.value;
@@ -295,10 +301,16 @@ function sendCustomError(host, method, id) {
             const tmp = $(itm).find(nme)[0].value;
             const num = 'input[name="mismatch_' + i.toString() + '"]';
             //TODO check if tmp is in mismatch ->if yes, cancel since this is WRONG!
+            if (innerMismatch[tmp] !== undefined) {
+                doExit = true;
+                return false;
+            }
             innerMismatch[tmp] = parseFloat($(itm).find(num)[0].value) / 100;
         }
         mismatch[org_seq] = innerMismatch;
     });
+    if (doExit === true)
+        return false;
     if (mismatch !== {}) {
         mismatch = {'pattern': mismatch};
     }
@@ -694,8 +706,8 @@ function initMismatchSlider(method, elem) {
     });
 
     var connect = elem.querySelectorAll('.noUi-connect');
-    const classes = ['homopolymer-color', 'random-color'];
+    const classes = ['c-1-color','c-2-color','c-3-color','c-4-color','c-5-color','homopolymer-color', 'random-color', 'deletion-color'];
     for (var i = 0; i < connect.length; i++) {
-        connect[i].classList.add(classes[i]);
+        connect[i].classList.add(classes[i % classes.length]);
     }
 }
