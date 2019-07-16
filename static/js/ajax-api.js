@@ -214,6 +214,7 @@ function queryServer(uuid) {
                     const shr_txt = $("#link_to_share");
                     shr_txt.text(window.location.href);
                 }
+                
                 $("#used_seed").text(data['seed']);
                 if (data['did_succeed'] !== false) {
                     data = data['res'];

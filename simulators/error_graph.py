@@ -1,6 +1,7 @@
 import networkx as nx
 from collections import defaultdict
 
+
 class Graph:
     def __init__(self, graph, seq):
         self.initial_seq = seq

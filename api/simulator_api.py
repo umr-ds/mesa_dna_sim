@@ -277,6 +277,7 @@ def do_all():
     mod_seq = g.graph.nodes[0]['seq']
     mod_res = g.get_lineages()
 
+
     if as_html:
         kmer_html = htmlify(kmer_res, sequence)
         gc_html = htmlify(gc_window_res, sequence)

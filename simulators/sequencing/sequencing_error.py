@@ -173,6 +173,7 @@ class SequencingError:
                                           p=list(pattern.values()))
             return self._randomly_indel_base(chosen_ele, position_range, mode)
 
+
     # Checking for all matches using regex is quite slow.
     def _positional_mismatch(self, pattern=None, position_range=None):
         if not pattern:
