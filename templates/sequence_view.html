@@ -238,8 +238,8 @@ window.onload = function () {
                                     $('#seqmeth').val(0).prop('disabled', true);
                                     $('#synthmeth').val(0).prop('disabled', true);
                                 } else if ($(this).not(':checked')){
-                                    $('#seqmeth').prop('disabled', false);
-                                    $('#synthmeth').prop('disabled', false);
+                                    $('#seqmeth').val(0).prop('disabled', false);
+                                    $('#synthmeth').val(0).prop('disabled', false);
                                 }"/>
                         <label for="calcprobs" style="float:left" class="no-outline"></label>
                     </label>
@@ -272,6 +272,23 @@ window.onload = function () {
                             </optgroup>
                         </select><span>Sequencing Method</span>
                     </label>
+                    <div class="column is-pulled-left">
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <!--<p class="control has-icons-left">-->
+                                    <textarea class="textarea" rows="1" id="seed" placeholder="Random"
+                                              ></textarea>
+                                    <!--<span class="icon is-right">
+                                    <i class="fas fa-dna"></i>
+                                        </span>-->
+                                    <span>Seed</span>
+                                    <!--</p>-->
+                                </label>
+
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <!--<div class="column is-4"></div>-->
                 <div class="column is-full">
@@ -442,6 +459,10 @@ window.onload = function () {
         <div class="box">
             <h3 class="subtitle has-text-black">Share this result:</h3>
             <ul class="share_mosla_link" id="link_to_share"></ul>
+        </div>
+        <div class="box">
+            <h3 class="subtitle has-text-black">Used Seed:</h3>
+            <ul class="share_mosla_link" id="used_seed"></ul>
         </div>
     </div>
 

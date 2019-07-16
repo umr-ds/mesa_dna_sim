@@ -1,6 +1,6 @@
 from simulators.error_sources.homopolymers import homopolymer
+from time import time
 import numpy as np
-import random
 import re
 
 # err_rates and mutation attributes for PacBio (keys 3-6) are based on Attributes based on
@@ -66,7 +66,7 @@ class SequencingError:
     specific motives that are switched (e.g. TAC -> TGC)
     """
 
-    def __init__(self, seq, graph, process, attributes=None, error_rates=None):
+    def __init__(self, seq, graph, process, attributes=None, error_rates=None, seed=None):
         self.bases = ['A', 'T', 'C', 'G']
         self.attributes = attributes
         self.error_rates = error_rates if error_rates else {'insertion': 0.33, 'deletion': 0.34, 'mismatch': 0.33}
@@ -75,10 +75,11 @@ class SequencingError:
         self.out_seq = None
         self.process = process
         self.g = graph
+        self.seed = seed if seed else int(time())
+        np.random.seed(self.seed)
 
     def insertion(self, att=None):
         if att:
-            print('ins')
             position, pattern, position_range = self._get_atts(att)
         else:
             res = self.attributes['insertion']
@@ -96,7 +97,6 @@ class SequencingError:
 
     def deletion(self, att=None):
         if att:
-            print('del ' + str(att))
             position, pattern, pattern_range = self._get_atts(att)
         else:
             res = self.attributes["deletion"]
@@ -114,7 +114,6 @@ class SequencingError:
 
     def mismatch(self, att=None):
         if att:
-            print('mis ' + str(att))
             position, pattern, position_range = self._get_atts(att)
         else:
             res = self.attributes["mismatch"]
@@ -186,7 +185,6 @@ class SequencingError:
             check_range = range(position_range[0], position_range[1] + 1)
             if self.seq[position_range[0]:position_range[1] + 1] == ' ':
                 return
-            print(check_range)
         else:
             check_range = range(len(self.seq))
         pos = " "
@@ -203,9 +201,11 @@ class SequencingError:
         else:
             check_seq_range = self.seq
         try:
-            chosen_ele = random.choice([(match.span(), match.group())
-                                        for match in re.finditer(reg, check_seq_range)])
-        except IndexError:
+            choices = [(match.span(), match.group())
+                       for match in re.finditer(reg, check_seq_range)]
+            idx = np.random.choice(len(choices))
+            chosen_ele = choices[idx]
+        except ValueError:
             return self._no_pattern_mismatch()
 
         if type(pattern[chosen_ele[1]]) == dict:
@@ -238,10 +238,10 @@ class SequencingError:
             else:
                 count += 1
         try:
-            pos = random.choice(np.where(np.array(list(self.seq)) == chosen_ele)[0])
-        # If the base does not exists in the sequence, an IndexError
+            pos = np.random.choice(np.where(np.array(list(self.seq)) == chosen_ele)[0])
+        # If the base does not exists in the sequence, a ValueError
         # is raised. Have to change it it so it tries another base.
-        except IndexError:
+        except ValueError:
             return self.seq
         return self._indel_mismatch_base(pos, mode)
 
@@ -252,12 +252,12 @@ class SequencingError:
                             mod_start=pos, mod_end=pos+1, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + " " + self.seq[pos + 1:]
         elif mode == 'insertion':
-            ele = random.choice(self.bases)
+            ele = np.random.choice(self.bases)
             self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos], orig_end=pos+1, mod_start=pos,
                             mod_end=pos+2, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos:]
         else:
-            ele = random.choice(self.bases)
+            ele = np.random.choice(self.bases)
             self.g.add_node(orig=self.seq[pos], mod=ele, orig_end=pos+1, mod_start=pos, mod_end=pos + 1, mode=mode,
                             process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos+1:]
@@ -280,7 +280,7 @@ class SequencingError:
 
         return position, pattern, position_range
 
-    def lit_error_rate_mutations(self, mutation_list=['insertion', 'mismatch', 'deletion']):
+    def lit_error_rate_mutations(self, mutation_list=['insertion', 'mismatch', 'deletion'], seed=None):
         assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
                    mutation_list), 'Supported types of mutation are: "deletion", "mismatch" and "insertion".'
         for mutation_type in mutation_list:
@@ -294,15 +294,17 @@ class SequencingError:
                 for n in range(round((len(self.seq) * err_rate))):
                     eval('self.' + mutation_type)()
         self.g.graph.nodes[0]['seq'] = self.seq
+        return self.seed
 
     def manual_mutation(self, error):
-        if random.random() <= error['errorprob']:
+        if np.random.random() <= error['errorprob']:
             m_types = ['deletion', 'insertion', 'mismatch']
             m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]
             mut_type = np.random.choice(m_types, p=m_weights)
             att = {'position_range': [error['startpos'], error['endpos']]}
             eval('self.' + mut_type)(att)
         self.g.graph.nodes[0]['seq'] = self.seq
+        return self.seed
 
 
 if __name__ == "__main__":
@@ -311,5 +313,5 @@ if __name__ == "__main__":
     t = SequencingError(seq, g, process="sequencing", attributes=mutation_attributes["3"],
                         error_rates=err_rates["5"])  # err_rate 5
     t.lit_error_rate_mutations()
-    set(['deletion', 'insertion', 'mismatch', 'pattern_mismatch']).issubset(
+    {'deletion', 'insertion', 'mismatch', 'pattern_mismatch'}.issubset(
         nx.get_node_attributes(t.g.graph, 'mode').values())

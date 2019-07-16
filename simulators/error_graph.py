@@ -1,5 +1,5 @@
 import networkx as nx
-
+from collections import defaultdict
 
 class Graph:
     def __init__(self, graph, seq):
@@ -8,8 +8,8 @@ class Graph:
             self.graph = self.create_graph()
         else:
             self.graph = graph
-        self.modified_positions = set()
         self.source_node = self.graph.node[0]
+        self.visited_nodes = defaultdict(set)
 
     def create_graph(self):
         g = nx.DiGraph()
@@ -18,6 +18,8 @@ class Graph:
 
     def add_node(self, orig, mod, orig_end, mod_start, mod_end, mode, process):
         # The error probs are used only for color coding here.
+        if mod_start in self.visited_nodes[process]:
+            return
         if process == 'synthesis':
             error_prob = 2.0
         elif process == 'storage':
@@ -36,7 +38,7 @@ class Graph:
         # In the case of an insertion
         if len(mod) > len(orig):
             offset = len(mod) - len(orig)
-            self.shift_indices(offset, orig_end)
+            self.shift_indices(offset, orig_end, process)
             orig = ' ' + orig
         for i in range(len(mod)):
             # In the case of an mismatch where one of the mismatched bases stayed the same or if a mismatch happens
@@ -49,17 +51,22 @@ class Graph:
                                     identifier=process, mode=mode)
                 node_id = len(self.graph.nodes) - 1
                 self.add_edges(node_id)
-                self.modified_positions.update(range(mod_start, mod_end))
+                self.visited_nodes[process].add(mod_start)
+                self.visited_nodes['modified_positions'].update(range(mod_start, mod_end))
 
-    def shift_indices(self, offset, orig_end):
+    def shift_indices(self, offset, orig_end, process):
         for i in range(1, len(self.graph.nodes())):
             if self.graph.node[i]["startpos"] >= orig_end:
+                self.visited_nodes[process].remove(self.graph.node[i]["startpos"])
+                self.visited_nodes[process].add(self.graph.node[i]["startpos"]+offset)
+                self.visited_nodes["modified_positions"].remove(self.graph.node[i]["startpos"])
+                self.visited_nodes["modified_positions"].add(self.graph.node[i]["startpos"]+offset)
                 self.graph.node[i]["startpos"] += offset
                 self.graph.node[i]["endpos"] += offset
         self.graph.node[0]["endpos"] += offset
 
     def add_edges(self, node_id):
-        if self.graph.node[node_id]["startpos"] in self.modified_positions:
+        if self.graph.node[node_id]["startpos"] in self.visited_nodes['modified_positions']:
             self.nodesearch(self.graph.node[node_id]["startpos"], node_id)
         else:
             self.graph.add_edge(0, node_id)
@@ -73,6 +80,8 @@ class Graph:
 
     def get_lineages(self):
         self.graph.remove_node(0)
+        if not self.graph.nodes:
+            return list()
         error_lineages = dict()
         c = 0
         for subgraph in nx.weakly_connected_component_subgraphs(self.graph):
