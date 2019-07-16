@@ -197,18 +197,24 @@ class SequencingError:
     # A problem with pattern mismatches is now that it does not find patterns separated by a
     # deletion.
     def _pattern_mismatch(self, pattern, position_range):
-        reg = re.compile("|".join(pattern.keys()))
+        reg = re.compile('(?=(' + "|".join(pattern.keys()) + '))')
+        offset = 0
         if position_range:
             check_seq_range = self.seq[position_range[0]:position_range[1] + 1]
+            offset = position_range[0]
         else:
             check_seq_range = self.seq
         try:
-            chosen_ele = random.choice([(match.span(), match.group())
-                                        for match in re.finditer(reg, check_seq_range)])
+            chosen_ele = random.choice(
+                [((offset + match.regs[1][0], offset + match.regs[1][1]),
+                  self.seq[(offset + match.regs[1][0]):(offset + match.regs[1][1])]) for match in
+                 re.finditer(reg, check_seq_range)])
+            # [(match.span(), match.group())
+            #  for match in re.finditer(reg, check_seq_range)])
         except IndexError:
-            return self._no_pattern_mismatch()
+            return  # self._no_pattern_mismatch() # TODO check if we want to change random if we cant find a matching pattern?
 
-        if type(pattern[chosen_ele[1]]) == dict:
+        if chosen_ele[1] in pattern and type(pattern[chosen_ele[1]]) == dict:
             final_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
                                          p=list(pattern[chosen_ele[1]].values()))
         else:
@@ -248,19 +254,19 @@ class SequencingError:
     def _indel_mismatch_base(self, pos, mode):
         assert mode in ['deletion', 'insertion', 'mismatch']
         if mode == 'deletion':
-            self.g.add_node(orig=self.seq[pos], mod=" ",  orig_end=pos+1,
-                            mod_start=pos, mod_end=pos+1, mode=mode, process=self.process)
+            self.g.add_node(orig=self.seq[pos], mod=" ", orig_end=pos + 1,
+                            mod_start=pos, mod_end=pos + 1, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + " " + self.seq[pos + 1:]
         elif mode == 'insertion':
             ele = random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos], orig_end=pos+1, mod_start=pos,
-                            mod_end=pos+2, mode=mode, process=self.process)
+            self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos], orig_end=pos + 1, mod_start=pos,
+                            mod_end=pos + 2, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos:]
         else:
             ele = random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele, orig_end=pos+1, mod_start=pos, mod_end=pos + 1, mode=mode,
+            self.g.add_node(orig=self.seq[pos], mod=ele, orig_end=pos + 1, mod_start=pos, mod_end=pos + 1, mode=mode,
                             process=self.process)
-            self.seq = self.seq[:pos] + ele + self.seq[pos+1:]
+            self.seq = self.seq[:pos] + ele + self.seq[pos + 1:]
 
     @staticmethod
     def _get_atts(res):

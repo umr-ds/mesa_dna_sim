@@ -128,7 +128,7 @@ function addMismatch(method, obj_id) {
     }
     obj_id = obj_id + "_" + curr_id;
     let buildup_html = "<div class=\"columns is-multiline is-full box has-no-padding-top has-no-padding-bottom is-marginless\" id=\"mismatch_" + obj_id + "\">\n" +
-        "<div class=\"column has-no-margin-bottom has-no-margin-left has-no-padding-left\">\n" +
+        "<div class=\"column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left\">\n" +
         "    <label class=\"form-group has-float-label\">\n" +
         "        <p class=\"control has-icons-right\">\n" +
         "            <input style=\"width:100%\" class=\"input is-rounded\"\n" +
@@ -144,7 +144,7 @@ function addMismatch(method, obj_id) {
         "        <span><nobr>Original DNA-Sequence</nobr></span>\n" +
         "    </label>\n" +
         "</div>\n" +
-        "<div class=\"column  has-no-margin-left has-no-padding-left\">\n" +
+        "<div class=\"column is-two-fifths has-no-margin-left has-no-padding-left\">\n" +
         "    <label class=\"form-group has-float-label\">\n" +
         "        <p class=\"control has-icons-right\">\n" +
         "            <input style=\"width:100%\" class=\"input is-rounded\"\n" +
@@ -168,7 +168,51 @@ function addMismatch(method, obj_id) {
         "        Delete\n" +
         "    </button>\n" +
         "</div>\n" +
-        "<div class=\"column is-full is-paddingless\"></div>\n";
+        "<div class=\"column is-full is-paddingless\"></div>\n" +
+        "<div class=\"column is-one-fifth\" id=\"toogle-use-position\">\n" +
+        "    <label data-balloon=\"Use Position based Mismatching\"\n" +
+        "           data-balloon-pos=\"up\">\n" +
+        "        <input type=\"checkbox\" aria-label=\"Use positional Mismatch\" id=\"" + method +"_mismatch_positioning_" + obj_id + "\"\n" +
+        "               onchange=\"$('#" + method +"_error_mismatched_startpos_" + obj_id + "').attr('disabled',!$(this)[0].checked);\n" +
+        "                         $('#" + method +"_error_mismatched_endpos_" + obj_id + "').attr('disabled',!$(this)[0].checked)\"\n" +
+        "               class=\"switch is-rounded is-large button-fill no-outline\" name=\"" + method +"_mismatch_positioning_" + obj_id + "\" />\n" +
+        "        <label for=\"" + method +"_mismatch_positioning_" + obj_id + "\" class=\"no-outline\"></label>\n" +
+        "    </label>\n" +
+        "</div>\n" +
+        "    <div class=\"column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left\">\n" +
+        "    <label class=\"form-group has-float-label\">\n" +
+        "        <p class=\"control has-icons-right\">\n" +
+        "            <input style=\"width:100%\" class=\"input is-rounded\"\n" +
+        "                   id=\"" + method +"_error_mismatched_startpos_" + obj_id + "\"\n" +
+        "                   type=\"number\" name=\"Startposition\"\n" +
+        "                   placeholder=\"DNA-Sequence\" min=\"1\"\n" +
+        "                   disabled\n" +
+        "                   value=\"1\"\n" +
+        "                   required>\n" +
+        "            <span class=\"icon is-right\">\n" +
+        "    <i class=\"fas fa-step-backward\"></i>\n" +
+        "</span>\n" +
+        "        </p>\n" +
+        "        <span><nobr>Start Position</nobr></span>\n" +
+        "    </label>\n" +
+        "</div>\n" +
+        "    <div class=\"column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left\">\n" +
+        "    <label class=\"form-group has-float-label\">\n" +
+        "        <p class=\"control has-icons-right\">\n" +
+        "            <input style=\"width:100%\" class=\"input is-rounded\"\n" +
+        "                   id=\"" + method + "_error_mismatched_endpos_" + obj_id + "\"\n" +
+        "                   type=\"number\" name=\"Original DNA-Sequence\"\n" +
+        "                   placeholder=\"DNA-Sequence\" min=\"1\"\n" +
+        "                   disabled\n" +
+        "                   value=\"1\"\n" +
+        "                   required>\n" +
+        "            <span class=\"icon is-right\">\n" +
+        "    <i class=\"fas fa-step-forward\"></i>\n" +
+        "</span>\n" +
+        "        </p>\n" +
+        "        <span><nobr>End Position</nobr></span>\n" +
+        "    </label>\n" +
+        "</div>";
 
     let mismatch_class = "";
     if (noPossibleMismatches_val > 4)
@@ -241,6 +285,19 @@ function addMismatch(method, obj_id) {
         initMismatchSlider(method, $("#mismatch-" + method + "-slider-" + obj_id)[0])
 }
 
+function clearNewRuleContainer(method) {
+    $('#' + method + '-slider-deletion-new')[0].noUiSlider.set([25, 50, 75, 100]);
+    $('#' + method + '-slider-insertion-new')[0].noUiSlider.set([25, 50, 75, 100]);
+    $('#' + method + '-position-slider-deletion-new')[0].noUiSlider.set(50);
+    $('#' + method + '-position-slider-insertion-new')[0].noUiSlider.set(50);
+    $('#err_data-' + method + '-slider-new')[0].noUiSlider.set([33.33, 66.66]);
+    $('#' + method + '_error_raw_rate_new').val(0.05);
+    $('#' + method + '_mismatch_container_new').empty();
+    $('#' + method + '_description_new').val("");
+    $('#' + method + '_error_mismatched_org_seq_new').val("");
+    $('#' + method + '_error_mismatched_seq_new').val(2);
+}
+
 function deleteMismatch(method, obj_id) {
     let host_container = $('#' + 'mismatch_' + obj_id);
     host_container.remove();
@@ -292,9 +349,17 @@ function sendCustomError(host, method, id) {
     let org_seq = "";
     let noOfMismatches = 2;
     let doExit = false;
+    let positional_mismatch = false;
+    let position_range = undefined;
     $('#' + method + '_mismatch_container_' + id).children().each(function (idx, itm) {
         org_seq = $(itm).children()[0].firstElementChild.firstElementChild.firstElementChild.value;
         noOfMismatches = $(itm).children()[1].firstElementChild.firstElementChild.firstElementChild.value;
+        positional_mismatch = $(itm).children()[3].firstElementChild.firstElementChild.checked;
+        if (positional_mismatch === true) {
+            position_range = [ parseInt($(itm).children()[4].firstElementChild.firstElementChild.firstElementChild.value),
+                               parseInt($(itm).children()[5].firstElementChild.firstElementChild.firstElementChild.value)];
+        }
+        //let positional_mismatch = $('#' + method + '_mismatch_positioning_' + obj_id).attr("checked");
         let innerMismatch = {};
         for (let i = 0; i < noOfMismatches; i++) {
             const nme = 'input[name="mismatch_changed_' + i.toString() + '"]';
@@ -313,6 +378,8 @@ function sendCustomError(host, method, id) {
         return false;
     if (mismatch !== {}) {
         mismatch = {'pattern': mismatch};
+        if (positional_mismatch === true)
+            mismatch['position_range'] = position_range;
     }
 
     const err_data_deletion_elem = $('#' + method + '_error_raw_rate_deletion_' + id);
@@ -387,6 +454,8 @@ function sendCustomError(host, method, id) {
                         initACGTSlider(method, $(this)[0]);
                     });
                     /* TODO Reset Input-Fields */
+                    if (id === "new")
+                        clearNewRuleContainer(method);
                 }
 
             } else {

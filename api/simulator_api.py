@@ -109,88 +109,6 @@ def do_undesired_sequences():
     return jsonify(res)
 
 
-@simulator_api.route('/api/sequencing', methods=['GET', 'POST'])
-@require_apikey
-def add_sequencing_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    seq_meth = r_method.get('sequence_method')
-
-    # 0 = none, 7,8,9 = user defined
-    if seq_meth in {"0", "7", "8", "9"}:
-        res = sequence
-    else:
-        err_rate = SequencingErrorRates.query.filter(
-            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-        err_att = SequencingErrorAttributes.query.filter(
-            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        res = seqerr.lit_error_rate_mutations()
-    return jsonify(res)
-
-
-# undesired_sub_seq = UndesiredSubsequences.query.filter(
-#    or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
-#    desc(UndesiredSubsequences.id)).all()
-
-
-@simulator_api.route('/api/synthesis', methods=['GET', 'POST'])
-@require_apikey
-def add_synthesis_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    synth_meth = r_method.get('synthesis_method')
-
-    # 0 = none, 11,12,13 = user defined
-    if synth_meth in {"0", "11", "12", "13"}:
-        res = sequence
-    else:
-        tmp = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first()
-        err_rate = tmp.err_data
-        err_att = tmp.err_attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        res = seqerr.lit_error_rate_mutations()
-    return jsonify(res)
-
-
-# This is dumb as it does calculate the errors new and therefore gets different errors
-# Than the sequencing and synthesis by them self
-@simulator_api.route('/api/modify', methods=['GET', 'POST'])
-@require_apikey
-def add_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    seq_meth = r_method.get('sequence_method')
-    synth_meth = r_method.get('synthesis_method')
-
-    g = Graph(None, sequence)
-
-    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        pass
-    elif synth_meth in {"0", "11", "12", "13"}:
-        sequencing_error(sequence, g, seq_meth, process="sequencing")
-    elif seq_meth in {"0", "7", "8", "9"}:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-    else:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-        synthesis_error_seq = g.graph.nodes[0]['seq']
-        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
-    return jsonify(g.graph.nodes[0]['seq'])
-
-
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
 @require_apikey
 def do_all():
@@ -264,19 +182,10 @@ def do_all():
     if use_error_probs:
         manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
     else:
-        if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-            pass
-        elif synth_meth in {"0", "11", "12", "13"}:
-            sequencing_error(sequence, g, seq_meth, process="sequencing")
-            seq_res = g.graph.nodes[0]['seq']
-        elif seq_meth in {"0", "7", "8", "9"}:
-            synthesis_error(sequence, g, synth_meth, process="synthesis")
-
-        else:
-            synthesis_error(sequence, g, synth_meth, process="synthesis")
-            synthesis_error_seq = g.graph.nodes[0]['seq']
-            synth_res = g.graph.nodes[0]['seq']
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+        synthesis_error_seq = g.graph.nodes[0]['seq']
+        synth_res = g.graph.nodes[0]['seq']
+        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
 
     mod_seq = g.graph.nodes[0]['seq']
     mod_res = g.get_lineages()
