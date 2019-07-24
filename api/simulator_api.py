@@ -109,88 +109,6 @@ def do_undesired_sequences():
     return jsonify(res)
 
 
-@simulator_api.route('/api/sequencing', methods=['GET', 'POST'])
-@require_apikey
-def add_sequencing_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    seq_meth = r_method.get('sequence_method')
-
-    # 0 = none, 7,8,9 = user defined
-    if seq_meth in {"0", "7", "8", "9"}:
-        res = sequence
-    else:
-        err_rate = SequencingErrorRates.query.filter(
-            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-        err_att = SequencingErrorAttributes.query.filter(
-            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        res = seqerr.lit_error_rate_mutations()
-    return jsonify(res)
-
-
-# undesired_sub_seq = UndesiredSubsequences.query.filter(
-#    or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
-#    desc(UndesiredSubsequences.id)).all()
-
-
-@simulator_api.route('/api/synthesis', methods=['GET', 'POST'])
-@require_apikey
-def add_synthesis_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    synth_meth = r_method.get('synthesis_method')
-
-    # 0 = none, 11,12,13 = user defined
-    if synth_meth in {"0", "11", "12", "13"}:
-        res = sequence
-    else:
-        tmp = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first()
-        err_rate = tmp.err_data
-        err_att = tmp.err_attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        res = seqerr.lit_error_rate_mutations()
-    return jsonify(res)
-
-
-# This is dumb as it does calculate the errors new and therefore gets different errors
-# Than the sequencing and synthesis by them self
-@simulator_api.route('/api/modify', methods=['GET', 'POST'])
-@require_apikey
-def add_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    seq_meth = r_method.get('sequence_method')
-    synth_meth = r_method.get('synthesis_method')
-
-    g = Graph(None, sequence)
-
-    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        pass
-    elif synth_meth in {"0", "11", "12", "13"}:
-        sequencing_error(sequence, g, seq_meth, process="sequencing")
-    elif seq_meth in {"0", "7", "8", "9"}:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-    else:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-        synthesis_error_seq = g.graph.nodes[0]['seq']
-        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
-    return jsonify(g.graph.nodes[0]['seq'])
-
-
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
 @require_apikey
 def do_all():
@@ -201,11 +119,16 @@ def do_all():
         r_method = request.args
     r_uid = r_method.get('uuid')
     if r_uid is not None:
-        r_res = read_from_redis(r_uid)
+        r_res = None
+        try:
+            r_res = read_from_redis(r_uid)
+        except Exception as e:
+            print("Error while talking to Redis-Server:", e)
         if r_res is not None:
             return jsonify(json.loads(r_res))
-        else:
-            return jsonify({'did_succeed': False})
+        # ignore uuid if we can not connect to redis...
+        # else:
+        #    return jsonify({'did_succeed': False})
     sequence = r_method.get('sequence')
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
@@ -259,19 +182,10 @@ def do_all():
     if use_error_probs:
         manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
     else:
-        if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-            pass
-        elif synth_meth in {"0", "11", "12", "13"}:
-            sequencing_error(sequence, g, seq_meth, process="sequencing")
-            seq_res = g.graph.nodes[0]['seq']
-        elif seq_meth in {"0", "7", "8", "9"}:
-            synthesis_error(sequence, g, synth_meth, process="synthesis")
-
-        else:
-            synthesis_error(sequence, g, synth_meth, process="synthesis")
-            synthesis_error_seq = g.graph.nodes[0]['seq']
-            synth_res = g.graph.nodes[0]['seq']
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+        synthesis_error(sequence, g, synth_meth, process="synthesis")
+        synthesis_error_seq = g.graph.nodes[0]['seq']
+        synth_res = g.graph.nodes[0]['seq']
+        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
 
     mod_seq = g.graph.nodes[0]['seq']
     mod_res = g.get_lineages()
@@ -417,7 +331,7 @@ def build_html(res_list, reducesets=True):
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
-    return res
+    return "<nobr>" + res + "</nobr>"
 
 
 def colorize(error_prob):

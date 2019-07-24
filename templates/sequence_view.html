@@ -171,10 +171,12 @@ window.onload = function () {
                                value="15"
                                required min="0" step="1"><span>GC Window</span></label>
                 </div>
-                <div class="column is-2 is-pulled-left select is-primary is-rounded">
-                    <label for="gc-dropdown" aria-label="GC-Method"></label><select class="button-fill"
-                                                                                    id="gc-dropdown">
-                    <!--{% for chart in gc_charts %}
+                <div class="column is-expanded field has-addons has-addons-centered">
+                    <div class="control is-expanded">
+                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
+                            <label for="gc-dropdown" aria-label="GC-Method"></label><select class="button-fill"
+                                                                                            id="gc-dropdown">
+                            <!--{% for chart in gc_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="gc"
                                         data-validated="{{ chart.validated }}"
@@ -184,17 +186,19 @@ window.onload = function () {
                             <option data-id="-1" data-type="gc"
                                     data-validated="false" data-isowner="false">New Graph
                             </option>-->
-                </select>
-                </div>
-                <div class="column is-2 is-pulled-left">
-                    <input class="button is-block button-fill" type="button" id="showOvrly"
-                           name="mybutton"
-                           onclick="let dropdown_select = $('#gc-dropdown option:selected');
+                        </select>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <input class="button is-block button-fill is-rounded" type="button" id="showOvrly"
+                               name="mybutton"
+                               onclick="let dropdown_select = $('#gc-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                           value="Change GC Probability">
+                               value="Change GC Probability">
+                    </div>
                 </div>
                 <div class="column is-1">
                 </div>
@@ -230,16 +234,24 @@ window.onload = function () {
                         </select><span>Synthesis Method</span>
                     </label>
                     <p style="text-align:left;">Calculated Error Probabilities</p>
-                      <label data-balloon="Use Calculated Error Probabilities"
-                           data-balloon-pos="right", style="float: left">
+                    <label data-balloon="Use Calculated Error Probabilities"
+                           data-balloon-pos="right" , style="float: left">
                         <input type="checkbox" aria-label="Use Calculated Error Probabilities" id="calcprobs"
                                class="switch is-rounded is-large button-fill no-outline" name="cprobs"
-                                onclick="if ($(this).is(':checked')) {
-                                    $('#seqmeth').val(0).prop('disabled', true);
-                                    $('#synthmeth').val(0).prop('disabled', true);
+                               onclick="if ($(this).is(':checked')) {
+                                    let seq  = $('#seqmeth');
+                                    let synth = $('#synthmeth');
+                                    seq.data('selected', $('#seqmeth option:selected').val());
+                                    synth.data('selected', $('#synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
                                 } else if ($(this).not(':checked')){
-                                    $('#seqmeth').prop('disabled', false);
-                                    $('#synthmeth').prop('disabled', false);
+                                    let seq  = $('#seqmeth');
+                                    let synth = $('#synthmeth');
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
                                 }"/>
                         <label for="calcprobs" style="float:left" class="no-outline"></label>
                     </label>
@@ -284,25 +296,33 @@ window.onload = function () {
                                value="15"
                                required min="0" step="1"><span>Kmer Window</span></label>
                 </div>
-                <div class="column is-2 is-pulled-left select is-rounded is-primary">
-                    <label for="kmer-dropdown" aria-label="Kmer-Method"></label><select class="button-fill"
-                                                                                        id="kmer-dropdown"></select>
-                </div>
-                <div class="column  is-2 is-pulled-left">
-                    <input class="button is-block button-fill" type="button" id="showOvrly" name="mybutton"
-                           onclick="let dropdown_select = $('#kmer-dropdown option:selected');
+                <div class="column is-expanded field has-addons has-addons-centered">
+                    <div class="control is-expanded">
+                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
+                            <label for="kmer-dropdown" aria-label="Kmer-Method"></label><select class="button-fill"
+                                                                                                id="kmer-dropdown"></select>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <input class="button is-block button-fill is-rounded" type="button" id="showOvrly"
+                               name="mybutton"
+                               onclick="let dropdown_select = $('#kmer-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                           value="Change Kmer Probability">
+                               value="Change Kmer Probability">
+                    </div>
                 </div>
+                <div class="column is-7"></div>
                 <div class="column is-full"></div>
                 <div class="column is-1 is-pulled-left"></div>
-                <div class="column is-2 is-pulled-left select is-rounded is-primary">
-                    <label for="homopolymer-dropdown" aria-label="Homopolymer-Method"></label><select
-                        class="button-fill" id="homopolymer-dropdown">
-                    <!--{% for chart in homopolymer_charts %}
+                <div class="column is-expanded field has-addons has-addons-centered">
+                    <div class="control is-expanded">
+                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
+                            <label for="homopolymer-dropdown" aria-label="Homopolymer-Method"></label><select
+                                class="button-fill" id="homopolymer-dropdown">
+                            <!--{% for chart in homopolymer_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="homopolymer"
                                         data-validated="{{ chart.validated }}"
@@ -312,18 +332,24 @@ window.onload = function () {
                             <option data-id="-1" data-type="homopolymer"
                                     data-validated="false" data-isowner="false">New Graph
                             </option>-->
-                </select>
-                </div>
-                <div class="column is-2 is-pulled-left">
-                    <input class="button is-block is-info-deactivated button-fill" type="button" id="showOvrly"
-                           name="mybutton"
-                           onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
+                        </select>
+                        </div>
+                    </div>
+                    <div class="control">
+                        <input class="is-rounded button is-block is-info-deactivated button-fill" type="button"
+                               id="showOvrly"
+                               name="mybutton"
+                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
                                dropdown_select.data('type'));"
-                           value="Change Homopolymer Prob.">
+                               value="Change Homopolymer Prob.">
+                    </div>
                 </div>
+
+                <div class="column is-7"></div>
+                <div class="column is-full"></div>
             </div>
             <br/>
             <input type="checkbox" id="spoiler"/>
@@ -393,7 +419,8 @@ window.onload = function () {
                     </div>
                 {% endfor %}
             </div>
-            <button class="button is-block is-info-deactivated is-large is-fullwidth" id="submit_seq_btn">Submit
+            <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
+                    id="submit_seq_btn">Submit
             </button>
         </form>
     </div>
@@ -401,7 +428,7 @@ window.onload = function () {
         <h2 class="subtitle"> Your Results: </h2>
         <div class="box">
             <h3 class="subtitle has-text-black"> Homopolymers: </h3>
-            <div class="text_lettering" id="homopolymer" t></div>
+            <div class="text_lettering" id="homopolymer"></div>
         </div>
         <div class="box">
             <h3 class="subtitle has-text-black"> GC-Content: </h3>
@@ -430,7 +457,7 @@ window.onload = function () {
         </div>
         <div class="box">
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
-            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
+            <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
         </div>
         <!--
         <div class="box">
