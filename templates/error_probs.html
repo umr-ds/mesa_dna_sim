@@ -59,7 +59,7 @@
             <input type="checkbox" id="spoiler-{{ e_obj.id }}"/>
             <label style="white-space: nowrap; display: none" for="spoiler-{{ e_obj.id }}"></label>
         {% endif %}
-        <div class="column is-full {% if e_obj.id != "new" %}spoiler{% endif %} ">
+        <div class="column is-full {% if e_obj.id != "new" %}spoiler{% else %}has-no-padding-left{% endif %} ">
         <div class="has-no-padding-left has-margin-bottom-12 has-overflow-unset has-no-padding-top has-no-padding-bottom control columns is-multiline {{ mode }}-editor-{{ e_obj.id }}"
              style="margin-right: 20px; margin-left: -17px">
             <!--<div class="column is-full"></div>-->

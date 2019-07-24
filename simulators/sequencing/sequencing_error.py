@@ -197,7 +197,7 @@ class SequencingError:
     # A problem with pattern mismatches is now that it does not find patterns separated by a
     # deletion.
     def _pattern_mismatch(self, pattern, position_range):
-        reg = re.compile('(?=(' + "|".join(pattern.keys()) + '))')
+        reg = re.compile("|".join(pattern.keys()))  # '(?=(' + "|".join(pattern.keys()) + '))')
         offset = 0
         if position_range:
             check_seq_range = self.seq[position_range[0]:position_range[1] + 1]
@@ -205,9 +205,9 @@ class SequencingError:
         else:
             check_seq_range = self.seq
         try:
-            chosen_ele = random.choice(
-                [((offset + match.regs[1][0], offset + match.regs[1][1]),
-                  self.seq[(offset + match.regs[1][0]):(offset + match.regs[1][1])]) for match in
+            chosen_ele = random.choice( # ((offset + match.regs[1][0], offset + match.regs[1][1]),
+                                        # self.seq[(offset + match.regs[1][0]):(offset + match.regs[1][1])])
+                [((offset + match.span()[0],offset + match.span()[1]), match.group()) for match in
                  re.finditer(reg, check_seq_range)])
             # [(match.span(), match.group())
             #  for match in re.finditer(reg, check_seq_range)])
