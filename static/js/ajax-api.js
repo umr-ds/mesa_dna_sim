@@ -207,6 +207,7 @@ function queryServer(uuid) {
                 res.css('display', 'none');
             },
             success: function (data) {
+                data = data[sequence]
                 let recv_uuid = data['uuid'];
                 if (recv_uuid !== undefined) {
                     changeurl("query_sequence?uuid=" + recv_uuid);
