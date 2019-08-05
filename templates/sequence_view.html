@@ -256,6 +256,7 @@ window.onload = function () {
                         <label for="calcprobs" style="float:left" class="no-outline"></label>
                     </label>
                 </div>
+
                 <div class="column is-3 select is-rounded is-primary">
                     <!-- values 1-7 correspond to the submethod id in the database -->
                     <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -350,6 +351,13 @@ window.onload = function () {
 
                 <div class="column is-7"></div>
                 <div class="column is-full"></div>
+                <div class="column is-rounded">
+                    <button class="button is-rounded button-fill" id="downloadConfig" onclick="download(collectSendData(2), 'mosla.json','application/json');return false">Download current config</button>
+                </div>
+                <div class="column is-rounded">
+                    <button class="button is-rounded button-fill" id="uploadConfig">Upload config</button>
+                </div>
+            <div class="column is-full"></div>
             </div>
             <br/>
             <input type="checkbox" id="spoiler"/>
@@ -359,6 +367,7 @@ window.onload = function () {
                 <h3>Changes here wont be saved in your profile!</h3>
                 <br/>
                 <div style="text-align: left">Enabled:</div>
+                <div id="subseq_container">
                 {% for subsequence in usubsequence %}
                     <div class="control" id="subseq_{{ subsequence.id }}">
                         <table>
@@ -418,6 +427,7 @@ window.onload = function () {
                         </nobr>-->
                     </div>
                 {% endfor %}
+                </div>
             </div>
             <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
                     id="submit_seq_btn">Submit

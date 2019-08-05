@@ -110,7 +110,7 @@ def do_undesired_sequences():
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
-#@require_apikey
+# @require_apikey
 def do_all():
     # TODO
     if request.method == 'POST':
@@ -200,18 +200,19 @@ def do_all():
             homopolymer_html = htmlify(homopolymer_res, sequence)
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res,
-                                   'subsequences': usubseq_html,
-                                   'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                                   'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence}
+                           'subsequences': usubseq_html,
+                           'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                           'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
             res = {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'kmer': kmer_res,
-                                   'gccontent': gc_window_res,
-                                   'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
-                                   'modified_sequence': mod_seq}}
+                           'gccontent': gc_window_res,
+                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
+                           'modified_sequence': mod_seq}}
         res_all[sequence] = res
-        res = jsonify(res)
+        res = {k: r['res'] for k, r in res_all.items()}
+        r_method.pop('key')  # drop key from stored fields
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res.json['res'], 'query': r_method, 'uuid': uuid_str}), 31536000)
+            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
     return jsonify(res_all)
