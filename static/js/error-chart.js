@@ -481,7 +481,7 @@ function showOverlay(validated, editable, id, text, type) {
 function saveChart(host, apikey, create_copy) {
     const chart_name = $('#chart-name');
     $.post({
-        url: "http://" + host + "/api/update_error_prob_charts",
+        url: host + "/api/update_error_prob_charts",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
@@ -517,7 +517,7 @@ function saveChart(host, apikey, create_copy) {
 function deleteChart(host, apikey) {
     const chart_name = $('#chart-name');
     $.post({
-        url: "http://" + host + "/api/delete_error_prob_charts",
+        url: host + "/api/delete_error_prob_charts",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
@@ -551,7 +551,7 @@ function deleteChart(host, apikey) {
 
 function updateDropdown(host, apikey, type) {
     $.post({
-        url: "http://" + host + "/api/get_error_prob_charts",
+        url: "/api/get_error_prob_charts",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({

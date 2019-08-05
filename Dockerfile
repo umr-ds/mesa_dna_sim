@@ -6,14 +6,17 @@ COPY . /dna_sim
 WORKDIR /dna_sim
 
 RUN apt-get update -y \
- && apt-get install --no-install-recommends -y nginx build-essential \
+ && apt-get install --no-install-recommends -y nginx build-essential wget cron \
  && pip3 install -r requirements.txt --no-cache-dir \
  && apt-get purge -y --auto-remove build-essential \
+ && wget -O -  https://get.acme.sh | sh \
  && mv nginx.conf /etc/nginx \
+ && mv nginx_ssl.conf /etc/nginx \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # COPY nginx.conf /etc/nginx
+
 # RUN chmod +x ./start.sh
 # CMD ["./start.sh"]
 # ENTRYPOINT ["/bin/bash", "/dna_sim/start.sh"]

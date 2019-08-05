@@ -3,7 +3,7 @@ function addSubSeq(host) {
     let error_prob = $('#errorprob').val() / 100.0;
     let description = $('#description').val();
     $.post({
-        url: "http://" + host + "/api/add_subsequence",
+        url: host + "/api/add_subsequence",
         data: {sequence: sequence, error_prob: error_prob, description: description},
         async: true,
         beforeSend: function (xhr) {
@@ -65,7 +65,7 @@ function updateSeq(host, id) {
     let error_prob = curr_subseq.children().find("[name='error_prob']");
     let desc = curr_subseq.children().find("[name='description']");
     $.post({
-        url: "http://" + host + "/api/update_subsequence",
+        url: host + "/api/update_subsequence",
         data: {
             sequence_id: id,
             sequence: sequence.val(),
@@ -91,7 +91,7 @@ function updateSeq(host, id) {
 
 function deleteSeq(host, id) {
     $.post({
-        url: "http://" + host + "/api/delete_subsequence",
+        url: host + "/api/delete_subsequence",
         data: {sequence_id: id, do_delete: true},
         async: true,
         beforeSend: function (xhr) {
@@ -416,7 +416,7 @@ function sendCustomError(host, method, id) {
         endpointstart = "update";
     }
     $.post({
-        url: "http://" + host + "/api/" + endpointstart + "_" + method + "_error_probs",
+        url: host + "/api/" + endpointstart + "_" + method + "_error_probs",
         contentType: 'application/json;charset=UTF-8',
         dataType: 'json',
         data: JSON.stringify({data: result, asHTML: true}),
@@ -476,7 +476,7 @@ function updateSynth() {
 
 /* Send to the Server
 $.post({
-    url: "http://" + host + "/api/delete_synth",
+    url: host + "/api/delete_synth",
     data: {synth_data: synth_data},
     async: true,
     beforeSend: function (xhr) {
@@ -505,7 +505,7 @@ $.post({
 function deleteCustomError(host, method, obj_id) {
     /* Send to the Server */
     $.post({
-        url: "http://" + host + "/api/delete_" + method,
+        url: host + "/api/delete_" + method,
         data: {synth_id: obj_id, do_delete: true},
         async: true,
         beforeSend: function (xhr) {

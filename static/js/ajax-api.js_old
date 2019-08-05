@@ -105,7 +105,7 @@ $(document).ready(function () {
                     error_prob = JSON5.parse(error_prob);
             }
             $.post({
-                url: "http://" + host + "/api/" + mode,
+                url: host + "/api/" + mode,
                 dataType: 'json',
                 contentType: 'application/json;charset=UTF-8',
                 data: JSON.stringify({
