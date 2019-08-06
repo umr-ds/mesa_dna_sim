@@ -397,7 +397,7 @@ function queryServer(uuid) {
     let res = $('#results');
     for (let mode in {"all": overall}) {
         $.post({
-            url: host + "/api/" + mode,
+            url: host + "api/" + mode,
             contentType: 'application/json;charset=UTF-8',
             dataType: 'json',
             data: send_data,
@@ -494,7 +494,7 @@ function copyToClipboard(element) {
 
 function updateSynthDropdown(host, apikey, type) {
     $.post({
-        url: host + "/api/get_error_probs",
+        url: host + "api/get_error_probs",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
