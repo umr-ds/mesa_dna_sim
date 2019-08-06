@@ -17,146 +17,152 @@ window.onload = function () {
     <div class="control" id="overlay">
 
 
-            <div class="box overlay-all">
-                <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
-                <div class="box overlay-content" id="overlay-content">
-                    <canvas id="myChart"></canvas>
-                </div>
-                <br/>
-                <div class="overlay-managebox" id="overlay-managebox">
-                    <div class="columns">
-                        <div class="columns is-multiline">
-                            <div class="column is-quarter">
-                                <div class="columns">
-                                    <div class="column is-pulled-left is-two-fifths">
-                                        <label class="form-group has-float-label">
-                                            <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
-                                                   required min="0.0" step="1"><span>X-value</span></label>
-                                    </div>
-                                    <div class="column is-pulled-left is-two-fifths">
-                                        <label class="form-group has-float-label">
-                                            <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
-                                                   required min="0.0" step="1"><span>Y-value</span></label>
-                                    </div>
+        <div class="box overlay-all">
+            <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
+            <div class="box overlay-content" id="overlay-content">
+                <canvas id="myChart"></canvas>
+            </div>
+            <br/>
+            <div class="overlay-managebox" id="overlay-managebox">
+                <div class="columns">
+                    <div class="columns is-multiline">
+                        <div class="column is-quarter">
+                            <div class="columns">
+                                <div class="column is-pulled-left is-two-fifths">
+                                    <label class="form-group has-float-label">
+                                        <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
+                                               required min="0.0" step="1"><span>X-value</span></label>
+                                </div>
+                                <div class="column is-pulled-left is-two-fifths">
+                                    <label class="form-group has-float-label">
+                                        <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
+                                               required min="0.0" step="1"><span>Y-value</span></label>
                                 </div>
                             </div>
-                            <div class="column">
-                                <div class="columns">
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill" type="button" id="addpoint"
-                                                name="addpoint"
-                                                onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;"
-                                                data-balloon="Modify is based on X-Value!" data-balloon-pos="up"> Add / Modify point
-                                        </button>
-                                    </div>
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill" type="button"
-                                                id="removePoint"
-                                                name="removePoint" onclick="removePoint($('#x-val').val());return false;"
-                                                data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove point
-                                        </button>
-                                    </div>
+                        </div>
+                        <div class="column">
+                            <div class="columns">
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="addpoint"
+                                            name="addpoint"
+                                            onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Modify is based on X-Value!" data-balloon-pos="up"> Add /
+                                        Modify point
+                                    </button>
+                                </div>
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="removePoint"
+                                            name="removePoint" onclick="removePoint($('#x-val').val());return false;"
+                                            data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove
+                                        point
+                                    </button>
                                 </div>
                             </div>
-                            <div class="column">
-                                <div class="columns">
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill" type="button"
-                                                id="setybeforex"
-                                                name="setybeforex"
-                                                onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
-                                                data-balloon="Changes all Y-Values of Points with a smaller X-Value"
-                                                data-balloon-pos="up">
-                                            Set Y-Values before X
-                                        </button>
-                                    </div>
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill" type="button"
-                                                id="setyafterx"
-                                                name="setyafterx"
-                                                onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
-                                                data-balloon="Changes all Y-Values of Points with a greater X-Value"
-                                                data-balloon-pos="up">
-                                            Set Y-Values after X
-                                        </button>
-                                    </div>
+                        </div>
+                        <div class="column">
+                            <div class="columns">
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="setybeforex"
+                                            name="setybeforex"
+                                            onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Changes all Y-Values of Points with a smaller X-Value"
+                                            data-balloon-pos="up">
+                                        Set Y-Values before X
+                                    </button>
+                                </div>
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="setyafterx"
+                                            name="setyafterx"
+                                            onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Changes all Y-Values of Points with a greater X-Value"
+                                            data-balloon-pos="up">
+                                        Set Y-Values after X
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!--<span>
-                    X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
-                    be mapped to the last Y-Value</span>-->
-                    <div class="column is full"></div>
-                    <div class="columns">
-                        <div class="columns is-multiline">
-                            <div class="column is-half">
-                                <div class="columns">
-                                    <div class="column is-pulled-left">
-                                        <input class="button is-block is-info-deactivated button-fill" type="button" id="doReset"
-                                               name="doReset"
-                                               onclick="resetChanges();return false;" value="Reset">
-                                    </div>
-                                    <div class="column is-pulled-left">
-                                        <input class="button is-block is-info-deactivated button-fill" type="button"
-                                               id="toogleinterpolation"
-                                               name="toogleinterpolation" onclick="toogleCubicInterpolation();return false;"
-                                               value="Use Interpolation">
-                                    </div>
+                </div>
+                <!--<span>
+                X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
+                be mapped to the last Y-Value</span>-->
+                <div class="column is full"></div>
+                <div class="columns">
+                    <div class="columns is-multiline">
+                        <div class="column is-half">
+                            <div class="columns">
+                                <div class="column is-pulled-left">
+                                    <input class="button is-block is-info-deactivated button-fill" type="button"
+                                           id="doReset"
+                                           name="doReset"
+                                           onclick="resetChanges();return false;" value="Reset">
+                                </div>
+                                <div class="column is-pulled-left">
+                                    <input class="button is-block is-info-deactivated button-fill" type="button"
+                                           id="toogleinterpolation"
+                                           name="toogleinterpolation" onclick="toogleCubicInterpolation();return false;"
+                                           value="Use Interpolation">
                                 </div>
                             </div>
-                            <div class="column is-half">
-                                <div class="columns">
-                                    <div class="column is-pulled-left">
-                                        <input class="button is-block is-info-deactivated button-fill" type="button"
-                                               id="toogleDragX"
-                                               name="toogleDragX" onclick="toogleDragX();return false;"
-                                               value="Allow drag along X-Axis">
-                                    </div>
-                                    <div class="column is-pulled-left">
-                                        <label class="form-group has-float-label button-fill">
-                                            <input class="input" type="text" id="chart-name" placeholder="" size="20"
-                                                   required><span>Name</span></label>
-                                    </div>
+                        </div>
+                        <div class="column is-half">
+                            <div class="columns">
+                                <div class="column is-pulled-left">
+                                    <input class="button is-block is-info-deactivated button-fill" type="button"
+                                           id="toogleDragX"
+                                           name="toogleDragX" onclick="toogleDragX();return false;"
+                                           value="Allow drag along X-Axis">
+                                </div>
+                                <div class="column is-pulled-left">
+                                    <label class="form-group has-float-label button-fill">
+                                        <input class="input" type="text" id="chart-name" placeholder="" size="20"
+                                               required><span>Name</span></label>
                                 </div>
                             </div>
-                            <div class="column is-half">
-                                <div class="columns">
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill" type="button"
-                                                id="update-chart"
-                                                name="update-chart"
-                                                onclick="saveChart('{{ host }}', '{{ apikey }}', false);return false;"
-                                                data-balloon="Update current Error-Probability Graph" data-balloon-pos="up"> Update
-                                            Template
-                                        </button>
-                                    </div>
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill" type="button"
-                                                id="delete-chart"
-                                                name="delete-chart"
-                                                onclick="deleteChart('{{ host }}', '{{ apikey }}', $('#x-val').val(), $('#y-val').val());return false;"
-                                                data-balloon="Delete current Error-Probability Graph" data-balloon-pos="up"> Delete
-                                        </button>
-                                    </div>
+                        </div>
+                        <div class="column is-half">
+                            <div class="columns">
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="update-chart"
+                                            name="update-chart"
+                                            onclick="saveChart('{{ host }}', '{{ apikey }}', false);return false;"
+                                            data-balloon="Update current Error-Probability Graph" data-balloon-pos="up">
+                                        Update
+                                        Template
+                                    </button>
+                                </div>
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="delete-chart"
+                                            name="delete-chart"
+                                            onclick="deleteChart('{{ host }}', '{{ apikey }}', $('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Delete current Error-Probability Graph" data-balloon-pos="up">
+                                        Delete
+                                    </button>
                                 </div>
                             </div>
-                            <div class="column is-half">
-                                <div class="columns">
-                                    <div class="column is-pulled-left">
-                                        <button class="button is-block is-info-deactivated button-fill"
-                                                type="button" id="save-chart" name="save-chart"
-                                                onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
-                                                data-balloon="Save Copy" data-balloon-pos="up"
-                                                {% if user_id == None %}disabled{% endif %}> Save copy of Template
-                                        </button>
-                                    </div>
+                        </div>
+                        <div class="column is-half">
+                            <div class="columns">
+                                <div class="column is-pulled-left">
+                                    <button class="button is-block is-info-deactivated button-fill"
+                                            type="button" id="save-chart" name="save-chart"
+                                            onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
+                                            data-balloon="Save Copy" data-balloon-pos="up"
+                                            {% if user_id == None %}disabled{% endif %}> Save copy of Template
+                                    </button>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
 
     </div>
 
@@ -182,7 +188,8 @@ window.onload = function () {
                                 <div class="control">
                                     <label class="form-group has-float-label">
                                         <!--<p class="control has-icons-left">-->
-                                        <textarea class="textarea" rows="3" id="sequence" name="sequence" placeholder="AAACCAGT"
+                                        <textarea class="textarea" rows="3" id="sequence" name="sequence"
+                                                  placeholder="AAACCAGT"
                                                   required></textarea>
                                         <!--<span class="icon is-right">
                                         <i class="fas fa-dna"></i>
@@ -213,8 +220,7 @@ window.onload = function () {
                                     <div class="control is-expanded">
                                         <div class="select is-fullwidth is-2 select is-primary is-rounded">
                                             <label for="gc-dropdown" aria-label="GC-Method"></label><select
-                                                class="button-fill"
-                                                select is-fullwidth is-2 select is-primary is-rounded id="gc-dropdown">
+                                                class="button-fill" id="gc-dropdown">
                                             <!--{% for chart in gc_charts %}
 
                                 <option data-id="{{ chart.id }}" data-type="gc"
@@ -312,75 +318,77 @@ window.onload = function () {
                             </div>
                         </div>
                         <div class="column is-rounded">
-                            <button class="button is-rounded button-fill" id="downloadConfig" onclick="download(collectSendData(2), 'mosla.json','application/json');return false">Download current config</button>
+                            <button class="button is-rounded button-fill" id="downloadConfig"
+                                    onclick="download(collectSendData(2), 'mosla.json','application/json');return false">
+                                Download current config
+                            </button>
                         </div>
                     </div>
                 </div>
                 <div class="column is-half">
                     <div class="columns is-multiline">
-                        <div class="column is-full">
-                            <div class="columns">
-                                <div class="column select is-rounded is-primary">
-
-                                    <!-- values 1-10 correspond to the error_correction id in the database -->
-                                    <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                    <!-- or intercept these values before the database request.  -->
-                                    <label class="form-group has-float-label" aria-label="Synthesis Method">
-                                        <select class="button-fill" id="synthmeth">
-                                            <optgroup label="None">
-                                                <option value="0" selected>None</option>
-                                            </optgroup>
-                                            <optgroup label="Column synthesized oligos">
-                                                <option value="1">MutS</option>
-                                                <option value="2">Consensus shuffle</option>
-                                                <option value="3">ErrASE</option>
-                                                <option value="9">No error correction</option>
-                                            </optgroup>
-                                            <optgroup label="Microarray based oligo pools">
-                                                <option value="4">Oligo hybridization based</option>
-                                                <option value="5">High-temperature ligation/hybridization based</option>
-                                                <option value="6">ErrASE</option>
-                                                <option value="7">Nuclease-based</option>
-                                                <option value="8">NGS-based</option>
-                                                <option value="10">No error correction</option>
-                                            </optgroup>
-                                            <optgroup label="User defined">
-                                                <option value="11">Error Rates</option>
-                                                <option value="12">Error Attributes</option>
-                                                <option value="13">Rates and Attributes</option>
-                                            </optgroup>
-                                        </select><span>Synthesis Method</span>
-                                    </label>
-                                </div>
-                                <div class="column select is-rounded is-primary">
-                                    <!-- values 1-7 correspond to the submethod id in the database -->
-                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                    <!-- or intercept these values before the database request.  -->
-                                    <label class="form-group has-float-label" aria-label="Sequencing Method">
-                                        <select class="button-fill" id="seqmeth">
-                                            <optgroup label="None">
-                                                <option value="0" selected>None</option>
-                                            </optgroup>
-                                            <optgroup label="Illumina">
-                                                <option value="1">Single End</option>
-                                                <option value="2">Paired End</option>
-                                            </optgroup>
-                                            <optgroup label="PacBio">
-                                                <option value="4">Subread</option>
-                                                <option value="3">CCS</option>
-                                            </optgroup>
-                                            <optgroup label="Nanopore">
-                                                <option value="5">1D</option>
-                                                <option value="6">2D</option>
-                                            </optgroup>
-                                            <optgroup label="User defined">
-                                                <option value="7">Error Rates</option>
-                                                <option value="8">Error Attributes</option>
-                                                <option value="9">Rates and Attributes</option>
-                                            </optgroup>
-                                        </select><span>Sequencing Method</span>
-                                    </label>
-                                </div>
+                        <div class="column is-half">
+                            <div class="select is-fullwidth is-primary is-rounded">
+                                <!-- values 1-10 correspond to the error_correction id in the database -->
+                                <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                                <!-- or intercept these values before the database request.  -->
+                                <label class="form-group has-float-label" aria-label="Synthesis Method">
+                                    <select class="button-fill" id="synthmeth">
+                                        <optgroup label="None">
+                                            <option value="0" selected>None</option>
+                                        </optgroup>
+                                        <optgroup label="Column synthesized oligos">
+                                            <option value="1">MutS</option>
+                                            <option value="2">Consensus shuffle</option>
+                                            <option value="3">ErrASE</option>
+                                            <option value="9">No error correction</option>
+                                        </optgroup>
+                                        <optgroup label="Microarray based oligo pools">
+                                            <option value="4">Oligo hybridization based</option>
+                                            <option value="5">High-temperature ligation/hybridization based</option>
+                                            <option value="6">ErrASE</option>
+                                            <option value="7">Nuclease-based</option>
+                                            <option value="8">NGS-based</option>
+                                            <option value="10">No error correction</option>
+                                        </optgroup>
+                                        <optgroup label="User defined">
+                                            <option value="11">Error Rates</option>
+                                            <option value="12">Error Attributes</option>
+                                            <option value="13">Rates and Attributes</option>
+                                        </optgroup>
+                                    </select><span>Synthesis Method</span>
+                                </label>
+                            </div>
+                        </div>
+                        <div class="column is-half">
+                            <div class="select is-fullwidth is-primary is-rounded">
+                                <!-- values 1-7 correspond to the submethod id in the database -->
+                                <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                <!-- or intercept these values before the database request.  -->
+                                <label class="form-group has-float-label" aria-label="Sequencing Method">
+                                    <select class="button-fill" id="seqmeth">
+                                        <optgroup label="None">
+                                            <option value="0" selected>None</option>
+                                        </optgroup>
+                                        <optgroup label="Illumina">
+                                            <option value="1">Single End</option>
+                                            <option value="2">Paired End</option>
+                                        </optgroup>
+                                        <optgroup label="PacBio">
+                                            <option value="4">Subread</option>
+                                            <option value="3">CCS</option>
+                                        </optgroup>
+                                        <optgroup label="Nanopore">
+                                            <option value="5">1D</option>
+                                            <option value="6">2D</option>
+                                        </optgroup>
+                                        <optgroup label="User defined">
+                                            <option value="7">Error Rates</option>
+                                            <option value="8">Error Attributes</option>
+                                            <option value="9">Rates and Attributes</option>
+                                        </optgroup>
+                                    </select><span>Sequencing Method</span>
+                                </label>
                             </div>
                         </div>
                         <div class="column is-full">
@@ -388,7 +396,7 @@ window.onload = function () {
                                 <div class="column is-full">
                                     <p style="text-align:left;">Calculated Error Probabilities</p>
                                     <label data-balloon="Use Calculated Error Probabilities"
-                                           data-balloon-pos="right" , style="float: left">
+                                           data-balloon-pos="right" style="float: left">
                                         <input type="checkbox" aria-label="Use Calculated Error Probabilities"
                                                id="calcprobs"
                                                class="switch is-rounded is-large button-fill no-outline" name="cprobs"
@@ -418,7 +426,9 @@ window.onload = function () {
                             </div>
                         </div>
                         <div class="column is-rounded">
-                            <button class="button is-rounded button-fill" id="uploadConfig" onclick="uploadConf();return false">Upload config</button>
+                            <button class="button is-rounded button-fill" id="uploadConfig"
+                                    onclick="uploadConf();return false">Upload config
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -437,65 +447,66 @@ window.onload = function () {
                 <br/>
                 <div style="text-align: left">Enabled:</div>
                 <div id="subseq_container">
-                {% for subsequence in usubsequence %}
-                    <div class="control" id="subseq_{{ subsequence.id }}">
-                        <table>
-                            <tr>
-                                <td><input type="checkbox"
-                                           class="switch is-large is-rounded button-fill no-outline"
-                                           id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
-                                           aria-label="Enable Rule"
-                                           value="{{ subsequence.id }}" checked/>
-                                    <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
-                                </td>
-                                <td style="width:50%"><label class="form-group has-float-label">
-                                    <input class="input is-rounded is-grayable" style="width:100%" type="text"
-                                           name="sequence"
-                                           aria-label="Sequence"
-                                           id="sequence_{{ subsequence.id }}" placeholder=""
-                                            {% if subsequence.validated %} readonly {% endif %}
-                                           value="{{ subsequence.sequence }}" required>
-                                    <span>Sequence</span></label></td>
-                                <td style="width:15%"><label class="form-group has-float-label">
-                                    <input class="input is-rounded is-grayable" style="width:100%" type="number"
-                                           id="error_prob_{{ subsequence.id }}"
-                                           aria-label="Error Probability"
-                                           name="error_prob" placeholder=""
-                                            {% if subsequence.validated %} readonly {% endif %}
-                                           value="{{ subsequence.error_prob * 100 }}"
-                                           required min="0.0" max="100.0" step="0.01">
-                                    <span><nobr>Error Probability</nobr></span></label></td>
-                                <td style="width:30%"><label class="form-group has-float-label">
-                                    <input class="input is-rounded is-grayable" style="width:100%" type="text"
-                                           name="description"
-                                           aria-label="Description"
-                                           id="description_{{ subsequence.id }}" placeholder="No Description" size="30"
-                                            {% if subsequence.description != None %}
-                                           value="{{ subsequence.description }}"
-                                            {% endif %} readonly><span>Description</span></label></td>
-                                <!--
+                    {% for subsequence in usubsequence %}
+                        <div class="control" id="subseq_{{ subsequence.id }}">
+                            <table>
+                                <tr>
+                                    <td><input type="checkbox"
+                                               class="switch is-large is-rounded button-fill no-outline"
+                                               id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
+                                               aria-label="Enable Rule"
+                                               value="{{ subsequence.id }}" checked/>
+                                        <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
+                                    </td>
+                                    <td style="width:50%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
+                                               name="sequence"
+                                               aria-label="Sequence"
+                                               id="sequence_{{ subsequence.id }}" placeholder=""
+                                                {% if subsequence.validated %} readonly {% endif %}
+                                               value="{{ subsequence.sequence }}" required>
+                                        <span>Sequence</span></label></td>
+                                    <td style="width:15%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded is-grayable" style="width:100%" type="number"
+                                               id="error_prob_{{ subsequence.id }}"
+                                               aria-label="Error Probability"
+                                               name="error_prob" placeholder=""
+                                                {% if subsequence.validated %} readonly {% endif %}
+                                               value="{{ subsequence.error_prob * 100 }}"
+                                               required min="0.0" max="100.0" step="0.01">
+                                        <span><nobr>Error Probability</nobr></span></label></td>
+                                    <td style="width:30%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
+                                               name="description"
+                                               aria-label="Description"
+                                               id="description_{{ subsequence.id }}" placeholder="No Description"
+                                               size="30"
+                                                {% if subsequence.description != None %}
+                                               value="{{ subsequence.description }}"
+                                                {% endif %} readonly><span>Description</span></label></td>
+                                    <!--
                             {% if subsequence.description != None %}
                                 Description: {{ subsequence.description }}
                             {% else %}
                                 No Description
                             {% endif %}-->
-                                <td><span class="" style="white-space: nowrap;"><label
-                                        class="checkbox">Validated: <input type="checkbox"
-                                                                           id="validated_{{ subsequence.id }}"
-                                                                           value="{{ subsequence.id }}"
-                                                                           aria-label="Validated"
-                                                                           disabled
-                                        {% if subsequence.validated %} checked {% endif %}/></label></span></td>
-                            </tr>
-                        </table>
-                        <!--<nobr>
+                                    <td><span class="" style="white-space: nowrap;"><label
+                                            class="checkbox">Validated: <input type="checkbox"
+                                                                               id="validated_{{ subsequence.id }}"
+                                                                               value="{{ subsequence.id }}"
+                                                                               aria-label="Validated"
+                                                                               disabled
+                                            {% if subsequence.validated %} checked {% endif %}/></label></span></td>
+                                </tr>
+                            </table>
+                            <!--<nobr>
                             Created at:
                             <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
                             )
                             </script>
                         </nobr>-->
-                    </div>
-                {% endfor %}
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
             <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
