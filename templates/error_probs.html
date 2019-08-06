@@ -64,7 +64,7 @@
              style="margin-right: 20px; margin-left: -17px">
             <!--<div class="column is-full"></div>-->
             <div class="column is-half has-no-padding-left">
-                <div class="columns is-full is-multiline has-no-margin-left" id="left-column-{{ e_obj.id }}">
+                <div class="columns is-full is-multiline has-no-margin-left" id="left-column-{{ mode }}_{{ e_obj.id }}">
                     <div class="box is-settings-box button-fill">
                         <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
                              id="{{ mode }}_error_deletion_{{ e_obj.id }}">
@@ -349,7 +349,7 @@
                 </div>
             </div>
             <div class="column is-half">
-                <div class="columns is-full is-multiline" id="right-column-{{ e_obj.id }}">
+                <div class="columns is-full is-multiline" id="right-column-{{ mode }}-{{ e_obj.id }}">
                     <div class="column is-full">
                         <div class="field columns is-full is-multiline">
                             <div class="column is-full has-no-padding-left has-no-padding-right"
@@ -421,7 +421,7 @@
                                                 </div>
 
                                                 <div class="column is-one-fifth button-fill has-no-margin-left has-no-padding-left">
-                                                    <button class="button button-fill" id="add_mismatch_{{ e_obj.id }}"
+                                                    <button class="button button-fill" id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
                                                             data-balloon="Remove this Mismatch (Rule has to be Updated for this change to take effect!)"
                                                             data-balloon-pos="up"
                                                             onclick="deleteMismatch('{{ mode }}', '{{ e_obj.id }}_{{ count }}'); return false;">
@@ -565,7 +565,7 @@
                                             </label>
                                         </div>
                                         <div class="column is-one-fifth button-fill">
-                                            <button class="button button-fill" id="add_mismatch_{{ e_obj.id }}"
+                                            <button class="button button-fill" id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
                                                     data-balloon="Add this Mismatch (Rule has to be {% if e_obj.id =="new" %}added{% else %}updated{% endif %} for this change to take effect!)"
                                                     data-balloon-pos="up"
                                                     onclick="addMismatch('{{ mode }}', '{{ e_obj.id }}'); return false;">
