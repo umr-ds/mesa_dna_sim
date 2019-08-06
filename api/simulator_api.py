@@ -110,7 +110,7 @@ def do_undesired_sequences():
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
-@require_apikey
+# @require_apikey
 def do_all():
     # TODO
     if request.method == 'POST':
@@ -129,7 +129,7 @@ def do_all():
         # ignore uuid if we can not connect to redis...
         # else:
         #    return jsonify({'did_succeed': False})
-    sequence = r_method.get('sequence')
+    sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
@@ -142,71 +142,80 @@ def do_all():
     # print(r_method.get('use_error_probs'))
     as_html = r_method.get('asHTML')
 
-    if enabled_undesired_seqs:
-        try:
-            undesired_sequences = {}
-            for useq in enabled_undesired_seqs:
-                if useq['enabled']:
-                    undesired_sequences[useq['sequence']] = float(useq['error_prob'])
-            res = undesired_subsequences(sequence, undesired_sequences)
-        except:
+    res_all = {}
+    if type(sequences) == str:
+        sequences = [sequences]
+    for sequence in sequences:
+        if enabled_undesired_seqs:
+            try:
+                undesired_sequences = {}
+                for useq in enabled_undesired_seqs:
+                    if useq['enabled']:
+                        undesired_sequences[useq['sequence']] = float(useq['error_prob'])
+                res = undesired_subsequences(sequence, undesired_sequences)
+            except:
+                res = undesired_subsequences(sequence)
+        else:
             res = undesired_subsequences(sequence)
-    else:
-        res = undesired_subsequences(sequence)
-    usubseq_html = htmlify(res, sequence)
-    if kmer_window:
-        try:
-            kmer_res = kmer_counting(sequence, int(kmer_window), error_function=kmer_error_prob_func)
-        except:
+        usubseq_html = htmlify(res, sequence)
+        if kmer_window:
+            try:
+                kmer_res = kmer_counting(sequence, int(kmer_window), error_function=kmer_error_prob_func)
+            except:
+                kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
+        else:
             kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
-    else:
-        kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
 
-    res.extend(kmer_res)
-    if gc_window:
-        try:
-            gc_window_res = windowed_gc_content(sequence, int(gc_window), error_function=gc_error_prob_func)
-        except:
+        res.extend(kmer_res)
+        if gc_window:
+            try:
+                gc_window_res = windowed_gc_content(sequence, int(gc_window), error_function=gc_error_prob_func)
+            except:
+                gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
+        else:
             gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
-    else:
-        gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
 
-    res.extend(gc_window_res)
-    homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
-    res.extend(homopolymer_res)
+        res.extend(gc_window_res)
+        homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
+        res.extend(homopolymer_res)
 
-    g = Graph(None, sequence)
+        g = Graph(None, sequence)
 
-    seq_res = ""
-    synth_res = ""
-    if use_error_probs:
-        manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
-    else:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-        synthesis_error_seq = g.graph.nodes[0]['seq']
-        synth_res = g.graph.nodes[0]['seq']
-        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+        seq_res = ""
+        synth_res = ""
+        if use_error_probs:
+            manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
+        else:
+            synthesis_error(sequence, g, synth_meth, process="synthesis")
+            synthesis_error_seq = g.graph.nodes[0]['seq']
+            synth_res = g.graph.nodes[0]['seq']
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
 
-    mod_seq = g.graph.nodes[0]['seq']
-    mod_res = g.get_lineages()
-
-    if as_html:
-        kmer_html = htmlify(kmer_res, sequence)
-        gc_html = htmlify(gc_window_res, sequence)
-        homopolymer_html = htmlify(homopolymer_res, sequence)
-        mod_html = htmlify(mod_res, mod_seq, modification=True)
+        mod_seq = g.graph.nodes[0]['seq']
+        mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
-        res = jsonify(
-            {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res, 'subsequences': usubseq_html,
-                     'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                     'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence})
+        if as_html:
+            kmer_html = htmlify(kmer_res, sequence)
+            gc_html = htmlify(gc_window_res, sequence)
+            homopolymer_html = htmlify(homopolymer_res, sequence)
+            mod_html = htmlify(mod_res, mod_seq, modification=True)
+            res = {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res,
+                           'subsequences': usubseq_html,
+                           'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                           'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence}
+        elif not as_html:
+            res = {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'kmer': kmer_res,
+                           'gccontent': gc_window_res,
+                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
+                           'modified_sequence': mod_seq}}
+        res_all[sequence] = res
+        res = {k: r['res'] for k, r in res_all.items()}
+        r_method.pop('key')  # drop key from stored fields
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res.json['res'], 'query': r_method, 'uuid': uuid_str}), 31536000)
+            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
-        return res
-
-    return jsonify(res)
+    return jsonify(res_all)
 
 
 def synthesis_error(sequence, g, synth_meth, process="synthesis"):

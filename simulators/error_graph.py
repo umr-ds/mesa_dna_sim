@@ -82,14 +82,14 @@ class Graph:
                 if 'errors' in error_lineages[sc].keys():
                     node = self.space_to_string(node)
                     error_lineages[sc]['errors'] = error_lineages[sc][
-                                            'errors'] + "Was {}, is now {}, Error Source: {}, Error Type: {}\n".format(
+                                                       'errors'] + "Was {}, is now {}, Error Source: {}, Error Type: {}\n".format(
                         node[1]['orig'], node[1]['mod'], node[1]['identifier'], node[1]['mode'])
                 else:
                     node = self.space_to_string(node)
                     error_lineages[sc]['errors'] = "Was {}, is now {}, Error Source: {}, Error Type: {}\n".format(
                         node[1]['orig'], node[1]['mod'], node[1]['identifier'], node[1]['mode'])
-                    error_lineages[sc]['startpos'] = node[1]['startpos']
-                    error_lineages[sc]['endpos'] = node[1]['endpos']
+                    error_lineages[sc]['startpos'] = int(node[1]['startpos'])
+                    error_lineages[sc]['endpos'] = int(node[1]['endpos'])
                     error_lineages[sc]['errorprob'] = node[1]['errorprob']
                     error_lineages[sc]['identifier'] = node[1]['identifier'] + '_' + sc
             c += 1
