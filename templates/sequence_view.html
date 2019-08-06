@@ -355,7 +355,7 @@ window.onload = function () {
                     <button class="button is-rounded button-fill" id="downloadConfig" onclick="download(collectSendData(2), 'mosla.json','application/json');return false">Download current config</button>
                 </div>
                 <div class="column is-rounded">
-                    <button class="button is-rounded button-fill" id="uploadConfig">Upload config</button>
+                    <button class="button is-rounded button-fill" id="uploadConfig" onclick="uploadConf();return false">Upload config</button>
                 </div>
             <div class="column is-full"></div>
             </div>
@@ -374,7 +374,7 @@ window.onload = function () {
                             <tr>
                                 <td><input type="checkbox"
                                            class="switch is-large is-rounded button-fill no-outline"
-                                           id="enabled{{ subsequence.id }}" name="switchRoundedDefault"
+                                           id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
                                            aria-label="Enable Rule"
                                            value="{{ subsequence.id }}" checked/>
                                     <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
@@ -383,13 +383,13 @@ window.onload = function () {
                                     <input class="input is-rounded is-grayable" style="width:100%" type="text"
                                            name="sequence"
                                            aria-label="Sequence"
-                                           id="sequence" placeholder=""
+                                           id="sequence_{{ subsequence.id }}" placeholder=""
                                             {% if subsequence.validated %} readonly {% endif %}
                                            value="{{ subsequence.sequence }}" required>
                                     <span>Sequence</span></label></td>
                                 <td style="width:15%"><label class="form-group has-float-label">
                                     <input class="input is-rounded is-grayable" style="width:100%" type="number"
-                                           id="error_prob"
+                                           id="error_prob_{{ subsequence.id }}"
                                            aria-label="Error Probability"
                                            name="error_prob" placeholder=""
                                             {% if subsequence.validated %} readonly {% endif %}
@@ -400,7 +400,7 @@ window.onload = function () {
                                     <input class="input is-rounded is-grayable" style="width:100%" type="text"
                                            name="description"
                                            aria-label="Description"
-                                           id="description" placeholder="No Description" size="30"
+                                           id="description_{{ subsequence.id }}" placeholder="No Description" size="30"
                                             {% if subsequence.description != None %}
                                            value="{{ subsequence.description }}"
                                             {% endif %} readonly><span>Description</span></label></td>

@@ -190,6 +190,41 @@ function download(text, name, type) {
         a.click();
     }
 }
+function handleFileChange(evt) {
+    if (window.File && window.FileReader && window.FileList && window.Blob) {
+        // Great success! All the File APIs are supported.
+        let file = "";
+        if (evt.type === "drop") {
+            evt.stopPropagation();
+            evt.preventDefault();
+            file = evt.dataTransfer.files[0]
+        } else {
+            file = evt.target.files[0];
+        }
+        let reader = new FileReader();
+        reader.readAsText(file);
+        reader.onload = () => {try {loadSendData(JSON5.parse(reader.result))} catch (e) {
+            $("#sequence").val(reader.result.toUpperCase());
+        }}
+    } else {
+      alert('The File APIs are not fully supported in this browser.');
+    }
+    evt.target.removeEventListener('change', handleFileChange);
+}
+
+function uploadConf() {
+    let input = $(document.createElement("input"));
+    input.attr("type", "file");
+    // add onchange handler if you wish to get the file :)
+    input.trigger("click"); // opening dialog
+    input[0].addEventListener('change', handleFileChange, false);
+}
+
+function handleDragOver(evt) {
+    evt.stopPropagation();
+    evt.preventDefault();
+    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+}
 
 function loadSendData(dta) {
     $("#sequence").val(dta['sequence']);
@@ -362,7 +397,7 @@ function queryServer(uuid) {
     let res = $('#results');
     for (let mode in {"all": overall}) {
         $.post({
-            url: "http://" + host + "/api/" + mode,
+            url: host + "api/" + mode,
             contentType: 'application/json;charset=UTF-8',
             dataType: 'json',
             data: send_data,
@@ -459,7 +494,7 @@ function copyToClipboard(element) {
 
 function updateSynthDropdown(host, apikey, type) {
     $.post({
-        url: "http://" + host + "/api/get_error_probs",
+        url: host + "api/get_error_probs",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
@@ -511,3 +546,8 @@ function changeurl(new_url) {
     window.history.pushState("data", "Title", new_url);
     //document.title = url;
 }
+
+
+var dropZone = document.getElementById('main-body');
+dropZone.addEventListener('dragover', handleDragOver, false);
+dropZone.addEventListener('drop', handleFileChange, false);

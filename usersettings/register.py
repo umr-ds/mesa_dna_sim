@@ -51,7 +51,7 @@ def register():
             # response = redirect(url_for("main_page.main_index"))
             # response.set_cookie('YourSessionCookie', user.user_id)
             send_mail("noreply@mosla.de", [user.email],
-                      "Use this link to confirm your E-Mail: http://" + request.host + "/confirm/" +
+                      "Use this link to confirm your E-Mail: " + request.host + "/confirm/" +
                       generate_confirmation_token(user.email))
             flash("Signup complete, please confirm your E-Mail", "info")
             return redirect(url_for("main_page.main_index"))
