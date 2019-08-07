@@ -19,30 +19,34 @@ window.onload = function () {
 
         <div class="box overlay-all">
             <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
-            <div class="box overlay-content" id="overlay-content">
+            <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
+                 id="overlay-content">
                 <canvas id="myChart"></canvas>
             </div>
             <br/>
-            <div class="overlay-managebox" id="overlay-managebox">
-                <div class="columns">
-                    <div class="columns is-multiline">
-                        <div class="column is-quarter">
-                            <div class="columns">
-                                <div class="column is-pulled-left is-two-fifths">
+            <div class="overlay-managebox columns is-multiline is-centered has-no-margin-top has-no-padding-top"
+                 id="overlay-managebox">
+                <div class="column is-full has-no-padding-left">
+                    <div class="columns is-multiline has-no-margin-left">
+                        <div class="column is-one-third-widescreen is-one-third-fullhd is-full-touch is-full-desktop">
+                            <div class="columns is-multiline">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
                                     <label class="form-group has-float-label">
-                                        <input class="input" type="number" id="x-val" placeholder="" size="4" value="15"
+                                        <input class="input" type="number" id="x-val" placeholder="" size="4"
+                                               value="15"
                                                required min="0.0" step="1"><span>X-value</span></label>
                                 </div>
-                                <div class="column is-pulled-left is-two-fifths">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
                                     <label class="form-group has-float-label">
-                                        <input class="input" type="number" id="y-val" placeholder="" size="4" value="15"
+                                        <input class="input" type="number" id="y-val" placeholder="" size="4"
+                                               value="15"
                                                required min="0.0" step="1"><span>Y-value</span></label>
                                 </div>
                             </div>
                         </div>
-                        <div class="column">
-                            <div class="columns">
-                                <div class="column is-pulled-left">
+                        <div class="column is-one-third-widescreen is-one-third-fullhd is-full-touch is-full-desktop">
+                            <div class="columns is-multiline has-no-padding-bottom">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
                                     <button class="button is-block is-info-deactivated button-fill" type="button"
                                             id="addpoint"
                                             name="addpoint"
@@ -51,36 +55,37 @@ window.onload = function () {
                                         Modify point
                                     </button>
                                 </div>
-                                <div class="column is-pulled-left">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
                                     <button class="button is-block is-info-deactivated button-fill" type="button"
                                             id="removePoint"
-                                            name="removePoint" onclick="removePoint($('#x-val').val());return false;"
+                                            name="removePoint"
+                                            onclick="removePoint($('#x-val').val());return false;"
                                             data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove
                                         point
                                     </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="column">
-                            <div class="columns">
-                                <div class="column is-pulled-left">
+                        <div class="column is-one-third-widescreen is-one-third-fullhd is-full-touch is-full-desktop">
+                            <div class="columns is-multiline has-no-padding-bottom">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
                                     <button class="button is-block is-info-deactivated button-fill" type="button"
                                             id="setybeforex"
                                             name="setybeforex"
                                             onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
                                             data-balloon="Changes all Y-Values of Points with a smaller X-Value"
                                             data-balloon-pos="up">
-                                        Set Y-Values before X
+                                        Set Y-Values &lt; X
                                     </button>
                                 </div>
-                                <div class="column is-pulled-left">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
                                     <button class="button is-block is-info-deactivated button-fill" type="button"
                                             id="setyafterx"
                                             name="setyafterx"
                                             onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
                                             data-balloon="Changes all Y-Values of Points with a greater X-Value"
                                             data-balloon-pos="up">
-                                        Set Y-Values after X
+                                        Set Y-Values &gt; X
                                     </button>
                                 </div>
                             </div>
@@ -90,66 +95,67 @@ window.onload = function () {
                 <!--<span>
                 X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
                 be mapped to the last Y-Value</span>-->
-                <div class="column is full"></div>
-                <div class="columns">
-                    <div class="columns is-multiline">
-                        <div class="column is-half">
-                            <div class="columns">
-                                <div class="column is-pulled-left">
+                <!--<div class="column is-full"></div>-->
+                <div class="column is-full has-no-padding-left">
+                    <div class="columns is-multiline has-no-margin-left">
+                        <div class="column is-full is-pulled-left is-full-touch">
+                            <div class="columns is-multiline">
+                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
                                     <input class="button is-block is-info-deactivated button-fill" type="button"
                                            id="doReset"
                                            name="doReset"
                                            onclick="resetChanges();return false;" value="Reset">
                                 </div>
-                                <div class="column is-pulled-left">
+                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
                                     <input class="button is-block is-info-deactivated button-fill" type="button"
                                            id="toogleinterpolation"
-                                           name="toogleinterpolation" onclick="toogleCubicInterpolation();return false;"
+                                           name="toogleinterpolation"
+                                           onclick="toogleCubicInterpolation();return false;"
                                            value="Use Interpolation">
                                 </div>
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="columns">
-                                <div class="column is-pulled-left">
+                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
                                     <input class="button is-block is-info-deactivated button-fill" type="button"
                                            id="toogleDragX"
                                            name="toogleDragX" onclick="toogleDragX();return false;"
                                            value="Allow drag along X-Axis">
                                 </div>
-                                <div class="column is-pulled-left">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns is-multiline has-no-margin-left">
+                        <div class="column is-half is-pulled-left is-full-touch has-no-padding-bottom">
+                            <div class="columns has-no-padding-bottom">
+                                <div class="column is-half is-pulled-left is-full-mobile">
                                     <label class="form-group has-float-label button-fill">
                                         <input class="input" type="text" id="chart-name" placeholder="" size="20"
                                                required><span>Name</span></label>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="columns">
-                                <div class="column is-pulled-left">
+                                <div class="column is-pulled-left is-full-mobile">
                                     <button class="button is-block is-info-deactivated button-fill" type="button"
                                             id="update-chart"
                                             name="update-chart"
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false);return false;"
-                                            data-balloon="Update current Error-Probability Graph" data-balloon-pos="up">
+                                            data-balloon="Update current Error-Probability Graph"
+                                            data-balloon-pos="up">
                                         Update
                                         Template
                                     </button>
                                 </div>
-                                <div class="column is-pulled-left">
+                            </div>
+                        </div>
+                        <div class="column is-half is-pulled-left is-full-touch has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-half is-pulled-left is-full-mobile">
                                     <button class="button is-block is-info-deactivated button-fill" type="button"
                                             id="delete-chart"
                                             name="delete-chart"
                                             onclick="deleteChart('{{ host }}', '{{ apikey }}', $('#x-val').val(), $('#y-val').val());return false;"
-                                            data-balloon="Delete current Error-Probability Graph" data-balloon-pos="up">
+                                            data-balloon="Delete current Error-Probability Graph"
+                                            data-balloon-pos="up">
                                         Delete
                                     </button>
                                 </div>
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="columns">
-                                <div class="column is-pulled-left">
+                                <div class="column is-half is-pulled-left is-full-mobile">
                                     <button class="button is-block is-info-deactivated button-fill"
                                             type="button" id="save-chart" name="save-chart"
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
@@ -172,7 +178,7 @@ window.onload = function () {
 
     <div class="box">
         <form id="submit_sequence">
-            <div class="columns is-multiline">
+            <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
                 <div class="column is-full">
                     <div class="columns">
                         <div class="column is-1 is-pulled-left">
@@ -204,19 +210,19 @@ window.onload = function () {
                     </div>
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom"></div>
-                <div class="column is-half">
+                <div class="column is-half is-full-touch">
                     <div class="columns is-multiline is-gapless">
                         <div class="column is-full">
                             <div class="columns is-gapless">
-                                <div class="column is-3 is-pulled-left">
+                                <div class="column is-3 is-full-mobile is-pulled-left">
                                     <label class="form-group has-float-label">
-                                        <input class="input button-fill is-rounded" type="number" id="gc_window_size"
+                                        <input class="input is-rounded" type="number" id="gc_window_size"
                                                placeholder=""
                                                size="4"
                                                value="15"
                                                required min="0" step="1"><span>GC Window</span></label>
                                 </div>
-                                <div class="column is-expanded field has-addons has-addons-centered">
+                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
                                         <div class="select is-fullwidth is-2 select is-primary is-rounded">
                                             <label for="gc-dropdown" aria-label="GC-Method"></label><select
@@ -250,15 +256,15 @@ window.onload = function () {
                         </div>
                         <div class="column is-full">
                             <div class="columns is-gapless">
-                                <div class="column is-3 is-pulled-left">
+                                <div class="column is-3 is-full-mobile is-pulled-left">
                                     <label class="form-group has-float-label">
-                                        <input class="input button-fill is-rounded" type="number" id="kmer_window_size"
+                                        <input class="input is-rounded" type="number" id="kmer_window_size"
                                                placeholder=""
                                                size="4"
                                                value="15"
                                                required min="0" step="1"><span>Kmer Window</span></label>
                                 </div>
-                                <div class="column is-expanded field has-addons has-addons-centered">
+                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
                                         <div class="select is-fullwidth is-2 select is-primary is-rounded">
                                             <label for="kmer-dropdown" aria-label="Kmer-Method"></label><select
@@ -282,8 +288,8 @@ window.onload = function () {
                         </div>
                         <div class="column is-full">
                             <div class="columns is-gapless">
-                                <div class="column is-3 is-pulled-left"></div>
-                                <div class="column is-expanded field has-addons has-addons-centered">
+                                <div class="column is-3 is-hidden-mobile is-pulled-left"></div>
+                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
                                         <div class="select is-fullwidth is-2 select is-primary is-rounded">
                                             <label for="homopolymer-dropdown"
@@ -317,90 +323,18 @@ window.onload = function () {
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-rounded">
-                            <button class="button is-rounded button-fill" id="downloadConfig"
-                                    onclick="download(collectSendData(2), 'mosla.json','application/json');return false">
-                                Download current config
-                            </button>
-                        </div>
                     </div>
                 </div>
-                <div class="column is-half">
-                    <div class="columns is-multiline">
-                        <div class="column is-half">
-                            <div class="select is-fullwidth is-primary is-rounded">
-                                <!-- values 1-10 correspond to the error_correction id in the database -->
-                                <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                <!-- or intercept these values before the database request.  -->
-                                <label class="form-group has-float-label" aria-label="Synthesis Method">
-                                    <select class="button-fill" id="synthmeth">
-                                        <optgroup label="None">
-                                            <option value="0" selected>None</option>
-                                        </optgroup>
-                                        <optgroup label="Column synthesized oligos">
-                                            <option value="1">MutS</option>
-                                            <option value="2">Consensus shuffle</option>
-                                            <option value="3">ErrASE</option>
-                                            <option value="9">No error correction</option>
-                                        </optgroup>
-                                        <optgroup label="Microarray based oligo pools">
-                                            <option value="4">Oligo hybridization based</option>
-                                            <option value="5">High-temperature ligation/hybridization based</option>
-                                            <option value="6">ErrASE</option>
-                                            <option value="7">Nuclease-based</option>
-                                            <option value="8">NGS-based</option>
-                                            <option value="10">No error correction</option>
-                                        </optgroup>
-                                        <optgroup label="User defined">
-                                            <option value="11">Error Rates</option>
-                                            <option value="12">Error Attributes</option>
-                                            <option value="13">Rates and Attributes</option>
-                                        </optgroup>
-                                    </select><span>Synthesis Method</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="column is-half">
-                            <div class="select is-fullwidth is-primary is-rounded">
-                                <!-- values 1-7 correspond to the submethod id in the database -->
-                                <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                <!-- or intercept these values before the database request.  -->
-                                <label class="form-group has-float-label" aria-label="Sequencing Method">
-                                    <select class="button-fill" id="seqmeth">
-                                        <optgroup label="None">
-                                            <option value="0" selected>None</option>
-                                        </optgroup>
-                                        <optgroup label="Illumina">
-                                            <option value="1">Single End</option>
-                                            <option value="2">Paired End</option>
-                                        </optgroup>
-                                        <optgroup label="PacBio">
-                                            <option value="4">Subread</option>
-                                            <option value="3">CCS</option>
-                                        </optgroup>
-                                        <optgroup label="Nanopore">
-                                            <option value="5">1D</option>
-                                            <option value="6">2D</option>
-                                        </optgroup>
-                                        <optgroup label="User defined">
-                                            <option value="7">Error Rates</option>
-                                            <option value="8">Error Attributes</option>
-                                            <option value="9">Rates and Attributes</option>
-                                        </optgroup>
-                                    </select><span>Sequencing Method</span>
-                                </label>
-                            </div>
-                        </div>
-                        <div class="column is-full">
-                            <div class="columns">
-                                <div class="column is-full">
-                                    <p style="text-align:left;">Calculated Error Probabilities</p>
-                                    <label data-balloon="Use Calculated Error Probabilities"
-                                           data-balloon-pos="right" style="float: left">
-                                        <input type="checkbox" aria-label="Use Calculated Error Probabilities"
-                                               id="calcprobs"
-                                               class="switch is-rounded is-large button-fill no-outline" name="cprobs"
-                                               onclick="if ($(this).is(':checked')) {
+                <div class="column is-half is-full-touch">
+                    <div class="columns">
+                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40">
+                            <p style="text-align:left;">Calculated Error Prob.</p>
+                            <label data-balloon="Use Calculated Error Probabilities"
+                                   data-balloon-pos="right" style="float: left">
+                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                       id="calcprobs"
+                                       class="switch is-rounded is-large button-fill no-outline" name="cprobs"
+                                       onclick="if ($(this).is(':checked')) {
                                     let seq  = $('#seqmeth');
                                     let synth = $('#synthmeth');
                                     seq.data('selected', $('#seqmeth option:selected').val());
@@ -415,26 +349,95 @@ window.onload = function () {
                                     seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
                                     synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
                                 }"/>
-                                        <label for="calcprobs" style="float:left" class="no-outline"></label>
-                                    </label>
+                                <label for="calcprobs" style="float:left" class="no-outline"></label>
+                            </label>
+                        </div>
+                        <div class="column">
+                            <div class="columns is-multiline">
+                                <div class="column is-full">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-10 correspond to the error_correction id in the database -->
+                                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="Synthesis Method">
+                                            <select class="select" id="synthmeth">
+                                                <optgroup label="None">
+                                                    <option value="0" selected>None</option>
+                                                </optgroup>
+                                                <optgroup label="Column synthesized oligos">
+                                                    <option value="1">MutS</option>
+                                                    <option value="2">Consensus shuffle</option>
+                                                    <option value="3">ErrASE</option>
+                                                    <option value="9">No error correction</option>
+                                                </optgroup>
+                                                <optgroup label="Microarray based oligo pools">
+                                                    <option value="4">Oligo hybridization based</option>
+                                                    <option value="5">High-temperature ligation/hybridization based
+                                                    </option>
+                                                    <option value="6">ErrASE</option>
+                                                    <option value="7">Nuclease-based</option>
+                                                    <option value="8">NGS-based</option>
+                                                    <option value="10">No error correction</option>
+                                                </optgroup>
+                                                <optgroup label="User defined">
+                                                    <option value="11">Error Rates</option>
+                                                    <option value="12">Error Attributes</option>
+                                                    <option value="13">Rates and Attributes</option>
+                                                </optgroup>
+                                            </select><span>Synthesis Method</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="column is-full">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-7 correspond to the submethod id in the database -->
+                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="Sequencing Method">
+                                            <select class="select" id="seqmeth">
+                                                <optgroup label="None">
+                                                    <option value="0" selected>None</option>
+                                                </optgroup>
+                                                <optgroup label="Illumina">
+                                                    <option value="1">Single End</option>
+                                                    <option value="2">Paired End</option>
+                                                </optgroup>
+                                                <optgroup label="PacBio">
+                                                    <option value="4">Subread</option>
+                                                    <option value="3">CCS</option>
+                                                </optgroup>
+                                                <optgroup label="Nanopore">
+                                                    <option value="5">1D</option>
+                                                    <option value="6">2D</option>
+                                                </optgroup>
+                                                <optgroup label="User defined">
+                                                    <option value="7">Error Rates</option>
+                                                    <option value="8">Error Attributes</option>
+                                                    <option value="9">Rates and Attributes</option>
+                                                </optgroup>
+                                            </select><span>Sequencing Method</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="column is-full">
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-full">
-                            <div class="columns">
-                                <div class="column is-full"></div>
-                            </div>
-                        </div>
-                        <div class="column is-rounded">
-                            <button class="button is-rounded button-fill" id="uploadConfig"
-                                    onclick="uploadConf();return false">Upload config
-                            </button>
-                        </div>
                     </div>
+
                 </div>
-                <div class="columns no-margin-bottom ">
-                    <div class="column is-full">
-                    </div>
+            </div>
+            <div class="columns has-no-padding-top">
+                <div class="column is-rounded">
+                    <button class="button is-rounded button-fill" id="downloadConfig"
+                            onclick="download(collectSendData(2), 'mosla.json','application/json');return false">
+                        Download current config
+                    </button>
+                </div>
+                <div class="column is-rounded">
+                    <button class="button is-rounded button-fill" id="uploadConfig"
+                            onclick="uploadConf();return false">Upload config
+                    </button>
                 </div>
             </div>
             <br/>
@@ -645,7 +648,7 @@ window.onload = function () {
             });
 
             $("body").click(function (event) {
-                if (!$(event.target).closest("#inneroverlay,#overlay-content,#showOvrly").length) {
+                if (!$(event.target).closest(".overlay-all,#overlay-managebox,#overlay-content,#showOvrly").length) {
                     closeOverlay();
                 }
             });
