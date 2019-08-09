@@ -190,6 +190,7 @@ function download(text, name, type) {
         a.click();
     }
 }
+
 function handleFileChange(evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // Great success! All the File APIs are supported.
@@ -203,11 +204,15 @@ function handleFileChange(evt) {
         }
         let reader = new FileReader();
         reader.readAsText(file);
-        reader.onload = () => {try {loadSendData(JSON5.parse(reader.result))} catch (e) {
-            $("#sequence").val(reader.result.toUpperCase());
-        }}
+        reader.onload = () => {
+            try {
+                loadSendData(JSON5.parse(reader.result))
+            } catch (e) {
+                $("#sequence").val(reader.result.toUpperCase());
+            }
+        }
     } else {
-      alert('The File APIs are not fully supported in this browser.');
+        alert('The File APIs are not fully supported in this browser.');
     }
     evt.target.removeEventListener('change', handleFileChange);
 }
@@ -244,7 +249,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['gc_name'] + " (CUSTOM)", dta['gc_name'], undefined, true);
         //opt.data('jsonblob',dta['gc_error_prob']);
-        $('#gc-dropdown').add(opt);
+        $('#gc-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#gc-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
     }
@@ -257,7 +262,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['kmer_name'] + " (CUSTOM)", dta['kmer_name'], undefined, true);
         //opt.data('jsonblob',dta['kmer_error_prob']);
-        $('#kmer-dropdown').add(opt);
+        $('#kmer-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#kmer-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
     }
@@ -270,7 +275,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['homopolymer_name'] + " (CUSTOM)", dta['homopolymer_name'], undefined, true);
         //opt.data('jsonblob',dta['homopolymer_error_prob']);
-        $('#homopolymer-dropdown').add(opt);
+        $('#homopolymer-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#homopolymer-dropdown option:selected').data('jsonblob', dta['homopolymer_error_prob']);
     }
@@ -284,7 +289,11 @@ function loadSendData(dta) {
         seq_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        $('#seqmeth').add(opt);
+        $('#seqmeth').append(opt);
+        //TODO
+        let sm_sel = $('#seqmeth option:selected')
+        sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
     }
 
     /* SYNTH */
@@ -296,7 +305,11 @@ function loadSendData(dta) {
         synth_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        $('#seqmeth').add(opt);
+        $('#synthmeth').append(opt);
+        //TODO
+        let sm_sel = $('#synthmeth option:selected');
+        sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
 
     $('#calcprobs').prop("checked", dta['use_error_probs']);
@@ -339,8 +352,16 @@ function collectSendData(space) {
         kmer_error_prob: kmer_error_prob,
         kmer_name: kmer_dropdown_select.text(),
         sequence_method: seq_meth.val(),
+        sequence_method_conf: {
+            err_data: seq_meth.data('err_data'),
+            err_attributes: seq_meth.data('err_attributes')
+        },
         sequence_method_name: seq_meth.text(),
         synthesis_method: synth_meth.val(),
+        synthesis_method_conf: {
+            err_data: synth_meth.data('err_data'),
+            err_attributes: synth_meth.data('err_attributes')
+        },
         synthesis_method_name: synth_meth.text(),
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
@@ -349,7 +370,6 @@ function collectSendData(space) {
 }
 
 function queryServer(uuid) {
-
     let submit_seq_btn = $('#submit_seq_btn');
     let sequence = $("#sequence").val().toUpperCase();
     let homopolymer = $('#homopolymer');

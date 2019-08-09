@@ -134,7 +134,9 @@ def do_all():
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
     seq_meth = r_method.get('sequence_method')
+    seq_meth_conf = r_method.get('sequence_method_conf')
     synth_meth = r_method.get('synthesis_method')
+    synth_meth_conf = r_method.get('synthesis_method_conf')
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -186,10 +188,10 @@ def do_all():
         if use_error_probs:
             manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
         else:
-            synthesis_error(sequence, g, synth_meth, process="synthesis")
+            synthesis_error(sequence, g, synth_meth, process="synthesis", conf=synth_meth_conf)
             synthesis_error_seq = g.graph.nodes[0]['seq']
             synth_res = g.graph.nodes[0]['seq']
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", conf=seq_meth_conf)
 
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
@@ -218,20 +220,28 @@ def do_all():
     return jsonify(res_all)
 
 
-def synthesis_error(sequence, g, synth_meth, process="synthesis"):
-    tmp = SynthesisErrorRates.query.filter(
-        SynthesisErrorRates.id == int(synth_meth)).first()
-    err_rate_syn = tmp.err_data
-    err_att_syn = tmp.err_attributes
+def synthesis_error(sequence, g, synth_meth, process="synthesis", conf=None):
+    if conf is None:
+        tmp = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first()
+        err_rate_syn = tmp.err_data
+        err_att_syn = tmp.err_attributes
+    else:
+        err_rate_syn = conf['err_data']
+        err_att_syn = conf['err_attributes']
     synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn)
     return synth_err.lit_error_rate_mutations()
 
 
-def sequencing_error(sequence, g, seq_meth, process="sequencing"):
-    tmp = SequencingErrorRates.query.filter(
-        SequencingErrorRates.id == int(seq_meth)).first()
-    err_rate_seq = tmp.err_data
-    err_att_seq = tmp.err_attributes
+def sequencing_error(sequence, g, seq_meth, process="sequencing", conf=None):
+    if conf is None:
+        tmp = SequencingErrorRates.query.filter(
+            SequencingErrorRates.id == int(seq_meth)).first()
+        err_rate_seq = tmp.err_data
+        err_att_seq = tmp.err_attributes
+    else:
+        err_rate_seq = conf['err_data']
+        err_att_seq = conf['err_attributes']
     seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq)
     return seq_err.lit_error_rate_mutations()
 

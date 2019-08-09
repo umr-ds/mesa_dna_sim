@@ -105,3 +105,10 @@
     overflow-y: hidden;
     border-color: black;
 }
+
+  .container.is-fluid-mobile {
+    margin-left: 32px;
+    margin-right: 32px;
+    max-width: none;
+    max-height: none;
+  }
