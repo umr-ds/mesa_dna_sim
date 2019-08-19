@@ -452,6 +452,8 @@ function queryServer(uuid) {
                     res.css('display', 'initial');
                     $('html, body').animate({scrollTop: res.offset().top}, 500);
                 }
+                var element = document.getElementById("mod_seq");
+                set_mod_seq_inf(element.innerText, 1, element.innerText.length);
                 submit_seq_btn.removeClass('is-loading');
             },
             fail: function (data) {
@@ -571,3 +573,32 @@ function changeurl(new_url) {
 var dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
+
+function set_mod_seq_inf(sel, sel_start, sel_end){
+    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/sel.length)*100;
+    sel_gc_con = Math.round(sel_gc_con * 100)/100;
+    var sel_tm = get_tm(sel)
+    sel_tm = Math.round(sel_tm * 100)/100;
+    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+" Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+}
+
+function count_char(sel_seq, char) {
+    var count = 0;
+    for (var i = 0; i < sel_seq.length; i +=1){
+        if(sel_seq[i] === char){
+            count += 1;
+        }
+    }
+    return count;
+}
+
+function get_tm(sel_seq){
+    var tm = 0;
+    if(sel_seq.length < 14){
+        tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
+    }
+    else{
+        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(sel_seq.length)
+    }
+    return tm;
+}
