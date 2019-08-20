@@ -155,11 +155,27 @@ function round(value, decimals) {
 
 $(document).ready(function () {
     let seq = $("#sequence");
+    let send_mail = $("#send_email");
     seq.keypress(function (e) {
         let chr = String.fromCharCode(e.which);
         let limitAlphabet = $('#limitedChars')[0].checked;
         if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
             return false;
+        }
+
+        if (seq.val().length >= 1000) {
+            send_mail.prop("checked", true);
+            send_mail.prop("disabled", true);
+        } else {
+            send_mail.removeAttr("disabled");
+        }
+    });
+    seq.bind("propertychange change click keyup input paste", function (e) {
+        if (seq.val().length >= 1000) {
+            send_mail.prop("checked", true);
+            send_mail.attr("disabled", true);
+        } else {
+            send_mail.attr("disabled", false);
         }
     });
     /*seq.keyup(function () {
@@ -190,6 +206,7 @@ function download(text, name, type) {
         a.click();
     }
 }
+
 function handleFileChange(evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // Great success! All the File APIs are supported.
@@ -203,11 +220,15 @@ function handleFileChange(evt) {
         }
         let reader = new FileReader();
         reader.readAsText(file);
-        reader.onload = () => {try {loadSendData(JSON5.parse(reader.result))} catch (e) {
-            $("#sequence").val(reader.result.toUpperCase());
-        }}
+        reader.onload = () => {
+            try {
+                loadSendData(JSON5.parse(reader.result))
+            } catch (e) {
+                $("#sequence").val(reader.result.toUpperCase());
+            }
+        }
     } else {
-      alert('The File APIs are not fully supported in this browser.');
+        alert('The File APIs are not fully supported in this browser.');
     }
     evt.target.removeEventListener('change', handleFileChange);
 }
@@ -244,7 +265,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['gc_name'] + " (CUSTOM)", dta['gc_name'], undefined, true);
         //opt.data('jsonblob',dta['gc_error_prob']);
-        $('#gc-dropdown').add(opt);
+        $('#gc-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#gc-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
     }
@@ -257,7 +278,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['kmer_name'] + " (CUSTOM)", dta['kmer_name'], undefined, true);
         //opt.data('jsonblob',dta['kmer_error_prob']);
-        $('#kmer-dropdown').add(opt);
+        $('#kmer-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#kmer-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
     }
@@ -270,7 +291,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['homopolymer_name'] + " (CUSTOM)", dta['homopolymer_name'], undefined, true);
         //opt.data('jsonblob',dta['homopolymer_error_prob']);
-        $('#homopolymer-dropdown').add(opt);
+        $('#homopolymer-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#homopolymer-dropdown option:selected').data('jsonblob', dta['homopolymer_error_prob']);
     }
@@ -284,7 +305,11 @@ function loadSendData(dta) {
         seq_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        $('#seqmeth').add(opt);
+        $('#seqmeth').append(opt);
+        //TODO
+        let sm_sel = $('#seqmeth option:selected')
+        sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
     }
 
     /* SYNTH */
@@ -296,7 +321,11 @@ function loadSendData(dta) {
         synth_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        $('#seqmeth').add(opt);
+        $('#synthmeth').append(opt);
+        //TODO
+        let sm_sel = $('#synthmeth option:selected');
+        sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
 
     $('#calcprobs').prop("checked", dta['use_error_probs']);
@@ -339,17 +368,25 @@ function collectSendData(space) {
         kmer_error_prob: kmer_error_prob,
         kmer_name: kmer_dropdown_select.text(),
         sequence_method: seq_meth.val(),
+        sequence_method_conf: {
+            err_data: seq_meth.data('err_data'),
+            err_attributes: seq_meth.data('err_attributes')
+        },
         sequence_method_name: seq_meth.text(),
         synthesis_method: synth_meth.val(),
+        synthesis_method_conf: {
+            err_data: synth_meth.data('err_data'),
+            err_attributes: synth_meth.data('err_attributes')
+        },
         synthesis_method_name: synth_meth.text(),
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
+        send_mail: $('#send_email').is(":checked"),
         asHTML: true
     }, undefined, space);
 }
 
 function queryServer(uuid) {
-
     let submit_seq_btn = $('#submit_seq_btn');
     let sequence = $("#sequence").val().toUpperCase();
     let homopolymer = $('#homopolymer');
@@ -395,6 +432,7 @@ function queryServer(uuid) {
             });
     }
     let res = $('#results');
+    let resultsbymail = $('#resultsbymail');
     for (let mode in {"all": overall}) {
         $.post({
             url: host + "api/" + mode,
@@ -408,6 +446,7 @@ function queryServer(uuid) {
                     endpoints[error_source].html("");
                 }
                 res.css('display', 'none');
+                resultsbymail.css('display', 'none');
             },
             success: function (data) {
                 if (sequence !== "" && sequence in data)
@@ -418,7 +457,7 @@ function queryServer(uuid) {
                     const shr_txt = $("#link_to_share");
                     shr_txt.text(window.location.href);
                 }
-                if (data['did_succeed'] !== false) {
+                if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                     if (uuid !== undefined)
                         loadSendData(data['query']);
                     data = data['res'];
@@ -431,6 +470,10 @@ function queryServer(uuid) {
                     makeHoverGroups();
                     res.css('display', 'initial');
                     $('html, body').animate({scrollTop: res.offset().top}, 500);
+                }
+                if (data['result_by_mail'] === true) {
+                    //TODO show info that the result will be send via mail
+                    resultsbymail.css('display', 'initial');
                 }
                 submit_seq_btn.removeClass('is-loading');
             },

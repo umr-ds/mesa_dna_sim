@@ -61,7 +61,10 @@
 }
 
 #overlay-content {
-    width: 100%;
+    /*max-height: 95%;*/
+    max-width: 95%;
+    min-width: 85%;
+    width: 90%;
     height: auto;
     margin: 0 auto;
     background-color: rgba(255, 255, 255, 1.0);
@@ -76,7 +79,8 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 85%;
+    width: 90%;
+    max-height: 100%;
 }
 
 #overlay-managebox {
@@ -101,3 +105,10 @@
     overflow-y: hidden;
     border-color: black;
 }
+
+  .container.is-fluid-mobile {
+    margin-left: 32px;
+    margin-right: 32px;
+    max-width: none;
+    max-height: none;
+  }

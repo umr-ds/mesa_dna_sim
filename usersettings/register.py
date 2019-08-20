@@ -57,18 +57,3 @@ def register():
             return redirect(url_for("main_page.main_index"))
     else:
         return render_template('signup.html')
-
-
-""" 
-   if form.validate_on_submit():
-        user = User(
-            email=form.email.data,
-            password=form.password.data,
-            confirmed=False
-        )
-        db.session.add(user)
-        db.session.commit()
-
-        token = generate_confirmation_token(user.email)
-
-"""
