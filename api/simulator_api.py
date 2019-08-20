@@ -197,7 +197,7 @@ def do_all():
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
-        fastq = fastq_errors(res, sequence)
+        fastq = "".join(fastq_errors(res, sequence))
 
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
@@ -207,7 +207,7 @@ def do_all():
             res = {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res,
                            'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence, 'fastq': fastq}
+                           'all': htmlify(res, sequence), 'fastq': fastq}, 'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
             res = {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
