@@ -1,4 +1,5 @@
 import json
+import math
 import uuid
 import redis
 from flask import jsonify, request, Blueprint, flash
@@ -196,6 +197,8 @@ def do_all():
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
+        fastq = fastq_errors(res, sequence)
+
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
             gc_html = htmlify(gc_window_res, sequence)
@@ -204,12 +207,12 @@ def do_all():
             res = {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res,
                            'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence}
+                           'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence, 'fastq': fastq}
         elif not as_html:
             res = {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
                            'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
-                           'modified_sequence': mod_seq}}
+                           'modified_sequence': mod_seq, 'fastq': fastq}}
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
         r_method.pop('key')  # drop key from stored fields
@@ -252,6 +255,26 @@ def manual_errors(sequence, g, error_res, process='Calculated Error'):
         for err in att:
             seq_err.manual_mutation(err)
 
+
+def fastq_errors(input, sequence, sanger=True):
+    tmp = []
+    for i in range(0, len(sequence)):
+        tmp.append(0.0)
+    for error in input:
+        for pos in range(error["startpos"], error["endpos"]+1):
+            tmp[pos] += error["errorprob"]
+    res = []
+    if sanger:
+        for i in range(0, len(tmp)):
+            if 0 < tmp[i] <= 1:
+                q_score = round((-10 * math.log(tmp[i], 10)))
+
+            elif tmp[i] > 0 and tmp[i] > 1:
+                q_score = 0
+            else:
+                q_score = 40
+            res.append(chr(q_score + 33))
+    return res
 
 def htmlify(input, sequence, modification=False):
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
