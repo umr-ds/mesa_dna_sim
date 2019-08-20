@@ -144,8 +144,9 @@
                     </div>
                 </div>
             </div>
-            <div class="field control columns is-full is-multiline has-no-margin-top" style="padding-top: 40px;"
+            <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
                  id="new_synthesis_errors">
+                <div class="subtitle has-text-centered button-fill">Add new Rule</div>
                 {% with e_obj=default_eobj, mode='synth' %}
                     {% include "error_probs.html" %}
                 {% endwith %}
@@ -169,8 +170,10 @@
                     </div>
                 </div>
             </div>
-            <div class="field control columns is-full is-multiline has-no-margin-top" style="padding-top: 40px;"
+            <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
+                 style="padding-top: 40px;"
                  id="new_sequencing_errors">
+                <div class="subtitle has-text-centered button-fill">Add new Rule</div>
                 {% with e_obj=default_eobj, mode='seq' %}
                     {% include "error_probs.html" %}
                 {% endwith %}
@@ -234,6 +237,10 @@
 
             $('[id^="err_data-{{ mode }}-slider-"]').each(function () {
                 initErrorSliders('{{ mode }}', $(this)[0])
+            });
+
+            $('[id^="mismatch-{{ mode }}-slider-"]').each(function () {
+                initMismatchSlider('{{ mode }}', $(this)[0]);
             });
         {% endfor %}
     </script>

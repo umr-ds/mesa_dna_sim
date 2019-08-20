@@ -112,14 +112,14 @@ def query_sequence():
     homopolymer_charts = ErrorProbability.query.filter(
         and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
              ErrorProbability.type == "homopolymer")).order_by(asc(ErrorProbability.id)).all()
-    return render_template('sequence_view.html', apikey=apikey, sequence=sequence, host=request.host,
+    return render_template('sequence_view.html', apikey=apikey, sequence=sequence, host=request.url_root,
                                usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
                                gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
                                homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
                                                    homopolymer_charts])
 
 
-@main_page.route("/undesired_subsequences", methods=['GET', 'POST'])
+@main_page.route("/settings", methods=['GET', 'POST'])
 @require_logged_in
 def undesired_subsequences():
     user_id = session.get('user_id')
@@ -145,7 +145,7 @@ def undesired_subsequences():
             seq_id_out[int(x['id'])] = x
 
         return render_template('undesired_subsequences.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
-                               usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.host)
+                               usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.url_root)
     else:
         flash("Could not find user, please login again", 'warning')
         session.pop('user_id')
@@ -374,7 +374,7 @@ def add_seq_error_probs():
             res = {'did_succeed': True, 'id': new_seq.id}
 
             if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_seq.as_dict(), host=request.host,
+                res['content'] = render_template('error_probs.html', e_obj=new_seq.as_dict(), host=request.url_root,
                                                  mode='seq')
             else:
                 res['content'] = new_seq.as_dict()
@@ -408,7 +408,7 @@ def add_synth_error_probs():
             res = {'did_succeed': True, 'id': new_synth.id}
 
             if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_synth.as_dict(), host=request.host,
+                res['content'] = render_template('error_probs.html', e_obj=new_synth.as_dict(), host=request.url_root,
                                                  mode='synth')
             else:
                 res['content'] = new_synth.as_dict()
@@ -425,7 +425,8 @@ def floatify(x, sanitize_mode=False):
             if isinstance(x[key], dict):
                 x[key] = floatify(x[key], sanitize_mode=True)
             else:
-                x[key] = sanitize_input(x[key])
+                if not (isinstance(x[key], int) or isinstance(x[key], float)):
+                    x[key] = sanitize_input(x[key])
         else:
             if isinstance(x[key], dict):
                 x[key] = floatify(x[key], sanitize_mode=sanitize_mode)

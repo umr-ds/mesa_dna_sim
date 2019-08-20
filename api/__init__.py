@@ -2,4 +2,6 @@ import os
 
 from redis import Redis
 
-redis = Redis(host=(os.environ.get('REDIS_SERVER') or '172.24.0.3'))
+from config import redis_ip
+
+redis = Redis(host=(os.environ.get('REDIS_SERVER') or redis_ip))

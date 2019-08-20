@@ -16,6 +16,7 @@
     opacity: 0.5;*/
     z-index: 10000;
     vertical-align: middle;
+    horiz-align: center;
     display: none; /*set to block for show*/
     overflow-x: hidden;
     transition: 0.5s;
@@ -41,6 +42,22 @@
     top: -20px;
     right: 10px;
     font-size: 60px;
+}
+
+.roundclosebtn {
+    display:block;
+    height: 30px;
+    width: 30px;
+    border-radius: 100%;
+    /*box-shadow: 0 0 2px gray;*/
+    background-color: white;
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    font-size: 40px;
+    text-align: center;
+    color: darkred;
+    line-height: 20px;
 }
 
 #overlay-content {
@@ -71,6 +88,14 @@
 
 /* Code for underlining errors */
 .text_lettering {
+    font-family: monospace;
+    overflow-x: auto;
+    overflow-y: hidden;
+    border-color: black;
+}
+
+
+.full_modified_text_lettering {
     font-family: monospace;
     overflow-x: auto;
     overflow-y: hidden;

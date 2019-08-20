@@ -196,7 +196,7 @@ class SequencingError:
     # A problem with pattern mismatches is now that it does not find patterns separated by a
     # deletion.
     def _pattern_mismatch(self, pattern, position_range):
-        reg = re.compile("|".join(pattern.keys()))
+        reg = re.compile("|".join(pattern.keys()))  # '(?=(' + "|".join(pattern.keys()) + '))')
         if position_range:
             check_seq_range = self.seq[position_range[0]:position_range[1] + 1]
         else:
@@ -209,7 +209,7 @@ class SequencingError:
         except ValueError:
             return self._no_pattern_mismatch()
 
-        if type(pattern[chosen_ele[1]]) == dict:
+        if type(pattern[chosen_ele[1]]) == dict:  # TODO check: chosen_ele[1] in pattern and
             final_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
                                          p=list(pattern[chosen_ele[1]].values()))
         else:
@@ -249,19 +249,19 @@ class SequencingError:
     def _indel_mismatch_base(self, pos, mode):
         assert mode in ['deletion', 'insertion', 'mismatch']
         if mode == 'deletion':
-            self.g.add_node(orig=self.seq[pos], mod=" ",  orig_end=pos+1,
-                            mod_start=pos, mod_end=pos+1, mode=mode, process=self.process)
+            self.g.add_node(orig=self.seq[pos], mod=" ", orig_end=pos + 1,
+                            mod_start=pos, mod_end=pos + 1, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + " " + self.seq[pos + 1:]
         elif mode == 'insertion':
             ele = np.random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos], orig_end=pos+1, mod_start=pos,
-                            mod_end=pos+2, mode=mode, process=self.process)
+            self.g.add_node(orig=self.seq[pos], mod=ele + self.seq[pos], orig_end=pos + 1, mod_start=pos,
+                            mod_end=pos + 2, mode=mode, process=self.process)
             self.seq = self.seq[:pos] + ele + self.seq[pos:]
         else:
             ele = np.random.choice(self.bases)
-            self.g.add_node(orig=self.seq[pos], mod=ele, orig_end=pos+1, mod_start=pos, mod_end=pos + 1, mode=mode,
+            self.g.add_node(orig=self.seq[pos], mod=ele, orig_end=pos + 1, mod_start=pos, mod_end=pos + 1, mode=mode,
                             process=self.process)
-            self.seq = self.seq[:pos] + ele + self.seq[pos+1:]
+            self.seq = self.seq[:pos] + ele + self.seq[pos + 1:]
 
     @staticmethod
     def _get_atts(res):

@@ -3,7 +3,6 @@ import uuid
 import redis
 from flask import jsonify, request, Blueprint, flash
 from math import floor
-from copy import deepcopy
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
 from database.models import SequencingErrorRates, SynthesisErrorRates
@@ -110,90 +109,8 @@ def do_undesired_sequences():
     return jsonify(res)
 
 
-@simulator_api.route('/api/sequencing', methods=['GET', 'POST'])
-@require_apikey
-def add_sequencing_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    seq_meth = r_method.get('sequence_method')
-
-    # 0 = none, 7,8,9 = user defined
-    if seq_meth in {"0", "7", "8", "9"}:
-        res = sequence
-    else:
-        err_rate = SequencingErrorRates.query.filter(
-            SequencingErrorRates.submethod_id == int(seq_meth)).first().err_data
-        err_att = SequencingErrorAttributes.query.filter(
-            SequencingErrorAttributes.submethod_id == int(seq_meth)).first().attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        res = seqerr.lit_error_rate_mutations()
-    return jsonify(res)
-
-
-# undesired_sub_seq = UndesiredSubsequences.query.filter(
-#    or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
-#    desc(UndesiredSubsequences.id)).all()
-
-
-@simulator_api.route('/api/synthesis', methods=['GET', 'POST'])
-@require_apikey
-def add_synthesis_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    synth_meth = r_method.get('synthesis_method')
-
-    # 0 = none, 11,12,13 = user defined
-    if synth_meth in {"0", "11", "12", "13"}:
-        res = sequence
-    else:
-        tmp = SynthesisErrorRates.query.filter(
-            SynthesisErrorRates.id == int(synth_meth)).first()
-        err_rate = tmp.err_data
-        err_att = tmp.err_attributes
-        seqerr = SequencingError(sequence, err_att, err_rate)
-        res = seqerr.lit_error_rate_mutations()
-    return jsonify(res)
-
-
-# This is dumb as it does calculate the errors new and therefore gets different errors
-# Than the sequencing and synthesis by them self
-@simulator_api.route('/api/modify', methods=['GET', 'POST'])
-@require_apikey
-def add_errors():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
-
-    sequence = r_method.get('sequence')
-    seq_meth = r_method.get('sequence_method')
-    synth_meth = r_method.get('synthesis_method')
-
-    g = Graph(None, sequence)
-
-    if synth_meth in {"0", "11", "12", "13"} and seq_meth in {"0", "7", "8", "9"}:
-        pass
-    elif synth_meth in {"0", "11", "12", "13"}:
-        sequencing_error(sequence, g, seq_meth, process="sequencing")
-    elif seq_meth in {"0", "7", "8", "9"}:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-    else:
-        synthesis_error(sequence, g, synth_meth, process="synthesis")
-        synthesis_error_seq = g.graph.nodes[0]['seq']
-        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing")
-    return jsonify(g.graph.nodes[0]['seq'])
-
-
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
-@require_apikey
+# @require_apikey
 def do_all():
     # TODO
     if request.method == 'POST':
@@ -202,12 +119,17 @@ def do_all():
         r_method = request.args
     r_uid = r_method.get('uuid')
     if r_uid is not None:
-        r_res = read_from_redis(r_uid)
+        r_res = None
+        try:
+            r_res = read_from_redis(r_uid)
+        except Exception as e:
+            print("Error while talking to Redis-Server:", e)
         if r_res is not None:
             return jsonify(json.loads(r_res))
-        else:
-            return jsonify({'did_succeed': False})
-    sequence = r_method.get('sequence')
+        # ignore uuid if we can not connect to redis...
+        # else:
+        #    return jsonify({'did_succeed': False})
+    sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
@@ -220,81 +142,88 @@ def do_all():
     seed = r_method.get('random_seed')
     seed = int(seed) if seed else None
     as_html = r_method.get('asHTML')
-    if enabled_undesired_seqs:
-        try:
-            undesired_sequences = {}
-            for useq in enabled_undesired_seqs:
-                if useq['enabled']:
-                    undesired_sequences[useq['sequence']] = float(useq['error_prob'])
-            res = undesired_subsequences(sequence, undesired_sequences)
-        except:
+    res_all = {}
+    if type(sequences) == str:
+        sequences = [sequences]
+    for sequence in sequences:
+        if enabled_undesired_seqs:
+            try:
+                undesired_sequences = {}
+                for useq in enabled_undesired_seqs:
+                    if useq['enabled']:
+                        undesired_sequences[useq['sequence']] = float(useq['error_prob'])
+                res = undesired_subsequences(sequence, undesired_sequences)
+            except:
+                res = undesired_subsequences(sequence)
+        else:
             res = undesired_subsequences(sequence)
-    else:
-        res = undesired_subsequences(sequence)
-    usubseq_html = htmlify(res, sequence)
-    if kmer_window:
-        try:
-            kmer_res = kmer_counting(sequence, int(kmer_window), error_function=kmer_error_prob_func)
-        except:
+        usubseq_html = htmlify(res, sequence)
+        if kmer_window:
+            try:
+                kmer_res = kmer_counting(sequence, int(kmer_window), error_function=kmer_error_prob_func)
+            except:
+                kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
+        else:
             kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
-    else:
-        kmer_res = kmer_counting(sequence, error_function=kmer_error_prob_func)
 
-    res.extend(kmer_res)
-    if gc_window:
-        try:
-            gc_window_res = windowed_gc_content(sequence, int(gc_window), error_function=gc_error_prob_func)
-        except:
+        res.extend(kmer_res)
+        if gc_window:
+            try:
+                gc_window_res = windowed_gc_content(sequence, int(gc_window), error_function=gc_error_prob_func)
+            except:
+                gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
+        else:
             gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
-    else:
-        gc_window_res = overall_gc_content(sequence, error_function=gc_error_prob_func)
 
-    res.extend(gc_window_res)
-    homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
-    res.extend(homopolymer_res)
+        res.extend(gc_window_res)
+        homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
+        res.extend(homopolymer_res)
 
-    # The Graph for all types of errors
-    g = Graph(None, sequence)
-    # Another Graph to only show the sequencing errors, wasteful on resources and has to be done
-    # again for storage
-    # g_only_seq = Graph(None, sequence)
+        # The Graph for all types of errors
+        g = Graph(None, sequence)
+        # Another Graph to only show the sequencing errors, wasteful on resources and has to be done
+        # again for storage
+        # g_only_seq = Graph(None, sequence)
 
-    if use_error_probs:
-        manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
-    else:
-        seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed)
-        synthesis_error_seq = g.graph.nodes[0]['seq']
-        # The code commented out is for visualization of sequencing and synthesis
-        # methods seperated, it is inefficient - better to color the sequence
-        # based on the final graph using the identifiers.
-        # dc_g = deepcopy(g)
-        # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
-        sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed)
-        # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
-        # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
-        # seq_html = htmlify(g_only_seq.get_lineages(), sequencing_error_seq, modification=True)
+        if use_error_probs:
+            manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
+        else:
+            seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed)
+            synthesis_error_seq = g.graph.nodes[0]['seq']
+            # The code commented out is for visualization of sequencing and synthesis
+            # methods seperated, it is inefficient - better to color the sequence
+            # based on the final graph using the identifiers.
+            # dc_g = deepcopy(g)
+            # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed)
+            # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
+            # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
+            # seq_html = htmlify(g_only_seq.get_lineages(), sequencing_error_seq, modification=True)
 
-    mod_seq = g.graph.nodes[0]['seq']
-    mod_res = g.get_lineages()
-
-
-    if as_html:
-        kmer_html = htmlify(kmer_res, sequence)
-        gc_html = htmlify(gc_window_res, sequence)
-        homopolymer_html = htmlify(homopolymer_res, sequence)
-        mod_html = htmlify(mod_res, mod_seq, modification=True)
+        mod_seq = g.graph.nodes[0]['seq']
+        mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
-        res = jsonify(
-            {'res': {'modify': mod_html, 'sequencing': "seq_html_placeholder", 'synthesis': "synth_html_placeholder", 'subsequences': usubseq_html,
-                     'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                     'all': htmlify(res, sequence)}, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed)})
+        if as_html:
+            kmer_html = htmlify(kmer_res, sequence)
+            gc_html = htmlify(gc_window_res, sequence)
+            homopolymer_html = htmlify(homopolymer_res, sequence)
+            mod_html = htmlify(mod_res, mod_seq, modification=True)
+            res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
+                         'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                         'all': htmlify(res, sequence), 'seed': str(seed)}, 'uuid': uuid_str, 'sequence': sequence, }
+        elif not as_html:
+            res = {'res': {'modify': mod_res, 'kmer': kmer_res,
+                           'gccontent': gc_window_res,
+                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
+                           'modified_sequence': mod_seq}}
+        res_all[sequence] = res
+        res = {k: r['res'] for k, r in res_all.items()}
+        r_method.pop('key')  # drop key from stored fields
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res.json['res'], 'query': r_method, 'uuid': uuid_str}), 31536000)
+            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
-        return res
-
-    return jsonify(res)
+    return jsonify(res_all)
 
 
 def synthesis_error(sequence, g, synth_meth, seed, process="synthesis"):
@@ -419,7 +348,7 @@ def build_html(res_list, reducesets=True):
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
-    return res
+    return "<nobr>" + res + "</nobr>"
 
 
 def colorize(error_prob):
