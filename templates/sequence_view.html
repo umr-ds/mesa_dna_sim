@@ -176,14 +176,15 @@ window.onload = function () {
         Your Query:
     </h2>
 
-    <div class="box">
-        <form id="submit_sequence">
+    <div class="box container is-fluid is-fluid-mobile">
+        <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
                 <div class="column is-full">
                     <div class="columns">
                         <div class="column is-1 is-pulled-left">
+                            <p>ACGT only</p>
                             <label data-balloon="Limit Alphabet"
-                                   data-balloon-pos="up">ACGT only
+                                   data-balloon-pos="right">
                                 <input type="checkbox" aria-label="Limit Alphabet to ACGT" id="limitedChars" checked
                                        class="switch is-rounded is-large button-fill no-outline" name="enableall"/>
                                 <label for="limitedChars" class="no-outline"></label>
@@ -512,9 +513,24 @@ window.onload = function () {
                     {% endfor %}
                 </div>
             </div>
-            <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
-                    id="submit_seq_btn">Submit
-            </button>
+
+            <div class="columns has-no-padding-top">
+                <div class="column is-1">
+                    <p>Send E-Mail</p>
+                    <label data-balloon="{% if user_id == None %}Log in to use Send2Mail{% else %}Send Result via E-Mail{% endif %}"
+                           data-balloon-pos="right">
+                        <input type="checkbox" aria-label="Send Result to E-Mail instead of waiting for Output"
+                               id="send_email" {% if user_id == None %}disabled{% endif %}
+                               class="switch is-rounded is-large button-fill no-outline" name="send_email"/>
+                        <label for="send_email" class="no-outline"></label>
+                    </label>
+                </div>
+                <div class="column button-fill">
+                    <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
+                            id="submit_seq_btn">Submit
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
     <div id="results" style="display: none">
@@ -562,6 +578,13 @@ window.onload = function () {
         <div class="box">
             <h3 class="subtitle has-text-black">Share this result:</h3>
             <ul class="share_mosla_link" id="link_to_share"></ul>
+        </div>
+
+    </div>
+    <div id="resultsbymail" style="display: none">
+        <div class="box">
+            <h3 class="subtitle is-centered is-warning has-text-weight-bold">It looks like this might take a while. Dont
+                worry, the results will be send to your E-Mail.</h3>
         </div>
     </div>
 

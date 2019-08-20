@@ -78,7 +78,7 @@ class SequencingError:
 
     def insertion(self, att=None):
         if att:
-            print('ins')
+            #print('ins')
             position, pattern, position_range = self._get_atts(att)
         else:
             res = self.attributes['insertion']
@@ -96,7 +96,7 @@ class SequencingError:
 
     def deletion(self, att=None):
         if att:
-            print('del ' + str(att))
+            #print('del ' + str(att))
             position, pattern, pattern_range = self._get_atts(att)
         else:
             res = self.attributes["deletion"]
@@ -114,7 +114,7 @@ class SequencingError:
 
     def mismatch(self, att=None):
         if att:
-            print('mis ' + str(att))
+            #print('mis ' + str(att))
             position, pattern, position_range = self._get_atts(att)
         else:
             res = self.attributes["mismatch"]
@@ -186,7 +186,7 @@ class SequencingError:
             check_range = range(position_range[0], position_range[1] + 1)
             if self.seq[position_range[0]:position_range[1] + 1] == ' ':
                 return
-            print(check_range)
+            #print(check_range)
         else:
             check_range = range(len(self.seq))
         pos = " "

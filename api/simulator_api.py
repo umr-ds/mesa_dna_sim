@@ -114,13 +114,14 @@ def do_undesired_sequences():
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
+@require_apikey
 def do_all_wrapper():
     @copy_current_request_context
     def thread_do_all(r_method, email, host):
         res = do_all(r_method)
         uuid = list(res.json.values())[0]["uuid"]
         send_mail("noreply@mosla.de", [email],
-                  "Access your result at: " + host + "/query_sequence?uuid=" + uuid,
+                  "Access your result at: " + host + "query_sequence?uuid=" + uuid,
                   subject="[MOSLA] Your DNA-Simulation finished")
 
     if request.method == 'POST':
@@ -137,19 +138,20 @@ def do_all_wrapper():
         if r_res is not None:
             return jsonify(json.loads(r_res))
     # TODO estimate time needed
-
-    if len(r_method.get('sequence')) > 1000 and request:
+    send_via_mail = r_method.get('send_mail')
+    if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
         # spawn a thread, of do_all and send an email to the user to
         apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
+        if apikey.owner_id == 0:
+            # we are not really logged in, just using the free api-key!
+            return do_all(r_method)
         user = User.query.filter_by(user_id=apikey.owner_id).first()
         email = user.email
-        thread = Thread(target=thread_do_all, args=(r_method, email, request.host))
+        thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
         thread.start()
-        return 0
+        return jsonify({"result_by_mail": True, "did_succeed": False})
     else:
         return do_all(r_method)
-
-
 
 
 # @require_apikey
