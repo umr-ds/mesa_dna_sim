@@ -568,7 +568,15 @@ window.onload = function () {
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
             <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
             <ul class="full_modified_text_lettering" id="mod_seq_inf" style="overflow-x: auto;"></ul>
+            <div class="column is-rounded">
+                <button class="button is-rounded" id="downloadFastq"
+                        onclick="download(collectSendFastQ(), 'mosla.fastq');return false">
+                    Download fully modified sequence as FastQ
+                </button>
+            </div>
         </div>
+
+
         <!--
         <div class="box">
             <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>

@@ -386,6 +386,10 @@ function collectSendData(space) {
     }, undefined, space);
 }
 
+function collectSendFastQ(){
+    return '@YourSequence\n'+document.getElementById("mod_seq").innerText+'\n+\n'+$('#mod_seq').data("fastq");
+}
+
 function queryServer(uuid) {
     let submit_seq_btn = $('#submit_seq_btn');
     let sequence = $("#sequence").val().toUpperCase();
@@ -397,6 +401,7 @@ function queryServer(uuid) {
     let seq_seq = $('#seq_seq');
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
+
 
     /*for (let i = 0; i <= overall.text().length; i++) {
         let curr_char = $(".overall_char" + (i + 1));
@@ -418,7 +423,7 @@ function queryServer(uuid) {
         "all": overall,
         "sequencing": seq_seq,
         "synthesis": synth_seq,
-        "modify": mod_seq
+        "modify": mod_seq,
     };
 
     let send_data = undefined;
@@ -461,17 +466,19 @@ function queryServer(uuid) {
                     if (uuid !== undefined)
                         loadSendData(data['query']);
                     data = data['res'];
+
                     if (uuid !== undefined)
                         data = data[Object.keys(data)[0]];
-
+                    mod_seq.data('fastq',data['fastq']);
                     for (let error_source in data) {
-                        endpoints[error_source].html(data[error_source]);
+                        if(error_source != 'fastq')
+                            endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();
                     res.css('display', 'initial');
                     $('html, body').animate({scrollTop: res.offset().top}, 500);
                 }
-                var element = document.getElementById("mod_seq");
+                var element = document.getElementById('mod_seq');
                 set_mod_seq_inf(element.innerText, 1, element.innerText.length);
                 if (data['result_by_mail'] === true) {
                     //TODO show info that the result will be send via mail
