@@ -1,11 +1,16 @@
 import json
+import math
 import uuid
+from threading import Thread
+
 import redis
-from flask import jsonify, request, Blueprint, flash
+from flask import jsonify, request, Blueprint, flash, copy_current_request_context
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SynthesisErrorRates
+from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
+from db import db
+from mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
@@ -110,9 +115,16 @@ def do_undesired_sequences():
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
-# @require_apikey
-def do_all():
-    # TODO
+@require_apikey
+def do_all_wrapper():
+    @copy_current_request_context
+    def thread_do_all(r_method, email, host):
+        res = do_all(r_method)
+        uuid = list(res.json.values())[0]["uuid"]
+        send_mail("noreply@mosla.de", [email],
+                  "Access your result at: " + host + "query_sequence?uuid=" + uuid,
+                  subject="[MOSLA] Your DNA-Simulation finished")
+
     if request.method == 'POST':
         r_method = request.json
     else:
@@ -126,15 +138,35 @@ def do_all():
             print("Error while talking to Redis-Server:", e)
         if r_res is not None:
             return jsonify(json.loads(r_res))
-        # ignore uuid if we can not connect to redis...
-        # else:
-        #    return jsonify({'did_succeed': False})
+    # TODO estimate time needed
+    send_via_mail = r_method.get('send_mail')
+    if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
+        # spawn a thread, of do_all and send an email to the user to
+        apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
+        if apikey.owner_id == 0:
+            # we are not really logged in, just using the free api-key!
+            return do_all(r_method)
+        user = User.query.filter_by(user_id=apikey.owner_id).first()
+        email = user.email
+        thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
+        thread.start()
+        return jsonify({"result_by_mail": True, "did_succeed": False})
+    else:
+        return do_all(r_method)
+
+
+# @require_apikey
+def do_all(r_method):
+    # TODO
+
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
     seq_meth = r_method.get('sequence_method')
+    seq_meth_conf = r_method.get('sequence_method_conf')
     synth_meth = r_method.get('synthesis_method')
+    synth_meth_conf = r_method.get('synthesis_method_conf')
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -188,14 +220,14 @@ def do_all():
         if use_error_probs:
             manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
         else:
-            seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed)
+            seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed, conf=synth_meth_conf)
             synthesis_error_seq = g.graph.nodes[0]['seq']
             # The code commented out is for visualization of sequencing and synthesis
             # methods seperated, it is inefficient - better to color the sequence
             # based on the final graph using the identifiers.
             # dc_g = deepcopy(g)
             # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed)
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
             # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
             # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
             # seq_html = htmlify(g_only_seq.get_lineages(), sequencing_error_seq, modification=True)
@@ -203,6 +235,8 @@ def do_all():
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
+        fastq = "".join(fastq_errors(res, sequence))
+
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
             gc_html = htmlify(gc_window_res, sequence)
@@ -210,12 +244,12 @@ def do_all():
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                          'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                         'all': htmlify(res, sequence), 'seed': str(seed)}, 'uuid': uuid_str, 'sequence': sequence, }
+                         'all': htmlify(res, sequence), 'fastq': fastq, 'seed': str(seed)}, 'uuid': uuid_str, 'sequence': sequence, }
         elif not as_html:
             res = {'res': {'modify': mod_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
                            'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
-                           'modified_sequence': mod_seq}}
+                           'modified_sequence': mod_seq, 'fastq': fastq}}
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
         r_method.pop('key')  # drop key from stored fields
@@ -226,20 +260,28 @@ def do_all():
     return jsonify(res_all)
 
 
-def synthesis_error(sequence, g, synth_meth, seed, process="synthesis"):
-    tmp = SynthesisErrorRates.query.filter(
-        SynthesisErrorRates.id == int(synth_meth)).first()
-    err_rate_syn = tmp.err_data
-    err_att_syn = tmp.err_attributes
+def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=None):
+    if conf is None:
+        tmp = SynthesisErrorRates.query.filter(
+            SynthesisErrorRates.id == int(synth_meth)).first()
+        err_rate_syn = tmp.err_data
+        err_att_syn = tmp.err_attributes
+    else:
+        err_rate_syn = conf['err_data']
+        err_att_syn = conf['err_attributes']
     synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn, seed=seed)
     return synth_err.lit_error_rate_mutations()
 
 
-def sequencing_error(sequence, g, seq_meth, seed, process="sequencing"):
-    tmp = SequencingErrorRates.query.filter(
-        SequencingErrorRates.id == int(seq_meth)).first()
-    err_rate_seq = tmp.err_data
-    err_att_seq = tmp.err_attributes
+def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):
+    if conf is None:
+        tmp = SequencingErrorRates.query.filter(
+            SequencingErrorRates.id == int(seq_meth)).first()
+        err_rate_seq = tmp.err_data
+        err_att_seq = tmp.err_attributes
+    else:
+        err_rate_seq = conf['err_data']
+        err_att_seq = conf['err_attributes']
     seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq, seed=seed)
     return seq_err.lit_error_rate_mutations()
 
@@ -250,6 +292,26 @@ def manual_errors(sequence, g, error_res, seed, process='Calculated Error'):
         for err in att:
             seq_err.manual_mutation(err)
 
+
+def fastq_errors(input, sequence, sanger=True):
+    tmp = []
+    for i in range(0, len(sequence)):
+        tmp.append(0.0)
+    for error in input:
+        for pos in range(error["startpos"], error["endpos"]+1):
+            tmp[pos] += error["errorprob"]
+    res = []
+    if sanger:
+        for i in range(0, len(tmp)):
+            if 0 < tmp[i] <= 1:
+                q_score = round((-10 * math.log(tmp[i], 10)))
+
+            elif tmp[i] > 0 and tmp[i] > 1:
+                q_score = 0
+            else:
+                q_score = 40
+            res.append(chr(q_score + 33))
+    return res
 
 def htmlify(input, sequence, modification=False):
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])

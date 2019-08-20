@@ -155,11 +155,27 @@ function round(value, decimals) {
 
 $(document).ready(function () {
     let seq = $("#sequence");
+    let send_mail = $("#send_email");
     seq.keypress(function (e) {
         let chr = String.fromCharCode(e.which);
         let limitAlphabet = $('#limitedChars')[0].checked;
         if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
             return false;
+        }
+
+        if (seq.val().length >= 1000) {
+            send_mail.prop("checked", true);
+            send_mail.prop("disabled", true);
+        } else {
+            send_mail.removeAttr("disabled");
+        }
+    });
+    seq.bind("propertychange change click keyup input paste", function (e) {
+        if (seq.val().length >= 1000) {
+            send_mail.prop("checked", true);
+            send_mail.attr("disabled", true);
+        } else {
+            send_mail.attr("disabled", false);
         }
     });
     /*seq.keyup(function () {
@@ -248,7 +264,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['gc_name'] + " (CUSTOM)", dta['gc_name'], undefined, true);
         //opt.data('jsonblob',dta['gc_error_prob']);
-        $('#gc-dropdown').add(opt);
+        $('#gc-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#gc-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
     }
@@ -261,7 +277,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['kmer_name'] + " (CUSTOM)", dta['kmer_name'], undefined, true);
         //opt.data('jsonblob',dta['kmer_error_prob']);
-        $('#kmer-dropdown').add(opt);
+        $('#kmer-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#kmer-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
     }
@@ -274,7 +290,7 @@ function loadSendData(dta) {
     } else {
         let opt = new Option(dta['homopolymer_name'] + " (CUSTOM)", dta['homopolymer_name'], undefined, true);
         //opt.data('jsonblob',dta['homopolymer_error_prob']);
-        $('#homopolymer-dropdown').add(opt);
+        $('#homopolymer-dropdown').append(opt);
         //opt.prop('selected', true);
         $('#homopolymer-dropdown option:selected').data('jsonblob', dta['homopolymer_error_prob']);
     }
@@ -288,7 +304,11 @@ function loadSendData(dta) {
         seq_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        $('#seqmeth').add(opt);
+        $('#seqmeth').append(opt);
+        //TODO
+        let sm_sel = $('#seqmeth option:selected')
+        sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
     }
 
     /* SYNTH */
@@ -300,7 +320,11 @@ function loadSendData(dta) {
         synth_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        $('#seqmeth').add(opt);
+        $('#synthmeth').append(opt);
+        //TODO
+        let sm_sel = $('#synthmeth option:selected');
+        sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
 
     $('#calcprobs').prop("checked", dta['use_error_probs']);
@@ -343,18 +367,30 @@ function collectSendData(space) {
         kmer_error_prob: kmer_error_prob,
         kmer_name: kmer_dropdown_select.text(),
         sequence_method: seq_meth.val(),
+        sequence_method_conf: {
+            err_data: seq_meth.data('err_data'),
+            err_attributes: seq_meth.data('err_attributes')
+        },
         sequence_method_name: seq_meth.text(),
         synthesis_method: synth_meth.val(),
+        synthesis_method_conf: {
+            err_data: synth_meth.data('err_data'),
+            err_attributes: synth_meth.data('err_attributes')
+        },
         synthesis_method_name: synth_meth.text(),
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
+        send_mail: $('#send_email').is(":checked"),
         asHTML: true
     }, undefined, space);
 }
 
-function queryServer(uuid) {
+function collectSendFastQ(){
+    return '@YourSequence\n'+document.getElementById("mod_seq").innerText+'\n+\n'+$('#mod_seq').data("fastq");
+}
 
+function queryServer(uuid) {
     let submit_seq_btn = $('#submit_seq_btn');
     let sequence = $("#sequence").val().toUpperCase();
     let homopolymer = $('#homopolymer');
@@ -365,6 +401,7 @@ function queryServer(uuid) {
     let seq_seq = $('#seq_seq');
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
+
 
     /*for (let i = 0; i <= overall.text().length; i++) {
         let curr_char = $(".overall_char" + (i + 1));
@@ -386,7 +423,7 @@ function queryServer(uuid) {
         "all": overall,
         "sequencing": seq_seq,
         "synthesis": synth_seq,
-        "modify": mod_seq
+        "modify": mod_seq,
     };
 
     let send_data = undefined;
@@ -400,6 +437,7 @@ function queryServer(uuid) {
             });
     }
     let res = $('#results');
+    let resultsbymail = $('#resultsbymail');
     for (let mode in {"all": overall}) {
         $.post({
             url: host + "api/" + mode,
@@ -413,6 +451,7 @@ function queryServer(uuid) {
                     endpoints[error_source].html("");
                 }
                 res.css('display', 'none');
+                resultsbymail.css('display', 'none');
             },
             success: function (data) {
                 if (sequence !== "" && sequence in data)
@@ -423,24 +462,28 @@ function queryServer(uuid) {
                     const shr_txt = $("#link_to_share");
                     shr_txt.text(window.location.href);
                 }
-
-
-                if (data['did_succeed'] !== false) {
+                if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                     if (uuid !== undefined)
                         loadSendData(data['query']);
 
                     data = data['res'];
                     if (uuid !== undefined)
                         data = data[Object.keys(data)[0]];
-
+                    mod_seq.data('fastq',data['fastq']);
                     $("#used_seed").text(data['seed']);
                     for (let error_source in data) {
-                        if (error_source !== 'seed')
+                        if(error_source !== 'fastq' && error_source !== 'seed')
                             endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();
                     res.css('display', 'initial');
                     $('html, body').animate({scrollTop: res.offset().top}, 500);
+                }
+                var element = document.getElementById('mod_seq');
+                set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+                if (data['result_by_mail'] === true) {
+                    //TODO show info that the result will be send via mail
+                    resultsbymail.css('display', 'initial');
                 }
                 submit_seq_btn.removeClass('is-loading');
             },
@@ -561,3 +604,32 @@ function changeurl(new_url) {
 var dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
+
+function set_mod_seq_inf(sel, sel_start, sel_end){
+    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/sel.length)*100;
+    sel_gc_con = Math.round(sel_gc_con * 100)/100;
+    var sel_tm = get_tm(sel)
+    sel_tm = Math.round(sel_tm * 100)/100;
+    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+" Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+}
+
+function count_char(sel_seq, char) {
+    var count = 0;
+    for (var i = 0; i < sel_seq.length; i +=1){
+        if(sel_seq[i] === char){
+            count += 1;
+        }
+    }
+    return count;
+}
+
+function get_tm(sel_seq){
+    var tm = 0;
+    if(sel_seq.length < 14){
+        tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
+    }
+    else{
+        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(sel_seq.length)
+    }
+    return tm;
+}

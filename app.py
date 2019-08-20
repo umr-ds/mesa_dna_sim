@@ -36,9 +36,6 @@ def main(cfg=Config):
     app.register_blueprint(simulator_api)
 
     app.register_error_handler(404, page_not_found)
-    # from database import db
-    # db.init_app(app)
-    # db.create_all(app=create_app())
     return app
 
 
