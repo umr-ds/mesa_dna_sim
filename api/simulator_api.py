@@ -171,9 +171,9 @@ def do_all(r_method):
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
     use_error_probs = r_method.get('use_error_probs')
-    # print(r_method.get('use_error_probs'))
+    seed = r_method.get('random_seed')
+    seed = int(seed) if seed else None
     as_html = r_method.get('asHTML')
-
     res_all = {}
     if type(sequences) == str:
         sequences = [sequences]
@@ -211,17 +211,26 @@ def do_all(r_method):
         homopolymer_res = homopolymer(sequence, error_function=homopolymer_error_prob_func)
         res.extend(homopolymer_res)
 
+        # The Graph for all types of errors
         g = Graph(None, sequence)
+        # Another Graph to only show the sequencing errors, wasteful on resources and has to be done
+        # again for storage
+        # g_only_seq = Graph(None, sequence)
 
-        seq_res = ""
-        synth_res = ""
         if use_error_probs:
-            manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res])
+            manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
         else:
-            synthesis_error(sequence, g, synth_meth, process="synthesis", conf=synth_meth_conf)
+            seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed, conf=synth_meth_conf)
             synthesis_error_seq = g.graph.nodes[0]['seq']
-            synth_res = g.graph.nodes[0]['seq']
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", conf=seq_meth_conf)
+            # The code commented out is for visualization of sequencing and synthesis
+            # methods seperated, it is inefficient - better to color the sequence
+            # based on the final graph using the identifiers.
+            # dc_g = deepcopy(g)
+            # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
+            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
+            # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
+            # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
+            # seq_html = htmlify(g_only_seq.get_lineages(), sequencing_error_seq, modification=True)
 
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
@@ -233,14 +242,13 @@ def do_all(r_method):
             gc_html = htmlify(gc_window_res, sequence)
             homopolymer_html = htmlify(homopolymer_res, sequence)
             mod_html = htmlify(mod_res, mod_seq, modification=True)
-            res = {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res,
-                           'subsequences': usubseq_html,
-                           'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastq': fastq}, 'uuid': uuid_str, 'sequence': sequence}
+            res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
+                         'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                         'all': htmlify(res, sequence), 'fastq': fastq, 'seed': str(seed)}, 'uuid': uuid_str, 'sequence': sequence, }
         elif not as_html:
-            res = {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'kmer': kmer_res,
+            res = {'res': {'modify': mod_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
-                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
+                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
                            'modified_sequence': mod_seq, 'fastq': fastq}}
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
@@ -252,7 +260,7 @@ def do_all(r_method):
     return jsonify(res_all)
 
 
-def synthesis_error(sequence, g, synth_meth, process="synthesis", conf=None):
+def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=None):
     if conf is None:
         tmp = SynthesisErrorRates.query.filter(
             SynthesisErrorRates.id == int(synth_meth)).first()
@@ -261,11 +269,11 @@ def synthesis_error(sequence, g, synth_meth, process="synthesis", conf=None):
     else:
         err_rate_syn = conf['err_data']
         err_att_syn = conf['err_attributes']
-    synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn)
+    synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn, seed=seed)
     return synth_err.lit_error_rate_mutations()
 
 
-def sequencing_error(sequence, g, seq_meth, process="sequencing", conf=None):
+def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):
     if conf is None:
         tmp = SequencingErrorRates.query.filter(
             SequencingErrorRates.id == int(seq_meth)).first()
@@ -274,12 +282,12 @@ def sequencing_error(sequence, g, seq_meth, process="sequencing", conf=None):
     else:
         err_rate_seq = conf['err_data']
         err_att_seq = conf['err_attributes']
-    seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq)
+    seq_err = SequencingError(sequence, g, process, err_att_seq, err_rate_seq, seed=seed)
     return seq_err.lit_error_rate_mutations()
 
 
-def manual_errors(sequence, g, error_res, process='Calculated Error'):
-    seq_err = (SequencingError(sequence, g, process))
+def manual_errors(sequence, g, error_res, seed, process='Calculated Error'):
+    seq_err = SequencingError(sequence, g, process, seed=seed)
     for att in error_res:
         for err in att:
             seq_err.manual_mutation(err)

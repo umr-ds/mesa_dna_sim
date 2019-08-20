@@ -249,7 +249,6 @@ function handleDragOver(evt) {
 
 function loadSendData(dta) {
     $("#sequence").val(dta['sequence']);
-
     let seq = $('#seqmeth');
     let synth = $('#synthmeth');
     $('#kmer_window_size').val(dta['kmer_windowsize']);
@@ -381,6 +380,7 @@ function collectSendData(space) {
         synthesis_method_name: synth_meth.text(),
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
+        random_seed: $('#seed').val(),
         send_mail: $('#send_email').is(":checked"),
         asHTML: true
     }, undefined, space);
@@ -465,13 +465,14 @@ function queryServer(uuid) {
                 if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                     if (uuid !== undefined)
                         loadSendData(data['query']);
-                    data = data['res'];
 
+                    data = data['res'];
                     if (uuid !== undefined)
                         data = data[Object.keys(data)[0]];
                     mod_seq.data('fastq',data['fastq']);
+                    $("#used_seed").text(data['seed']);
                     for (let error_source in data) {
-                        if(error_source != 'fastq')
+                        if(error_source !== 'fastq' && error_source !== 'seed')
                             endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();

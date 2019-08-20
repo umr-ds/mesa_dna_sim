@@ -16,11 +16,24 @@ docker-compose down
 
 
 # remove existing data from database
+<<<<<<< Updated upstream
+<<<<<<< Updated upstream
+# sudo rm -rf /srv/docker/postgresql
+
+
+
+=======
+=======
+>>>>>>> Stashed changes
 if [[ "$1" == "--clear-db" || "$1" == "-c" ]];
 then
     sudo rm -rf /srv/docker/postgresql
     echo "!! REMOVING EXISTING DB !!"
 fi
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
+>>>>>>> Stashed changes
 
 # if things wont work as intended try uncommenting the next line:
 # docker-compose build --no-cache
