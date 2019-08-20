@@ -155,11 +155,27 @@ function round(value, decimals) {
 
 $(document).ready(function () {
     let seq = $("#sequence");
+    let send_mail = $("#send_email");
     seq.keypress(function (e) {
         let chr = String.fromCharCode(e.which);
         let limitAlphabet = $('#limitedChars')[0].checked;
         if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
             return false;
+        }
+
+        if (seq.val().length >= 1000) {
+            send_mail.prop("checked", true);
+            send_mail.prop("disabled", true);
+        } else {
+            send_mail.removeAttr("disabled");
+        }
+    });
+    seq.bind("propertychange change click keyup input paste", function (e) {
+        if (seq.val().length >= 1000) {
+            send_mail.prop("checked", true);
+            send_mail.attr("disabled", true);
+        } else {
+            send_mail.attr("disabled", false);
         }
     });
     /*seq.keyup(function () {
@@ -365,6 +381,7 @@ function collectSendData(space) {
         synthesis_method_name: synth_meth.text(),
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
+        send_mail: $('#send_email').is(":checked"),
         asHTML: true
     }, undefined, space);
 }
@@ -415,6 +432,7 @@ function queryServer(uuid) {
             });
     }
     let res = $('#results');
+    let resultsbymail = $('#resultsbymail');
     for (let mode in {"all": overall}) {
         $.post({
             url: host + "api/" + mode,
@@ -428,6 +446,7 @@ function queryServer(uuid) {
                     endpoints[error_source].html("");
                 }
                 res.css('display', 'none');
+                resultsbymail.css('display', 'none');
             },
             success: function (data) {
                 if (sequence !== "" && sequence in data)
@@ -438,7 +457,7 @@ function queryServer(uuid) {
                     const shr_txt = $("#link_to_share");
                     shr_txt.text(window.location.href);
                 }
-                if (data['did_succeed'] !== false) {
+                if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                     if (uuid !== undefined)
                         loadSendData(data['query']);
                     data = data['res'];
@@ -454,6 +473,10 @@ function queryServer(uuid) {
                 }
                 var element = document.getElementById("mod_seq");
                 set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+                if (data['result_by_mail'] === true) {
+                    //TODO show info that the result will be send via mail
+                    resultsbymail.css('display', 'initial');
+                }
                 submit_seq_btn.removeClass('is-loading');
             },
             fail: function (data) {

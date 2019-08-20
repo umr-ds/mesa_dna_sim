@@ -1,11 +1,15 @@
 import json
 import uuid
+from threading import Thread
+
 import redis
-from flask import jsonify, request, Blueprint, flash
+from flask import jsonify, request, Blueprint, flash, copy_current_request_context
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SynthesisErrorRates
+from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
+from db import db
+from mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
@@ -110,9 +114,16 @@ def do_undesired_sequences():
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
-# @require_apikey
-def do_all():
-    # TODO
+@require_apikey
+def do_all_wrapper():
+    @copy_current_request_context
+    def thread_do_all(r_method, email, host):
+        res = do_all(r_method)
+        uuid = list(res.json.values())[0]["uuid"]
+        send_mail("noreply@mosla.de", [email],
+                  "Access your result at: " + host + "query_sequence?uuid=" + uuid,
+                  subject="[MOSLA] Your DNA-Simulation finished")
+
     if request.method == 'POST':
         r_method = request.json
     else:
@@ -126,9 +137,27 @@ def do_all():
             print("Error while talking to Redis-Server:", e)
         if r_res is not None:
             return jsonify(json.loads(r_res))
-        # ignore uuid if we can not connect to redis...
-        # else:
-        #    return jsonify({'did_succeed': False})
+    # TODO estimate time needed
+    send_via_mail = r_method.get('send_mail')
+    if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
+        # spawn a thread, of do_all and send an email to the user to
+        apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
+        if apikey.owner_id == 0:
+            # we are not really logged in, just using the free api-key!
+            return do_all(r_method)
+        user = User.query.filter_by(user_id=apikey.owner_id).first()
+        email = user.email
+        thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
+        thread.start()
+        return jsonify({"result_by_mail": True, "did_succeed": False})
+    else:
+        return do_all(r_method)
+
+
+# @require_apikey
+def do_all(r_method):
+    # TODO
+
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
