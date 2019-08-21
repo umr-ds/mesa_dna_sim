@@ -20,6 +20,7 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     created = db.Column(db.Integer, default=timestamp, onupdate=timestamp)
     validated = db.Column(db.Boolean, default=False, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     ###############################################
     def get_token(self, secret):
@@ -70,6 +71,8 @@ class UndesiredSubsequences(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(512))
     owner_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    #validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<UndesiredSubsequences(id={}, owner={}, sequence={}, error_prob={}, created={}, validated={}>'.format(
@@ -128,6 +131,7 @@ class SequencingErrorRates(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     err_attributes = db.Column(db.JSON)
     name = db.Column(db.TEXT)
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
@@ -151,6 +155,7 @@ class SynthesisErrorRates(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     err_attributes = db.Column(db.JSON)
     name = db.Column(db.TEXT)
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
