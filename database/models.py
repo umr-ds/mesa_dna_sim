@@ -104,6 +104,8 @@ class ErrorProbability(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     created = db.Column(db.Integer, default=timestamp)  # , onupdate=timestamp
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     # error_probability_user_user_id_fk = db.relationship('User', backref=backref("User", uselist=False))
 

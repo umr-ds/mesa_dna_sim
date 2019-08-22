@@ -478,7 +478,7 @@ function showOverlay(validated, editable, id, text, type) {
     //setYValueAfterX(curr_chart, 0, 3);
 }
 
-function saveChart(host, apikey, create_copy) {
+function saveChart(host, apikey, create_copy, update_dropdown) {
     const chart_name = $('#chart-name');
     $.post({
         url: host + "api/update_error_prob_charts",
@@ -500,7 +500,9 @@ function saveChart(host, apikey, create_copy) {
         },
         success: function (data) {
             if (data["did_succeed"] === true) {
-                updateDropdown(host, apikey, chart_name.data('type'));
+                if (update_dropdown === true) {
+                    updateDropdown(host, apikey, chart_name.data('type'));
+                }
                 showOverlay(data["validated"], true, data["id"], data["name"], data["type"])
             } else {
                 console.log(data)
@@ -509,6 +511,38 @@ function saveChart(host, apikey, create_copy) {
         },
         fail: function (data) {
             console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function deleteChartId(host, apikey, id) {
+    $.post({
+        url: host + "api/delete_error_prob_charts",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            key: apikey,
+            chart_id: id
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data["did_succeed"] === true) {
+                console.log(data)
+            } else {
+                console.log(data);
+                return false;
+                //TODO show error
+            }
+        },
+        fail: function (data) {
+            console.log(data);
+            return false;
             //TODO show error message on screen
         }
     });
@@ -579,6 +613,46 @@ function updateDropdown(host, apikey, type) {
         fail: function (data) {
             console.log(data)
             //TODO show error message on screen
+        }
+    });
+}
+
+function validateGraphError(host, id, is_admin) {
+    let btn;
+    if (is_admin === true) {
+        btn = $('#publish_gerr_' + id);
+    } else {
+        btn = $('#publish_gerr');
+    }
+    $.post({
+        url: host + "api/validate_graph_error",
+        contentType: 'application/json;charset=UTF-8',
+        dataType: 'json',
+        data: JSON.stringify({id: id}),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data.did_succeed) {
+                console.log("Requested validation for Graph-Error " + data.id.toString());
+                btn.prop('disabled', true);
+                if (data.validated) {
+                    btn.attr("data-balloon", "Already validated - update to remove validation!")
+                } else {
+                    btn.attr("data-balloon", "Awaiting validation, you can still update.")
+                }
+            } else {
+                /* On Failure: either dont do anything, or show error?*/
+                console.log("Error while requesting validation for Graph-Error " + data.id.toString());
+            }
+
+        },
+        fail: function (data) {
+            /* On Failure: either dont do anything, or show error?*/
+            console.log("Error while requesting validation for Graph-Error");
         }
     });
 }

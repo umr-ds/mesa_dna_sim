@@ -407,8 +407,7 @@
                                                                            id="{{ mode }}_error_mismatched_org_seq_{{ e_obj.id }}_{{ count }}"
                                                                            type="text" name="Original DNA-Sequence"
                                                                            placeholder="DNA-Sequence"
-                                                                           value="
-                                                                                   {% if e_obj.id != "new" %}{{ key }}{% endif %}"
+                                                                           value="{% if e_obj.id != "new" %}{{ key }}{% endif %}"
                                                                            required>
                                                                     <span class="icon is-right">
                                                     <i class="fas fa-dna"></i>
@@ -424,8 +423,7 @@
                                                                            id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}"
                                                                            type="number" name="# possible Mismatches"
                                                                            placeholder="2" min="1" max="20" step="1"
-                                                                           value="
-                                                                                   {% if e_obj.id != "new" %}{{ value.values()|length }}{% else %}1{% endif %}"
+                                                                           value="{% if e_obj.id != "new" %}{{ value.values()|length }}{% else %}1{% endif %}"
                                                                            required disabled>
                                                                     <span class="icon is-right">
                                                     <i class="fas fa-percentage"></i>
@@ -469,8 +467,7 @@
                                                                            placeholder="DNA-Sequence" min="1"
                                                                             {% if "position_range" not in e_obj.err_attributes.mismatch %}
                                                                            disabled {% endif %}
-                                                                           value="
-                                                                                   {% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[0] }}{% elif e_obj.id != "new" %}1{% endif %}"
+                                                                           value="{% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[0] }}{% elif e_obj.id != "new" %}1{% endif %}"
                                                                            required>
                                                                     <span class="icon is-right">
                                                     <i class="fas fa-step-backward"></i>
@@ -488,8 +485,7 @@
                                                                            placeholder="DNA-Sequence" min="1"
                                                                             {% if "position_range" not in e_obj.err_attributes.mismatch %}
                                                                            disabled {% endif %}
-                                                                           value="
-                                                                                   {% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[1] }}{% elif e_obj.id != "new" %}1{% endif %}"
+                                                                           value="{% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[1] }}{% elif e_obj.id != "new" %}1{% endif %}"
                                                                            required>
                                                                     <span class="icon is-right">
                                                     <i class="fas fa-step-forward"></i>
@@ -510,8 +506,7 @@
                                                                                type="text"
                                                                                name="mismatch_changed_{{ possible_mismatch_no }}"
                                                                                placeholder="Mismatched Seq. {{ possible_mismatch_no }}"
-                                                                               value="
-                                                                                       {% if e_obj.id != "new" %}{{ change_dna }}{% endif %}"
+                                                                               value="{% if e_obj.id != "new" %}{{ change_dna }}{% endif %}"
                                                                                required>
                                                                         <span class="icon is-right">
                                                                     <i class="fas fa-dna"></i>
@@ -546,8 +541,7 @@
                                                                                min="0" max="100" step="0.01"
                                                                                placeholder="{{ change_dna }}"
                                                                                name="mismatch_{{ possible_mismatch_no }}"
-                                                                               value="
-                                                                                       {% if e_obj.id != "new" %}{{ change_percentage*100 }}{% endif %}"
+                                                                               value="{% if e_obj.id != "new" %}{{ change_percentage*100 }}{% endif %}"
                                                                                required
                                                                                {% if value.items()|length == 1 %}disabled{% endif %}>
                                                                         <span class="icon is-right">

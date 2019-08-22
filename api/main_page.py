@@ -48,6 +48,10 @@ def adminpage():
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
+    graph_errors = db.session.query(ErrorProbability).filter(
+        or_(ErrorProbability.awaits_validation.is_(True), ErrorProbability.validated.is_(True))).order_by(
+        asc(ErrorProbability.id)).all()
+    # ErrorProbability
     res = db.session.query(SynthesisErrorRates).filter(
         or_(SynthesisErrorRates.awaits_validation.is_(True), SynthesisErrorRates.validated.is_(True))).order_by(
         asc(SynthesisErrorRates.id)).all()
@@ -66,7 +70,8 @@ def adminpage():
         seq_id_out[int(x['id'])] = x
 
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
-                           usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.url_root), 200
+                           graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
+                           host=request.url_root), 200
 
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -220,6 +225,33 @@ def add_subsequences():
         return jsonify({'did_succeed': False})
 
 
+@main_page.route("/api/validate_graph_error", methods=["POST"])
+@require_logged_in
+def request_validation_g_error():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    # TODO add validation description!
+    e_id = request.json.get('id')
+    if user_id and user and e_id is not None:
+        try:
+            if user.is_admin:
+                curr_error = ErrorProbability.query.filter_by(id=e_id).first()
+                curr_error.validated = True
+            else:
+                curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
+                curr_error.validated = False
+            curr_error.awaits_validation = curr_error.validated is False
+            # db.session.add(curr_error)
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
+                 'awaits_validation': curr_error.awaits_validation})
+        except:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
 @main_page.route("/api/validate_custom_error", methods=["POST"])
 @require_logged_in
 def request_validation_c_error():
@@ -282,6 +314,18 @@ def apply_validation_subseq():
         return jsonify({'did_succeed': False})
 
 
+@main_page.context_processor
+def utility_processor():
+    def is_user_admin(user_id):
+        try:
+            user = User.query.filter_by(user_id=int(user_id)).first()
+            return user.is_admin
+        except:
+            return False
+
+    return dict(is_user_admin=is_user_admin)
+
+
 @main_page.route("/api/update_subsequence", methods=['POST'])
 @require_logged_in
 def update_subsequences():
@@ -328,7 +372,11 @@ def update_error_prob_charts():
     if user_id and user and id is not None and jsonblob is not None and jsonblob != "" and name is not None:
         try:
             # check if an entry exists for the given id AND user --> only entrys for the current user might be updated
-            curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+            if user.is_admin:
+                curr_error_prob = ErrorProbability.query.filter_by(id=id).first()
+            else:
+                curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+
             if curr_error_prob is None or copy:
                 curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id,
                                                    type=type)
@@ -618,7 +666,7 @@ def update_seq_error_probs():
 
             if curr_seq is None or copy:
                 curr_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                                  err_data=err_data, err_attributes=err_attributes)
+                                                err_data=err_data, err_attributes=err_attributes)
                 db.session.add(curr_seq)
             else:
                 curr_seq.validated = False

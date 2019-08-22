@@ -1,6 +1,174 @@
 {% extends "base.html" %}
 
 {% block content %}
+    <div class="control" id="overlay">
+
+
+        <div class="box container is-fluid is-fluid-mobile overlay-all">
+            <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
+            <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
+                 id="overlay-content">
+                <canvas id="myChart"></canvas>
+            </div>
+            <br/>
+            <div class="overlay-managebox columns is-multiline is-centered has-no-margin-top has-no-padding-top"
+                 id="overlay-managebox">
+                <div class="column is-full has-no-padding-left">
+                    <div class="columns is-multiline has-no-margin-left">
+                        <div class="column is-one-third-widescreen is-one-third-fullhd is-full-touch is-full-desktop">
+                            <div class="columns is-multiline">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <label class="form-group has-float-label">
+                                        <input class="input" type="number" id="x-val" placeholder="" size="4"
+                                               value="15"
+                                               required min="0.0" step="1"><span>X-value</span></label>
+                                </div>
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <label class="form-group has-float-label">
+                                        <input class="input" type="number" id="y-val" placeholder="" size="4"
+                                               value="15"
+                                               required min="0.0" step="1"><span>Y-value</span></label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-one-third-widescreen is-one-third-fullhd is-full-touch is-full-desktop">
+                            <div class="columns is-multiline has-no-padding-bottom">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="addpoint"
+                                            name="addpoint"
+                                            onclick="addPoint($('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Modify is based on X-Value!" data-balloon-pos="up"> Add /
+                                        Modify point
+                                    </button>
+                                </div>
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="removePoint"
+                                            name="removePoint"
+                                            onclick="removePoint($('#x-val').val());return false;"
+                                            data-balloon="Remove is based on X-Value!" data-balloon-pos="up">Remove
+                                        point
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-one-third-widescreen is-one-third-fullhd is-full-touch is-full-desktop">
+                            <div class="columns is-multiline has-no-padding-bottom">
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="setybeforex"
+                                            name="setybeforex"
+                                            onclick="setYValueBeforeX($('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Changes all Y-Values of Points with a smaller X-Value"
+                                            data-balloon-pos="up">
+                                        Set Y-Values &lt; X
+                                    </button>
+                                </div>
+                                <div class="column is-pulled-left is-half is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="setyafterx"
+                                            name="setyafterx"
+                                            onclick="setYValueAfterX($('#x-val').val(), $('#y-val').val());return false;"
+                                            data-balloon="Changes all Y-Values of Points with a greater X-Value"
+                                            data-balloon-pos="up">
+                                        Set Y-Values &gt; X
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--<span>
+                X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
+                be mapped to the last Y-Value</span>-->
+                <!--<div class="column is-full"></div>-->
+                <div class="column is-full has-no-padding-left">
+                    <div class="columns is-multiline has-no-margin-left">
+                        <div class="column is-full is-pulled-left is-full-touch">
+                            <div class="columns is-multiline">
+                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <input class="button is-block is-info-deactivated button-fill" type="button"
+                                           id="doReset"
+                                           name="doReset"
+                                           onclick="resetChanges();return false;" value="Reset">
+                                </div>
+                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <input class="button is-block is-info-deactivated button-fill" type="button"
+                                           id="toogleinterpolation"
+                                           name="toogleinterpolation"
+                                           onclick="toogleCubicInterpolation();return false;"
+                                           value="Use Interpolation">
+                                </div>
+                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <input class="button is-block is-info-deactivated button-fill" type="button"
+                                           id="toogleDragX"
+                                           name="toogleDragX" onclick="toogleDragX();return false;"
+                                           value="Allow drag along X-Axis">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns is-multiline has-no-margin-left">
+                        <div class="column is-half is-pulled-left is-full-touch has-no-padding-bottom">
+                            <div class="columns has-no-padding-bottom">
+                                <div class="column is-half is-pulled-left is-full-mobile">
+                                    <label class="form-group has-float-label button-fill">
+                                        <input class="input" type="text" id="chart-name" placeholder="" size="20"
+                                               required><span>Name</span></label>
+                                </div>
+                                <div class="column is-pulled-left is-full-mobile">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="update-chart"
+                                            name="update-chart"
+                                            onclick="saveChart('{{ host }}', '{{ apikey }}', false, false);
+                                            let chrt = $('#chart-name');
+                                            $('#g_error_title_'+ chrt.data('id')).val(chrt.val());
+                                            let pubtn = $('#publish_gerr_'+chrt.data('id'));
+                                            pubtn.prop('disabled','');
+                                            pubtn.prop('balloon','Validate and publish');
+                                            let datacontainer = $('#showOvrly_gerr_' +chrt.data('id'));
+                                            datacontainer.data('name', chrt.val());
+                                            datacontainer.data('jsonblob', serializeData());
+                                            return false;"
+                                            data-balloon="Update current Error-Probability Graph"
+                                            data-balloon-pos="up">
+                                        Update
+                                        Template
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-half is-pulled-left is-full-touch has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-half is-pulled-left is-full-mobile">
+                                    <button class="button is-block is-info-deactivated button-fill" type="button"
+                                            id="delete-chart"
+                                            name="delete-chart"
+                                            onclick="deleteChart('{{ host }}', '{{ apikey }}');return false;"
+                                            data-balloon="Delete current Error-Probability Graph"
+                                            data-balloon-pos="up">
+                                        Delete
+                                    </button>
+                                </div>
+                                <!--<div class="column is-half is-pulled-left is-full-mobile">
+                                    <button class="button is-block is-info-deactivated button-fill"
+                                            type="button" id="save-chart" name="save-chart"
+                                            onclick="saveChart('{{ host }}', '{{ apikey }}', true);return false;"
+                                            data-balloon="Save Copy" data-balloon-pos="up"
+                                            {% if user_id == None %}disabled{% endif %}> Save copy of Template
+                                    </button>
+                                </div>-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <h3 class="title">Administration Settings</h3>
+    <hr/>
+    <br/>
     <p class="has-text-weight-bold">Undesired Motifs:</p>
     <div class="box is-centered">
             <div class="control" id="existing_subseqs">
@@ -109,30 +277,154 @@
             </div>
         </form>
     </div>
+    <p class="has-text-weight-bold">GC/K-mer/Homopolymer-Error Prob.:</p>
+    <div class="box is-large">
+        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+            <div class="field">
+                <div class="control">
+                    <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                         id="seq_errors">
+                        {% for g_error in graph_errors %}
+                            <div class="column is-full" id="g_error_{{ g_error.id }}">
+                                <!--{% for chart in graph_errors %}
+
+                                <option data-id="{{ chart.id }}" data-type="gc"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
+                                {% endfor %}
+                                <option data-id="-1" data-type="gc"
+                                        data-validated="false" data-isowner="false">New Graph
+                                </option>-->
+                                <div class="columns" id="g_error_row_{{ g_error.id }}">
+                                    <div class="column is-one-sixt is-full-mobile">
+                                        <label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                               id="g_error_type_{{ g_error.id }}" name="description" disabled
+                                               placeholder="Type" value="{{ g_error.type | upper }}">
+                                            <span><nobr>Type</nobr></span>
+                                        </label>
+                                    </div>
+                                    <div class="column is-two-fifths is-full-mobile">
+                                        <label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                               id="g_error_title_{{ g_error.id }}" name="description" readonly
+                                               placeholder="No Title" value="{{ g_error.name | escape }}">
+                                            <span><nobr>Title</nobr></span>
+                                        </label>
+                                    </div>
+                                    <div class="column is-full-mobile">
+                                        <button class="button button-fill"
+                                                    data-balloon="{% if g_error.validated %}Already validated - update to remove validation!{% elif g_error.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
+                                                    data-balloon-pos="up" id="publish_gerr_{{ g_error.id }}"
+                                                    {% if g_error.validated %}disabled{% endif %}
+                                                    onclick="validateGraphError('{{ host }}', {{ g_error.id }}, true);return false;">
+                                                Publish
+                                        </button>
+                                    </div>
+                                    <div class="column is-full-mobile showOverlayBtn">
+                                            <input class="button is-block button-fill" type="button"
+                                                   id="showOvrly_gerr_{{ g_error.id }}"
+                                                   name="showOvrly_gerr_{{ g_error.id }}"
+                                                   data-jsonblob='{{ g_error.jsonblob | tojson }}'
+                                                   data-type='{{ g_error.type | tojson }}'
+                                                   data-validated='{{ g_error.validated | tojson }}'
+                                                   data-name='{{ g_error.name }}'
+                                                   onclick='deserializeDataAndLoadDraw($(this).data("jsonblob"),$(this).data("type"));
+                                                   showOverlay($(this).data("validated"), true,{{ g_error.id }},
+                                                           $(this).data("name"), $(this).data("type"));
+                                                   return false' value="Show / Change Graph" style="height: 36px; width: 240px;"/>
+                                    </div>
+                                    <div class="column is-full-mobile">
+                                        <input class="button is-block button-fill" type="button"
+                                                id="delete-chart_{{ g_error.id }}"
+                                                name="delete-chart_{{ g_error.id }}"
+                                                onclick="deleteChartId('{{ host }}', '{{ apikey }}', {{ g_error.id }});
+                                                $('#g_error_row_{{ g_error.id }}').remove();return false;"
+                                                data-balloon="Delete current Error-Probability Graph"
+                                                data-balloon-pos="up" value="Delete"/>
+
+                                </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 {% endblock %}
 
 {% block javascript %}
     {{ super() }}
     {% if config['DEBUG'] or config['TESTING'] %}
-        <script src={{ url_for('static',filename='js/nouislider.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/jquery.lettering.js') }}></script>
+        <script src={{ url_for('static',filename='js/Chart.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/chartjs-plugin-dragData.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/error-chart.js') }}></script>
+        <script src={{ url_for('static',filename='js/autoscroll.js') }}></script>
         <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
+        <script src={{ url_for('static',filename='js/index.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/nouislider.min.js') }}></script>
         <script src={{ url_for('static',filename='js/error_probs.js') }}></script>
     {% endif %}
+
+
+
     <script>
+        jQuery(document).ready(function () {
+            setApikey("{{ host }}", "{{ apikey }}");
 
+            $(document).keyup(function (e) {
+                if (e.keyCode === 27) closeOverlay();
+            });
 
-        $('[id^="delete_subseq_"]').each(function () {
-            $(this).click(function (event) {
-                event.preventDefault();
+            let chart = $('#myChart');
+            chart.dblclick(function (e) {
+                //getting value by pressing on dataset
+                curr_chart.data.datasets.forEach((dataset) => {
+                    for (var scaleName in curr_chart.scales) {
+                        var scale = curr_chart.scales[scaleName];
+                        if (scale.isHorizontal()) {
+                            valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
+                        } else {
+                            valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
+                        }
+                    }
+                    curr_chart.data.datasets.forEach((dataset) => {
+                        dataset.data.push({x: valueX, y: valueY});
+                    });
+                    dataset.data.sort(function (a, b) {
+                        return a.x - b.x;
+                    });
+                    //curr_chart.data.labels.push("tmp");
+                });
+                removeDuplicatesX();
+                curr_chart.update();
+            });
+            chart.click(function (e) {
+                curr_chart.data.datasets.forEach((dataset) => {
+                    for (var scaleName in curr_chart.scales) {
+                        var scale = curr_chart.scales[scaleName];
+                        if (scale.isHorizontal()) {
+                            valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
+                        } else {
+                            valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
+                        }
+                    }
+                    $('#x-val').val(valueX);
+                    $('#y-val').val(valueY);
+                    //curr_chart.data.labels.push("tmp");
+                });
+            });
+
+            $("body").click(function (event) {
+                if (!$(event.target).closest(".overlay-all,#overlay-managebox,#overlay-content,#showOvrly,.showOverlayBtn").length) {
+                    closeOverlay();
+                }
             });
         });
 
-
-        $('[id^="update_subseq_"]').each(function () {
-            $(this).click(function (event) {
-                event.preventDefault();
-            });
-        });
 
         {% for subsequence in usubsequence %}
             let dattim_{{ subsequence.id }} = new Date({{ subsequence.created }} * 1000).toUTCString();
