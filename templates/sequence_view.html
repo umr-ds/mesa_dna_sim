@@ -5,6 +5,7 @@
     {{ super() }}
 {% endblock %}
 {% block content %}
+    {% include "validation_overlay.html" %}
     <!--<script type = "text/javascript" >
 window.onload = function () {
     document.getElementById("text_lettering").lettering();
@@ -100,24 +101,32 @@ window.onload = function () {
                     <div class="columns is-multiline has-no-margin-left">
                         <div class="column is-full is-pulled-left is-full-touch">
                             <div class="columns is-multiline">
-                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
+                                <div class="column is-one-quarter is-full-touch is-pulled-left has-no-padding-bottom">
                                     <input class="button is-block is-info-deactivated button-fill" type="button"
                                            id="doReset"
                                            name="doReset"
                                            onclick="resetChanges();return false;" value="Reset">
                                 </div>
-                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
+                                <div class="column is-one-quarter is-full-touch is-pulled-left has-no-padding-bottom">
                                     <input class="button is-block is-info-deactivated button-fill" type="button"
                                            id="toogleinterpolation"
                                            name="toogleinterpolation"
                                            onclick="toogleCubicInterpolation();return false;"
                                            value="Use Interpolation">
                                 </div>
-                                <div class="column is-one-third is-full-touch is-pulled-left has-no-padding-bottom">
+                                <div class="column is-one-quarter is-full-touch is-pulled-left has-no-padding-bottom">
                                     <input class="button is-block is-info-deactivated button-fill" type="button"
                                            id="toogleDragX"
                                            name="toogleDragX" onclick="toogleDragX();return false;"
                                            value="Allow drag along X-Axis">
+                                </div>
+                                <div class="column is-one-quarter is-full-touch is-pulled-left has-no-padding-bottom">
+                                    <button class="button is-block button-fill"
+                                            id="publish_gerr"
+                                            name="publish_gerr"
+                                            onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);let callback_func = function (desc) { validateGraphError('{{ host }}',$('#chart-name').data('id'),false, desc) };showValidationOverlay('', callback_func);return false"
+                                            data-balloon="Request validation"
+                                            data-balloon-pos="up">Publish</button>
                                 </div>
                             </div>
                         </div>
@@ -249,7 +258,7 @@ window.onload = function () {
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'));"
+                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
                                                value="Change GC Probability" style="height: 36px; width: 240px;">
                                     </div>
                                 </div>
@@ -281,7 +290,7 @@ window.onload = function () {
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'));"
+                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
                                                value="Change Kmer Probability" style="height: 36px; width: 240px;">
                                     </div>
                                 </div>
@@ -318,7 +327,7 @@ window.onload = function () {
                                deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
                                dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
                                dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'));"
+                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
                                                value="Change Homopolymer Prob." style="height: 36px; width: 240px;">
                                     </div>
                                 </div>
@@ -658,7 +667,13 @@ window.onload = function () {
 
 
             $(document).keyup(function (e) {
-                if (e.keyCode === 27) closeOverlay();
+                if (e.keyCode === 27) {
+                    if ($("#validation_overlay").is(':visible')) {
+                        closeValidationOverlay();
+                    } else {
+                        closeOverlay();
+                    }
+                }
             });
 
             let chart = $('#myChart');
@@ -701,12 +716,15 @@ window.onload = function () {
             });
 
             $("body").click(function (event) {
-                if (!$(event.target).closest(".overlay-all,#overlay-managebox,#overlay-content,#showOvrly").length) {
+                if (!$(event.target).closest(".overlay-all,#overlay-managebox,#overlay-content,#showOvrly,#validation_overlay").length) {
                     closeOverlay();
                 }
                 if (!$(event.target).closest("#mod_seq").length) {
                     var element = document.getElementById("mod_seq");
                     set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+                }
+                if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
+                    $("#validation_overlay").hide();
                 }
             });
             $("#mod_seq").on("click", function (e) {

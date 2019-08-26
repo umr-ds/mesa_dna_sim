@@ -80,7 +80,7 @@ function updateSeq(host, id) {
         },
         dataType: 'json',
         success: function (data) {
-            console.log("Update successful for id=" + data.id.toString())
+            console.log("Update successful for id=" + data.id.toString());
         },
         fail: function (data) {
             console.log("Update failed for id=" + data.id.toString());
@@ -89,7 +89,7 @@ function updateSeq(host, id) {
     });
 }
 
-function validateSeq(host, id) {
+function validateSeq(host, id, validation_desc) {
     let btn = $('#validate_subseq_' + id);
     //let curr_subseq = $('#subseq_' + id);
     //let sequence = curr_subseq.children().find("[name='sequence']");
@@ -99,8 +99,7 @@ function validateSeq(host, id) {
         url: host + "api/apply_for_validation_subsequence",
         data: {
             sequence_id: id,
-            //validation_desc: desc.val()
-
+            validation_desc: validation_desc
             /*sequence: sequence.val(),
             error_prob: error_prob.val() / 100.0,
             description: desc.val()*/
@@ -342,13 +341,13 @@ function deleteMismatch(method, obj_id) {
     host_container.remove();
 }
 
-function validateCustomError(host, method, id) {
+function validateCustomError(host, method, id, desc) {
     let btn = $('#validate_'+ method + '_' + id);
     $.post({
         url: host + "api/validate_custom_error",
         contentType: 'application/json;charset=UTF-8',
         dataType: 'json',
-        data: JSON.stringify({id: id, method: method}),
+        data: JSON.stringify({id: id, method: method, validation_desc: desc}),
         async: true,
         beforeSend: function (xhr) {
             if (xhr && xhr.overrideMimeType) {
@@ -427,10 +426,10 @@ function sendCustomError(host, method, id) {
     $('#' + method + '_mismatch_container_' + id).children().each(function (idx, itm) {
         org_seq = $(itm).children()[0].firstElementChild.firstElementChild.firstElementChild.value;
         noOfMismatches = $(itm).children()[1].firstElementChild.firstElementChild.firstElementChild.value;
-        positional_mismatch = $(itm).children()[3].firstElementChild.firstElementChild.checked;
+        positional_mismatch = $(itm).children()[4].firstElementChild.firstElementChild.checked;
         if (positional_mismatch === true) {
-            position_range = [parseInt($(itm).children()[4].firstElementChild.firstElementChild.firstElementChild.value),
-                parseInt($(itm).children()[5].firstElementChild.firstElementChild.firstElementChild.value)];
+            position_range = [parseInt($(itm).children()[5].firstElementChild.firstElementChild.firstElementChild.value),
+                parseInt($(itm).children()[6].firstElementChild.firstElementChild.firstElementChild.value)];
         }
         //let positional_mismatch = $('#' + method + '_mismatch_positioning_' + obj_id).attr("checked");
         let innerMismatch = {};

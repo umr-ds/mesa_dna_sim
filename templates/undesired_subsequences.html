@@ -4,6 +4,8 @@
 
 
 {% block content %}
+    {% include "validation_overlay.html" %}
+
     <h3 class="title">Simulation Settings</h3>
 
     <hr/>
@@ -65,9 +67,7 @@
                                                 data-balloon="{% if subsequence.validated %}Already validated!{% elif subsequence.awaits_validation %}Awaiting validation, you can still update.{% else %}Request validation{% endif %}"
                                                 data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
                                                 {% if subsequence.validated or subsequence.awaits_validation %}disabled{% endif %}
-                                                onclick="updateSeq('{{ host }}',{{ subsequence.id }});validateSeq('{{ host }}', {{ subsequence.id }}); return false;">
-                                            Publish
-                                            </button>
+                                                onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func); return false;">Publish</button>
                                         </td>
                                         <td style="width:5%">
                                             <button class="button"
@@ -194,6 +194,7 @@
         <script src={{ url_for('static',filename='js/nouislider.min.js') }}></script>
         <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
         <script src={{ url_for('static',filename='js/error_probs.js') }}></script>
+        <script src={{ url_for('static',filename='js/error-chart.js') }}></script>
     {% endif %}
     <script>
 
@@ -217,6 +218,17 @@
             addSubSeq('{{ host }}')
         });
 
+        $("body").click(function (event) {
+            if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
+                $("#validation_overlay").hide();
+            }
+        });
+
+        $(document).keyup(function (e) {
+            if (e.keyCode === 27 && $("#validation_overlay").is(':visible')) {
+                closeValidationOverlay();
+            }
+        });
 
 
         {% for subsequence in usubsequence %}

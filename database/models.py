@@ -72,7 +72,7 @@ class UndesiredSubsequences(db.Model):
     description = db.Column(db.String(512))
     owner_id = db.Column(db.Integer, ForeignKey('User.user_id'))
     awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
-    #validation_desc = db.Column(db.String(512))
+    validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<UndesiredSubsequences(id={}, owner={}, sequence={}, error_prob={}, created={}, validated={}>'.format(
@@ -115,7 +115,7 @@ class ErrorProbability(db.Model):
     @staticmethod
     def serialize(ob, owner_id=None):
         tmp = {'id': ob.id, 'name': ob.name, 'type': ob.type, 'jsonblob': ob.jsonblob, 'validated': ob.validated,
-               'created': ob.created, 'user_id': ob.user_id,
+               'created': ob.created, 'user_id': ob.user_id, 'awaits_validation': ob.awaits_validation,
                'isowner': owner_id == ob.user_id if owner_id is not None else False}
         return tmp
 
@@ -134,6 +134,7 @@ class SequencingErrorRates(db.Model):
     err_attributes = db.Column(db.JSON)
     name = db.Column(db.TEXT)
     awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
@@ -158,6 +159,7 @@ class SynthesisErrorRates(db.Model):
     err_attributes = db.Column(db.JSON)
     name = db.Column(db.TEXT)
     awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(

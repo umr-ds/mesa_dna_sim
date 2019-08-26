@@ -1,9 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
+    {% include "validation_overlay.html" %}
     <div class="control" id="overlay">
-
-
         <div class="box container is-fluid is-fluid-mobile overlay-all">
             <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
             <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
@@ -217,15 +216,13 @@
                                                 data-balloon="{% if subsequence.validated %}Already validated - update to remove validation!{% elif subsequence.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
                                                 data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
                                                 {% if subsequence.validated %}disabled{% endif %}
-                                                onclick="updateSeq('{{ host }}',{{ subsequence.id }});validateSeq('{{ host }}', {{ subsequence.id }});return false;">
-                                            Publish
-                                            </button>
+                                                onclick="updateSeq('{{ host }}',{{ subsequence.id }});let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func, true);return false;">Publish</button>
                                         </td>
                                         <td style="width:5%">
                                             <button class="button"
                                                     data-balloon="Updating will remove the Validation!"
                                                     data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
-                                                    onclick="updateSeq('{{ host }}',{{ subsequence.id }});$('#validate_subseq_{{ subsequence.id }}').prop('disabled', '');$('#validate_subseq_{{ subsequence.id }}').attr('data-balloon','Request validation'); return false;">
+                                                    onclick="updateSeq('{{ host }}',{{ subsequence.id }});$('#validate_subseq_{{ subsequence.id }}').prop('disabled', '');$('#validate_subseq_{{ subsequence.id }}').attr('data-balloon','Request validation').prop('disabled',''); return false;">
                                                 Update
                                             </button>
                                         </td>
@@ -318,9 +315,7 @@
                                                     data-balloon="{% if g_error.validated %}Already validated - update to remove validation!{% elif g_error.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
                                                     data-balloon-pos="up" id="publish_gerr_{{ g_error.id }}"
                                                     {% if g_error.validated %}disabled{% endif %}
-                                                    onclick="validateGraphError('{{ host }}', {{ g_error.id }}, true);return false;">
-                                                Publish
-                                        </button>
+                                                    onclick="let callback_func = function (desc) { validateGraphError('{{ host }}', {{ g_error.id }}, true, desc) };showValidationOverlay('{% if g_error.validation_desc != None %}{{ g_error.validation_desc }}{% endif %}', callback_func, true);return false;">Publish</button>
                                     </div>
                                     <div class="column is-full-mobile showOverlayBtn">
                                             <input class="button is-block button-fill" type="button"
@@ -330,9 +325,10 @@
                                                    data-type='{{ g_error.type | tojson }}'
                                                    data-validated='{{ g_error.validated | tojson }}'
                                                    data-name='{{ g_error.name }}'
+                                                   data-awaits_validation='{{  g_error.awaits_validation }}'
                                                    onclick='deserializeDataAndLoadDraw($(this).data("jsonblob"),$(this).data("type"));
                                                    showOverlay($(this).data("validated"), true,{{ g_error.id }},
-                                                           $(this).data("name"), $(this).data("type"));
+                                                           $(this).data("name"), $(this).data("type"), $(this).data("awaits_validation"));
                                                    return false' value="Show / Change Graph" style="height: 36px; width: 240px;"/>
                                     </div>
                                     <div class="column is-full-mobile">
@@ -376,7 +372,13 @@
             setApikey("{{ host }}", "{{ apikey }}");
 
             $(document).keyup(function (e) {
-                if (e.keyCode === 27) closeOverlay();
+                if (e.keyCode === 27) {
+                    if ($("#validation_overlay").is(':visible')) {
+                        closeValidationOverlay();
+                    } else {
+                        closeOverlay();
+                    }
+                }
             });
 
             let chart = $('#myChart');
@@ -419,8 +421,11 @@
             });
 
             $("body").click(function (event) {
-                if (!$(event.target).closest(".overlay-all,#overlay-managebox,#overlay-content,#showOvrly,.showOverlayBtn").length) {
+                if (!$(event.target).closest(".overlay-all,#overlay-managebox,#overlay-content,#showOvrly,.showOverlayBtn,#inner_validation_overlay,.button").length) {
                     closeOverlay();
+                }
+                if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
+                    $("#validation_overlay").hide();
                 }
             });
         });

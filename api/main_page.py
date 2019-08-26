@@ -232,6 +232,7 @@ def request_validation_g_error():
     user = User.query.filter_by(user_id=user_id).first()
     # TODO add validation description!
     e_id = request.json.get('id')
+    validation_desc = request.json.get('validation_desc')
     if user_id and user and e_id is not None:
         try:
             if user.is_admin:
@@ -240,6 +241,7 @@ def request_validation_g_error():
             else:
                 curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
+                curr_error.validation_desc = validation_desc
             curr_error.awaits_validation = curr_error.validated is False
             # db.session.add(curr_error)
             db.session.commit()
@@ -258,6 +260,7 @@ def request_validation_c_error():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     error_method = request.json.get('method')
+    validation_desc = request.json.get('validation_desc')
     # TODO add validation description!
     if error_method == "synth":
         q_class = SynthesisErrorRates
@@ -272,6 +275,7 @@ def request_validation_c_error():
             else:
                 curr_error = q_class.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
+                curr_error.validation_desc = validation_desc
             curr_error.awaits_validation = curr_error.validated is False
             # db.session.add(curr_error)
             db.session.commit()
@@ -290,6 +294,7 @@ def apply_validation_subseq():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
+    validation_desc = request.form.get('validation_desc')
     # sequence = sanitize_input(request.form.get('sequence'))
     # error_prob = request.form.get('error_prob')
     # description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
@@ -301,6 +306,7 @@ def apply_validation_subseq():
             else:
                 curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
                 curr_sub_seq.validated = False
+                curr_sub_seq.validation_desc = validation_desc
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
             # db.session.add(curr_sub_seq)
             db.session.commit()
