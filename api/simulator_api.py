@@ -266,8 +266,7 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
             tmp_pos.append(i)
     for error in input:
         for pos in range(error["startpos"], error["endpos"]+1):
-            if not modified:
-                tmp[pos] += error["errorprob"]
+            tmp[pos] += error["errorprob"]
     res = []
     if sanger:
         for i in range(0, len(tmp)):
