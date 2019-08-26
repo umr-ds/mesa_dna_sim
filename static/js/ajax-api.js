@@ -369,8 +369,14 @@ function collectSendData(space) {
     }, undefined, space);
 }
 
-function collectSendFastQ(){
-    return '@YourSequence\n'+document.getElementById("mod_seq").innerText+'\n+\n'+$('#mod_seq').data("fastq");
+function collectSendFastQ(modified){
+    if(modified==false){
+        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+document.getElementById("overall").innerText+'\n+\n'+$('#overall').data('fastq');
+    }
+    else{
+        let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
+        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+sequence+'\n+\n'+$('#mod_seq').data('fastq');
+    }
 }
 
 function queryServer(uuid) {
@@ -450,9 +456,10 @@ function queryServer(uuid) {
 
                     if (uuid !== undefined)
                         data = data[Object.keys(data)[0]];
-                    mod_seq.data('fastq',data['fastq']);
+                    overall.data('fastq',data['fastqOr']);
+                    mod_seq.data('fastq',data['fastqMod']);
                     for (let error_source in data) {
-                        if(error_source != 'fastq')
+                        if(error_source != 'fastqOr' && error_source != 'fastqMod')
                             endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();

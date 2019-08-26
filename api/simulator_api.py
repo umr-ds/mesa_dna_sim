@@ -197,7 +197,8 @@ def do_all():
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
-        fastq = "".join(fastq_errors(res, sequence))
+        fastqOr = "".join(fastq_errors(res, sequence))
+        fastqMod = "".join(fastq_errors(res, mod_seq, modified=True))
 
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
@@ -207,12 +208,12 @@ def do_all():
             res = {'res': {'modify': mod_html, 'sequencing': seq_res, 'synthesis': synth_res,
                            'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastq': fastq}, 'uuid': uuid_str, 'sequence': sequence}
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod}, 'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
             res = {'res': {'modify': mod_res, 'sequencing': seq_res, 'synthesis': synth_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
                            'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
-                           'modified_sequence': mod_seq, 'fastq': fastq}}
+                           'modified_sequence': mod_seq, 'fastqOr': fastqOr, 'fastqMod': fastqMod}}
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
         r_method.pop('key')  # drop key from stored fields
@@ -256,13 +257,17 @@ def manual_errors(sequence, g, error_res, process='Calculated Error'):
             seq_err.manual_mutation(err)
 
 
-def fastq_errors(input, sequence, sanger=True):
+def fastq_errors(input, sequence, sanger=True, modified=False):
     tmp = []
+    tmp_pos = []
     for i in range(0, len(sequence)):
         tmp.append(0.0)
+        if sequence[i] == " ":
+            tmp_pos.append(i)
     for error in input:
         for pos in range(error["startpos"], error["endpos"]+1):
-            tmp[pos] += error["errorprob"]
+            if not modified:
+                tmp[pos] += error["errorprob"]
     res = []
     if sanger:
         for i in range(0, len(tmp)):
@@ -274,6 +279,11 @@ def fastq_errors(input, sequence, sanger=True):
             else:
                 q_score = 40
             res.append(chr(q_score + 33))
+    if modified:
+        cnt = 0
+        for pos in tmp_pos:
+            del res[pos-cnt]
+            cnt += 1
     return res
 
 def htmlify(input, sequence, modification=False):
