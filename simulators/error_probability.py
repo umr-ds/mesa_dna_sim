@@ -17,6 +17,12 @@ Json-Input should look like this:
 
 
 def remove_duplicates(data, x_round):
+    """
+
+    :param data:
+    :param x_round:
+    :return:
+    """
     res = []
     x_set = set()
     for elem in data:
@@ -28,6 +34,11 @@ def remove_duplicates(data, x_round):
 
 
 def create_error_prob_function(error_prob_dict):
+    """
+
+    :param error_prob_dict:
+    :return:
+    """
     if error_prob_dict is None:
         return None
     if type(error_prob_dict) is str:

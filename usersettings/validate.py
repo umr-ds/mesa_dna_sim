@@ -39,11 +39,22 @@ validate = Blueprint("validate", __name__, template_folder="templates")
 # remove @... and use this function to send a confirmation email
 # @validate.route('/confirm/mail/<email>')
 def generate_confirmation_token(email):
+    """
+    Generates a confirmation token for the confirmation email.
+    :param email:
+    :return:
+    """
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     return serializer.dumps(email, salt=current_app.config['SECURITY_VALIDATION_SALT'])
 
 
 def confirm_token(token, expiration=3600):
+    """
+    Generates the confirm_token to confirm the user.
+    :param token:
+    :param expiration:
+    :return:
+    """
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
         email = serializer.loads(
@@ -59,6 +70,11 @@ def confirm_token(token, expiration=3600):
 @validate.route('/confirm/<token>')
 # @login_required
 def confirm_email(token):
+    """
+    Confirms the user if the confirm_token is valid and the user isn't already confirmed.
+    :param token:
+    :return:
+    """
     email = confirm_token(token)
     if not email:
         flash('The confirmation link is invalid or has expired.', 'danger')

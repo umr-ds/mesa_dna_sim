@@ -46,6 +46,10 @@ def home():
 # @ratelimit(limit=300, per=60 * 15)
 @require_logged_in
 def profile():
+    """
+    Manages profile settings, e.g. changing the password or email. Also shows the users apikey.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -90,6 +94,10 @@ def index():
 @main_page.route("/query_sequence", methods=['GET', 'POST'])
 # @require_logged_in
 def query_sequence():
+    """
+    The simulation main page.
+    :return:
+    """
     user_id = session.get('user_id')
     if request.method == 'POST':
         r_method = request.json
@@ -122,6 +130,10 @@ def query_sequence():
 @main_page.route("/settings", methods=['GET', 'POST'])
 @require_logged_in
 def undesired_subsequences():
+    """
+    Configuration of the undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if user_id and user:
@@ -155,6 +167,10 @@ def undesired_subsequences():
 @main_page.route("/api/delete_subsequence", methods=['POST'])
 @require_logged_in
 def delete_subsequences():
+    """
+    Deletion of undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
@@ -170,6 +186,10 @@ def delete_subsequences():
 @main_page.route("/api/add_subsequence", methods=['POST'])
 @require_logged_in
 def add_subsequences():
+    """
+    Adding new undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitize_input(request.form.get('sequence'))
@@ -195,6 +215,10 @@ def add_subsequences():
 @main_page.route("/api/update_subsequence", methods=['POST'])
 @require_logged_in
 def update_subsequences():
+    """
+    Updating undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
@@ -225,6 +249,10 @@ def update_subsequences():
 @main_page.route("/api/update_error_prob_charts", methods=['POST'])
 @require_logged_in
 def update_error_prob_charts():
+    """
+    Updates an error probabilty graph.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     id = request.json.get('chart_id')
@@ -259,6 +287,10 @@ def update_error_prob_charts():
 @main_page.route("/api/delete_error_prob_charts", methods=['POST'])
 @require_logged_in
 def delete_error_prob_chart():
+    """
+    Deletes an error probabilty graph.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     chart_id = request.json.get('chart_id')
@@ -277,6 +309,10 @@ def delete_error_prob_chart():
 @main_page.route("/api/get_error_prob_charts", methods=['GET', 'POST'])
 # @require_logged_in
 def get_error_prob_charts():
+    """
+    Gets an error probability graph.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -306,6 +342,10 @@ def get_error_prob_charts():
 @main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
 # @require_logged_in
 def get_synth_error_probs():
+    """
+    Gets synthesis error probabilitys.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -327,6 +367,14 @@ def get_synth_error_probs():
 
 
 def get_error_probs_dict(error_model, user_id, flat, methods):
+    """
+    Generates a dictionary with error probabilities.
+    :param error_model:
+    :param user_id:
+    :param flat:
+    :param methods:
+    :return:
+    """
     db_result = db.session.query(error_model).filter(
         or_(error_model.user_id == user_id, error_model.validated.is_(True))).order_by(
         asc(error_model.id)).all()
@@ -355,6 +403,10 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
 @main_page.route("/api/add_seq_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_seq_error_probs():
+    """
+    Adds sequencing error probabilities.
+    :return:
+    """
     try:
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
@@ -388,6 +440,10 @@ def add_seq_error_probs():
 @main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_synth_error_probs():
+    """
+    Adds synthesis error probabilities.
+    :return:
+    """
     try:
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
@@ -438,6 +494,10 @@ def floatify(x, sanitize_mode=False):
 @main_page.route("/api/update_synth_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def update_synth_error_probs():
+    """
+    Updates synthesis error probabilities.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_conf = request.json.get('data')
@@ -469,6 +529,10 @@ def update_synth_error_probs():
 @main_page.route("/api/delete_synth", methods=['POST'])
 @require_logged_in
 def delete_synth():
+    """
+    Deletes synthesis method.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_id = request.form.get('synth_id')
@@ -487,6 +551,10 @@ def delete_synth():
 @main_page.route("/api/delete_seq", methods=['POST'])
 @require_logged_in
 def delete_seq():
+    """
+    Deletes sequencing method.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_id = request.form.get('synth_id')
@@ -505,6 +573,10 @@ def delete_seq():
 @main_page.route("/api/update_seq_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def update_seq_error_probs():
+    """
+    Updates sequencing error probabilities.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_conf = request.json.get('data')

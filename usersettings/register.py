@@ -19,6 +19,11 @@ def gen_password(plaintext):
 
 @signup.route('/signup', methods=['GET', 'POST'])
 def register():
+    """
+    Registers a new user if the user isn't already logged in and the email isn't used. Also sends an email to the user
+    to confirm the email address.
+    :return:
+    """
     user_logged_in = session.get("user_id")
     if user_logged_in:
         flash("You cant create a new Account. You are already logged in.", "warning")

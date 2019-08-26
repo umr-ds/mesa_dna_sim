@@ -34,6 +34,11 @@ def require_apikey(view_function):
 
 
 def create_apikey(owner_id):
+    """
+    Creates an apikey for the user.
+    :param owner_id: Id of the user
+    :return: Apikey
+    """
     while True:
         key = secrets.token_urlsafe(32)
         db_apikey = Apikey.query.filter_by(apikey=key).first()  # _or_404()

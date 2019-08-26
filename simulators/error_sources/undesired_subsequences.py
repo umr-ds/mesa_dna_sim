@@ -14,6 +14,12 @@ undesired_ssequences = {"ATAACTTCGTATAGCATACATTATACGAAGTTAT": 0.9, "ATAACTTCGTAT
 
 
 def undesired_subsequences(sequence, dict_of_subsequences=None):
+    """
+    Checks the sequence for undesired subsequences. If no subsequences are passed, default sequences are used.
+    :param sequence:
+    :param dict_of_subsequences:
+    :return:
+    """
     if dict_of_subsequences is None:
         dict_of_subsequences = undesired_ssequences
     res = []

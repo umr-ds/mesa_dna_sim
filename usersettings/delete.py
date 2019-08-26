@@ -10,6 +10,10 @@ delete = Blueprint("delete", __name__, template_folder="templates")
 @delete.route('/delete', methods=['GET', 'POST'])
 @require_logged_in
 def do_delete():
+    """
+    Deletes an user and the users apikeys permanently.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()  # _or_404()
     if not user:
