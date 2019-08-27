@@ -222,7 +222,30 @@ function handleFileChange(evt) {
         reader.readAsText(file);
         reader.onload = () => {
             try {
-                loadSendData(JSON5.parse(reader.result))
+                let text = reader.result;
+                if(text.startsWith(">")){
+                    //split into sequences and remove headlines
+                    let sequences = text.split(">");
+                    sequences.shift();
+                    for(let i = 0; i < sequences.length; i++){
+                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n")+1);
+                        sequences[i] = sequences[i].replace("\n", "");
+                    }
+                    if(sequences.length === 1){
+                        let sequence = $("#sequence");
+                        sequence.val(sequences[0]);
+                    }
+                    else if(sequences.length > 1){
+                        document.getElementById("send_email").checked = true;
+                        document.getElementById("send_email").disabled = true;
+                        $("#sequence").data("sequence_list", sequences);
+                        $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
+                        queryServer(undefined);
+                    }
+                }
+                else{
+                    loadSendData(JSON5.parse(text))
+                }
             } catch (e) {
                 $("#sequence").val(reader.result.toUpperCase());
             }
@@ -233,7 +256,7 @@ function handleFileChange(evt) {
     evt.target.removeEventListener('change', handleFileChange);
 }
 
-function uploadConf() {
+function upload() {
     let input = $(document.createElement("input"));
     input.attr("type", "file");
     // add onchange handler if you wish to get the file :)
@@ -401,8 +424,10 @@ function queryServer(uuid) {
     let seq_seq = $('#seq_seq');
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
-
-
+    let fasta = false;
+    if($("#sequence").data("sequence_list")){
+        fasta = true;
+    }
     /*for (let i = 0; i <= overall.text().length; i++) {
         let curr_char = $(".overall_char" + (i + 1));
         curr_char.data('errorprob', 0.0);
@@ -438,67 +463,74 @@ function queryServer(uuid) {
     }
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
-    for (let mode in {"all": overall}) {
-        $.post({
-            url: host + "api/" + mode,
-            contentType: 'application/json;charset=UTF-8',
-            dataType: 'json',
-            data: send_data,
-            async: true,
-            beforeSend: function () {
-                submit_seq_btn.addClass('is-loading');
-                for (let error_source in endpoints) {
-                    endpoints[error_source].html("");
-                }
-                res.css('display', 'none');
-                resultsbymail.css('display', 'none');
-            },
-            success: function (data) {
-                if (sequence !== "" && sequence in data)
-                    data = data[sequence];
-                let recv_uuid = data['uuid'];
-                if (recv_uuid !== undefined) {
-                    changeurl("query_sequence?uuid=" + recv_uuid);
-                    const shr_txt = $("#link_to_share");
-                    shr_txt.text(window.location.href);
-                }
-                if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
-                    if (uuid !== undefined)
-                        loadSendData(data['query']);
-
-                    data = data['res'];
-                    if (uuid !== undefined)
-                        data = data[Object.keys(data)[0]];
-                    mod_seq.data('fastq',data['fastq']);
-                    $("#used_seed").text(data['seed']);
-                    for (let error_source in data) {
-                        if(error_source !== 'fastq' && error_source !== 'seed')
-                            endpoints[error_source].html(data[error_source]);
-                    }
-                    makeHoverGroups();
-                    res.css('display', 'initial');
-                    $('html, body').animate({scrollTop: res.offset().top}, 500);
-                }
-                var element = document.getElementById('mod_seq');
-                set_mod_seq_inf(element.innerText, 1, element.innerText.length);
-                if (data['result_by_mail'] === true) {
-                    //TODO show info that the result will be send via mail
-                    resultsbymail.css('display', 'initial');
-                }
-                submit_seq_btn.removeClass('is-loading');
-            },
-            fail: function (data) {
-                console.log(data);
-                //$('#text_lettering').text(data);
-                submit_seq_btn.removeClass('is-loading');
-            }
-            ,
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
-                submit_seq_btn.removeClass('is-loading');
-            }
-        });
+    let mode = "all";
+    if(fasta){
+        mode = "fasta_all";
+        let tmp_data = JSON.parse(send_data);
+        delete tmp_data["sequence"];
+        tmp_data["sequence_list"]=$("#sequence").data("sequence_list");
+        send_data = JSON.stringify(tmp_data);
     }
+    $.post({
+        url: host + "api/" + mode,
+        contentType: 'application/json;charset=UTF-8',
+        dataType: 'json',
+        data: send_data,
+        async: true,
+        beforeSend: function () {
+            submit_seq_btn.addClass('is-loading');
+            for (let error_source in endpoints) {
+                endpoints[error_source].html("");
+            }
+            res.css('display', 'none');
+            resultsbymail.css('display', 'none');
+        },
+        success: function (data) {
+            if (sequence !== "" && sequence in data)
+                data = data[sequence];
+            let recv_uuid = data['uuid'];
+            if (recv_uuid !== undefined) {
+                changeurl("query_sequence?uuid=" + recv_uuid);
+                const shr_txt = $("#link_to_share");
+                shr_txt.text(window.location.href);
+            }
+            if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
+                if (uuid !== undefined)
+                    loadSendData(data['query']);
+
+                data = data['res'];
+                if (uuid !== undefined)
+                    data = data[Object.keys(data)[0]];
+                mod_seq.data('fastq',data['fastq']);
+                $("#used_seed").text(data['seed']);
+                for (let error_source in data) {
+                    if(error_source !== 'fastq' && error_source !== 'seed')
+                        endpoints[error_source].html(data[error_source]);
+                }
+                makeHoverGroups();
+                res.css('display', 'initial');
+                $('html, body').animate({scrollTop: res.offset().top}, 500);
+            }
+            var element = document.getElementById('mod_seq');
+            set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+            if (data['result_by_mail'] === true) {
+                //TODO show info that the result will be send via mail
+                resultsbymail.css('display', 'initial');
+            }
+            submit_seq_btn.removeClass('is-loading');
+        },
+        fail: function (data) {
+            console.log(data);
+            //$('#text_lettering').text(data);
+            submit_seq_btn.removeClass('is-loading');
+        }
+        ,
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+            submit_seq_btn.removeClass('is-loading');
+        }
+    });
+    $("#sequence").removeData("sequence_list");
 }
 
 const percentColors = [

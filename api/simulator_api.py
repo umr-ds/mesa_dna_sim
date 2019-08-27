@@ -1,16 +1,19 @@
+import copy
 import json
 import math
+import multiprocessing
 import uuid
 from threading import Thread
 
+import flask
 import redis
-from flask import jsonify, request, Blueprint, flash, copy_current_request_context
+from flask import jsonify, request, Blueprint, flash, current_app, copy_current_request_context
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
 from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
-from db import db
-from mail import send_mail
+from database.db import db
+from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
@@ -112,6 +115,58 @@ def do_undesired_sequences():
     if as_html:
         return htmlify(res, sequence)
     return jsonify(res)
+
+
+@simulator_api.route('/api/fasta_all', methods=['GET', 'POST'])
+@require_apikey
+def fasta_do_all_wrapper():
+    @copy_current_request_context
+    def do_multiple(lst, email, host):
+        with current_app.app_context():
+            cores = 2
+            p = multiprocessing.Pool(cores)
+            res_lst = p.map(do_all, lst)
+        urls = "Access your result at: "
+        for res in res_lst:
+            uuid = list(res.json.values())[0]["uuid"]
+            urls = urls + "\n" + host + "query_sequence?uuid=" + uuid
+        send_mail("noreply@mosla.de", [email],
+                  urls,
+                  subject="[MOSLA] Your DNA-Simulation finished")
+
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    r_uid = r_method.get('uuid')
+    if r_uid is not None:
+        r_res = None
+        try:
+            r_res = read_from_redis(r_uid)
+        except Exception as e:
+            print("Error while talking to Redis-Server:", e)
+        if r_res is not None:
+            return jsonify(json.loads(r_res))
+    # TODO estimate time needed
+    apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
+    if apikey.owner_id == 0:
+        return jsonify({'did_succeed': False})
+    user = User.query.filter_by(user_id=apikey.owner_id).first()
+    email = user.email
+    sequence_list = r_method.get('sequence_list')
+    del r_method['sequence_list']
+    try:
+        del r_method['uuid']
+    except:
+        print("no uuid")
+    tmp_lst = []
+    for x in sequence_list:
+        c_method = copy.deepcopy(r_method)
+        c_method['sequence'] = x
+        tmp_lst.append(c_method)
+    thread = Thread(target=do_multiple, args=(tmp_lst, email, request.host_url))
+    thread.start()
+    return jsonify({"result_by_mail": True, "did_succeed": False})
 
 
 @simulator_api.route('/api/all', methods=['GET', 'POST'])

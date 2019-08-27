@@ -402,3 +402,54 @@ br {
     width: 16.66%
 }
 
+/* Tooltip container */
+.tooltip {
+    position: absolute;
+    top: 4px;
+    right: 4px;
+    text-align: center;
+    background-color: #baa861;
+    color: black;
+    border-radius: 500%;
+    width: 19px;
+    height: 19px;
+    font-size: 15px;
+    line-height: 18px;
+    cursor: default;
+}
+
+/* Tooltip text */
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #555;
+  color: #fff;
+  text-align: center;
+  padding: 5px 0;
+  border-radius: 6px;
+
+  position: absolute;
+  z-index: 1;
+  bottom: 125%;
+  left: 50%;
+  margin-left: -60px;
+
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #555 transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+  opacity: 1;
+}

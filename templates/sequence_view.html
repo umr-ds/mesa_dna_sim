@@ -179,6 +179,9 @@ window.onload = function () {
     <div class="box container is-fluid is-fluid-mobile">
         <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
+                <div class="tooltip">?
+                    <span class="tooltiptext">You can upload your configuration or fasta files by dragging them in here!</span>
+                </div>
                 <div class="column is-full">
                     <div class="columns">
                         <div class="column is-1 is-pulled-left">
@@ -195,7 +198,8 @@ window.onload = function () {
                                 <div class="control">
                                     <label class="form-group has-float-label">
                                         <!--<p class="control has-icons-left">-->
-                                        <textarea class="textarea" rows="3" id="sequence" name="sequence"
+                                        <textarea class="textarea"
+                                                  rows="3" id="sequence" name="sequence"
                                                   placeholder="AAACCAGT"
                                                   required></textarea>
                                         <!--<span class="icon is-right">
@@ -454,7 +458,7 @@ window.onload = function () {
                 </div>
                 <div class="column is-rounded">
                     <button class="button is-rounded button-fill" id="uploadConfig"
-                            onclick="uploadConf();return false">Upload config
+                            onclick="upload();return false">Upload config
                     </button>
                 </div>
             </div>
@@ -545,6 +549,11 @@ window.onload = function () {
                 <div class="column button-fill">
                     <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
                             id="submit_seq_btn">Submit
+                    </button>
+                </div>
+                <div class="column button-fill is-2">
+                    <button class="button is-large is-rounded button-fill has-margin-top-20" id="uploadFasta"
+                            onclick="upload();return false">Upload Fasta
                     </button>
                 </div>
             </div>
