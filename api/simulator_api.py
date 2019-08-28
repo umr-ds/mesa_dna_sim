@@ -9,8 +9,8 @@ from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
 from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
-from db import db
-from mail import send_mail
+from database.db import db
+from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
@@ -313,6 +313,7 @@ def fastq_errors(input, sequence, sanger=True):
             res.append(chr(q_score + 33))
     return res
 
+
 def htmlify(input, sequence, modification=False):
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
     error_prob = {}
@@ -366,6 +367,8 @@ def htmlify(input, sequence, modification=False):
                 # current base has a different error prob / error class than previous base, finish previous group
                 res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
                 # and initialize current group with current base error classes
+                if modification:
+                    lineage = err_lin[seq_pos]
                 buildup = sequence[seq_pos]
                 buildup_errorprob = curr_err_prob
                 buildup_resmap = resmapping[seq_pos]

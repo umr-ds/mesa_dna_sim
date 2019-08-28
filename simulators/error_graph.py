@@ -58,9 +58,12 @@ class Graph:
     def shift_indices(self, offset, orig_end, process):
         for i in range(1, len(self.graph.nodes())):
             if self.graph.node[i]["startpos"] >= orig_end:
-                self.visited_nodes[process].remove(self.graph.node[i]["startpos"])
-                self.visited_nodes[process].add(self.graph.node[i]["startpos"]+offset)
-                self.visited_nodes["modified_positions"].remove(self.graph.node[i]["startpos"])
+                try:
+                    self.visited_nodes[process].remove(self.graph.node[i]["startpos"])
+                    self.visited_nodes["modified_positions"].remove(self.graph.node[i]["startpos"])
+                except KeyError:
+                    pass
+                self.visited_nodes[process].add(self.graph.node[i]["startpos"] + offset)
                 self.visited_nodes["modified_positions"].add(self.graph.node[i]["startpos"]+offset)
                 self.graph.node[i]["startpos"] += offset
                 self.graph.node[i]["endpos"] += offset

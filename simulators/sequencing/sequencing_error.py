@@ -173,7 +173,6 @@ class SequencingError:
                                           p=list(pattern.values()))
             return self._randomly_indel_base(chosen_ele, position_range, mode)
 
-
     # Checking for all matches using regex is quite slow.
     def _positional_mismatch(self, pattern=None, position_range=None):
         if not pattern:
@@ -221,6 +220,7 @@ class SequencingError:
         self.g.add_node(orig=chosen_ele[1], mod=final_ele, orig_end=chosen_ele[0][1],
                         mod_start=chosen_ele[0][0], mod_end=chosen_ele[0][0] + len(final_ele),
                         mode="pattern_mismatch", process=self.process)
+        # ... + self.seq[chosen_ele[0][1] + 1:] ????
         self.seq = self.seq[:chosen_ele[0][0]] + final_ele + self.seq[chosen_ele[0][1]:]
 
     # Not really random and could end up in an infinite loop, but
@@ -247,7 +247,10 @@ class SequencingError:
         return self._indel_mismatch_base(pos, mode)
 
     def _indel_mismatch_base(self, pos, mode):
-        assert mode in ['deletion', 'insertion', 'mismatch']
+        assert mode in ['deletion', 'insertion', 'mismatch', 'pattern_mismatch']
+        # The same position was already modified during evaluation of this particular process.
+        if pos in self.g.visited_nodes[self.process]:
+            return
         if mode == 'deletion':
             self.g.add_node(orig=self.seq[pos], mod=" ", orig_end=pos + 1,
                             mod_start=pos, mod_end=pos + 1, mode=mode, process=self.process)
