@@ -386,8 +386,14 @@ function collectSendData(space) {
     }, undefined, space);
 }
 
-function collectSendFastQ(){
-    return '@YourSequence\n'+document.getElementById("mod_seq").innerText+'\n+\n'+$('#mod_seq').data("fastq");
+function collectSendFastQ(modified){
+    if(modified==false){
+        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+document.getElementById("overall").innerText+'\n+\n'+$('#overall').data('fastq');
+    }
+    else{
+        let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
+        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+sequence+'\n+\n'+$('#mod_seq').data('fastq');
+    }
 }
 
 function queryServer(uuid) {
@@ -469,10 +475,11 @@ function queryServer(uuid) {
                     data = data['res'];
                     if (uuid !== undefined)
                         data = data[Object.keys(data)[0]];
-                    mod_seq.data('fastq',data['fastq']);
+                    overall.data('fastq',data['fastqOr']);
+                    mod_seq.data('fastq',data['fastqMod']);
                     $("#used_seed").text(data['seed']);
                     for (let error_source in data) {
-                        if(error_source !== 'fastq' && error_source !== 'seed')
+                        if(error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed')
                             endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();
@@ -606,11 +613,17 @@ dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
 function set_mod_seq_inf(sel, sel_start, sel_end){
-    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/sel.length)*100;
+    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/count_all(sel))*100;
     sel_gc_con = Math.round(sel_gc_con * 100)/100;
     var sel_tm = get_tm(sel)
-    sel_tm = Math.round(sel_tm * 100)/100;
-    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+" Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    if(sel_tm === -1){
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: Select at least 6 bases. Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    }
+    else{
+        sel_tm = Math.round(sel_tm * 100)/100;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    }
+
 }
 
 function count_char(sel_seq, char) {
@@ -623,13 +636,27 @@ function count_char(sel_seq, char) {
     return count;
 }
 
+function count_all(sel_seq){
+    var count = 0;
+    for(var i = 0; i < sel_seq.length; i +=1){
+        tmp = sel_seq[i];
+        if(tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G'){
+            count += 1;
+        }
+    }
+    return count;
+}
+
 function get_tm(sel_seq){
     var tm = 0;
-    if(sel_seq.length < 14){
+    if(count_all(sel_seq) < 6){
+        return -1;
+    }
+    else if(6 <= count_all(sel_seq) < 14){
         tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
     }
-    else{
-        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(sel_seq.length)
+    else if(count_all(sel_seq) >= 14){
+        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(count_all(sel_seq))
     }
     return tm;
 }

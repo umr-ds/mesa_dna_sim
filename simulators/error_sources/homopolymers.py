@@ -1,5 +1,10 @@
 def default_error_function(homopolymere_length, base=None):
-    # we might apply different rules based on the base the homopolymere consists of
+    """
+    Default function to calculate error probabilities based on the length of homopolymers.
+    :param homopolymere_length:
+    :param base:
+    :return: Error probability of the homopolymer.
+    """
     if homopolymere_length < 3:
         return 0
     elif homopolymere_length < 4:
@@ -13,6 +18,14 @@ def default_error_function(homopolymere_length, base=None):
 
 
 def create_result(startpos, endpos, errorprob, i):
+    """
+    Creates a dictionary containing all results.
+    :param startpos:
+    :param endpos:
+    :param errorprob:
+    :param i:
+    :return:
+    """
     res = dict()
     res['startpos'] = startpos
     res['endpos'] = endpos
@@ -22,9 +35,16 @@ def create_result(startpos, endpos, errorprob, i):
 
 
 def homopolymer(sequence, apply_for=None, error_function=default_error_function):
+    """
+    Generates a list of dictionarys containing base, startpos, endpos and errorprobability for all homopolymers in
+    the given sequence.
+    :param sequence:
+    :param apply_for:
+    :param error_function:
+    :return:
+    """
     if error_function is None:
         error_function = default_error_function
-    # returns a list of dicts, each dict has the following entries: base, startpos, endpos, errorprob
     result = []
     if apply_for is None:
         apply_for = {'G', 'T', 'A', 'C'}

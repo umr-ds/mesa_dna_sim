@@ -580,6 +580,12 @@ window.onload = function () {
         <div class="box">
             <h3 class="subtitle has-text-black"> Overall: </h3>
             <div class="text_lettering" id="overall"></div>
+            <div class="column is-rounded">
+                <button class="button is-rounded" id="downloadFastqOr"
+                        onclick="download(collectSendFastQ(false), 'mosla.fastq');return false">
+                    Download original sequence as FastQ
+                </button>
+            </div>
         </div>
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
         <div class="box">
@@ -595,8 +601,8 @@ window.onload = function () {
             <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
             <ul class="full_modified_text_lettering" id="mod_seq_inf" style="overflow-x: auto;"></ul>
             <div class="column is-rounded">
-                <button class="button is-rounded" id="downloadFastq"
-                        onclick="download(collectSendFastQ(), 'mosla.fastq');return false">
+                <button class="button is-rounded" id="downloadFastqMod"
+                        onclick="download(collectSendFastQ(true), 'mosla.fastq');return false">
                     Download fully modified sequence as FastQ
                 </button>
             </div>
