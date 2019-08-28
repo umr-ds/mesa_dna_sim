@@ -142,13 +142,18 @@ def fasta_do_all_wrapper():
             cores = 2
             p = multiprocessing.Pool(cores)
             res_lst = p.map(do_all, lst)
-        urls = "Access your result at: "
+        urls = "Access your results at: "
+        fastq_str_list = []
         for res in res_lst:
             uuid = list(res.json.values())[0]["uuid"]
-            urls = urls + "\n" + host + "query_sequence?uuid=" + uuid
-        send_mail("noreply@mosla.de", [email],
-                  urls,
-                  subject="[MOSLA] Your DNA-Simulation finished")
+            url = host + "query_sequence?uuid=" + uuid
+            urls = urls + "\n" + url
+            fastq_str_list.append(
+                "@Your Mosla sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
+                list(res.json.values())[0]['res']['fastqOr'])
+        fastq_text = "\n".join(fastq_str_list)
+        send_mail("noreply@mosla.de", [email], urls, subject="[MOSLA] Your DNA-Simulation finished",
+                  attachment_txt=fastq_text, attachment_name="MOSLA.fastq")
 
     if request.method == 'POST':
         r_method = request.json
@@ -174,7 +179,7 @@ def fasta_do_all_wrapper():
     try:
         del r_method['uuid']
     except:
-        print("no uuid")
+        pass
     tmp_lst = []
     for x in sequence_list:
         c_method = copy.deepcopy(r_method)
@@ -194,6 +199,7 @@ def do_all_wrapper():
     the raw data and returns the result.
     :return:
     """
+
     @copy_current_request_context
     def thread_do_all(r_method, email, host):
         res = do_all(r_method)
@@ -323,12 +329,14 @@ def do_all(r_method):
             homopolymer_html = htmlify(homopolymer_res, sequence)
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
-                         'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                         'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed)}, 'uuid': uuid_str, 'sequence': sequence, }
+                           'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed)},
+                   'uuid': uuid_str, 'sequence': sequence, }
         elif not as_html:
             res = {'res': {'modify': mod_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
-                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
+                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
+                           'seed': str(seed),
                            'modified_sequence': mod_seq, 'fastqOr': fastqOr, 'fastqMod': fastqMod}}
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
@@ -419,7 +427,7 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
         if sequence[i] == " ":
             tmp_pos.append(i)
     for error in input:
-        for pos in range(error["startpos"], error["endpos"]+1):
+        for pos in range(error["startpos"], error["endpos"] + 1):
             tmp[pos] += error["errorprob"]
     res = []
     if sanger:
@@ -435,7 +443,7 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
     if modified:
         cnt = 0
         for pos in tmp_pos:
-            del res[pos-cnt]
+            del res[pos - cnt]
             cnt += 1
     return res
 
