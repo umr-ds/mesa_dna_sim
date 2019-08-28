@@ -4,7 +4,7 @@
         <div class="column is-full has-no-padding-left has-no-padding-top">
             <div class="columns has-no-margin-left">
                 <div class="column has-no-padding-left has-no-padding-bottom has-no-padding-top
-                    {% if e_obj.id == "new" %}{% else %}is-three-quarters-fullhd is-three-fifths{% endif %}">
+                    {% if e_obj.id == "new" %}{% else %}is-three-fifths-fullhd is-half{% endif %}">
                     <label class="form-group has-float-label">
                         <input style="width:100%" class="input is-rounded" id="{{ mode }}_description_{{ e_obj.id }}"
                                type="text" name="description" placeholder="Description"
@@ -30,13 +30,19 @@
                         disabled
                         {% if e_obj.validated %} checked {% endif %}/></label></div>-->
                     <div class="columns has-no-margin-top has-no-margin-left has-no-margin-right button-fill">
+                        <!--, is_admin=True-->
+                        <div class="column has-no-padding-bottom button-fill has-no-padding-top">
+                            <button class="button button-fill"
+                                    data-balloon="{% if e_obj.validated %}Already validated - update to remove validation!{% elif e_obj.awaits_validation %}{% if is_admin %}Validate and publish{% else %}Awaiting validation, you can still update.{% endif %}{% else %}Request validation{% endif %}"
+                                    data-balloon-pos="up" id="validate_{{ mode }}_{{ e_obj.id }}"
+                                    {% if e_obj.validated or (not is_admin and e_obj.awaits_validation) %}disabled{% endif %}
+                                    onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});let callback_func = function (desc) { validateCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }}, desc);{% if is_admin %}$('#validate_{{ mode }}_{{ e_obj.id }}').attr('data-balloon','Already validated - update to remove validation!');{% endif %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled', true)};showValidationOverlay('{% if e_obj.validation_desc != None %}{{ e_obj.validation_desc }}{% endif %}', callback_func); return false;">Publish</button>
+                        </div>
                         <div class="column has-no-padding-bottom button-fill has-no-padding-top">
                             <button class="button button-fill"
                                     data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
                                     data-balloon-pos="up" id="update_{{ mode }}_{{ e_obj.id }}"
-                                    onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }}); return false;">
-                                Update
-                            </button>
+                                    onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">Update</button>
                         </div>
                         <div class="column has-no-padding-bottom has-no-padding-top button-fill">
                             <label style="white-space: nowrap;" for="spoiler-{{ e_obj.id }}"
@@ -46,9 +52,7 @@
                             <button class="button button-fill" id="delete_{{ mode }}_{{ e_obj.id }}"
                                     data-balloon="Created at: "
                                     data-balloon-pos="up"
-                                    onclick='deleteCustomError("{{ host }}", "{{ mode }}" ,{{ e_obj.id }}); return false;'>
-                                Delete
-                            </button>
+                                    onclick='deleteCustomError("{{ host }}", "{{ mode }}" ,{{ e_obj.id }}); return false;'>Delete</button>
                         </div>
 
                     </div>
@@ -60,517 +64,530 @@
             <label style="white-space: nowrap; display: none" for="spoiler-{{ e_obj.id }}"></label>
         {% endif %}
         <div class="column is-full {% if e_obj.id != "new" %}spoiler{% else %}has-no-padding-left{% endif %} ">
-        <div class="has-no-padding-left has-margin-bottom-12 has-overflow-unset has-no-padding-top has-no-padding-bottom control columns is-multiline {{ mode }}-editor-{{ e_obj.id }}"
-             style="margin-right: 20px; margin-left: -17px">
-            <!--<div class="column is-full"></div>-->
-            <div class="column is-half has-no-padding-left">
-                <div class="columns is-full is-multiline has-no-margin-left" id="left-column-{{ mode }}_{{ e_obj.id }}">
-                    <div class="box is-settings-box button-fill">
-                        <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
-                             id="{{ mode }}_error_deletion_{{ e_obj.id }}">
-                            <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
-                                <p>Deletion</p>
-                            </div>
-                            <div class="column has-horizontal-padding-0">
-                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                     id="{{ mode }}-slider-deletion-{{ e_obj.id }}"
-                                     data-eid="{{ e_obj.id }}" data-etype="deletion">
+            <div class="has-no-padding-left has-margin-bottom-12 has-overflow-unset has-no-padding-top has-no-padding-bottom control columns is-multiline {{ mode }}-editor-{{ e_obj.id }}"
+                 style="margin-right: 20px; margin-left: -17px">
+                <!--<div class="column is-full"></div>-->
+                <div class="column is-half has-no-padding-left">
+                    <div class="columns is-full is-multiline has-no-margin-left"
+                         id="left-column-{{ mode }}_{{ e_obj.id }}">
+                        <div class="box is-settings-box button-fill">
+                            <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                                 id="{{ mode }}_error_deletion_{{ e_obj.id }}">
+                                <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
+                                    <p>Deletion</p>
                                 </div>
-                            </div>
+                                <div class="column has-horizontal-padding-0">
+                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                         id="{{ mode }}-slider-deletion-{{ e_obj.id }}"
+                                         data-eid="{{ e_obj.id }}" data-etype="deletion">
+                                    </div>
+                                </div>
 
-                            <div class="columns has-padding-03">
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_deletion_A_{{ e_obj.id }}"
-                                                   type="number" name="{{ mode }}_error_deletion_A_" placeholder="A"
-                                                   step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
+                                <div class="columns has-padding-03">
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_deletion_A_{{ e_obj.id }}"
+                                                       type="number" name="{{ mode }}_error_deletion_A_" placeholder="A"
+                                                       step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p>
-                                        <span>A</span></label>
+                                            </p>
+                                            <span>A</span></label>
+                                    </div>
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_deletion_C_{{ e_obj.id }}"
+                                                       type="number" name="{{ mode }}_error_deletion_C_" placeholder="C"
+                                                       step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p><span>C</span></label>
+                                    </div>
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_deletion_G_{{ e_obj.id }}"
+                                                       type="number" name="{{ mode }}_error_deletion_G_" placeholder="G"
+                                                       step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p><span>G</span></label>
+                                    </div>
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_deletion_T_{{ e_obj.id }}"
+                                                       type="number" name="{{ mode }}_error_deletion_T_" placeholder="T"
+                                                       step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required><span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p><span>T</span></label>
+                                    </div>
                                 </div>
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_deletion_C_{{ e_obj.id }}"
-                                                   type="number" name="{{ mode }}_error_deletion_C_" placeholder="C"
-                                                   step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p><span>C</span></label>
+                            </div>
+                            <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                                 id="{{ mode }}_error_position_deletion_{{ e_obj.id }}">
+                                <div class="column has-horizontal-padding-0">
+                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                         id="{{ mode }}-position-slider-deletion-{{ e_obj.id }}"
+                                         data-eid="{{ e_obj.id }}" data-etype="deletion">
+                                    </div>
                                 </div>
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_deletion_G_{{ e_obj.id }}"
-                                                   type="number" name="{{ mode }}_error_deletion_G_" placeholder="G"
-                                                   step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
+
+                                <div class="columns">
+                                    <div class="column is-half">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_deletion_homopolymer_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="Homopolymer"
+                                                       step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p><span>G</span></label>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_deletion_T_{{ e_obj.id }}"
-                                                   type="number" name="{{ mode }}_error_deletion_T_" placeholder="T"
-                                                   step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span class="icon is-right">
+                                            </p>
+                                            <span>Homopolymer</span>
+                                        </label>
+                                    </div>
+                                    <div class="column is-half">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_deletion_random_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="Random" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p><span>T</span></label>
+                                            </p>
+                                            <span>Random</span></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
-                             id="{{ mode }}_error_position_deletion_{{ e_obj.id }}">
-                            <div class="column has-horizontal-padding-0">
-                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                     id="{{ mode }}-position-slider-deletion-{{ e_obj.id }}"
-                                     data-eid="{{ e_obj.id }}" data-etype="deletion">
+                        <div class="box is-settings-box button-fill">
+                            <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                                 id="{{ mode }}_error_insertion_{{ e_obj.id }}">
+                                <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
+                                    <p>Insertion</p>
+                                </div>
+                                <div class="column has-horizontal-padding-0">
+                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                         id="{{ mode }}-slider-insertion-{{ e_obj.id }}"
+                                         data-eid="{{ e_obj.id }}" data-etype="insertion">
+                                    </div>
+                                </div>
+
+                                <div class="columns">
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_insertion_A_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="A" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p>
+                                            <span>A</span></label>
+                                    </div>
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_insertion_C_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="C" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required><span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p>
+                                            <span>C</span></label>
+                                    </div>
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_insertion_G_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="G" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required><span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p>
+                                            <span>G</span></label>
+                                    </div>
+                                    <div class="column is-one-quarter">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_insertion_T_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="T" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required><span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p><span>T</span></label>
+                                    </div>
                                 </div>
                             </div>
-
-                            <div class="columns">
-                                <div class="column is-half">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_deletion_homopolymer_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="Homopolymer"
-                                                   step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p>
-                                        <span>Homopolymer</span>
-                                    </label>
+                            <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                                 id="{{ mode }}_error_position_insertion_{{ e_obj.id }}">
+                                <div class="column has-horizontal-padding-0">
+                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                         id="{{ mode }}-position-slider-insertion-{{ e_obj.id }}"
+                                         data-eid="{{ e_obj.id }}" data-etype="insertion">
+                                    </div>
                                 </div>
-                                <div class="column is-half">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_deletion_random_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="Random" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
+
+                                <div class="columns">
+                                    <div class="column is-half">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_insertion_homopolymer_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="Homopolymer"
+                                                       step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required><span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p>
-                                        <span>Random</span></label>
+                                            </p>
+                                            <span>Homopolymer</span></label>
+                                    </div>
+                                    <div class="column is-half">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_insertion_random_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="Random" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
+                                            <i class="fas fa-percentage"></i>
+                                        </span>
+                                            </p><span>Random</span></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="box is-settings-box button-fill">
-                        <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
-                             id="{{ mode }}_error_insertion_{{ e_obj.id }}">
-                            <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
-                                <p>Insertion</p>
-                            </div>
-                            <div class="column has-horizontal-padding-0">
-                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                     id="{{ mode }}-slider-insertion-{{ e_obj.id }}"
-                                     data-eid="{{ e_obj.id }}" data-etype="insertion">
+                        <div class="box is-settings-box button-fill">
+                            <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
+                                 id="mismatch-{{ e_obj.id }}">
+                                <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
+                                    <p>Distribution</p>
                                 </div>
-                            </div>
-
-                            <div class="columns">
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_insertion_A_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="A" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
+                                <div class="column is-full has-horizontal-padding-0">
+                                    <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                         id="err_data-{{ mode }}-slider-{{ e_obj.id }}"
+                                         data-eid="{{ e_obj.id }}" data-etype="err_data">
+                                    </div>
+                                </div>
+                                <div class="columns">
+                                    <div class="column is-one-third">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_raw_rate_deletion_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p>
-                                        <span>A</span></label>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_insertion_C_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="C" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span class="icon is-right">
+                                            </p>
+                                            <span>Deletion</span></label>
+                                    </div>
+                                    <div class="column is-one-third">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_raw_rate_insertion_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p>
-                                        <span>C</span></label>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_insertion_G_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="G" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span class="icon is-right">
+                                            </p>
+                                            <span>Insertion</span></label>
+                                    </div>
+                                    <div class="column is-one-third">
+                                        <label class="form-group has-float-label">
+                                            <p class="control has-icons-right">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       id="{{ mode }}_error_raw_rate_mismatch_{{ e_obj.id }}"
+                                                       type="number" name="description" placeholder="" step="0.01"
+                                                       min="0.00" max="100.00"
+                                                       required>
+                                                <span class="icon is-right">
                                             <i class="fas fa-percentage"></i>
                                         </span>
-                                        </p>
-                                        <span>G</span></label>
-                                </div>
-                                <div class="column is-one-quarter">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_insertion_T_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="T" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p><span>T</span></label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
-                             id="{{ mode }}_error_position_insertion_{{ e_obj.id }}">
-                            <div class="column has-horizontal-padding-0">
-                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                     id="{{ mode }}-position-slider-insertion-{{ e_obj.id }}"
-                                     data-eid="{{ e_obj.id }}" data-etype="insertion">
-                                </div>
-                            </div>
-
-                            <div class="columns">
-                                <div class="column is-half">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_insertion_homopolymer_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="Homopolymer"
-                                                   step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required><span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p>
-                                        <span>Homopolymer</span></label>
-                                </div>
-                                <div class="column is-half">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_insertion_random_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="Random" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p><span>Random</span></label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="box is-settings-box button-fill">
-                        <div class="control column is-full has-padding-03 has-no-padding-bottom has-no-padding-top"
-                             id="mismatch-{{ e_obj.id }}">
-                            <div class="column has-horizontal-padding-0 is-text has-text-centered has-text-black is-gapless is-paddingless is-marginless">
-                                <p>Distribution</p>
-                            </div>
-                            <div class="column is-full has-horizontal-padding-0">
-                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                     id="err_data-{{ mode }}-slider-{{ e_obj.id }}"
-                                     data-eid="{{ e_obj.id }}" data-etype="err_data">
-                                </div>
-                            </div>
-                            <div class="columns">
-                                <div class="column is-one-third">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_raw_rate_deletion_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p>
-                                        <span>Deletion</span></label>
-                                </div>
-                                <div class="column is-one-third">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_raw_rate_insertion_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p>
-                                        <span>Insertion</span></label>
-                                </div>
-                                <div class="column is-one-third">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   id="{{ mode }}_error_raw_rate_mismatch_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="" step="0.01"
-                                                   min="0.00" max="100.00"
-                                                   required>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                        </p>
-                                        <span>Mismatch</span></label>
+                                            </p>
+                                            <span>Mismatch</span></label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="column is-half">
-                <div class="columns is-full is-multiline" id="right-column-{{ mode }}-{{ e_obj.id }}">
-                    <div class="column is-full">
-                        <div class="field columns is-full is-multiline">
-                            <div class="column is-full has-no-padding-left has-no-padding-right"
-                                 id="{{ mode }}_error_raw_{{ e_obj.id }}">
-                                <label class="form-group has-float-label">
-                                    <p class="control has-icons-right">
-                                        <input style="width:100%" class="input is-rounded"
-                                               id="{{ mode }}_error_raw_rate_{{ e_obj.id }}"
-                                               type="number" name="description" placeholder="Raw Rate" step="0.01"
-                                               min="0.00" max="100.00"
+                <div class="column is-half">
+                    <div class="columns is-full is-multiline" id="right-column-{{ mode }}-{{ e_obj.id }}">
+                        <div class="column is-full">
+                            <div class="field columns is-full is-multiline">
+                                <div class="column is-full has-no-padding-left has-no-padding-right"
+                                     id="{{ mode }}_error_raw_{{ e_obj.id }}">
+                                    <label class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input style="width:100%" class="input is-rounded"
+                                                   id="{{ mode }}_error_raw_rate_{{ e_obj.id }}"
+                                                   type="number" name="description" placeholder="Raw Rate" step="0.01"
+                                                   min="0.00" max="100.00"
 
-                                               value="{% if e_obj.id == "new" %}0.05{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
-                                               required>
-                                        <span class="icon is-right">
+                                                   value="{% if e_obj.id == "new" %}0.05{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
+                                                   required>
+                                            <span class="icon is-right">
                                 <i class="fas fa-percentage"></i>
                                     </span>
-                                    </p>
-                                    <span><nobr>Raw Error Rate</nobr></span>
-                                </label>
+                                        </p>
+                                        <span><nobr>Raw Error Rate</nobr></span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="box is-settings-box has-no-margin-left has-no-margin-right button-fill has-padding-right-10 ">
-                        <div class="column is-full has-no-padding-top" id="{{ mode }}_error_mismatch_{{ e_obj.id }}">
-                            <div class="columns is-multiline has-no-margin-left has-no-margin-top has-padding-right-10">
-                                <div class="column is-full has-horizontal-padding-0 has-no-padding-top is-text has-text-centered has-text-black is-gapless is-marginless">
-                                    <p>Mismatch</p>
-                                </div>
-                                <div class="has-padding-bottom-20 has-no-margin-bottom"
-                                     id="{{ mode }}_mismatch_container_{{ e_obj.id }}">
-                                    {% for key1, value1 in e_obj.err_attributes.mismatch.items() %}
+                        <div class="box is-settings-box has-no-margin-left has-no-margin-right button-fill has-padding-right-10 ">
+                            <div class="column is-full has-no-padding-top"
+                                 id="{{ mode }}_error_mismatch_{{ e_obj.id }}">
+                                <div class="columns is-multiline has-no-margin-left has-no-margin-top has-padding-right-10">
+                                    <div class="column is-full has-horizontal-padding-0 has-no-padding-top is-text has-text-centered has-text-black is-gapless is-marginless">
+                                        <p>Mismatch</p>
+                                    </div>
+                                    <div class="has-padding-bottom-20 has-no-margin-bottom"
+                                         id="{{ mode }}_mismatch_container_{{ e_obj.id }}">
+                                        {% for key1, value1 in e_obj.err_attributes.mismatch.items() %}
 
-                                        {% if (key1 != "position_range")  %}
-                                        {% for key, value in value1.items() %}
-                                            {% set count = loop.index - 1 %}
-                                            <div class="columns is-multiline is-full box mismatch_container"
-                                                 id="mismatch_{{ e_obj.id }}_{{ count }}">
-                                                <div class="column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left">
-                                                    <label class="form-group has-float-label">
-                                                        <p class="control has-icons-right">
-                                                            <input style="width:100%" class="input is-rounded"
-                                                                   id="{{ mode }}_error_mismatched_org_seq_{{ e_obj.id }}_{{ count }}"
-                                                                   type="text" name="Original DNA-Sequence"
-                                                                   placeholder="DNA-Sequence"
-                                                                   value="{% if e_obj.id != "new" %}{{ key }}{% endif %}"
-                                                                   required>
-                                                            <span class="icon is-right">
+                                            {% if (key1 != "position_range") %}
+                                                {% for key, value in value1.items() %}
+                                                    {% set count = loop.index - 1 %}
+                                                    <div class="columns is-multiline is-full box mismatch_container"
+                                                         id="mismatch_{{ e_obj.id }}_{{ count }}">
+                                                        <div class="column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left">
+                                                            <label class="form-group has-float-label">
+                                                                <p class="control has-icons-right">
+                                                                    <input style="width:100%" class="input is-rounded"
+                                                                           id="{{ mode }}_error_mismatched_org_seq_{{ e_obj.id }}_{{ count }}"
+                                                                           type="text" name="Original DNA-Sequence"
+                                                                           placeholder="DNA-Sequence"
+                                                                           value="{% if e_obj.id != "new" %}{{ key }}{% endif %}"
+                                                                           required>
+                                                                    <span class="icon is-right">
                                                     <i class="fas fa-dna"></i>
                                                 </span>
-                                                        </p>
-                                                        <span><nobr>Original DNA-Sequence</nobr></span>
-                                                    </label>
-                                                </div>
-                                                <div class="column is-two-fifths has-no-margin-left has-no-padding-left">
-                                                    <label class="form-group has-float-label">
-                                                        <p class="control has-icons-right">
-                                                            <input style="width:100%" class="input is-rounded"
-                                                                   id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}"
-                                                                   type="number" name="# possible Mismatches"
-                                                                   placeholder="2" min="1" max="20" step="1"
-                                                                   value="{% if e_obj.id != "new" %}{{ value.values()|length }}{% else %}1{% endif %}"
-                                                                   required disabled>
-                                                            <span class="icon is-right">
+                                                                </p>
+                                                                <span><nobr>Original DNA-Sequence</nobr></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="column is-two-fifths has-no-margin-left has-no-padding-left">
+                                                            <label class="form-group has-float-label">
+                                                                <p class="control has-icons-right">
+                                                                    <input style="width:100%" class="input is-rounded"
+                                                                           id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}"
+                                                                           type="number" name="# possible Mismatches"
+                                                                           placeholder="2" min="1" max="20" step="1"
+                                                                           value="{% if e_obj.id != "new" %}{{ value.values()|length }}{% else %}1{% endif %}"
+                                                                           required disabled>
+                                                                    <span class="icon is-right">
                                                     <i class="fas fa-percentage"></i>
                                                 </span>
-                                                        </p>
-                                                        <span><nobr># possible Mismatches</nobr></span>
-                                                    </label>
-                                                </div>
+                                                                </p>
+                                                                <span><nobr># possible Mismatches</nobr></span>
+                                                            </label>
+                                                        </div>
 
-                                                <div class="column is-one-fifth button-fill has-no-margin-left has-no-padding-left">
-                                                    <button class="button button-fill" id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
-                                                            data-balloon="Remove this Mismatch (Rule has to be Updated for this change to take effect!)"
-                                                            data-balloon-pos="up"
-                                                            onclick="deleteMismatch('{{ mode }}', '{{ e_obj.id }}_{{ count }}'); return false;">
-                                                        Delete
-                                                    </button>
-                                                </div>
-                                                <div class="column is-one-fifth" id="toogle-use-position">
-                                                    <label data-balloon="Use Position based Mismatching"
-                                                           data-balloon-pos="up">
-                                                        <input type="checkbox" aria-label="Use positional Mismatch" id="{{ mode }}_mismatch_positioning_{{ e_obj.id }}_{{ count }}"
-                                                               {% if "position_range" in e_obj.err_attributes.mismatch %} checked {% endif %}
-                                                               onchange="$('#{{ mode }}_error_mismatched_startpos_{{ e_obj.id }}_{{ count }}').attr('disabled',!$(this)[0].checked);
-                                                                         $('#{{ mode }}_error_mismatched_endpos_{{ e_obj.id }}_{{ count }}').attr('disabled',!$(this)[0].checked)"
-                                                               class="switch is-rounded is-large button-fill no-outline" name="{{ mode }}_mismatch_positioning_{{ e_obj.id }}_{{ count }}" />
-                                                        <label for="{{ mode }}_mismatch_positioning_{{ e_obj.id }}_{{ count }}" class="no-outline"></label>
-                                                    </label>
-                                                </div>
-                                                    <div class="column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left">
-                                                    <label class="form-group has-float-label">
-                                                        <p class="control has-icons-right">
-                                                            <input style="width:100%" class="input is-rounded"
-                                                                   id="{{ mode }}_error_mismatched_startpos_{{ e_obj.id }}_{{ count }}"
-                                                                   type="number" name="Startposition"
-                                                                   placeholder="DNA-Sequence" min="1"
-                                                                   {% if "position_range" not in e_obj.err_attributes.mismatch %} disabled {% endif %}
-                                                                   value="{% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[0] }}{% elif e_obj.id != "new" %}1{% endif %}"
-                                                                   required>
-                                                            <span class="icon is-right">
+                                                        <div class="column is-one-fifth button-fill has-no-margin-left has-no-padding-left">
+                                                            <button class="button button-fill"
+                                                                    id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
+                                                                    data-balloon="Remove this Mismatch (Rule has to be Updated for this change to take effect!)"
+                                                                    data-balloon-pos="up"
+                                                                    onclick="deleteMismatch('{{ mode }}', '{{ e_obj.id }}_{{ count }}'); return false;">
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                        <div class="column is-one-fifth" id="toogle-use-position">
+                                                            <label data-balloon="Use Position based Mismatching"
+                                                                   data-balloon-pos="up">
+                                                                <input type="checkbox"
+                                                                       aria-label="Use positional Mismatch"
+                                                                       id="{{ mode }}_mismatch_positioning_{{ e_obj.id }}_{{ count }}"
+                                                                        {% if "position_range" in e_obj.err_attributes.mismatch %}
+                                                                       checked {% endif %}
+                                                                       onchange="$('#{{ mode }}_error_mismatched_startpos_{{ e_obj.id }}_{{ count }}').attr('disabled',!$(this)[0].checked);
+                                                                               $('#{{ mode }}_error_mismatched_endpos_{{ e_obj.id }}_{{ count }}').attr('disabled',!$(this)[0].checked)"
+                                                                       class="switch is-rounded is-large button-fill no-outline"
+                                                                       name="{{ mode }}_mismatch_positioning_{{ e_obj.id }}_{{ count }}"/>
+                                                                <label for="{{ mode }}_mismatch_positioning_{{ e_obj.id }}_{{ count }}"
+                                                                       class="no-outline"></label>
+                                                            </label>
+                                                        </div>
+                                                        <div class="column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left">
+                                                            <label class="form-group has-float-label">
+                                                                <p class="control has-icons-right">
+                                                                    <input style="width:100%" class="input is-rounded"
+                                                                           id="{{ mode }}_error_mismatched_startpos_{{ e_obj.id }}_{{ count }}"
+                                                                           type="number" name="Startposition"
+                                                                           placeholder="DNA-Sequence" min="1"
+                                                                            {% if "position_range" not in e_obj.err_attributes.mismatch %}
+                                                                           disabled {% endif %}
+                                                                           value="{% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[0] }}{% elif e_obj.id != "new" %}1{% endif %}"
+                                                                           required>
+                                                                    <span class="icon is-right">
                                                     <i class="fas fa-step-backward"></i>
                                                 </span>
-                                                        </p>
-                                                        <span><nobr>Start Position</nobr></span>
-                                                    </label>
-                                                </div>
-                                                    <div class="column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left">
-                                                    <label class="form-group has-float-label">
-                                                        <p class="control has-icons-right">
-                                                            <input style="width:100%" class="input is-rounded"
-                                                                   id="{{ mode }}_error_mismatched_endpos_{{ e_obj.id }}_{{ count }}"
-                                                                   type="number" name="Original DNA-Sequence"
-                                                                   placeholder="DNA-Sequence" min="1"
-                                                                   {% if "position_range" not in e_obj.err_attributes.mismatch %} disabled {% endif %}
-                                                                   value="{% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[1] }}{% elif e_obj.id != "new" %}1{% endif %}"
-                                                                   required>
-                                                            <span class="icon is-right">
+                                                                </p>
+                                                                <span><nobr>Start Position</nobr></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left">
+                                                            <label class="form-group has-float-label">
+                                                                <p class="control has-icons-right">
+                                                                    <input style="width:100%" class="input is-rounded"
+                                                                           id="{{ mode }}_error_mismatched_endpos_{{ e_obj.id }}_{{ count }}"
+                                                                           type="number" name="Original DNA-Sequence"
+                                                                           placeholder="DNA-Sequence" min="1"
+                                                                            {% if "position_range" not in e_obj.err_attributes.mismatch %}
+                                                                           disabled {% endif %}
+                                                                           value="{% if "position_range" in e_obj.err_attributes.mismatch %}{{ e_obj.err_attributes.mismatch.position_range[1] }}{% elif e_obj.id != "new" %}1{% endif %}"
+                                                                           required>
+                                                                    <span class="icon is-right">
                                                     <i class="fas fa-step-forward"></i>
                                                 </span>
-                                                        </p>
-                                                        <span><nobr>End Position</nobr></span>
-                                                    </label>
-                                                </div>
-                                                <div class="column is-full is-paddingless"></div>
-                                                {% for change_dna, change_percentage in value.items() %}
-                                                    {% set possible_mismatch_no = loop.index - 1 %}
-                                                    <div class="column has-no-margin-left has-no-padding-left {% if value.items()|length > 4 %}is-one-quarter{% endif %}">
-                                                        <label class="form-group has-float-label">
-                                                            <p class="control has-icons-right">
-                                                                <input style="width:100%"
-                                                                       class="input is-rounded mismatch_inputfield"
-                                                                       id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}_{{ possible_mismatch_no }}"
-                                                                       type="text"
-                                                                       name="mismatch_changed_{{ possible_mismatch_no }}"
-                                                                       placeholder="Mismatched Seq. {{ possible_mismatch_no }}"
-                                                                       value="{% if e_obj.id != "new" %}{{ change_dna }}{% endif %}"
-                                                                       required>
-                                                                <span class="icon is-right">
+                                                                </p>
+                                                                <span><nobr>End Position</nobr></span>
+                                                            </label>
+                                                        </div>
+                                                        <div class="column is-full is-paddingless"></div>
+                                                        {% for change_dna, change_percentage in value.items() %}
+                                                            {% set possible_mismatch_no = loop.index - 1 %}
+                                                            <div class="column has-no-margin-left has-no-padding-left {% if value.items()|length > 4 %}is-one-quarter{% endif %}">
+                                                                <label class="form-group has-float-label">
+                                                                    <p class="control has-icons-right">
+                                                                        <input style="width:100%"
+                                                                               class="input is-rounded mismatch_inputfield"
+                                                                               id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}_{{ count }}_{{ possible_mismatch_no }}"
+                                                                               type="text"
+                                                                               name="mismatch_changed_{{ possible_mismatch_no }}"
+                                                                               placeholder="Mismatched Seq. {{ possible_mismatch_no }}"
+                                                                               value="{% if e_obj.id != "new" %}{{ change_dna }}{% endif %}"
+                                                                               required>
+                                                                        <span class="icon is-right">
                                                                     <i class="fas fa-dna"></i>
                                                                 </span>
-                                                            </p>
-                                                            <span><nobr>Mismatch {{ possible_mismatch_no }}</nobr></span>
-                                                        </label>
-                                                    </div>
-                                                {% endfor %}
-                                                {% if value.items()|length > 1 %}
-                                                    <div class="column is-full is-paddingless"></div>
-                                                    <div class="column has-horizontal-padding-0 has-padding-03">
-                                                        <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
-                                                             id="mismatch-{{ mode }}-slider-{{ e_obj.id }}_{{ count }}"
-                                                             data-eid="{{ e_obj.id }}" data-mode="{{ mode }}"
-                                                             data-mid="{{ e_obj.id }}_{{ count }}"
-                                                             data-etype="mismatch" data-vals='{{ value |tojson }}'>
-                                                        </div>
-                                                    </div>
-                                                    <div class="column is-full is-paddingless is-marginless"></div>
-                                                {% endif %}
-                                                {% for change_dna, change_percentage in value.items() %}
-                                                    {% set possible_mismatch_no = loop.index - 1 %}
-                                                    <div class="column has-no-margin-left has-no-padding-left {% if value.items()|length > 4 %}is-one-quarter{% endif %}">
-                                                        <label class="form-group has-float-label">
-                                                            <p class="control has-icons-right">
-                                                                <input style="width:100%"
-                                                                       class="input is-rounded mismatch_inputfield"
-                                                                       id="{{ mode }}_error_mismatched_seq_prob_{{ e_obj.id }}_{{ count }}_{{ possible_mismatch_no }}"
-                                                                       type="number"
-                                                                       min="0" max="100" step="0.01"
-                                                                       placeholder="{{ change_dna }}"
-                                                                       name="mismatch_{{ possible_mismatch_no }}"
-                                                                       value="{% if e_obj.id != "new" %}{{ change_percentage*100 }}{% endif %}"
-                                                                       required
-                                                                       {% if value.items()|length == 1 %}disabled{% endif %}>
-                                                                <span class="icon is-right">
+                                                                    </p>
+                                                                    <span><nobr>Mismatch {{ possible_mismatch_no }}</nobr></span>
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
+                                                        {% if value.items()|length > 1 %}
+                                                            <div class="column is-full is-paddingless"></div>
+                                                            <div class="column has-horizontal-padding-0 has-padding-03">
+                                                                <div class="button-fill sliders noUi-target noUi-ltr noUi-horizontal"
+                                                                     id="mismatch-{{ mode }}-slider-{{ e_obj.id }}_{{ count }}"
+                                                                     data-eid="{{ e_obj.id }}" data-mode="{{ mode }}"
+                                                                     data-mid="{{ e_obj.id }}_{{ count }}"
+                                                                     data-etype="mismatch"
+                                                                     data-vals='{{ value |tojson }}'>
+                                                                </div>
+                                                            </div>
+                                                            <div class="column is-full is-paddingless is-marginless"></div>
+                                                        {% endif %}
+                                                        {% for change_dna, change_percentage in value.items() %}
+                                                            {% set possible_mismatch_no = loop.index - 1 %}
+                                                            <div class="column has-no-margin-left has-no-padding-left {% if value.items()|length > 4 %}is-one-quarter{% endif %}">
+                                                                <label class="form-group has-float-label">
+                                                                    <p class="control has-icons-right">
+                                                                        <input style="width:100%"
+                                                                               class="input is-rounded mismatch_inputfield"
+                                                                               id="{{ mode }}_error_mismatched_seq_prob_{{ e_obj.id }}_{{ count }}_{{ possible_mismatch_no }}"
+                                                                               type="number"
+                                                                               min="0" max="100" step="0.01"
+                                                                               placeholder="{{ change_dna }}"
+                                                                               name="mismatch_{{ possible_mismatch_no }}"
+                                                                               value="{% if e_obj.id != "new" %}{{ change_percentage*100 }}{% endif %}"
+                                                                               required
+                                                                               {% if value.items()|length == 1 %}disabled{% endif %}>
+                                                                        <span class="icon is-right">
                                                                     <i class="fas fa-percentage"></i>
                                                                 </span>
-                                                            </p>
-                                                            <span><nobr>Mismatch {{ possible_mismatch_no }}</nobr></span>
-                                                        </label>
+                                                                    </p>
+                                                                    <span><nobr>Mismatch {{ possible_mismatch_no }}</nobr></span>
+                                                                </label>
+                                                            </div>
+                                                        {% endfor %}
                                                     </div>
-                                                {% endfor %}
-                                            </div>
-                                        {% endfor %}{% endif %}{% endfor %}</div>
-                                <div class="column is-full">
-                                    <div class="columns">
-                                        <div class="column is-two-fifths">
-                                            <label class="form-group has-float-label">
-                                                <p class="control has-icons-right">
-                                                    <input style="width:100%" class="input is-rounded"
-                                                           id="{{ mode }}_error_mismatched_org_seq_{{ e_obj.id }}"
-                                                           type="text" name="Original DNA-Sequence"
-                                                           placeholder="DNA-Sequence"
-                                                           value=""
-                                                           required>
-                                                    <span class="icon is-right">
+                                                {% endfor %}{% endif %}{% endfor %}</div>
+                                    <div class="column is-full">
+                                        <div class="columns">
+                                            <div class="column is-two-fifths">
+                                                <label class="form-group has-float-label">
+                                                    <p class="control has-icons-right">
+                                                        <input style="width:100%" class="input is-rounded"
+                                                               id="{{ mode }}_error_mismatched_org_seq_{{ e_obj.id }}"
+                                                               type="text" name="Original DNA-Sequence"
+                                                               placeholder="DNA-Sequence"
+                                                               value=""
+                                                               required>
+                                                        <span class="icon is-right">
                                                 <i class="fas fa-dna"></i>
                                             </span>
-                                                </p>
-                                                <span><nobr>DNA-Sequence</nobr></span>
-                                            </label>
-                                        </div>
-                                        <div class="column is-two-fifths">
-                                            <label class="form-group has-float-label">
-                                                <p class="control">
-                                                    <input style="width:100%" class="input is-rounded"
-                                                           id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}"
-                                                           type="number" name="# possible Mismatches"
-                                                           placeholder="2"
-                                                           min="1" max="25"
-                                                           value="2"
-                                                           required>
-                                                </p>
-                                                <span><nobr># possible Mismatches</nobr></span>
-                                            </label>
-                                        </div>
-                                        <div class="column is-one-fifth button-fill">
-                                            <button class="button button-fill" id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
-                                                    data-balloon="Add this Mismatch (Rule has to be {% if e_obj.id =="new" %}added{% else %}updated{% endif %} for this change to take effect!)"
-                                                    data-balloon-pos="up"
-                                                    onclick="addMismatch('{{ mode }}', '{{ e_obj.id }}'); return false;">
-                                                Add
-                                            </button>
+                                                    </p>
+                                                    <span><nobr>DNA-Sequence</nobr></span>
+                                                </label>
+                                            </div>
+                                            <div class="column is-two-fifths">
+                                                <label class="form-group has-float-label">
+                                                    <p class="control">
+                                                        <input style="width:100%" class="input is-rounded"
+                                                               id="{{ mode }}_error_mismatched_seq_{{ e_obj.id }}"
+                                                               type="number" name="# possible Mismatches"
+                                                               placeholder="2"
+                                                               min="1" max="25"
+                                                               value="2"
+                                                               required>
+                                                    </p>
+                                                    <span><nobr># possible Mismatches</nobr></span>
+                                                </label>
+                                            </div>
+                                            <div class="column is-one-fifth button-fill">
+                                                <button class="button button-fill"
+                                                        id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
+                                                        data-balloon="Add this Mismatch (Rule has to be {% if e_obj.id =="new" %}added{% else %}updated{% endif %} for this change to take effect!)"
+                                                        data-balloon-pos="up"
+                                                        onclick="addMismatch('{{ mode }}', '{{ e_obj.id }}'); return false;">
+                                                    Add
+                                                </button>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -579,7 +596,6 @@
                     </div>
                 </div>
             </div>
-        </div>
         </div>
     </div>
 </div>

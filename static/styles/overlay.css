@@ -3,6 +3,25 @@
     opacity: 0;
 }
 
+#validation_overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    /*filter: alpha(opacity=50);
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+    opacity: 0.5;*/
+    z-index: 20000;
+    vertical-align: middle;
+    horiz-align: center;
+    display: none; /*set to block for show*/
+    overflow-x: hidden;
+    transition: 0.5s;
+}
+
 #overlay {
     position: fixed;
     top: 0;

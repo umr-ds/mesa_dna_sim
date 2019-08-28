@@ -9,7 +9,39 @@ from database.models import User
 login = Blueprint("login", __name__, template_folder="templates")
 
 
+def require_admin(function_to_protect):
+    @wraps(function_to_protect)
+    def wrapper(*args, **kwargs):
+        user_id = session.get('user_id')
+        if user_id:
+            user = User.query.filter_by(user_id=user_id).first()
+            if user:
+                if not user.validated:
+                    flash("Account has to be validated first", 'danger')  # TODO Resend Mail?
+                    session.pop("user_id", None)
+                    return redirect(url_for('login.do_login'))
+                # Success!
+                if user.is_admin:
+                    return function_to_protect(*args, **kwargs)
+                else:
+                    flash("Your Account is not allowed to perform this request.", 'warning')
+                    return redirect(url_for('main_page.home'))
+            else:
+                flash("Session exists, but user does not exist (anymore)", 'warning')
+                return redirect(url_for('login.do_login'))
+        else:
+            flash("Please log in", 'warning')
+            return redirect(url_for('login.do_login'))
+
+    return wrapper
+
+
 def require_logged_in(function_to_protect):
+    """
+    Checks if an existing user is logged in before calling the protected functions.
+    :param function_to_protect:
+    :return:
+    """
     @wraps(function_to_protect)
     def wrapper(*args, **kwargs):
         user_id = session.get('user_id')
@@ -34,6 +66,10 @@ def require_logged_in(function_to_protect):
 
 @login.route("/login", methods=["GET", "POST"])
 def do_login():
+    """
+    Logs an user in if the email and password are correct and informs the user if something is wrong.
+    :return:
+    """
     if request.method == "POST":
         # You should really validate that these fields
         # are provided, rather than displaying an ugly

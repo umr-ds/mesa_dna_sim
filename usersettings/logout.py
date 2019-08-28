@@ -8,7 +8,10 @@ logout = Blueprint("logout", __name__, template_folder="templates")
 @logout.route('/logout')
 @require_logged_in
 def do_logout():
-    # remove the username from the session if it is there
+    """
+    Logs an user out and removes the username from the session if it's there.
+    :return:
+    """
     if 'user_id' in session:
         session.pop('user_id', None)
         flash('You have successfully logged out', 'success')

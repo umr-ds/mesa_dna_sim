@@ -1,0 +1,27 @@
+<div class="control" id="validation_overlay">
+    <div class="box container is-fluid is-fluid-mobile overlay-all" id="inner_validation_overlay">
+        <a href="javascript:void(0)" class="roundclosebtn" onclick="closeValidationOverlay()">&times;</a>
+        <div class="columns is-multiline">
+            <div class="column has-text-centered has-text-weight-bold">
+                <p>Publish your custom configuration to make it available for everyone to use.<br/> If you just want to
+                    share with a coworker consider using "Download current config" or sharing your result using the
+                    Share-Link</p>
+            </div>
+            <div class="column is-full">
+                <label class="form-group has-float-label">
+                    <!--<p class="control has-icons-left">-->
+                    <textarea class="textarea input button-fill" id="validation_desc" name="validation_desc"></textarea>
+                    <!--<span class="icon is-right">
+                    <i class="fas fa-dna"></i>
+                        </span>-->
+                    <span>Description for the Validation (this Text should help us to verify your config)</span>
+                    <!--</p>-->
+                </label>
+            </div>
+            <div class="column is-full has-text-centered">
+                <!-- TODO send data to the server -->
+                <button class="button" id="do_request_validation" onclick="closeValidationOverlay();return false">Request validation</button>
+            </div>
+        </div>
+    </div>
+</div>

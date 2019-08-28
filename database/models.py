@@ -20,6 +20,7 @@ class User(db.Model):
     password = db.Column(db.String(128), nullable=False)
     created = db.Column(db.Integer, default=timestamp, onupdate=timestamp)
     validated = db.Column(db.Boolean, default=False, nullable=False)
+    is_admin = db.Column(db.Boolean, default=False, nullable=False)
 
     ###############################################
     def get_token(self, secret):
@@ -70,6 +71,8 @@ class UndesiredSubsequences(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     description = db.Column(db.String(512))
     owner_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<UndesiredSubsequences(id={}, owner={}, sequence={}, error_prob={}, created={}, validated={}>'.format(
@@ -101,6 +104,8 @@ class ErrorProbability(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     created = db.Column(db.Integer, default=timestamp)  # , onupdate=timestamp
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     # error_probability_user_user_id_fk = db.relationship('User', backref=backref("User", uselist=False))
 
@@ -110,7 +115,7 @@ class ErrorProbability(db.Model):
     @staticmethod
     def serialize(ob, owner_id=None):
         tmp = {'id': ob.id, 'name': ob.name, 'type': ob.type, 'jsonblob': ob.jsonblob, 'validated': ob.validated,
-               'created': ob.created, 'user_id': ob.user_id,
+               'created': ob.created, 'user_id': ob.user_id, 'awaits_validation': ob.awaits_validation,
                'isowner': owner_id == ob.user_id if owner_id is not None else False}
         return tmp
 
@@ -128,6 +133,8 @@ class SequencingErrorRates(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     err_attributes = db.Column(db.JSON)
     name = db.Column(db.TEXT)
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
@@ -151,6 +158,8 @@ class SynthesisErrorRates(db.Model):
     validated = db.Column(db.Boolean, default=False, nullable=False)
     err_attributes = db.Column(db.JSON)
     name = db.Column(db.TEXT)
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
 
     def __repr__(self):
         return '<SequencingErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(

@@ -1,9 +1,22 @@
 def default_error_function(kmer_amount):
-    # we might apply different rules based on what the user needs
+    """
+    Default function to calculate the error probabilities based on the amount of kmers.
+    :param kmer_amount:
+    :return:
+    """
     return kmer_amount ** 2 * 0.000002
 
 
 def kmer_counting(seq, k=20, upper_bound=1, error_function=default_error_function):
+    """
+    Generates a dictionary with all k-mers for the given k occuring in the sequence and checks if they appear more than
+    once. The error probabilities are calculated based on the count of the k-mers.
+    :param seq:
+    :param k:
+    :param upper_bound:
+    :param error_function:
+    :return:
+    """
     kmer_dict = {}
     kmer_pos = {}
     kmers = []

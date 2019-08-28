@@ -53,6 +53,12 @@
                                class="navbar-item">
                                 Simulation Settings
                             </a>
+                            {% if is_user_admin(session['user_id']) %}
+                            <a href="{{ url_for('main_page.adminpage') }}" aria-label="Simulation Settings"
+                               class="navbar-item">
+                                Administration
+                            </a>
+                            {% endif %}
                             <a href="{{ url_for('main_page.profile') }}" aria-label="Profile" class="navbar-item">
                                 Profile </a>
                             <a href="{{ url_for('logout.do_logout') }}" aria-label="Logout" class="navbar-item">

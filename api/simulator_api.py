@@ -1,16 +1,19 @@
+import copy
 import json
 import math
+import multiprocessing
 import uuid
 from threading import Thread
 
+import flask
 import redis
-from flask import jsonify, request, Blueprint, flash, copy_current_request_context
+from flask import jsonify, request, Blueprint, flash, current_app, copy_current_request_context
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
 from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
-from db import db
-from mail import send_mail
+from database.db import db
+from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
 from simulators.error_sources.homopolymers import homopolymer
@@ -25,6 +28,10 @@ simulator_api = Blueprint("simulator_api", __name__, template_folder="templates"
 @simulator_api.route('/api/homopolymer', methods=['GET', 'POST'])
 @require_apikey
 def do_homopolymer():
+    """
+    Calculates only the homopolymer error probabilities for the entered sequence
+    :return: Homopolymer error probabilites and the sequence (JSON)
+    """
     if request.method == 'POST':
         r_method = request.json
     else:
@@ -42,6 +49,10 @@ def do_homopolymer():
 @simulator_api.route('/api/gccontent', methods=['GET', 'POST'])
 @require_apikey
 def do_gccontent():
+    """
+    Calculates only the gc_content error probabilities for the entered sequence
+    :return: GC_content error probabilities and the sequence (JSON)
+    """
     if request.method == 'POST':
         r_method = request.json
     else:
@@ -66,6 +77,10 @@ def do_gccontent():
 @simulator_api.route('/api/kmer', methods=['GET', 'POST'])
 @require_apikey
 def do_kmer():
+    """
+    Calculates only the kmer error probabilities for the entered sequence
+    :return: Kmer error probabilities and the sequence (JSON)
+    """
     if request.method == 'POST':
         r_method = request.json
     else:
@@ -90,6 +105,10 @@ def do_kmer():
 @simulator_api.route('/api/subsequences', methods=['GET', 'POST'])
 @require_apikey
 def do_undesired_sequences():
+    """
+    Calculates only the undesired_sequences error probabilities for the entered sequence
+    :return: Undesired_sequences error probabilities and the sequence (JSON)
+    """
     if request.method == 'POST':
         r_method = request.json
     else:
@@ -114,9 +133,73 @@ def do_undesired_sequences():
     return jsonify(res)
 
 
+@simulator_api.route('/api/fasta_all', methods=['GET', 'POST'])
+@require_apikey
+def fasta_do_all_wrapper():
+    @copy_current_request_context
+    def do_multiple(lst, email, host):
+        with current_app.app_context():
+            cores = 2
+            p = multiprocessing.Pool(cores)
+            res_lst = p.map(do_all, lst)
+        urls = "Access your results at: "
+        fastq_str_list = []
+        for res in res_lst:
+            uuid = list(res.json.values())[0]["uuid"]
+            url = host + "query_sequence?uuid=" + uuid
+            urls = urls + "\n" + url
+            fastq_str_list.append(
+                "@Your Mosla sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
+                list(res.json.values())[0]['res']['fastqOr'])
+        fastq_text = "\n".join(fastq_str_list)
+        send_mail("noreply@mosla.de", [email], urls, subject="[MOSLA] Your DNA-Simulation finished",
+                  attachment_txt=fastq_text, attachment_name="MOSLA.fastq")
+
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    r_uid = r_method.get('uuid')
+    if r_uid is not None:
+        r_res = None
+        try:
+            r_res = read_from_redis(r_uid)
+        except Exception as e:
+            print("Error while talking to Redis-Server:", e)
+        if r_res is not None:
+            return jsonify(json.loads(r_res))
+    # TODO estimate time needed
+    apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
+    if apikey.owner_id == 0:
+        return jsonify({'did_succeed': False})
+    user = User.query.filter_by(user_id=apikey.owner_id).first()
+    email = user.email
+    sequence_list = r_method.get('sequence_list')
+    del r_method['sequence_list']
+    try:
+        del r_method['uuid']
+    except:
+        pass
+    tmp_lst = []
+    for x in sequence_list:
+        c_method = copy.deepcopy(r_method)
+        c_method['sequence'] = x
+        tmp_lst.append(c_method)
+    thread = Thread(target=do_multiple, args=(tmp_lst, email, request.host_url))
+    thread.start()
+    return jsonify({"result_by_mail": True, "did_succeed": False})
+
+
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
 @require_apikey
 def do_all_wrapper():
+    """
+    Basically takes all the selected and entered inputs from the website and calculates all different error probabilities
+    based on the configuration of the simulator. Then either builds a dictionary with htmlified data for the website or
+    the raw data and returns the result.
+    :return:
+    """
+
     @copy_current_request_context
     def thread_do_all(r_method, email, host):
         res = do_all(r_method)
@@ -130,6 +213,7 @@ def do_all_wrapper():
     else:
         r_method = request.args
     r_uid = r_method.get('uuid')
+    # if the uuid already exists load the results from redis
     if r_uid is not None:
         r_res = None
         try:
@@ -158,7 +242,7 @@ def do_all_wrapper():
 # @require_apikey
 def do_all(r_method):
     # TODO
-
+    # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
@@ -177,6 +261,7 @@ def do_all(r_method):
     res_all = {}
     if type(sequences) == str:
         sequences = [sequences]
+    # calculating all the different error probabilities and adding them to res
     for sequence in sequences:
         if enabled_undesired_seqs:
             try:
@@ -235,21 +320,24 @@ def do_all(r_method):
         mod_seq = g.graph.nodes[0]['seq']
         mod_res = g.get_lineages()
         uuid_str = str(uuid.uuid4())
-        fastq = "".join(fastq_errors(res, sequence))
-
+        fastqOr = "".join(fastq_errors(res, sequence))
+        fastqMod = "".join(fastq_errors(res, mod_seq, modified=True))
+        # htmlifies the results for the website or sets the raw data as res
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
             gc_html = htmlify(gc_window_res, sequence)
             homopolymer_html = htmlify(homopolymer_res, sequence)
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
-                         'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                         'all': htmlify(res, sequence), 'fastq': fastq, 'seed': str(seed)}, 'uuid': uuid_str, 'sequence': sequence, }
+                           'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed)},
+                   'uuid': uuid_str, 'sequence': sequence, }
         elif not as_html:
             res = {'res': {'modify': mod_res, 'kmer': kmer_res,
                            'gccontent': gc_window_res,
-                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
-                           'modified_sequence': mod_seq, 'fastq': fastq}}
+                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
+                           'seed': str(seed),
+                           'modified_sequence': mod_seq, 'fastqOr': fastqOr, 'fastqMod': fastqMod}}
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
         r_method.pop('key')  # drop key from stored fields
@@ -261,6 +349,16 @@ def do_all(r_method):
 
 
 def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=None):
+    """
+    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
+    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param sequence: Sequence to calculate the synthesis error probabilites for.
+    :param g: Graph to store the results.
+    :param synth_meth: Selected synthesis method.
+    :param process: "synthesis"
+    :param conf: Uploaded configuration, None by default.
+    :return: Synthesis error probabilities for the sequence.
+    """
     if conf is None:
         tmp = SynthesisErrorRates.query.filter(
             SynthesisErrorRates.id == int(synth_meth)).first()
@@ -274,6 +372,16 @@ def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=Non
 
 
 def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):
+    """
+    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
+    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param sequence: Sequence to calculate the sequencing error probabilites for.
+    :param g: Graph to store the results.
+    :param seq_meth: Selected sequencing method.
+    :param process: "sequencing"
+    :param conf: Uploaded configuration, None by default.
+    :return: Sequencing error probabilities for the sequence.
+    """
     if conf is None:
         tmp = SequencingErrorRates.query.filter(
             SequencingErrorRates.id == int(seq_meth)).first()
@@ -287,18 +395,39 @@ def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=Non
 
 
 def manual_errors(sequence, g, error_res, seed, process='Calculated Error'):
+    """
+    If 'Use Calculated Error Probabilities" is selected, this method uses the selected probabilities to calculate
+    mutations for the sequence.
+    :param sequence: Sequence to calculate the manual error probabilites for.
+    :param g: Graph to store the results.
+    :param error_res: Selected errors.
+    :param process: "Calculated Error"
+    :return:
+    """
     seq_err = SequencingError(sequence, g, process, seed=seed)
     for att in error_res:
         for err in att:
             seq_err.manual_mutation(err)
 
 
-def fastq_errors(input, sequence, sanger=True):
+def fastq_errors(input, sequence, sanger=True, modified=False):
+    """
+    Calculates the fastq quality rating for sequences by adding up all error probabilities for every base and
+    translating them to the corresponding fastq symbols.
+    :param input: Error probabilities for the given sequence
+    :param sequence: The sequence to get the fastq qualityrating for
+    :param sanger: True: Use Sangers method to calculate the quality. False: Not implemented yet (Solexa)
+    :param modified: True: Use a modified sequence and delete whitespaces. False: Use the original sequence.
+    :return: The fastq quality list for the given sequence.
+    """
     tmp = []
+    tmp_pos = []
     for i in range(0, len(sequence)):
         tmp.append(0.0)
+        if sequence[i] == " ":
+            tmp_pos.append(i)
     for error in input:
-        for pos in range(error["startpos"], error["endpos"]+1):
+        for pos in range(error["startpos"], error["endpos"] + 1):
             tmp[pos] += error["errorprob"]
     res = []
     if sanger:
@@ -311,9 +440,23 @@ def fastq_errors(input, sequence, sanger=True):
             else:
                 q_score = 40
             res.append(chr(q_score + 33))
+    if modified:
+        cnt = 0
+        for pos in tmp_pos:
+            del res[pos - cnt]
+            cnt += 1
     return res
 
+
 def htmlify(input, sequence, modification=False):
+    """
+    Builds the html data for the sequence. The html code contains informations about the error classes of the bases and
+    uses @build_html to colorize and format the result.
+    :param input:
+    :param sequence: Sequence.
+    :param modification: True: aaa. False: aaa.
+    :return: Html code for the colorized and formatted sequence.
+    """
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
     error_prob = {}
     err_lin = {}
@@ -366,6 +509,8 @@ def htmlify(input, sequence, modification=False):
                 # current base has a different error prob / error class than previous base, finish previous group
                 res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
                 # and initialize current group with current base error classes
+                if modification:
+                    lineage = err_lin[seq_pos]
                 buildup = sequence[seq_pos]
                 buildup_errorprob = curr_err_prob
                 buildup_resmap = resmapping[seq_pos]
@@ -389,6 +534,12 @@ def htmlify(input, sequence, modification=False):
 
 
 def build_html(res_list, reducesets=True):
+    """
+    Generates html strings for every element in a list of results and returns the html code.
+    :param res_list: List of results to build html code for.
+    :param reducesets:
+    :return: Html code for the res_list.
+    """
     res = ""
     cname_id = 0
     for elem in res_list:
@@ -414,6 +565,11 @@ def build_html(res_list, reducesets=True):
 
 
 def colorize(error_prob):
+    """
+    Colorizes the bases based on the error probabilities.
+    :param error_prob: Error probability for the base.
+    :return: Color for the vase.
+    """
     percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
                       {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},
                       {"pct": 0.5, "color": {"r": 0xff, "g": 0xff, "b": 0, "a": 1.0}},

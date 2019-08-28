@@ -222,7 +222,30 @@ function handleFileChange(evt) {
         reader.readAsText(file);
         reader.onload = () => {
             try {
-                loadSendData(JSON5.parse(reader.result))
+                let text = reader.result;
+                if(text.startsWith(">")){
+                    //split into sequences and remove headlines
+                    let sequences = text.split(">");
+                    sequences.shift();
+                    for(let i = 0; i < sequences.length; i++){
+                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n")+1);
+                        sequences[i] = sequences[i].replace("\n", "");
+                    }
+                    if(sequences.length === 1){
+                        let sequence = $("#sequence");
+                        sequence.val(sequences[0]);
+                    }
+                    else if(sequences.length > 1){
+                        document.getElementById("send_email").checked = true;
+                        document.getElementById("send_email").disabled = true;
+                        $("#sequence").data("sequence_list", sequences);
+                        $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
+                        queryServer(undefined);
+                    }
+                }
+                else{
+                    loadSendData(JSON5.parse(text))
+                }
             } catch (e) {
                 $("#sequence").val(reader.result.toUpperCase());
             }
@@ -233,7 +256,7 @@ function handleFileChange(evt) {
     evt.target.removeEventListener('change', handleFileChange);
 }
 
-function uploadConf() {
+function upload() {
     let input = $(document.createElement("input"));
     input.attr("type", "file");
     // add onchange handler if you wish to get the file :)
@@ -386,8 +409,14 @@ function collectSendData(space) {
     }, undefined, space);
 }
 
-function collectSendFastQ(){
-    return '@YourSequence\n'+document.getElementById("mod_seq").innerText+'\n+\n'+$('#mod_seq').data("fastq");
+function collectSendFastQ(modified){
+    if(modified==false){
+        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+document.getElementById("overall").innerText+'\n+\n'+$('#overall').data('fastq');
+    }
+    else{
+        let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
+        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+sequence+'\n+\n'+$('#mod_seq').data('fastq');
+    }
 }
 
 function queryServer(uuid) {
@@ -401,8 +430,10 @@ function queryServer(uuid) {
     let seq_seq = $('#seq_seq');
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
-
-
+    let fasta = false;
+    if($("#sequence").data("sequence_list")){
+        fasta = true;
+    }
     /*for (let i = 0; i <= overall.text().length; i++) {
         let curr_char = $(".overall_char" + (i + 1));
         curr_char.data('errorprob', 0.0);
@@ -438,41 +469,49 @@ function queryServer(uuid) {
     }
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
-    for (let mode in {"all": overall}) {
-        $.post({
-            url: host + "api/" + mode,
-            contentType: 'application/json;charset=UTF-8',
-            dataType: 'json',
-            data: send_data,
-            async: true,
-            beforeSend: function () {
-                submit_seq_btn.addClass('is-loading');
-                for (let error_source in endpoints) {
-                    endpoints[error_source].html("");
-                }
-                res.css('display', 'none');
-                resultsbymail.css('display', 'none');
-            },
-            success: function (data) {
-                if (sequence !== "" && sequence in data)
-                    data = data[sequence];
-                let recv_uuid = data['uuid'];
-                if (recv_uuid !== undefined) {
-                    changeurl("query_sequence?uuid=" + recv_uuid);
-                    const shr_txt = $("#link_to_share");
-                    shr_txt.text(window.location.href);
-                }
-                if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
-                    if (uuid !== undefined)
-                        loadSendData(data['query']);
+    let mode = "all";
+    if(fasta){
+        mode = "fasta_all";
+        let tmp_data = JSON.parse(send_data);
+        delete tmp_data["sequence"];
+        tmp_data["sequence_list"]=$("#sequence").data("sequence_list");
+        send_data = JSON.stringify(tmp_data);
+    }
+    $.post({
+        url: host + "api/" + mode,
+        contentType: 'application/json;charset=UTF-8',
+        dataType: 'json',
+        data: send_data,
+        async: true,
+        beforeSend: function () {
+            submit_seq_btn.addClass('is-loading');
+            for (let error_source in endpoints) {
+                endpoints[error_source].html("");
+            }
+            res.css('display', 'none');
+            resultsbymail.css('display', 'none');
+        },
+        success: function (data) {
+            if (sequence !== "" && sequence in data)
+                data = data[sequence];
+            let recv_uuid = data['uuid'];
+            if (recv_uuid !== undefined) {
+                changeurl("query_sequence?uuid=" + recv_uuid);
+                const shr_txt = $("#link_to_share");
+                shr_txt.text(window.location.href);
+            }
+            if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
+                if (uuid !== undefined)
+                    loadSendData(data['query']);
 
                     data = data['res'];
                     if (uuid !== undefined)
                         data = data[Object.keys(data)[0]];
-                    mod_seq.data('fastq',data['fastq']);
+                    overall.data('fastq',data['fastqOr']);
+                    mod_seq.data('fastq',data['fastqMod']);
                     $("#used_seed").text(data['seed']);
                     for (let error_source in data) {
-                        if(error_source !== 'fastq' && error_source !== 'seed')
+                        if(error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed')
                             endpoints[error_source].html(data[error_source]);
                     }
                     makeHoverGroups();
@@ -498,7 +537,7 @@ function queryServer(uuid) {
                 submit_seq_btn.removeClass('is-loading');
             }
         });
-    }
+        $("#sequence").removeData("sequence_list");
 }
 
 const percentColors = [
@@ -606,11 +645,17 @@ dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
 function set_mod_seq_inf(sel, sel_start, sel_end){
-    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/sel.length)*100;
+    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/count_all(sel))*100;
     sel_gc_con = Math.round(sel_gc_con * 100)/100;
     var sel_tm = get_tm(sel)
-    sel_tm = Math.round(sel_tm * 100)/100;
-    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+" Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    if(sel_tm === -1){
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: Select at least 6 bases. Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    }
+    else{
+        sel_tm = Math.round(sel_tm * 100)/100;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    }
+
 }
 
 function count_char(sel_seq, char) {
@@ -623,13 +668,27 @@ function count_char(sel_seq, char) {
     return count;
 }
 
+function count_all(sel_seq){
+    var count = 0;
+    for(var i = 0; i < sel_seq.length; i +=1){
+        tmp = sel_seq[i];
+        if(tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G'){
+            count += 1;
+        }
+    }
+    return count;
+}
+
 function get_tm(sel_seq){
     var tm = 0;
-    if(sel_seq.length < 14){
+    if(count_all(sel_seq) < 6){
+        return -1;
+    }
+    else if(6 <= count_all(sel_seq) < 14){
         tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
     }
-    else{
-        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(sel_seq.length)
+    else if(count_all(sel_seq) >= 14){
+        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(count_all(sel_seq))
     }
     return tm;
 }

@@ -80,10 +80,48 @@ function updateSeq(host, id) {
         },
         dataType: 'json',
         success: function (data) {
-            console.log("Update successful for id=")
+            console.log("Update successful for id=" + data.id.toString());
         },
         fail: function (data) {
-            console.log("Update failed for id=" + id);
+            console.log("Update failed for id=" + data.id.toString());
+            //$('#text_lettering').text(data);
+        }
+    });
+}
+
+function validateSeq(host, id, validation_desc) {
+    let btn = $('#validate_subseq_' + id);
+    //let curr_subseq = $('#subseq_' + id);
+    //let sequence = curr_subseq.children().find("[name='sequence']");
+    //let error_prob = curr_subseq.children().find("[name='error_prob']");
+    //let desc = curr_subseq.children().find("[name='description']");
+    $.post({
+        url: host + "api/apply_for_validation_subsequence",
+        data: {
+            sequence_id: id,
+            validation_desc: validation_desc
+            /*sequence: sequence.val(),
+            error_prob: error_prob.val() / 100.0,
+            description: desc.val()*/
+        },
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        dataType: 'json',
+        success: function (data) {
+            console.log("Request for validation for id=" + data.id.toString() + " was successful.");
+            btn.prop("disabled", true);
+            if (data.validated) {
+                btn.attr("data-balloon", "Already validated - update to remove validation!")
+            } else {
+                btn.attr("data-balloon", "Awaiting validation, you can still update.")
+            }
+        },
+        fail: function (data) {
+            console.log("Request for Validation for id=" + data.id.toString() + " failed.");
             //$('#text_lettering').text(data);
         }
     });
@@ -161,7 +199,7 @@ function addMismatch(method, obj_id) {
         "</div>\n" +
         "\n" +
         "<div class=\"column is-one-fifth button-fill has-no-margin-left has-no-padding-left\">\n" +
-        "    <button class=\"button button-fill\" id=\"add_mismatch_"+ method + "_" + obj_id + "\"\n" +
+        "    <button class=\"button button-fill\" id=\"add_mismatch_" + method + "_" + obj_id + "\"\n" +
         "            data-balloon=\"Remove this Mismatch (Rule has to be Updated for this change to take effect!)\"\n" +
         "            data-balloon-pos=\"up\"\n" +
         "            onclick=\"deleteMismatch('" + method + "', '" + obj_id + "'); return false;\">\n" +
@@ -172,18 +210,18 @@ function addMismatch(method, obj_id) {
         "<div class=\"column is-one-fifth\" id=\"toogle-use-position\">\n" +
         "    <label data-balloon=\"Use Position based Mismatching\"\n" +
         "           data-balloon-pos=\"up\">\n" +
-        "        <input type=\"checkbox\" aria-label=\"Use positional Mismatch\" id=\"" + method +"_mismatch_positioning_" + obj_id + "\"\n" +
-        "               onchange=\"$('#" + method +"_error_mismatched_startpos_" + obj_id + "').attr('disabled',!$(this)[0].checked);\n" +
-        "                         $('#" + method +"_error_mismatched_endpos_" + obj_id + "').attr('disabled',!$(this)[0].checked)\"\n" +
-        "               class=\"switch is-rounded is-large button-fill no-outline\" name=\"" + method +"_mismatch_positioning_" + obj_id + "\" />\n" +
-        "        <label for=\"" + method +"_mismatch_positioning_" + obj_id + "\" class=\"no-outline\"></label>\n" +
+        "        <input type=\"checkbox\" aria-label=\"Use positional Mismatch\" id=\"" + method + "_mismatch_positioning_" + obj_id + "\"\n" +
+        "               onchange=\"$('#" + method + "_error_mismatched_startpos_" + obj_id + "').attr('disabled',!$(this)[0].checked);\n" +
+        "                         $('#" + method + "_error_mismatched_endpos_" + obj_id + "').attr('disabled',!$(this)[0].checked)\"\n" +
+        "               class=\"switch is-rounded is-large button-fill no-outline\" name=\"" + method + "_mismatch_positioning_" + obj_id + "\" />\n" +
+        "        <label for=\"" + method + "_mismatch_positioning_" + obj_id + "\" class=\"no-outline\"></label>\n" +
         "    </label>\n" +
         "</div>\n" +
         "    <div class=\"column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left\">\n" +
         "    <label class=\"form-group has-float-label\">\n" +
         "        <p class=\"control has-icons-right\">\n" +
         "            <input style=\"width:100%\" class=\"input is-rounded\"\n" +
-        "                   id=\"" + method +"_error_mismatched_startpos_" + obj_id + "\"\n" +
+        "                   id=\"" + method + "_error_mismatched_startpos_" + obj_id + "\"\n" +
         "                   type=\"number\" name=\"Startposition\"\n" +
         "                   placeholder=\"DNA-Sequence\" min=\"1\"\n" +
         "                   disabled\n" +
@@ -218,7 +256,7 @@ function addMismatch(method, obj_id) {
     if (noPossibleMismatches_val > 4)
         mismatch_class = " is-one-quarter";
     for (let possible_mismatch_no = 0; possible_mismatch_no < noPossibleMismatches_val; possible_mismatch_no++) {
-        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left"+ mismatch_class +
+        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left" + mismatch_class +
             "\">\n" +
             "        <label class=\"form-group has-float-label\">\n" +
             "            <p class=\"control has-icons-right\">\n" +
@@ -257,7 +295,7 @@ function addMismatch(method, obj_id) {
     }
 
     for (let possible_mismatch_no = 0; possible_mismatch_no < noPossibleMismatches_val; possible_mismatch_no++) {
-        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left"+ mismatch_class
+        buildup_html = buildup_html + "    <div class=\"column has-no-margin-left has-no-padding-left" + mismatch_class
             + "\">\n" +
             "        <label class=\"form-group has-float-label\">\n" +
             "            <p class=\"control has-icons-right\">\n" +
@@ -301,6 +339,40 @@ function clearNewRuleContainer(method) {
 function deleteMismatch(method, obj_id) {
     let host_container = $('#' + 'mismatch_' + obj_id);
     host_container.remove();
+}
+
+function validateCustomError(host, method, id, desc) {
+    let btn = $('#validate_'+ method + '_' + id);
+    $.post({
+        url: host + "api/validate_custom_error",
+        contentType: 'application/json;charset=UTF-8',
+        dataType: 'json',
+        data: JSON.stringify({id: id, method: method, validation_desc: desc}),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            if (data.did_succeed) {
+                console.log("Requested validation for " + method + "-Error " + data.id.toString());
+                if (data.validated) {
+                    btn.attr("data-balloon", "Already validated - update to remove validation!")
+                } else {
+                    btn.attr("data-balloon", "Awaiting validation, you can still update.")
+                }
+            } else {
+                /* On Failure: either dont do anything, or show error?*/
+                console.log("Error while requesting validation for " + method + "-Error " + data.id.toString());
+            }
+
+        },
+        fail: function (data) {
+            /* On Failure: either dont do anything, or show error?*/
+            console.log("Error while requesting validation for " + method + "-Error");
+        }
+    });
 }
 
 function sendCustomError(host, method, id) {
@@ -354,10 +426,10 @@ function sendCustomError(host, method, id) {
     $('#' + method + '_mismatch_container_' + id).children().each(function (idx, itm) {
         org_seq = $(itm).children()[0].firstElementChild.firstElementChild.firstElementChild.value;
         noOfMismatches = $(itm).children()[1].firstElementChild.firstElementChild.firstElementChild.value;
-        positional_mismatch = $(itm).children()[3].firstElementChild.firstElementChild.checked;
+        positional_mismatch = $(itm).children()[4].firstElementChild.firstElementChild.checked;
         if (positional_mismatch === true) {
-            position_range = [ parseInt($(itm).children()[4].firstElementChild.firstElementChild.firstElementChild.value),
-                               parseInt($(itm).children()[5].firstElementChild.firstElementChild.firstElementChild.value)];
+            position_range = [parseInt($(itm).children()[5].firstElementChild.firstElementChild.firstElementChild.value),
+                parseInt($(itm).children()[6].firstElementChild.firstElementChild.firstElementChild.value)];
         }
         //let positional_mismatch = $('#' + method + '_mismatch_positioning_' + obj_id).attr("checked");
         let innerMismatch = {};
@@ -775,7 +847,7 @@ function initMismatchSlider(method, elem) {
     });
 
     var connect = elem.querySelectorAll('.noUi-connect');
-    const classes = ['c-1-color','c-2-color','c-3-color','c-4-color','c-5-color','homopolymer-color', 'random-color', 'deletion-color'];
+    const classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color', 'c-5-color', 'homopolymer-color', 'random-color', 'deletion-color'];
     for (var i = 0; i < connect.length; i++) {
         connect[i].classList.add(classes[i % classes.length]);
     }

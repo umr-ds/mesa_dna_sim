@@ -10,7 +10,7 @@ from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
     SynthesisErrorCorrection, MethodCategories, SequencingErrorRates
-from usersettings.login import require_logged_in, check_password
+from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 
 main_page = Blueprint("main_page", __name__, template_folder="templates")
@@ -41,11 +41,48 @@ def home():
     return render_template("index.html"), 200
 
 
+@main_page.route("/admin", methods=["GET"])
+# @require_logged_in
+@require_admin
+def adminpage():
+    undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
+        or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
+        asc(UndesiredSubsequences.id)).all()
+    graph_errors = db.session.query(ErrorProbability).filter(
+        or_(ErrorProbability.awaits_validation.is_(True), ErrorProbability.validated.is_(True))).order_by(
+        asc(ErrorProbability.id)).all()
+    # ErrorProbability
+    res = db.session.query(SynthesisErrorRates).filter(
+        or_(SynthesisErrorRates.awaits_validation.is_(True), SynthesisErrorRates.validated.is_(True))).order_by(
+        asc(SynthesisErrorRates.id)).all()
+    out = [x.as_dict() for x in res]
+    id_out = {}
+    default_eobj = {'id': 'new', 'name': 'New', 'err_attributes': {'mismatch': {}}}
+    for x in out:
+        id_out[int(x['id'])] = x
+
+    seq_res = db.session.query(SequencingErrorRates).filter(
+        or_(SequencingErrorRates.awaits_validation.is_(True), SequencingErrorRates.validated.is_(True))).order_by(
+        asc(SequencingErrorRates.id)).all()
+    seq_out = [x.as_dict() for x in seq_res]
+    seq_id_out = {}
+    for x in seq_out:
+        seq_id_out[int(x['id'])] = x
+
+    return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
+                           graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
+                           host=request.url_root), 200
+
+
 @main_page.route('/profile', methods=["GET", "POST"])
 # @require_apikey
 # @ratelimit(limit=300, per=60 * 15)
 @require_logged_in
 def profile():
+    """
+    Manages profile settings, e.g. changing the password or email. Also shows the users apikey.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -90,6 +127,10 @@ def index():
 @main_page.route("/query_sequence", methods=['GET', 'POST'])
 # @require_logged_in
 def query_sequence():
+    """
+    The simulation main page.
+    :return:
+    """
     user_id = session.get('user_id')
     if request.method == 'POST':
         r_method = request.json
@@ -113,15 +154,19 @@ def query_sequence():
         and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
              ErrorProbability.type == "homopolymer")).order_by(asc(ErrorProbability.id)).all()
     return render_template('sequence_view.html', apikey=apikey, sequence=sequence, host=request.url_root,
-                               usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
-                               gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
-                               homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
-                                                   homopolymer_charts])
+                           usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
+                           gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
+                           homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
+                                               homopolymer_charts])
 
 
 @main_page.route("/settings", methods=['GET', 'POST'])
 @require_logged_in
 def undesired_subsequences():
+    """
+    Configuration of the undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if user_id and user:
@@ -155,6 +200,10 @@ def undesired_subsequences():
 @main_page.route("/api/delete_subsequence", methods=['POST'])
 @require_logged_in
 def delete_subsequences():
+    """
+    Deletion of undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
@@ -170,6 +219,10 @@ def delete_subsequences():
 @main_page.route("/api/add_subsequence", methods=['POST'])
 @require_logged_in
 def add_subsequences():
+    """
+    Adding new undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitize_input(request.form.get('sequence'))
@@ -192,9 +245,120 @@ def add_subsequences():
         return jsonify({'did_succeed': False})
 
 
+@main_page.route("/api/validate_graph_error", methods=["POST"])
+@require_logged_in
+def request_validation_g_error():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    # TODO add validation description!
+    e_id = request.json.get('id')
+    validation_desc = request.json.get('validation_desc')
+    if user_id and user and e_id is not None:
+        try:
+            if user.is_admin:
+                curr_error = ErrorProbability.query.filter_by(id=e_id).first()
+                curr_error.validated = True
+            else:
+                curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
+                curr_error.validated = False
+                curr_error.validation_desc = validation_desc
+            curr_error.awaits_validation = curr_error.validated is False
+            # db.session.add(curr_error)
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
+                 'awaits_validation': curr_error.awaits_validation})
+        except:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/validate_custom_error", methods=["POST"])
+@require_logged_in
+def request_validation_c_error():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    error_method = request.json.get('method')
+    validation_desc = request.json.get('validation_desc')
+    # TODO add validation description!
+    if error_method == "synth":
+        q_class = SynthesisErrorRates
+    else:
+        q_class = SequencingErrorRates
+    e_id = request.json.get('id')
+    if user_id and user and error_method is not None and e_id is not None:
+        try:
+            if user.is_admin:
+                curr_error = q_class.query.filter_by(id=e_id).first()
+                curr_error.validated = True
+            else:
+                curr_error = q_class.query.filter_by(user_id=user_id, id=e_id).first()
+                curr_error.validated = False
+                curr_error.validation_desc = validation_desc
+            curr_error.awaits_validation = curr_error.validated is False
+            # db.session.add(curr_error)
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
+                 'awaits_validation': curr_error.awaits_validation})
+        except:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+@main_page.route("/api/apply_for_validation_subsequence", methods=["POST"])
+@require_logged_in
+def apply_validation_subseq():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    sequence_id = request.form.get('sequence_id')
+    validation_desc = request.form.get('validation_desc')
+    # sequence = sanitize_input(request.form.get('sequence'))
+    # error_prob = request.form.get('error_prob')
+    # description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
+    if user_id and user and sequence_id is not None:
+        try:
+            if user.is_admin:
+                curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+                curr_sub_seq.validated = True
+            else:
+                curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+                curr_sub_seq.validated = False
+                curr_sub_seq.validation_desc = validation_desc
+            curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
+            # db.session.add(curr_sub_seq)
+            db.session.commit()
+            return jsonify(
+                {'did_succeed': True, 'sequence': curr_sub_seq.sequence, 'error_prob': curr_sub_seq.error_prob,
+                 'id': curr_sub_seq.id, 'created': curr_sub_seq.created, 'validated': curr_sub_seq.validated,
+                 'description': curr_sub_seq.description, 'awaits_validation': curr_sub_seq.awaits_validation})
+        except:
+            return jsonify({'did_succeed': False})
+    else:
+        return jsonify({'did_succeed': False})
+
+
+@main_page.context_processor
+def utility_processor():
+    def is_user_admin(user_id):
+        try:
+            user = User.query.filter_by(user_id=int(user_id)).first()
+            return user.is_admin
+        except:
+            return False
+
+    return dict(is_user_admin=is_user_admin)
+
+
 @main_page.route("/api/update_subsequence", methods=['POST'])
 @require_logged_in
 def update_subsequences():
+    """
+    Updating undesired subsequences in the Simulation Settings.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
@@ -204,7 +368,10 @@ def update_subsequences():
     if user_id and user and sequence_id is not None and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
-            curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+            if user.is_admin:
+                curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+            else:
+                curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
             curr_sub_seq.error_prob = error_prob
             curr_sub_seq.sequence = sequence
             curr_sub_seq.validated = False
@@ -215,7 +382,7 @@ def update_subsequences():
             return jsonify(
                 {'did_succeed': True, 'sequence': curr_sub_seq.sequence, 'error_prob': curr_sub_seq.error_prob,
                  'id': curr_sub_seq.id, 'created': curr_sub_seq.created, 'validated': curr_sub_seq.validated,
-                 'description': curr_sub_seq.description})
+                 'description': curr_sub_seq.description, 'awaits_validation': curr_sub_seq.awaits_validation})
         except:
             return jsonify({'did_succeed': False})
     else:
@@ -225,6 +392,10 @@ def update_subsequences():
 @main_page.route("/api/update_error_prob_charts", methods=['POST'])
 @require_logged_in
 def update_error_prob_charts():
+    """
+    Updates an error probabilty graph.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     id = request.json.get('chart_id')
@@ -235,7 +406,11 @@ def update_error_prob_charts():
     if user_id and user and id is not None and jsonblob is not None and jsonblob != "" and name is not None:
         try:
             # check if an entry exists for the given id AND user --> only entrys for the current user might be updated
-            curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+            if user.is_admin:
+                curr_error_prob = ErrorProbability.query.filter_by(id=id).first()
+            else:
+                curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
+
             if curr_error_prob is None or copy:
                 curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id,
                                                    type=type)
@@ -259,6 +434,10 @@ def update_error_prob_charts():
 @main_page.route("/api/delete_error_prob_charts", methods=['POST'])
 @require_logged_in
 def delete_error_prob_chart():
+    """
+    Deletes an error probabilty graph.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     chart_id = request.json.get('chart_id')
@@ -277,6 +456,10 @@ def delete_error_prob_chart():
 @main_page.route("/api/get_error_prob_charts", methods=['GET', 'POST'])
 # @require_logged_in
 def get_error_prob_charts():
+    """
+    Gets an error probability graph.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -306,6 +489,10 @@ def get_error_prob_charts():
 @main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
 # @require_logged_in
 def get_synth_error_probs():
+    """
+    Gets synthesis error probabilitys.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
@@ -327,6 +514,14 @@ def get_synth_error_probs():
 
 
 def get_error_probs_dict(error_model, user_id, flat, methods):
+    """
+    Generates a dictionary with error probabilities.
+    :param error_model:
+    :param user_id:
+    :param flat:
+    :param methods:
+    :return:
+    """
     db_result = db.session.query(error_model).filter(
         or_(error_model.user_id == user_id, error_model.validated.is_(True))).order_by(
         asc(error_model.id)).all()
@@ -355,6 +550,10 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
 @main_page.route("/api/add_seq_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_seq_error_probs():
+    """
+    Adds sequencing error probabilities.
+    :return:
+    """
     try:
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
@@ -388,6 +587,10 @@ def add_seq_error_probs():
 @main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_synth_error_probs():
+    """
+    Adds synthesis error probabilities.
+    :return:
+    """
     try:
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
@@ -438,6 +641,10 @@ def floatify(x, sanitize_mode=False):
 @main_page.route("/api/update_synth_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def update_synth_error_probs():
+    """
+    Updates synthesis error probabilities.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_conf = request.json.get('data')
@@ -448,7 +655,10 @@ def update_synth_error_probs():
             name = sanitize_input(synth_conf['name'])
             copy = bool(request.json.get('copy'))
             id = int(synth_conf['id'])
-            curr_synth = SynthesisErrorRates.query.filter_by(user_id=user_id, id=id).first()
+            if user.is_admin:
+                curr_synth = SynthesisErrorRates.query.filter_by(id=id).first()
+            else:
+                curr_synth = SynthesisErrorRates.query.filter_by(user_id=user_id, id=id).first()
 
             if curr_synth is None or copy:
                 curr_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
@@ -469,6 +679,10 @@ def update_synth_error_probs():
 @main_page.route("/api/delete_synth", methods=['POST'])
 @require_logged_in
 def delete_synth():
+    """
+    Deletes synthesis method.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_id = request.form.get('synth_id')
@@ -487,6 +701,10 @@ def delete_synth():
 @main_page.route("/api/delete_seq", methods=['POST'])
 @require_logged_in
 def delete_seq():
+    """
+    Deletes sequencing method.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_id = request.form.get('synth_id')
@@ -505,6 +723,10 @@ def delete_seq():
 @main_page.route("/api/update_seq_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def update_seq_error_probs():
+    """
+    Updates sequencing error probabilities.
+    :return:
+    """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     synth_conf = request.json.get('data')
@@ -515,17 +737,20 @@ def update_seq_error_probs():
             name = sanitize_input(synth_conf['name'])
             copy = bool(request.json.get('copy'))
             id = int(synth_conf['id'])
-            curr_synth = SequencingErrorRates.query.filter_by(user_id=user_id, id=id).first()
-
-            if curr_synth is None or copy:
-                curr_synth = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                                  err_data=err_data, err_attributes=err_attributes)
-                db.session.add(curr_synth)
+            if user.is_admin:
+                curr_seq = SequencingErrorRates.query.filter_by(id=id).first()
             else:
-                curr_synth.validated = False
-                curr_synth.name = name
-                curr_synth.err_data = err_data
-                curr_synth.err_attributes = err_attributes
+                curr_seq = SequencingErrorRates.query.filter_by(user_id=user_id, id=id).first()
+
+            if curr_seq is None or copy:
+                curr_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                                err_data=err_data, err_attributes=err_attributes)
+                db.session.add(curr_seq)
+            else:
+                curr_seq.validated = False
+                curr_seq.name = name
+                curr_seq.err_data = err_data
+                curr_seq.err_attributes = err_attributes
             db.session.commit()
             return jsonify({'did_succeed': True})
         except Exception as x:

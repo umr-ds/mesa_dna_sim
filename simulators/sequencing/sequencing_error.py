@@ -79,6 +79,11 @@ class SequencingError:
         np.random.seed(self.seed)
 
     def insertion(self, att=None):
+        """
+
+        :param att:
+        :return:
+        """
         if att:
             position, pattern, position_range = self._get_atts(att)
         else:
@@ -96,6 +101,11 @@ class SequencingError:
                 return self._indel(pattern, position_range, mode='insertion')
 
     def deletion(self, att=None):
+        """
+
+        :param att:
+        :return:
+        """
         if att:
             position, pattern, pattern_range = self._get_atts(att)
         else:
@@ -113,6 +123,11 @@ class SequencingError:
                 return self._indel(pattern, pattern_range, mode='deletion')
 
     def mismatch(self, att=None):
+        """
+
+        :param att:
+        :return:
+        """
         if att:
             position, pattern, position_range = self._get_atts(att)
         else:
@@ -125,6 +140,13 @@ class SequencingError:
             pass
 
     def _homopolymer_indel(self, poly, pattern, mode):
+        """
+
+        :param poly:
+        :param pattern:
+        :param mode:
+        :return:
+        """
         poly_b = {ele['base'] for ele in poly if ele['base'] is not " "}
         # If the only homopolymer found was empty spaces (deletions), randomly indel a base
         if not poly_b:
@@ -158,6 +180,13 @@ class SequencingError:
         return self._indel_mismatch_base(pos, mode)
 
     def _indel(self, pattern, position_range, mode):
+        """
+
+        :param pattern:
+        :param position_range:
+        :param mode:
+        :return:
+        """
         if not pattern:
             # Exclude empty spaces (deletions)
             pos = " "
@@ -173,15 +202,25 @@ class SequencingError:
                                           p=list(pattern.values()))
             return self._randomly_indel_base(chosen_ele, position_range, mode)
 
-
     # Checking for all matches using regex is quite slow.
     def _positional_mismatch(self, pattern=None, position_range=None):
+        """
+
+        :param pattern:
+        :param position_range:
+        :return:
+        """
         if not pattern:
             return self._no_pattern_mismatch(position_range)
         else:
             return self._pattern_mismatch(pattern, position_range)
 
     def _no_pattern_mismatch(self, position_range=None):
+        """
+
+        :param position_range:
+        :return:
+        """
         if position_range:
             check_range = range(position_range[0], position_range[1] + 1)
             if self.seq[position_range[0]:position_range[1] + 1] == ' ':
@@ -196,6 +235,12 @@ class SequencingError:
     # A problem with pattern mismatches is now that it does not find patterns separated by a
     # deletion.
     def _pattern_mismatch(self, pattern, position_range):
+        """
+
+        :param pattern:
+        :param position_range:
+        :return:
+        """
         reg = re.compile("|".join(pattern.keys()))  # '(?=(' + "|".join(pattern.keys()) + '))')
         if position_range:
             check_seq_range = self.seq[position_range[0]:position_range[1] + 1]
@@ -221,12 +266,20 @@ class SequencingError:
         self.g.add_node(orig=chosen_ele[1], mod=final_ele, orig_end=chosen_ele[0][1],
                         mod_start=chosen_ele[0][0], mod_end=chosen_ele[0][0] + len(final_ele),
                         mode="pattern_mismatch", process=self.process)
+        # ... + self.seq[chosen_ele[0][1] + 1:] ????
         self.seq = self.seq[:chosen_ele[0][0]] + final_ele + self.seq[chosen_ele[0][1]:]
 
     # Not really random and could end up in an infinite loop, but
     # better than to take all indices which satisfy the condition
     # and chosing one of these indices at random.
     def _randomly_indel_base(self, chosen_ele, position_range, mode):
+        """
+
+        :param chosen_ele:
+        :param position_range:
+        :param mode:
+        :return:
+        """
         if position_range:
             seq_indices = range(position_range[0], (position_range[1] + 1))
         else:
@@ -247,7 +300,16 @@ class SequencingError:
         return self._indel_mismatch_base(pos, mode)
 
     def _indel_mismatch_base(self, pos, mode):
-        assert mode in ['deletion', 'insertion', 'mismatch']
+        """
+
+        :param pos:
+        :param mode:
+        :return:
+        """
+        assert mode in ['deletion', 'insertion', 'mismatch', 'pattern_mismatch']
+        # The same position was already modified during evaluation of this particular process.
+        if pos in self.g.visited_nodes[self.process]:
+            return
         if mode == 'deletion':
             self.g.add_node(orig=self.seq[pos], mod=" ", orig_end=pos + 1,
                             mod_start=pos, mod_end=pos + 1, mode=mode, process=self.process)
@@ -265,6 +327,11 @@ class SequencingError:
 
     @staticmethod
     def _get_atts(res):
+        """
+
+        :param res:
+        :return:
+        """
         try:
             position = np.random.choice(list(res["position"].keys()),
                                         p=list(res["position"].values()))
@@ -282,6 +349,11 @@ class SequencingError:
         return position, pattern, position_range
 
     def lit_error_rate_mutations(self, mutation_list=['insertion', 'mismatch', 'deletion'], seed=None):
+        """
+
+        :param mutation_list:
+        :return:
+        """
         assert all(ele in ['insertion', 'deletion', 'mismatch'] for ele in
                    mutation_list), 'Supported types of mutation are: "deletion", "mismatch" and "insertion".'
         for mutation_type in mutation_list:
@@ -298,6 +370,11 @@ class SequencingError:
         return self.seed
 
     def manual_mutation(self, error):
+        """
+
+        :param error:
+        :return:
+        """
         if np.random.random() <= error['errorprob']:
             m_types = ['deletion', 'insertion', 'mismatch']
             m_weights = [self.error_rates['deletion'], self.error_rates['insertion'], self.error_rates['mismatch']]

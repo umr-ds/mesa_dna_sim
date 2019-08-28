@@ -2,7 +2,12 @@ from math import ceil
 
 
 def default_error_function(gc_percentage, base=None):
-    # we might apply different rules based on what the user needs
+    """
+    Default function to calculate error probabilities based on the gc_content.
+    :param gc_percentage: gc_content
+    :param base:
+    :return: Error probability based on the gc_percentage
+    """
     gc_percentage = 1.0 * gc_percentage / 100.0
     if 0.5 <= gc_percentage <= 0.6:
         return 0
@@ -13,6 +18,14 @@ def default_error_function(gc_percentage, base=None):
 
 
 def create_result(startpos, endpos, errorprob, identifier):
+    """
+    Creates a dictionary containing all results.
+    :param startpos:
+    :param endpos:
+    :param errorprob:
+    :param identifier:
+    :return:
+    """
     res = dict()
     res['startpos'] = startpos
     res['endpos'] = endpos
@@ -22,6 +35,13 @@ def create_result(startpos, endpos, errorprob, identifier):
 
 
 def windowed_gc_content(sequence, window_size=15, error_function=default_error_function):
+    """
+    Calculates the error probabilities based on the gc_content for subsequences based on the windows_size.
+    :param sequence: Sequence to calculate the error probabilities for.
+    :param window_size: Window_size to use for the calculation.
+    :param error_function: Error_function to use for the calculation.
+    :return: List of results with error probabilities and other information.
+    """
     if error_function is None:
         error_function = default_error_function
     # returns a list of dicts, each dict has the following entries: base, startpos, endpos, errorprob
@@ -48,6 +68,12 @@ def windowed_gc_content(sequence, window_size=15, error_function=default_error_f
 
 
 def overall_gc_content(sequence, error_function=default_error_function):
+    """
+    Calculates the gc_content for a whole sequence and returns the error probabilities based on the content.
+    :param sequence:
+    :param error_function:
+    :return:
+    """
     if error_function is None:
         error_function = default_error_function
     # returns a list of dicts, each dict has the following entries: base, startpos, endpos, errorprob
