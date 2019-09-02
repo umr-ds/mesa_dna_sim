@@ -29,8 +29,10 @@ simulator_api = Blueprint("simulator_api", __name__, template_folder="templates"
 @require_apikey
 def do_homopolymer():
     """
-    Calculates only the homopolymer error probabilities for the entered sequence
-    :return: Homopolymer error probabilites and the sequence (JSON)
+    Takes the parameters from an uploaded config file or the website and calculates error probabilities for every base
+    of the sequence based on the occurrence of homopolymers. The error probabilities are either saved as html data or
+    json file.
+    :return: Jsonified homopolymer error probabilities.
     """
     if request.method == 'POST':
         r_method = request.json
@@ -50,8 +52,10 @@ def do_homopolymer():
 @require_apikey
 def do_gccontent():
     """
-    Calculates only the gc_content error probabilities for the entered sequence
-    :return: GC_content error probabilities and the sequence (JSON)
+    Takes the parameters from an uploaded config file or the website and calculates error probabilities for every base
+    of the sequence based on the gc content in the whole sequence and windows that are set up by the configuration. The
+    error probabilities are either saved as html data or json file.
+    :return: Jsonified gc_content error probabilities.
     """
     if request.method == 'POST':
         r_method = request.json
@@ -78,8 +82,10 @@ def do_gccontent():
 @require_apikey
 def do_kmer():
     """
-    Calculates only the kmer error probabilities for the entered sequence
-    :return: Kmer error probabilities and the sequence (JSON)
+    Takes the parameters from an uploaded config file or the website and calculates error probabilities for every base
+    of the sequence based on the occurrence of kmers in windows that are set up by the configuration. The error
+    probabilities are either saved as html data or json file.
+    :return: Jsonified kmer error probabilities.
     """
     if request.method == 'POST':
         r_method = request.json
@@ -106,8 +112,10 @@ def do_kmer():
 @require_apikey
 def do_undesired_sequences():
     """
-    Calculates only the undesired_sequences error probabilities for the entered sequence
-    :return: Undesired_sequences error probabilities and the sequence (JSON)
+    Takes the parameters from an uploaded config file or the website and if enabled, calculates error probabilities for
+    every single base of the sequence based on the occurrence of undesired sequences that are set up by the
+    configuration. The error probabilities are either saved as html data or json file.
+    :return: Jsonified undersired_sequences error probabilities.
     """
     if request.method == 'POST':
         r_method = request.json
@@ -136,6 +144,13 @@ def do_undesired_sequences():
 @simulator_api.route('/api/fasta_all', methods=['GET', 'POST'])
 @require_apikey
 def fasta_do_all_wrapper():
+    """
+    This method wraps the do_multiple method (which works with multiline fasta files) to get the app context and allow
+    the usage of mutliple threads to calculate the results faster. If a multiline fasta file is uploaded, the method
+    gets a list with sequences and calls @do_all for every sequence in another thread. Every sequence gets a unique uuid
+    to access the results and an email with all uuids will be send to the user that uploaded the fasta file.
+    :return:
+    """
     @copy_current_request_context
     def do_multiple(lst, email, host):
         with current_app.app_context():
@@ -194,9 +209,10 @@ def fasta_do_all_wrapper():
 @require_apikey
 def do_all_wrapper():
     """
-    Basically takes all the selected and entered inputs from the website and calculates all different error probabilities
-    based on the configuration of the simulator. Then either builds a dictionary with htmlified data for the website or
-    the raw data and returns the result.
+    The method wraps the thread_do_all method to get the app context and allow the usage of another thread for every
+    request. The inner method calls @do_all with the sequence and sends an email with the uuid of the result if enabled.
+    If the uuid already exists the results are taken from the redis server and if the sequence is longer than 1000 bases
+    the calculation may need some time and the user will get an email and won't have to wait for it to finish.
     :return:
     """
 
@@ -227,11 +243,11 @@ def do_all_wrapper():
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
         # spawn a thread, of do_all and send an email to the user to
         apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
-        if apikey.owner_id == 0:
-            # we are not really logged in, just using the free api-key!
-            return do_all(r_method)
         user = User.query.filter_by(user_id=apikey.owner_id).first()
         email = user.email
+        if apikey.owner_id == 0:
+            # we are not really logged in, just using the free api-key!
+            email = r_method.get('email')
         thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
         thread.start()
         return jsonify({"result_by_mail": True, "did_succeed": False})
@@ -241,6 +257,14 @@ def do_all_wrapper():
 
 # @require_apikey
 def do_all(r_method):
+    """
+    This method collects all the parameters for the calculation of the different error probabilities for the sequence.
+    It calls all the methods that are calculating error probabilities with the specified parameters and collects the
+    results. Depending on @as_html the results including the sequence, uuid, error probabilities, modified sequence,
+    seed and fastq quality scoring are saved either as html data or json file.
+    :param r_method: Request to calculate the results for.
+    :return: Jsonified results of the request.
+    """
     # TODO
     # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
@@ -342,6 +366,10 @@ def do_all(r_method):
         res = {k: r['res'] for k, r in res_all.items()}
         r_method.pop('key')  # drop key from stored fields
         try:
+            r_method.pop('email')
+        except:
+            pass
+        try:
             save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
@@ -350,11 +378,13 @@ def do_all(r_method):
 
 def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=None):
     """
-    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
-    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    Either takes an uploaded configuration or gets the selected configuration by its ID from the database to build a
+    SequencingError object with the parameters. Calculates synthesis error and mutation probabilities of the sequence
+    based on the configuration and returns the result.
     :param sequence: Sequence to calculate the synthesis error probabilites for.
     :param g: Graph to store the results.
     :param synth_meth: Selected synthesis method.
+    :param seed: Used seed.
     :param process: "synthesis"
     :param conf: Uploaded configuration, None by default.
     :return: Synthesis error probabilities for the sequence.
@@ -373,11 +403,13 @@ def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=Non
 
 def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):
     """
-    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
-    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    Either takes an uploaded configuration or gets the selected configuration by its ID from the database to build a
+    SequencingError object with the parameters. Calculates sequencing error probabilities of the sequence based on the
+    configuration and returns the result.
     :param sequence: Sequence to calculate the sequencing error probabilites for.
     :param g: Graph to store the results.
     :param seq_meth: Selected sequencing method.
+    :param seed: Used seed.
     :param process: "sequencing"
     :param conf: Uploaded configuration, None by default.
     :return: Sequencing error probabilities for the sequence.
@@ -396,11 +428,12 @@ def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=Non
 
 def manual_errors(sequence, g, error_res, seed, process='Calculated Error'):
     """
-    If 'Use Calculated Error Probabilities" is selected, this method uses the selected probabilities to calculate
-    mutations for the sequence.
+    If 'Use Calculated Error Probabilities" is selected, this method creates a SequencingError object with the manually
+    set parameters and calculates the mutation and error probabilities for the sequence.
     :param sequence: Sequence to calculate the manual error probabilites for.
     :param g: Graph to store the results.
     :param error_res: Selected errors.
+    :param seed: Used seed.
     :param process: "Calculated Error"
     :return:
     """
@@ -412,11 +445,12 @@ def manual_errors(sequence, g, error_res, seed, process='Calculated Error'):
 
 def fastq_errors(input, sequence, sanger=True, modified=False):
     """
-    Calculates the fastq quality rating for sequences by adding up all error probabilities for every base and
-    translating them to the corresponding fastq symbols.
+    Calculates the fastq quality scoring for sequences by adding up all error probabilities for every single base and
+    translating them to the corresponding fastq if the user wants to use the fastq format for the results. The method
+    can either use the Sanger variant (default) to calculate the fastq quality scoring or the Solexa variant.
     :param input: Error probabilities for the given sequence
-    :param sequence: The sequence to get the fastq qualityrating for
-    :param sanger: True: Use Sangers method to calculate the quality. False: Not implemented yet (Solexa)
+    :param sequence: The sequence to get the fastq quality scoring for.
+    :param sanger: True: Use Sangers variant to calculate the quality. False: Use Solexa variant.
     :param modified: True: Use a modified sequence and delete whitespaces. False: Use the original sequence.
     :return: The fastq quality list for the given sequence.
     """
@@ -434,7 +468,15 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
         for i in range(0, len(tmp)):
             if 0 < tmp[i] <= 1:
                 q_score = round((-10 * math.log(tmp[i], 10)))
-
+            elif tmp[i] > 0 and tmp[i] > 1:
+                q_score = 0
+            else:
+                q_score = 40
+            res.append(chr(q_score + 33))
+    if not sanger:
+        for i in range(0, len(tmp)):
+            if 0 < tmp[i] <= 1:
+                q_score = round((-10 * math.log((tmp[i]/(1-tmp[i])), 10)))
             elif tmp[i] > 0 and tmp[i] > 1:
                 q_score = 0
             else:
@@ -450,11 +492,13 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
 
 def htmlify(input, sequence, modification=False):
     """
-    Builds the html data for the sequence. The html code contains informations about the error classes of the bases and
-    uses @build_html to colorize and format the result.
-    :param input:
+    All the calculations are done on the server to speed them up. Since the results are required to be in the html
+    format to display them on the website, this methods htmlifies them. The html code contains information about the
+    error classes and probabilities of every single base and the colorization displayed at the website. To colorize and
+    format the results @build_html takes a list with results and returns the html formatted code for it.
+    :param input: Input to htmlify. Mostly results of the error calculations.
     :param sequence: Sequence.
-    :param modification: True: aaa. False: aaa.
+    :param modification: True: Add information about the process that lead to a modification.
     :return: Html code for the colorized and formatted sequence.
     """
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
@@ -535,7 +579,8 @@ def htmlify(input, sequence, modification=False):
 
 def build_html(res_list, reducesets=True):
     """
-    Generates html strings for every element in a list of results and returns the html code.
+    Generates html strings for every element in a list of results to format and colorize them and returns the html code.
+    @colorize is used for the colorization and is called for every single base with its error probability.
     :param res_list: List of results to build html code for.
     :param reducesets:
     :return: Html code for the res_list.
@@ -568,7 +613,7 @@ def colorize(error_prob):
     """
     Colorizes the bases based on the error probabilities.
     :param error_prob: Error probability for the base.
-    :return: Color for the vase.
+    :return: Color for the base.
     """
     percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
                       {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},

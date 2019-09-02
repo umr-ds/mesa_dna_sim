@@ -1,9 +1,14 @@
 let apikey = "";
 let host = "";
+let user_id = "";
 
 function setApikey(hst, key) {
     apikey = key;
     host = hst;
+}
+
+function setUser(user_id){
+    this.user_id = user_id
 }
 
 function makeHoverGroups(user_borders, full_border, force) {
@@ -174,8 +179,13 @@ $(document).ready(function () {
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.attr("disabled", true);
+            if(user_id === ""){
+                $("#emailadd").show();
+            }
         } else {
             send_mail.attr("disabled", false);
+            $("#emailadd").hide();
+            $("#emailadd").val("");
         }
     });
     /*seq.keyup(function () {
@@ -224,6 +234,9 @@ function handleFileChange(evt) {
             try {
                 let text = reader.result;
                 if(text.startsWith(">")){
+                    if(user_id === ""){
+                        $("#emailadd").show();
+                    }
                     //split into sequences and remove headlines
                     let sequences = text.split(">");
                     sequences.shift();
@@ -240,7 +253,7 @@ function handleFileChange(evt) {
                         document.getElementById("send_email").disabled = true;
                         $("#sequence").data("sequence_list", sequences);
                         $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
-                        queryServer(undefined);
+                        //queryServer(undefined);
                     }
                 }
                 else{
@@ -376,6 +389,16 @@ function collectSendData(space) {
         kmer_error_prob = JSON5.parse(kmer_error_prob);
     let seq_meth = $("#seqmeth option:selected");
     let synth_meth = $("#synthmeth option:selected");
+    let email = "";
+    if(!$("#emailadd").prop('disabled') && $('#send_email').is(':checked')){
+        if($("#emailadd").val()){
+            email = $("#emailadd").val();
+        }
+        else{
+            alert("Please enter your email or deactivate send by mail!");
+            return
+        }
+    }
     return JSON.stringify({
         sequence: sequence,
         key: apikey,
@@ -405,6 +428,7 @@ function collectSendData(space) {
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
         send_mail: $('#send_email').is(":checked"),
+        email: email,
         asHTML: true
     }, undefined, space);
 }
@@ -467,10 +491,13 @@ function queryServer(uuid) {
                 uuid: uuid
             });
     }
+    if(send_data === undefined){
+        return
+    }
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
     let mode = "all";
-    if(fasta){
+    if(fasta && $("#sequence").val() === "Fasta file loaded. Your results will be send to your E-Mail"){
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
