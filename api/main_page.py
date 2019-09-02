@@ -4,7 +4,7 @@ import re
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
 from sqlalchemy import desc, or_, and_, asc
 from sqlalchemy.orm import Query
-
+from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
@@ -262,6 +262,9 @@ def request_validation_g_error():
                 curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
+                send_mail("noreply@mosla.de", get_admin_mails(),
+                          "The user " + str(user_id) + " ("+user.email+") has requested a validation!",
+                          subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
             # db.session.add(curr_error)
             db.session.commit()
@@ -296,6 +299,9 @@ def request_validation_c_error():
                 curr_error = q_class.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
+                send_mail("noreply@mosla.de", get_admin_mails(),
+                          "The user " + str(user_id) + " ("+user.email+") has requested a validation!",
+                          subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
             # db.session.add(curr_error)
             db.session.commit()
@@ -327,6 +333,9 @@ def apply_validation_subseq():
                 curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
                 curr_sub_seq.validated = False
                 curr_sub_seq.validation_desc = validation_desc
+                send_mail("noreply@mosla.de", get_admin_mails(),
+                          "The user " + str(user_id) + " ("+user.email+") has requested a validation!",
+                          subject="[MOSLA] Validation Request")
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
             # db.session.add(curr_sub_seq)
             db.session.commit()
@@ -761,3 +770,10 @@ def update_seq_error_probs():
 def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
     result = re.sub(regex, "", input)
     return result
+
+def get_admin_mails():
+    admins = User.query.filter_by(is_admin=True).all()
+    mails = []
+    for admin in admins:
+        mails.append(admin.email)
+    return mails
