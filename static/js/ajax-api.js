@@ -8,7 +8,7 @@ function setApikey(hst, key) {
 }
 
 function setUser(user_id){
-    this.user_id = user_id
+    user_id = user_id
 }
 
 function makeHoverGroups(user_borders, full_border, force) {
@@ -390,7 +390,7 @@ function collectSendData(space) {
     let seq_meth = $("#seqmeth option:selected");
     let synth_meth = $("#synthmeth option:selected");
     let email = "";
-    if(!$("#emailadd").prop('disabled') && $('#send_email').is(':checked')){
+    if(user_id === "" && $('#send_email').is(':checked')){
         if($("#emailadd").val()){
             email = $("#emailadd").val();
         }

@@ -677,11 +677,11 @@ window.onload = function () {
             {%  if uuid != None %}
                 queryServer('{{ uuid }}');
             {% endif %}
-            let user_id = "";
             {%  if user_id != None %}
                 user_id = {{user_id}};
+                setUser(user_id);
             {% endif %}
-            setUser(user_id);
+
 
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) {
