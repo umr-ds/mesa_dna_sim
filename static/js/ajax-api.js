@@ -207,6 +207,21 @@ function download(text, name, type) {
     }
 }
 
+function downloadImg(id, type) {
+    var file = host + "api/getIMG?id=" + id + "&type=" + type;
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    if (isIE) {
+        window.navigator.msSaveOrOpenBlob(file, name);
+    } else {
+        var a = document.createElement('a');
+        a.href = file;
+        a.download = name;
+        document.body.appendChild(a);
+        a.style.display = 'none';
+        a.click();
+    }
+}
+
 function handleFileChange(evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // Great success! All the File APIs are supported.
@@ -223,27 +238,25 @@ function handleFileChange(evt) {
         reader.onload = () => {
             try {
                 let text = reader.result;
-                if(text.startsWith(">")){
+                if (text.startsWith(">")) {
                     //split into sequences and remove headlines
                     let sequences = text.split(">");
                     sequences.shift();
-                    for(let i = 0; i < sequences.length; i++){
-                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n")+1);
+                    for (let i = 0; i < sequences.length; i++) {
+                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n") + 1);
                         sequences[i] = sequences[i].replace("\n", "");
                     }
-                    if(sequences.length === 1){
+                    if (sequences.length === 1) {
                         let sequence = $("#sequence");
                         sequence.val(sequences[0]);
-                    }
-                    else if(sequences.length > 1){
+                    } else if (sequences.length > 1) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
                         $("#sequence").data("sequence_list", sequences);
                         $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
                         queryServer(undefined);
                     }
-                }
-                else{
+                } else {
                     loadSendData(JSON5.parse(text))
                 }
             } catch (e) {
@@ -409,13 +422,12 @@ function collectSendData(space) {
     }, undefined, space);
 }
 
-function collectSendFastQ(modified){
-    if(modified==false){
-        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+document.getElementById("overall").innerText+'\n+\n'+$('#overall').data('fastq');
-    }
-    else{
+function collectSendFastQ(modified) {
+    if (modified == false) {
+        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + document.getElementById("overall").innerText + '\n+\n' + $('#overall').data('fastq');
+    } else {
         let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
-        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+sequence+'\n+\n'+$('#mod_seq').data('fastq');
+        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + sequence + '\n+\n' + $('#mod_seq').data('fastq');
     }
 }
 
@@ -431,7 +443,8 @@ function queryServer(uuid) {
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
     let fasta = false;
-    if($("#sequence").data("sequence_list")){
+    let dot_seq = $('#dot_seq');
+    if ($("#sequence").data("sequence_list")) {
         fasta = true;
     }
     /*for (let i = 0; i <= overall.text().length; i++) {
@@ -455,6 +468,7 @@ function queryServer(uuid) {
         "sequencing": seq_seq,
         "synthesis": synth_seq,
         "modify": mod_seq,
+        "dot_seq": dot_seq,
     };
 
     let send_data = undefined;
@@ -470,11 +484,11 @@ function queryServer(uuid) {
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
     let mode = "all";
-    if(fasta){
+    if (fasta) {
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
-        tmp_data["sequence_list"]=$("#sequence").data("sequence_list");
+        tmp_data["sequence_list"] = $("#sequence").data("sequence_list");
         send_data = JSON.stringify(tmp_data);
     }
     $.post({
@@ -503,41 +517,43 @@ function queryServer(uuid) {
             if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                 if (uuid !== undefined)
                     loadSendData(data['query']);
+                data = data['res'];
+                if (uuid !== undefined)
+                    data = data[Object.keys(data)[0]];
+                dot_seq.data('id', data['maxexpectid']);
+                overall.data('fastq', data['fastqOr']);
+                mod_seq.data('fastq', data['fastqMod']);
+                $("#used_seed").text(data['seed']);
+                for (let error_source in data) {
+                    if (error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed' && error_source !== 'maxexpectid')
+                        endpoints[error_source].html(data[error_source]);
+                }
+                makeHoverGroups();
+                res.css('display', 'initial');
+                $('html, body').animate({scrollTop: res.offset().top}, 500);
+            }
 
-                    data = data['res'];
-                    if (uuid !== undefined)
-                        data = data[Object.keys(data)[0]];
-                    overall.data('fastq',data['fastqOr']);
-                    mod_seq.data('fastq',data['fastqMod']);
-                    $("#used_seed").text(data['seed']);
-                    for (let error_source in data) {
-                        if(error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed')
-                            endpoints[error_source].html(data[error_source]);
-                    }
-                    makeHoverGroups();
-                    res.css('display', 'initial');
-                    $('html, body').animate({scrollTop: res.offset().top}, 500);
-                }
-                var element = document.getElementById('mod_seq');
-                set_mod_seq_inf(element.innerText, 1, element.innerText.length);
-                if (data['result_by_mail'] === true) {
-                    //TODO show info that the result will be send via mail
-                    resultsbymail.css('display', 'initial');
-                }
-                submit_seq_btn.removeClass('is-loading');
-            },
-            fail: function (data) {
-                console.log(data);
-                //$('#text_lettering').text(data);
-                submit_seq_btn.removeClass('is-loading');
+
+            var element = document.getElementById('mod_seq');
+            set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+            if (data['result_by_mail'] === true) {
+                //TODO show info that the result will be send via mail
+                resultsbymail.css('display', 'initial');
             }
-            ,
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
-                submit_seq_btn.removeClass('is-loading');
-            }
-        });
-        $("#sequence").removeData("sequence_list");
+            submit_seq_btn.removeClass('is-loading');
+        },
+        fail: function (data) {
+            console.log(data);
+            //$('#text_lettering').text(data);
+            submit_seq_btn.removeClass('is-loading');
+        }
+        ,
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+            submit_seq_btn.removeClass('is-loading');
+        }
+    });
+    $("#sequence").removeData("sequence_list");
 }
 
 const percentColors = [
@@ -644,51 +660,48 @@ var dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
-function set_mod_seq_inf(sel, sel_start, sel_end){
-    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/count_all(sel))*100;
-    sel_gc_con = Math.round(sel_gc_con * 100)/100;
+function set_mod_seq_inf(sel, sel_start, sel_end) {
+    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C')) / count_all(sel)) * 100;
+    sel_gc_con = Math.round(sel_gc_con * 100) / 100;
     var sel_tm = get_tm(sel)
-    if(sel_tm === -1){
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: Select at least 6 bases. Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
-    }
-    else{
-        sel_tm = Math.round(sel_tm * 100)/100;
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    if (sel_tm === -1) {
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_start + " End-Pos: " + sel_end;
+    } else {
+        sel_tm = Math.round(sel_tm * 100) / 100;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_start + " End-Pos: " + sel_end;
     }
 
 }
 
 function count_char(sel_seq, char) {
     var count = 0;
-    for (var i = 0; i < sel_seq.length; i +=1){
-        if(sel_seq[i] === char){
+    for (var i = 0; i < sel_seq.length; i += 1) {
+        if (sel_seq[i] === char) {
             count += 1;
         }
     }
     return count;
 }
 
-function count_all(sel_seq){
+function count_all(sel_seq) {
     var count = 0;
-    for(var i = 0; i < sel_seq.length; i +=1){
+    for (var i = 0; i < sel_seq.length; i += 1) {
         tmp = sel_seq[i];
-        if(tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G'){
+        if (tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G') {
             count += 1;
         }
     }
     return count;
 }
 
-function get_tm(sel_seq){
+function get_tm(sel_seq) {
     var tm = 0;
-    if(count_all(sel_seq) < 6){
+    if (count_all(sel_seq) < 6) {
         return -1;
-    }
-    else if(6 <= count_all(sel_seq) < 14){
-        tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
-    }
-    else if(count_all(sel_seq) >= 14){
-        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(count_all(sel_seq))
+    } else if (6 <= count_all(sel_seq) < 14) {
+        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4
+    } else if (count_all(sel_seq) >= 14) {
+        tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
     }
     return tm;
 }

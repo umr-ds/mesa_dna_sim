@@ -1,3 +1,4 @@
+import base64
 import copy
 import json
 import math
@@ -7,7 +8,7 @@ from threading import Thread
 
 import flask
 import redis
-from flask import jsonify, request, Blueprint, flash, current_app, copy_current_request_context
+from flask import jsonify, request, Blueprint, flash, current_app, copy_current_request_context, make_response
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
@@ -190,6 +191,96 @@ def fasta_do_all_wrapper():
     return jsonify({"result_by_mail": True, "did_succeed": False})
 
 
+@simulator_api.route('/api/max_expect', methods=['GET', 'POST'])
+@require_apikey
+def max_expect():
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    sequence = r_method.get('sequence')
+    return jsonify(
+        create_max_expect(sequence, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
+                          window=3))
+
+
+@simulator_api.route('/api/getIMG', methods=['GET'])
+def get_max_expect_file():
+    content_type = {".svg": "image/svg+xml", ".pdf": "application/pdf", ".ps": "application/postscript",
+                    ".ct": "text/plain", ".dot": "text/plain", ".pfs": "application/octet-stream"}
+    id = request.args.get('id')
+    img_type = "." + request.args.get('type')
+    if img_type not in content_type:
+        return jsonify({"did_succeed": False})
+    try:
+        ret = json.loads(read_from_redis(id))
+        if img_type in ret:
+            response = make_response(base64.standard_b64decode(ret[img_type]))
+            response.headers.set('Content-Type', content_type[img_type])
+            response.headers.set(
+                'Content-Disposition', 'attachment', filename=str(id) + img_type)
+            return response
+    except:
+        pass
+    return jsonify({"did_succeed": False}), 404
+
+
+def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
+                      window=3):
+    import os
+    prev_wd = os.getcwd()
+    os.chdir("/tmp")
+    import RNAstructure
+    p = RNAstructure.RNA.fromString(dna_str, "dna")
+    p.SetTemperature(temperature=temperature)
+    # MaxExpect partition.pfs MaxExpect.ct --DNA --gamma 1 --percent 10 --structures 20 --window 3
+    # RNA and ProbScan objects are iterable. To iterate over the sequence:
+    # for nuc in p: print(nuc)
+    # It's also possible to get the pairing information and to manipulate it within python
+    if basefilename is None:
+        basefilename = uuid.uuid4().hex
+    aaa = p.PartitionFunction(basefilename + '.pfs')
+    # TODO correctly handle non-zero error code - e.g. if no structures got created!
+    if aaa != 0:
+        print(p.GetErrorMessage(aaa))
+        exit(aaa)
+    aaa = p.MaximizeExpectedAccuracy(maxPercent=max_percent, maxStructures=max_structures, window=window, gamma=gamma)
+    if aaa != 0:
+        print(p.GetErrorMessage(aaa))
+        exit(aaa)
+    basedir = "/tmp"  # + os.path.abspath(os.path.dirname(__file__))
+    print(basedir)
+    aaa = p.WriteCt(basedir + "/" + basefilename + ".ct")
+    if aaa != 0:
+        print(p.GetErrorMessage(aaa))
+        exit(aaa)
+
+    aaa = p.WriteDotBracket(basedir + "/" + basefilename + ".dot")
+    if aaa != 0:
+        print(p.GetErrorMessage(aaa))
+        exit(aaa)
+    pth = os.environ['DATAPATH']
+    if not pth.endswith("/"):
+        pth += "/"
+    my_cmd = pth + '../exe/draw ' + basefilename + '.ct ' + basefilename + '.ps -p ' + basefilename + '.pfs && ps2pdf ' + \
+             basefilename + '.ps && ' + pth + '../exe/draw ' + basefilename + '.ct ' + basefilename + '.svg -p ' + \
+             basefilename + '.pfs --svg -N 1'
+    # my_cmd = "pwd"
+    print(os.system(my_cmd))
+
+    file_content = {}
+    for ending in [".ps", ".ct", ".svg", ".pdf", ".pfs", ".dot"]:
+        with open(basefilename + ending, 'rb') as infile:
+            content = infile.read()
+            file_content[ending] = base64.standard_b64encode(content).decode("utf-8")
+            if ending == ".dot":
+                file_content['plain_dot'] = content.decode("utf-8").split("\n")[2]
+    save_to_redis(basefilename, json.dumps(file_content), 31536000)
+    print(os.system("rm " + basefilename + ".*"))
+    os.chdir(prev_wd)
+    return [basefilename, file_content]
+
+
 @simulator_api.route('/api/all', methods=['GET', 'POST'])
 @require_apikey
 def do_all_wrapper():
@@ -227,11 +318,12 @@ def do_all_wrapper():
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
         # spawn a thread, of do_all and send an email to the user to
         apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
-        if apikey.owner_id == 0:
-            # we are not really logged in, just using the free api-key!
-            return do_all(r_method)
         user = User.query.filter_by(user_id=apikey.owner_id).first()
         email = user.email
+        if apikey.owner_id == 0:
+            # we are not really logged in, just using the free api-key!
+            email = r_method
+
         thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
         thread.start()
         return jsonify({"result_by_mail": True, "did_succeed": False})
@@ -241,6 +333,11 @@ def do_all_wrapper():
 
 # @require_apikey
 def do_all(r_method):
+    def threaded_create_max_expect(sequence, basefilename, temp):
+        return create_max_expect(sequence, basefilename=basefilename, temperature=temp, max_percent=10, gamma=1,
+                                 max_structures=1,
+                                 window=3)
+
     # TODO
     # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
@@ -257,12 +354,20 @@ def do_all(r_method):
     use_error_probs = r_method.get('use_error_probs')
     seed = r_method.get('random_seed')
     seed = int(seed) if seed else None
+    temp = r_method.get('temperature')
+    if temp is None:
+        temp = 310.15
     as_html = r_method.get('asHTML')
     res_all = {}
     if type(sequences) == str:
         sequences = [sequences]
     # calculating all the different error probabilities and adding them to res
     for sequence in sequences:
+        basefilename = uuid.uuid4().hex
+        from multiprocessing.pool import ThreadPool
+        pool = ThreadPool(processes=1)
+        async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
+
         if enabled_undesired_seqs:
             try:
                 undesired_sequences = {}
@@ -323,6 +428,7 @@ def do_all(r_method):
         fastqOr = "".join(fastq_errors(res, sequence))
         fastqMod = "".join(fastq_errors(res, mod_seq, modified=True))
         # htmlifies the results for the website or sets the raw data as res
+        plain_dot = str(async_res.get()[1]['plain_dot'])
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
             gc_html = htmlify(gc_window_res, sequence)
@@ -330,14 +436,16 @@ def do_all(r_method):
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed)},
-                   'uuid': uuid_str, 'sequence': sequence, }
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed),
+                           'maxexpectid': basefilename, 'dot_seq': "<p>" + plain_dot + "</p>"},
+                   'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
-            res = {'res': {'modify': mod_res, 'kmer': kmer_res,
-                           'gccontent': gc_window_res,
-                           'homopolymer': homopolymer_res, 'all': res, 'uuid': uuid_str, 'sequence': sequence,
-                           'seed': str(seed),
-                           'modified_sequence': mod_seq, 'fastqOr': fastqOr, 'fastqMod': fastqMod}}
+            res = {
+                'res': {'modify': mod_res, 'kmer': kmer_res, 'gccontent': gc_window_res, 'homopolymer': homopolymer_res,
+                        'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
+                        'maxexpectid': basefilename, 'modified_sequence': mod_seq, 'fastqOr': fastqOr,
+                        'fastqMod': fastqMod, 'dot_seq': plain_dot}}
+
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
         r_method.pop('key')  # drop key from stored fields
@@ -603,3 +711,9 @@ def colorize(error_prob):
         floor(max(min(255, lower["color"]["g"] * pct_lower + upper["color"]["g"] * pct_upper), 0))) + "," + str(
         floor(max(min(255, lower["color"]["b"] * pct_lower + upper["color"]["b"] * pct_upper), 0))) + "," + str(
         round(max(min(1.0, lower["color"]["a"] * pct_lower + upper["color"]["a"] * pct_upper), 0.2), 4)) + ')'
+
+
+if __name__ == "__main__":
+    print(create_max_expect(
+        "AACGCTGACGTCAGATCGATCAGTCGATCGTACGTACGTACGAACGCTGACGTCAGATCGATCAGTCGATCGTACGTACGTACGAACGCTGACGTCAGATCGATCAGTCGATCGTACGTACGTACGAACGCTGACGTCAGATCGATCAGTCGATCGTACGTACGTACG",
+        310.15))

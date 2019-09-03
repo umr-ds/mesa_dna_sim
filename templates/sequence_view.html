@@ -616,6 +616,38 @@ window.onload = function () {
                 </button>
             </div>
         </div>
+        <h2 class="subtitle"> RNA-Structure Results: </h2>
+        <div class="box">
+            <h3 class="subtitle has-text-black"> Max-Expect dot-Sequence: </h3>
+            <ul class="text_lettering" id="dot_seq" style="overflow-x: auto;"></ul>
+            <div class="column is-rounded">
+                <p>Download:</p>
+                <button class="button is-rounded" id="downloadIMG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'svg');return false">
+                    SVG-Image
+                </button>
+                <button class="button is-rounded" id="downloadIMG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ps');return false">
+                    PS-Image
+                </button>
+                <button class="button is-rounded" id="downloadIMG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pdf');return false">
+                    PDF-Image
+                </button>
+                <button class="button is-rounded" id="downloadIMG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ct');return false">
+                    CT-File
+                </button>
+                <button class="button is-rounded" id="downloadIMG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'dot');return false">
+                    DOT-File
+                </button>
+                <button class="button is-rounded" id="downloadIMG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pfs');return false">
+                    PFS-Distribution-File
+                </button>
+            </div>
+        </div>
 
 
         <!--
