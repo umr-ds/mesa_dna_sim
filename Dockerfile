@@ -6,7 +6,7 @@ COPY . /dna_sim
 WORKDIR /dna_sim
 
 RUN apt-get update -y \
- && apt-get install --no-install-recommends -y nginx build-essential wget cron swig ps2pdf \
+ && apt-get install --no-install-recommends -y nginx build-essential wget cron swig ghostscript \
  && pip3 install -r requirements.txt --no-cache-dir \
  && wget -O -  https://get.acme.sh | sh \
  && mv nginx.conf /etc/nginx \
@@ -20,9 +20,7 @@ RUN tar -xvf RNAstructureSource.tgz \
  && rm RNA*.tgz \
  && apt-get purge -y --auto-remove swig build-essential
 
-ENV PYTHONPATH="${PYTHONPATH}:/dna_sim/RNAstructure/exe" \
-ENV PATH="${PATH}:/dna_sim/RNAstructure/exe" \
-ENV DATAPATH="/dna_sim/RNAstructure/data_tables" \
+
 # COPY nginx.conf /etc/nginx
 
 # RUN chmod +x ./start.sh
@@ -34,4 +32,8 @@ ENV DATAPATH="/dna_sim/RNAstructure/data_tables" \
 FROM scratch
 COPY --from=builder / /
 WORKDIR /dna_sim
+
+ENV PYTHONPATH "${PYTHONPATH}:/dna_sim/RNAstructure/exe"
+ENV PATH "${PATH}:/dna_sim/RNAstructure/exe"
+CMD export PATH
 ENTRYPOINT ["/bin/bash", "/dna_sim/start.sh"]

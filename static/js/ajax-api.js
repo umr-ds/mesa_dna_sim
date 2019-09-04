@@ -362,7 +362,13 @@ function loadSendData(dta) {
         sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
-
+    $("#temperature").text(dta['temperature']);
+    if (dta['temperature'].includes("Error")) {
+        // TODO disable all Download-Buttons
+    } else {
+        // TODO (re)enable all Download-Buttons
+    }
+    $("#used_seed").text(dta['seed']);
     $('#calcprobs').prop("checked", dta['use_error_probs']);
     $('limitedChars').prop("checked", dta['acgt_only']);
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
@@ -417,6 +423,7 @@ function collectSendData(space) {
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
+        temperature: $('#temperature').val(),
         send_mail: $('#send_email').is(":checked"),
         asHTML: true
     }, undefined, space);

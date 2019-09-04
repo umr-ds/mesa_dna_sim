@@ -16,8 +16,6 @@ window.onload = function () {
     https://github.com/chrispahm/chartjs-plugin-dragData
     -->
     <div class="control" id="overlay">
-
-
         <div class="box container is-fluid is-fluid-mobile overlay-all">
             <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
             <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
@@ -178,13 +176,11 @@ window.onload = function () {
                 </div>
             </div>
         </div>
-
     </div>
 
     <h2 class="subtitle">
         Your Query:
     </h2>
-
     <div class="box container is-fluid is-fluid-mobile">
         <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
@@ -217,7 +213,6 @@ window.onload = function () {
                                         <span>Sequence to Analyse</span>
                                         <!--</p>-->
                                     </label>
-
                                 </div>
                             </div>
                         </div>
@@ -334,6 +329,38 @@ window.onload = function () {
                                dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
                                                value="Change Homopolymer Prob." style="height: 36px; width: 240px;">
                                     </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-3 is-1-touch is-1-mobile"  style="margin-top: -1.5rem">
+                            <p>Max. Expect</p>
+                            <label data-balloon="Calculate Secondary Structures"
+                                   data-balloon-pos="right">
+                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="secstruct" checked
+                                       class="switch is-rounded is-large button-fill no-outline" name="secstruct"/>
+                                <label for="secstruct" class="no-outline"></label>
+                            </label>
+                        </div>
+                        <div class="column">
+                            <!--<div class="column ">-->
+                            <div class="field">
+                                <div class="control">
+                                    <label class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                        <input class="input is-rounded" type=number rows="1" id="temperature"
+                                               value="310.15" min="0" step="0.01"/>
+                                        <span class="icon is-right">
+                                            <i class="fas fa-thermometer-half"></i>
+                                        </span>
+                                        </p>
+                                            <!--<span class="icon is-right">
+                                        <i class="fas fa-dna"></i>
+                                            </span>-->
+                                        <span>Temperature (°K)</span>
+                                        <!--</p>-->
+                                    </label>
+
+                                    <!--</div>-->
                                 </div>
                             </div>
                         </div>
