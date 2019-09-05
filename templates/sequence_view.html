@@ -124,7 +124,8 @@ window.onload = function () {
                                             name="publish_gerr"
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);let callback_func = function (desc) { validateGraphError('{{ host }}',$('#chart-name').data('id'),false, desc) };showValidationOverlay('', callback_func);return false"
                                             data-balloon="Request validation"
-                                            data-balloon-pos="up">Publish</button>
+                                            data-balloon-pos="up">Publish
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -332,35 +333,30 @@ window.onload = function () {
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-3 is-1-touch is-1-mobile"  style="margin-top: -1.5rem">
+                        <div class="column is-3 is-1-touch is-1-mobile" style="margin-top: -1.5rem">
                             <p>Max. Expect</p>
                             <label data-balloon="Calculate Secondary Structures"
                                    data-balloon-pos="right">
-                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="secstruct" checked
-                                       class="switch is-rounded is-large button-fill no-outline" name="secstruct"/>
-                                <label for="secstruct" class="no-outline"></label>
+                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="do_max_expect"
+                                       checked class="switch is-rounded is-large button-fill no-outline"
+                                       name="do_max_expect"
+                                       onclick="$('#temperature').prop('disabled',!$(this).is(':checked'))"/>
+                                <label for="do_max_expect" class="no-outline"></label>
                             </label>
                         </div>
                         <div class="column">
-                            <!--<div class="column ">-->
                             <div class="field">
                                 <div class="control">
                                     <label class="form-group has-float-label">
                                         <p class="control has-icons-right">
-                                        <input class="input is-rounded" type=number rows="1" id="temperature"
-                                               value="310.15" min="0" step="0.01"/>
-                                        <span class="icon is-right">
+                                            <input class="input is-rounded" type=number rows="1" id="temperature"
+                                                   value="310.15" min="0" step="0.01"/>
+                                            <span class="icon is-right">
                                             <i class="fas fa-thermometer-half"></i>
                                         </span>
                                         </p>
-                                            <!--<span class="icon is-right">
-                                        <i class="fas fa-dna"></i>
-                                            </span>-->
                                         <span>Temperature (°K)</span>
-                                        <!--</p>-->
                                     </label>
-
-                                    <!--</div>-->
                                 </div>
                             </div>
                         </div>
@@ -461,21 +457,13 @@ window.onload = function () {
                                     </div>
                                 </div>
                                 <div class="column is-full">
-                                    <!--<div class="column ">-->
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
                                                 <input class="input is-rounded" type=number rows="1" id="seed"
                                                        placeholder="Random" min="0" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
                                                 <span>Seed</span>
-                                                <!--</p>-->
                                             </label>
-
-                                            <!--</div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -560,12 +548,6 @@ window.onload = function () {
                                             {% if subsequence.validated %} checked {% endif %}/></label></span></td>
                                 </tr>
                             </table>
-                            <!--<nobr>
-                            Created at:
-                            <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
-                            )
-                            </script>
-                        </nobr>-->
                         </div>
                     {% endfor %}
                 </div>
@@ -643,46 +625,38 @@ window.onload = function () {
                 </button>
             </div>
         </div>
-        <h2 class="subtitle"> RNA-Structure Results: </h2>
-        <div class="box">
+        <h2 class="subtitle maxExpect"> RNA-Structure Results: </h2>
+        <div class="box maxExpect">
             <h3 class="subtitle has-text-black"> Max-Expect dot-Sequence: </h3>
             <ul class="text_lettering" id="dot_seq" style="overflow-x: auto;"></ul>
             <div class="column is-rounded">
                 <p>Download:</p>
-                <button class="button is-rounded" id="downloadIMG"
+                <button class="button is-rounded downloadIMG" id="downloadSVG"
                         onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'svg');return false">
                     SVG-Image
                 </button>
-                <button class="button is-rounded" id="downloadIMG"
+                <button class="button is-rounded downloadIMG" id="downloadPS"
                         onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ps');return false">
                     PS-Image
                 </button>
-                <button class="button is-rounded" id="downloadIMG"
+                <button class="button is-rounded downloadIMG" id="downloadPDF"
                         onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pdf');return false">
                     PDF-Image
                 </button>
-                <button class="button is-rounded" id="downloadIMG"
+                <button class="button is-rounded downloadIMG" id="downloadCT"
                         onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ct');return false">
                     CT-File
                 </button>
-                <button class="button is-rounded" id="downloadIMG"
+                <button class="button is-rounded downloadIMG" id="downloadDOT"
                         onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'dot');return false">
                     DOT-File
                 </button>
-                <button class="button is-rounded" id="downloadIMG"
+                <button class="button is-rounded downloadIMG" id="downloadPFS"
                         onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pfs');return false">
                     PFS-Distribution-File
                 </button>
             </div>
         </div>
-
-
-        <!--
-        <div class="box">
-            <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>
-            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
-        </div>
-        -->
 
         <div class="box">
             <h3 class="subtitle has-text-black">Share this result:</h3>
@@ -768,7 +742,6 @@ window.onload = function () {
                     dataset.data.sort(function (a, b) {
                         return a.x - b.x;
                     });
-                    //curr_chart.data.labels.push("tmp");
                 });
                 removeDuplicatesX();
                 curr_chart.update();
@@ -785,7 +758,6 @@ window.onload = function () {
                     }
                     $('#x-val').val(valueX);
                     $('#y-val').val(valueY);
-                    //curr_chart.data.labels.push("tmp");
                 });
             });
 

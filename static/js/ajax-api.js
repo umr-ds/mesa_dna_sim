@@ -156,21 +156,33 @@ function round(value, decimals) {
 $(document).ready(function () {
     let seq = $("#sequence");
     let send_mail = $("#send_email");
+    let do_max_expect = $('#do_max_expect');
     seq.keypress(function (e) {
         let chr = String.fromCharCode(e.which);
         let limitAlphabet = $('#limitedChars')[0].checked;
         if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
             return false;
         }
-
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.prop("disabled", true);
         } else {
             send_mail.removeAttr("disabled");
         }
+        if (seq.val().length >= 4000) {
+            do_max_expect.prop("checked", false);
+            do_max_expect.prop("disabled", true);
+        } else {
+            do_max_expect.prop("disabled", false);
+        }
     });
     seq.bind("propertychange change click keyup input paste", function (e) {
+        if (seq.val().length >= 4000) {
+            do_max_expect.prop("checked", false);
+            do_max_expect.prop("disabled", true);
+        } else {
+            do_max_expect.prop("disabled", false);
+        }
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.attr("disabled", true);
@@ -362,15 +374,10 @@ function loadSendData(dta) {
         sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
-    $("#temperature").text(dta['temperature']);
-    if (dta['temperature'].includes("Error")) {
-        // TODO disable all Download-Buttons
-    } else {
-        // TODO (re)enable all Download-Buttons
-    }
     $("#used_seed").text(dta['seed']);
     $('#calcprobs').prop("checked", dta['use_error_probs']);
-    $('limitedChars').prop("checked", dta['acgt_only']);
+    $('#limitedChars').prop("checked", dta['acgt_only']);
+    $('#do_max_expect').prop("checked", dta['do_max_expect']);
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
 }
 
@@ -423,6 +430,7 @@ function collectSendData(space) {
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
+        do_max_expect: $('#do_max_expect').is(":checked"),
         temperature: $('#temperature').val(),
         send_mail: $('#send_email').is(":checked"),
         asHTML: true
@@ -534,6 +542,17 @@ function queryServer(uuid) {
                 for (let error_source in data) {
                     if (error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed' && error_source !== 'maxexpectid')
                         endpoints[error_source].html(data[error_source]);
+                    if (error_source === "dot_seq")
+                        if (data[error_source] === "<nobr></nobr>")
+                            $('.maxExpect').hide();
+                        else if (data[error_source].startsWith("Error")) {
+                            $('.maxExpect').show();
+                            $(".downloadIMG").attr("disabled", true);
+                        } else {
+                            $('.maxExpect').show();
+                            $(".downloadIMG").attr("disabled", false);
+                        }
+
                 }
                 makeHoverGroups();
                 res.css('display', 'initial');

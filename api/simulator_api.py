@@ -227,6 +227,8 @@ def get_max_expect_file():
 
 def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
                       window=3):
+    if len(dna_str) > 4000:
+        return [basefilename, {'plain_dot': "Error: " + "Sequences longer than 4000 nt not supported"}]
     prev_wd = os.getcwd()
     os.chdir("/tmp")
     p = RNAstructure.RNA.fromString(dna_str, "dna")
@@ -352,6 +354,9 @@ def do_all(r_method):
     use_error_probs = r_method.get('use_error_probs')
     seed = r_method.get('random_seed')
     seed = int(seed) if seed else None
+    do_max_expect = bool(r_method.get('do_max_expect'))
+    if do_max_expect is None:
+        do_max_expect = False
     temp = float(r_method.get('temperature'))
     if temp is None:
         temp = 310.15
@@ -363,7 +368,9 @@ def do_all(r_method):
     for sequence in sequences:
         basefilename = uuid.uuid4().hex
         pool = ThreadPool(processes=1)
-        async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
+        async_res = None
+        if do_max_expect:
+            async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
 
         if enabled_undesired_seqs:
             try:
@@ -425,7 +432,9 @@ def do_all(r_method):
         fastqOr = "".join(fastq_errors(res, sequence))
         fastqMod = "".join(fastq_errors(res, mod_seq, modified=True))
         # htmlifies the results for the website or sets the raw data as res
-        plain_dot = str(async_res.get()[1]['plain_dot'])
+        plain_dot = ""
+        if do_max_expect:
+            plain_dot = str(async_res.get()[1]['plain_dot'])
         if as_html:
             kmer_html = htmlify(kmer_res, sequence)
             gc_html = htmlify(gc_window_res, sequence)
