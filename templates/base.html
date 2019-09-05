@@ -36,14 +36,14 @@
         <nav class="navbar">
             <div class="container">
                 <div class="navbar-brand">
-                    <a class="navbar-item" href="{{ url_for('main_page.home') }}" aria-label="MOSLA Image"
+                    <a class="navbar-item" href="{{ url_for('main_page.main_index') }}" aria-label="MOSLA Image"
                        style="font-weight:bold;">
                         <img src="{{ url_for('static',filename='img/header_logo_sm.png') }}" alt="MOSLA"/>
                     </a>
                 </div>
                 <div id="navbarMenuHeroA" class="navbar-menu">
                     <div class="navbar-end">
-                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item is-black">
+                        <a href="{{ url_for('main_page.main_index') }}" aria-label="Home Page" class="navbar-item is-black">
                             Home </a>
                         <a href="{{ url_for('main_page.query_sequence') }}" aria-label="Simulation System"
                            class="navbar-item"> Simulate </a>

@@ -8,6 +8,7 @@ from api.simulator_api import simulator_api
 from config import Config
 from database.db import db
 from database.models import User
+from reset_password import reset
 from usersettings.delete import delete
 from usersettings.login import login
 from usersettings.logout import logout
@@ -33,6 +34,7 @@ def main(cfg=Config):
     app.register_blueprint(delete)
     app.register_blueprint(validate)
     app.register_blueprint(signup)
+    app.register_blueprint(reset)
 
     app.register_blueprint(simulator_api)
     app.register_error_handler(404, page_not_found)

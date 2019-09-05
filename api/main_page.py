@@ -19,9 +19,9 @@ main_page = Blueprint("main_page", __name__, template_folder="templates")
 #
 # Since Flask will only be used for the API we will redirect to the main page
 #
-@main_page.route("/api")
+@main_page.route("/")
 def main_index():
-    return render_template('index.html')
+    return render_template('index.html'), 200
     # return redirect("http://dnasimulator.mosla.de", code=302)
 
 
@@ -36,7 +36,7 @@ def inject_x_rate_headers(response):
     return response
 
 
-@main_page.route("/", methods=["GET"])
+@main_page.route("/api", methods=["GET"])
 def home():
     return render_template("index.html"), 200
 

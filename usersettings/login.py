@@ -25,7 +25,7 @@ def require_admin(function_to_protect):
                     return function_to_protect(*args, **kwargs)
                 else:
                     flash("Your Account is not allowed to perform this request.", 'warning')
-                    return redirect(url_for('main_page.home'))
+                    return redirect(url_for('main_page.main_index'))
             else:
                 flash("Session exists, but user does not exist (anymore)", 'warning')
                 return redirect(url_for('login.do_login'))
