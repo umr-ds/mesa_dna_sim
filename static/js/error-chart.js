@@ -152,7 +152,7 @@ function removePoint(x_val) {
             return false; // x_val not found in points.
         } else {
             for (let tmp = found; tmp < dataset.data.length - 1; tmp++) {
-                dataset.data[tmp] = dataset.data[tmp + 1]; //update
+                dataset.data[tmp] = dataset.data[tmp + 1];
             }
             dataset.data.pop();
         }
@@ -282,16 +282,6 @@ function drawGraph() {
         org_options = $.extend(true, {}, curr_chart.options);
         return curr_chart.update();
     }
-    /*var homopolymer_dataset = {
-        label: "Error Probability",
-        data: [{x: 0.0, y: 0.0}, {x: 2.0, y: 0.0}, {x: 4.0, y: 20.0}, {x: 5.0, y: 50.0}, {x: 6.0, y: 80.0},
-            {x: 7.0, y: 100.0}, {x: 20.0, y: 100.0}],
-        showLine: true, // disable for a single dataset
-        borderColor: "#3e95cd",
-        cubicInterpolationMode: 'monotone',
-        //lineTension: 0,
-        fill: false
-    };*/
 
     var ctx = document.getElementById("myChart");
 
@@ -490,7 +480,7 @@ function showOverlay(validated, editable, id, text, type, awaits_validation) {
     /*
      * if editable == false, we can only safe a copy via "Save as ________"
      * otherwise we want an "Update" Button +  "Delete" Buttton as well as an Option for "Save as ________"
-     * additinally we want to show Validated true false
+     * additionally we want to show Validated true false
      */
 
     $("#update-chart").prop('disabled', !editable);
@@ -516,8 +506,6 @@ function showOverlay(validated, editable, id, text, type, awaits_validation) {
     }
 
     overlay.fadeIn(100, "linear");
-    //overlay.css("display", "block");
-    //setYValueAfterX(curr_chart, 0, 3);
 }
 
 function saveChart(host, apikey, create_copy, update_dropdown) {

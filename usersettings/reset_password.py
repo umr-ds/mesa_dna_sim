@@ -1,13 +1,11 @@
 import random
 import string
-
-from flask import Blueprint, request, flash, redirect, url_for, current_app, session, render_template
-from itsdangerous import URLSafeTimedSerializer
+from flask import Blueprint, request, flash, redirect, url_for, session, render_template
 
 from database.db import db
 from database.models import User
-from mail import send_mail
-from register import gen_password
+from api.mail import send_mail
+from usersettings.register import gen_password
 
 reset = Blueprint("reset", __name__, template_folder="templates")
 

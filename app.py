@@ -8,7 +8,7 @@ from api.simulator_api import simulator_api
 from config import Config
 from database.db import db
 from database.models import User
-from reset_password import reset
+from usersettings.reset_password import reset
 from usersettings.delete import delete
 from usersettings.login import login
 from usersettings.logout import logout
@@ -22,11 +22,6 @@ def main(cfg=Config):
 
     db.init_app(app)
     mail.init_app(app)
-    # db.init_app(app)
-
-    # blueprint for auth routes in our app
-    # from api.auth import auth as auth_blueprint
-    # app.register_blueprint(auth_blueprint)
 
     app.register_blueprint(main_page)
     app.register_blueprint(login)

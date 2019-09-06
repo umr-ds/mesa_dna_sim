@@ -1,29 +1,31 @@
-<!-- templates/signup.html -->
+<!-- templates/login.html -->
 
 {% extends "base.html" %}
 
 {% block content %}
     <div class="column is-4 is-offset-4">
-        <h3 class="title">Sign Up</h3>
+        <h3 class="title">Setup</h3>
         <div class="box">
-            <form method="POST" action="/signup">
+            <span class="subtitle" style="white-space: nowrap">Create your Admin account:</span>
+            <form method="POST" action="/setup">
                 <div class="field">
                     <div class="control has-icons-left">
-                        <input class="input is-large" type="email" name="email" placeholder="Email" autofocus="">
+                        <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
                         <span class="icon is-small is-left">
                             <i class="fas fa-envelope"></i>
                         </span>
                     </div>
                 </div>
+
                 <div class="field">
                     <div class="control has-icons-left">
-                        <input class="input is-large" type="password" name="password" placeholder="Password">
+                        <input class="input is-large" type="password" name="password" placeholder="Your Password">
                         <span class="icon is-small is-left">
                             <i class="fas fa-lock"></i>
                         </span>
                     </div>
                 </div>
-                <button class="button is-block is-info is-large is-fullwidth">Sign Up</button>
+                <button class="button is-block is-info is-large is-fullwidth">Create Account and Login</button>
             </form>
         </div>
     </div>

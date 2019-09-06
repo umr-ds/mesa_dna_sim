@@ -3,8 +3,6 @@ import time
 import bcrypt
 from flask import Blueprint, render_template, redirect, request, session, flash, url_for
 
-from api.RateLimit import ratelimit, get_view_rate_limit
-from api.apikey import require_apikey
 from api.mail import send_mail
 from database.db import db
 from database.models import User
@@ -43,7 +41,7 @@ def register():
         if user:
             # Again, throwing an error is not a user-friendly
             # way of handling this, but this is just an example
-            flash("Account already exists with this E-Mail", "warning")
+            flash("Account already exists for this E-Mail", "warning")
             return render_template('signup.html')
         else:
             user = User(email=email, password=gen_password(password),

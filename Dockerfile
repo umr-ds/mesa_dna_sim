@@ -12,6 +12,7 @@ RUN apt-get update -y \
  && mv nginx.conf /etc/nginx \
  && apt-get clean \
  && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+#RUN tar -xvf RNAstructureSourceLinuxTextInterfaces64bit.tgz \
 RUN tar -xvf RNAstructureSource.tgz \
  && cd RNAstructure \
  && sed -i 's/@# The wrapper is placed in the RNAstructure directory. Move it to exe\//mv ..\/_RNAstructure_wrap.cpython-36m-x86_64-linux-gnu.so ..\/$(WRAPPER_LIB_NAME)/g' RNAstructure_python_interface/Makefile \

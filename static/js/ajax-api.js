@@ -26,7 +26,6 @@ function makeHoverGroups(user_borders, full_border, force) {
     } else {
         lettering.css('min-height', '30px');
         lettering.css('overflow-y', 'hidden');
-        //$('#text_lettering').css('height', '80%');
     }
     if (all_groups.length > 1000 && !force) {
         all_groups.unbind();
@@ -49,11 +48,8 @@ function makeHoverGroups(user_borders, full_border, force) {
                             curr_elem.css('border', '1px solid');
                         curr_elem.css('border-color', 'black');
                         curr_elem.css('padding-bottom', (i % 30) + 'px');
-                        //curr_elem.css('overflow-y', 'hidden');
                     } else {
                         curr_elem.css('border-bottom', '5px solid'); // underline should be faster then bold font
-                        //curr_elem.css('overflow-y','initial')
-                        //curr_elem.css('font-weight', "bold");
                     }
                 }, function () {
                     let curr_elem = $("." + cls[cls.length - 1]);
@@ -64,7 +60,6 @@ function makeHoverGroups(user_borders, full_border, force) {
                             curr_elem.css('border', '');
                     } else {
                         curr_elem.css('border-bottom', ''); // underline should be faster then bold font
-                        //curr_elem.css('font-weight', "normal");
                     }
                 });
                 x++;
@@ -183,6 +178,7 @@ $(document).ready(function () {
         } else {
             do_max_expect.prop("disabled", false);
         }
+        $('#temperature').prop('disabled',!do_max_expect.is(':checked'));
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.attr("disabled", true);
@@ -237,6 +233,7 @@ function downloadImg(id, type) {
 function handleFileChange(evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // Great success! All the File APIs are supported.
+        let jseq = $("#sequence");
         let file = "";
         if (evt.type === "drop") {
             evt.stopPropagation();
@@ -259,20 +256,19 @@ function handleFileChange(evt) {
                         sequences[i] = sequences[i].replace("\n", "");
                     }
                     if (sequences.length === 1) {
-                        let sequence = $("#sequence");
-                        sequence.val(sequences[0]);
+                        jseq.val(sequences[0]);
                     } else if (sequences.length > 1) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
-                        $("#sequence").data("sequence_list", sequences);
-                        $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
+                        jseq.data("sequence_list", sequences);
+                        jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
                         queryServer(undefined);
                     }
                 } else {
                     loadSendData(JSON5.parse(text))
                 }
             } catch (e) {
-                $("#sequence").val(reader.result.toUpperCase());
+                jseq.val(reader.result.toUpperCase());
             }
         }
     } else {
@@ -305,7 +301,7 @@ function loadSendData(dta) {
     // find dropdown-pos to select...
     /* GC */
     let gc_selection = $('#gc-dropdown option').filter(function () {
-        return $(this).html() == dta['gc_name'];
+        return $(this).html() === dta['gc_name'];
     });
     if (gc_selection.length > 0) {
         gc_selection.prop('selected', true)
@@ -318,7 +314,7 @@ function loadSendData(dta) {
     }
     /* KMER */
     let kmer_selection = $('#kmer-dropdown option').filter(function () {
-        return $(this).html() == dta['kmer_name'];
+        return $(this).html() === dta['kmer_name'];
     });
     if (kmer_selection.length > 0) {
         kmer_selection.prop('selected', true)
@@ -331,7 +327,7 @@ function loadSendData(dta) {
     }
     /* Homopolymer */
     let homopolymer_selection = $('#homopolymer-dropdown option').filter(function () {
-        return $(this).html() == dta['homopolymer_name'];
+        return $(this).html() === dta['homopolymer_name'];
     });
     if (homopolymer_selection.length > 0) {
         homopolymer_selection.prop('selected', true)
@@ -346,15 +342,14 @@ function loadSendData(dta) {
     /*SEQ*/
     seq.val(0).prop('disabled', dta['use_error_probs']);
     let seq_selection = $('#seqmeth option').filter(function () {
-        return $(this).val() == dta['sequence_method'];
+        return $(this).val() === dta['sequence_method'];
     });
     if (seq_selection.length > 0) {
         seq_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        $('#seqmeth').append(opt);
-        //TODO
-        let sm_sel = $('#seqmeth option:selected')
+        seq.append(opt);
+        let sm_sel = $('#seqmeth option:selected');
         sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
     }
@@ -362,14 +357,13 @@ function loadSendData(dta) {
     /* SYNTH */
     synth.val(0).prop('disabled', dta['use_error_probs']);
     let synth_selection = $('#synthmeth option').filter(function () {
-        return $(this).val() == dta['synthesis_method'];
+        return $(this).val() === dta['synthesis_method'];
     });
     if (synth_selection.length > 0) {
         synth_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        $('#synthmeth').append(opt);
-        //TODO
+        synth.append(opt);
         let sm_sel = $('#synthmeth option:selected');
         sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
@@ -438,7 +432,7 @@ function collectSendData(space) {
 }
 
 function collectSendFastQ(modified) {
-    if (modified == false) {
+    if (modified === false) {
         return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + document.getElementById("overall").innerText + '\n+\n' + $('#overall').data('fastq');
     } else {
         let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
@@ -447,8 +441,9 @@ function collectSendFastQ(modified) {
 }
 
 function queryServer(uuid) {
+    let jseq = $("#sequence");
     let submit_seq_btn = $('#submit_seq_btn');
-    let sequence = $("#sequence").val().toUpperCase();
+    let sequence = jseq.val().toUpperCase();
     let homopolymer = $('#homopolymer');
     let gccontent = $('#gccontent');
     let sequences = $('#subsequences');
@@ -459,7 +454,7 @@ function queryServer(uuid) {
     let mod_seq = $('#mod_seq');
     let fasta = false;
     let dot_seq = $('#dot_seq');
-    if ($("#sequence").data("sequence_list")) {
+    if (jseq.data("sequence_list")) {
         fasta = true;
     }
     /*for (let i = 0; i <= overall.text().length; i++) {
@@ -503,7 +498,7 @@ function queryServer(uuid) {
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
-        tmp_data["sequence_list"] = $("#sequence").data("sequence_list");
+        tmp_data["sequence_list"] = jseq.data("sequence_list");
         send_data = JSON.stringify(tmp_data);
     }
     $.post({
@@ -560,7 +555,7 @@ function queryServer(uuid) {
             }
 
 
-            var element = document.getElementById('mod_seq');
+            let element = document.getElementById('mod_seq');
             set_mod_seq_inf(element.innerText, 1, element.innerText.length);
             if (data['result_by_mail'] === true) {
                 //TODO show info that the result will be send via mail
@@ -570,7 +565,6 @@ function queryServer(uuid) {
         },
         fail: function (data) {
             console.log(data);
-            //$('#text_lettering').text(data);
             submit_seq_btn.removeClass('is-loading');
         }
         ,
@@ -579,7 +573,7 @@ function queryServer(uuid) {
             submit_seq_btn.removeClass('is-loading');
         }
     });
-    $("#sequence").removeData("sequence_list");
+    jseq.removeData("sequence_list");
 }
 
 const percentColors = [
@@ -609,21 +603,13 @@ var getColorForPercentage = function (pct) {
     // or output as hex if preferred
 };
 
-/*for (var i = 0, l = $('#text_lettering').text().length; i <= l; i++) {
-    let curr_char = $(".char" + (i + 1));
-    curr_char.css("background-color", getColorForPercentage(i / l));
-    curr_char.css("color", "gray");
-    curr_char.attr('title', (i / l));
-    //$(".text_lettering").append(li);
-}*/
-
-function copyToClipboard(element) {
+/*function copyToClipboard(element) {
     var $temp = $("<input>");
     $("body").append($temp);
     $temp.val($(element).text()).select();
     document.execCommand("copy");
     $temp.remove();
-}
+}*/
 
 
 function updateSynthDropdown(host, apikey, type) {
@@ -682,14 +668,14 @@ function changeurl(new_url) {
 }
 
 
-var dropZone = document.getElementById('main-body');
+let dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
 function set_mod_seq_inf(sel, sel_start, sel_end) {
-    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C')) / count_all(sel)) * 100;
+    let sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C')) / count_all(sel)) * 100;
     sel_gc_con = Math.round(sel_gc_con * 100) / 100;
-    var sel_tm = get_tm(sel)
+    let sel_tm = get_tm(sel);
     if (sel_tm === -1) {
         document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_start + " End-Pos: " + sel_end;
     } else {
@@ -700,8 +686,8 @@ function set_mod_seq_inf(sel, sel_start, sel_end) {
 }
 
 function count_char(sel_seq, char) {
-    var count = 0;
-    for (var i = 0; i < sel_seq.length; i += 1) {
+    let count = 0;
+    for (let i = 0; i < sel_seq.length; i += 1) {
         if (sel_seq[i] === char) {
             count += 1;
         }
@@ -710,9 +696,9 @@ function count_char(sel_seq, char) {
 }
 
 function count_all(sel_seq) {
-    var count = 0;
-    for (var i = 0; i < sel_seq.length; i += 1) {
-        tmp = sel_seq[i];
+    let count = 0;
+    for (let i = 0; i < sel_seq.length; i += 1) {
+        let tmp = sel_seq[i];
         if (tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G') {
             count += 1;
         }
@@ -721,7 +707,7 @@ function count_all(sel_seq) {
 }
 
 function get_tm(sel_seq) {
-    var tm = 0;
+    let tm = 0;
     if (count_all(sel_seq) < 6) {
         return -1;
     } else if (6 <= count_all(sel_seq) < 14) {
