@@ -23,6 +23,6 @@ then
 fi
 
 # if things wont work as intended try uncommenting the next line:
-# docker-compose build --no-cache
+docker-compose build --no-cache
 docker-compose up -d --build --force-recreate
 echo "IP's might have changed!"

@@ -9,7 +9,7 @@ from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
-    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates
+    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates, PcrErrorRates
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 
@@ -490,7 +490,7 @@ def get_error_prob_charts():
 # @require_logged_in
 def get_synth_error_probs():
     """
-    Gets synthesis error probabilitys.
+    Gets synthesis error probabilities.
     :return:
     """
     user_id = session.get('user_id')

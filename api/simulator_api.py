@@ -11,7 +11,7 @@ from flask import jsonify, request, Blueprint, flash, current_app, copy_current_
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
+from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, Apikey, User
 from database.db import db
 from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
@@ -312,6 +312,7 @@ def do_all(r_method):
             # based on the final graph using the identifiers.
             # dc_g = deepcopy(g)
             # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
+            pcr_error(synthesis_error_seq, g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf)
             sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
             # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
             # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
@@ -369,6 +370,29 @@ def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=Non
         err_att_syn = conf['err_attributes']
     synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn, seed=seed)
     return synth_err.lit_error_rate_mutations()
+
+
+def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None):
+    """
+    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
+    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param sequence: Sequence to calculate the synthesis error probabilites for.
+    :param g: Graph to store the results.
+    :param pcr_meth: Selected polymerase.
+    :param process: "pcr"
+    :param conf: Uploaded configuration, None by default.
+    :return: Synthesis error probabilities for the sequence.
+    """
+    if conf is None:
+        tmp = PcrErrorRates.query.filter(
+            PcrErrorRates.id == int(pcr_meth)).first()
+        err_rate_pcr = tmp.err_data
+        err_att_pcr = tmp.err_attributes
+    else:
+        err_rate_pcr = conf['err_data']
+        err_att_pcr = conf['err_attributes']
+    pcr_err = SequencingError(sequence, g, process, err_att_pcr, err_rate_pcr, seed=seed)
+    return pcr_err.lit_error_rate_mutations()
 
 
 def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):

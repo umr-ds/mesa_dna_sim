@@ -171,6 +171,31 @@ class SynthesisErrorRates(db.Model):
 
 
 ###############################################
+
+
+class PcrErrorRates(db.Model):
+    __tablename__ = 'pcr'
+    id = db.Column(db.Integer, primary_key=True)
+    method_id = db.Column(db.Integer, ForeignKey('pcr_categories.id'), nullable=False)
+    # correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
+    err_data = db.Column(db.JSON)
+    user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
+    validated = db.Column(db.Boolean, default=False, nullable=False)
+    err_attributes = db.Column(db.JSON)
+    name = db.Column(db.TEXT)
+    awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
+    validation_desc = db.Column(db.String(512))
+
+    def __repr__(self):
+        return '<PcrErrorRates(id={}, method_id={}, correction_id={}, err_data={}'.format(
+            self.id, self.method, self.correction_id, self.err_data)
+
+    def as_dict(self):
+        return dict((col, getattr(self, col)) for col in
+                    self.__table__.columns.keys())  # {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+
+
+###############################################
 """
 class SynthesisErrorAttributes(db.Model):
     __tablename__ = 'synth_err_att'
