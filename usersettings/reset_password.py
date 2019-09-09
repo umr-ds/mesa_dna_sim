@@ -35,7 +35,7 @@ def new_reset_password():
             send_mail("noreply@mosla.de", [user.email],
                       "Use this link to reset your Password: " + request.host + "/reset_password/" +
                       user.get_password_reset_token() + "\nIf you did not request a Password reset you can ignore this E-Mail",
-                      subject="Your requested Password-reset")
+                      subject="[MOSLA] Your requested Password-reset")
         flash('If this E-Mail belongs to an activated (!) account it should receive an E-Mail containing a Reset-Link',
               'success')
         return redirect(url_for('main_page.main_index'))
@@ -59,7 +59,7 @@ def confirm_reset_password(token):
         db.session.commit()
         send_mail("noreply@mosla.de", [user.email],
                   "Your new Password: " + new_pass + "\nYou can change it in your profile.",
-                  subject="Your new Password for MOSLA_DNASimulator")
+                  subject="[MOSLA] Your new Password for MOSLA_DNASimulator")
         flash('A new password hat been generated and will be send to you by mail', 'success')
         session['user_id'] = user.user_id
     else:

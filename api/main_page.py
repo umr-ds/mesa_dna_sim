@@ -1,29 +1,23 @@
-import json
 import re
 import time
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
 from sqlalchemy import desc, or_, and_, asc
-from sqlalchemy.orm import Query
 from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
-    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates
+    MethodCategories, SequencingErrorRates
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 
 main_page = Blueprint("main_page", __name__, template_folder="templates")
 
 
-#
-# Since Flask will only be used for the API we will redirect to the main page
-#
 @main_page.route("/")
 def main_index():
     return render_template('index.html'), 200
-    # return redirect("http://dnasimulator.mosla.de", code=302)
 
 
 @main_page.after_request
@@ -283,13 +277,18 @@ def request_validation_g_error():
         try:
             if user.is_admin:
                 curr_error = ErrorProbability.query.filter_by(id=e_id).first()
+                requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
+                if requesting_user.user_id != user_id:
+                    send_mail("noreply@mosla.de", requesting_user.email,
+                              "Your Graph '" + curr_error.name + "' has been validated!",
+                              subject="[MOSLA] Validation Request")
                 curr_error.validated = True
             else:
                 curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
                 send_mail("noreply@mosla.de", get_admin_mails(),
-                          "The user " + str(user_id) + " ("+user.email+") has requested a validation!",
+                          "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
             # db.session.add(curr_error)
@@ -320,13 +319,18 @@ def request_validation_c_error():
         try:
             if user.is_admin:
                 curr_error = q_class.query.filter_by(id=e_id).first()
+                requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
+                if requesting_user.user_id != user_id:
+                    send_mail("noreply@mosla.de", requesting_user.email,
+                              "Your Error-Method '" + curr_error.name + "' has been validated!",
+                              subject="[MOSLA] Validation Request")
                 curr_error.validated = True
             else:
                 curr_error = q_class.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
                 send_mail("noreply@mosla.de", get_admin_mails(),
-                          "The user " + str(user_id) + " ("+user.email+") has requested a validation!",
+                          "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
             # db.session.add(curr_error)
@@ -354,13 +358,18 @@ def apply_validation_subseq():
         try:
             if user.is_admin:
                 curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+                requesting_user = User.query.filter_by(user_id=curr_sub_seq.owner_id).first()
+                if requesting_user.user_id != user_id:
+                    send_mail("noreply@mosla.de", requesting_user.email,
+                              "Your Motif / Subsequence '" + curr_sub_seq.description + "' has been validated!",
+                              subject="[MOSLA] Validation Request")
                 curr_sub_seq.validated = True
             else:
                 curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
                 curr_sub_seq.validated = False
                 curr_sub_seq.validation_desc = validation_desc
                 send_mail("noreply@mosla.de", get_admin_mails(),
-                          "The user " + str(user_id) + " ("+user.email+") has requested a validation!",
+                          "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
             # db.session.add(curr_sub_seq)
@@ -796,6 +805,7 @@ def update_seq_error_probs():
 def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
     result = re.sub(regex, "", input)
     return result
+
 
 def get_admin_mails():
     admins = User.query.filter_by(is_admin=True).all()
