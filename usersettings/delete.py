@@ -26,7 +26,6 @@ def do_delete():
         # error message, but for the sake of a simple
         # example we'll just assume they are provided
 
-        # delete_token = request.args.get('token')
         delete_token = request.form["token"]
 
         if user:

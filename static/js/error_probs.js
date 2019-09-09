@@ -437,7 +437,6 @@ function sendCustomError(host, method, id) {
             const nme = 'input[name="mismatch_changed_' + i.toString() + '"]';
             const tmp = $(itm).find(nme)[0].value;
             const num = 'input[name="mismatch_' + i.toString() + '"]';
-            //TODO check if tmp is in mismatch ->if yes, cancel since this is WRONG!
             if (innerMismatch[tmp] !== undefined) {
                 doExit = true;
                 return false;
@@ -525,11 +524,9 @@ function sendCustomError(host, method, id) {
                     drawingDOM.children().last().find($(regexstr)).each(function () {
                         initACGTSlider(method, $(this)[0]);
                     });
-                    /* TODO Reset Input-Fields */
                     if (id === "new")
                         clearNewRuleContainer(method);
                 }
-
             } else {
                 /* On Failure: either dont do anything, or show error?*/
                 console.log("Error while adding new " + method + "-Error");
@@ -541,38 +538,6 @@ function sendCustomError(host, method, id) {
         }
     });
 }
-
-/*
-function updateSynth() {
-    /* Collect all Input-Values
-
-/* Send to the Server
-$.post({
-    url: host + "api/delete_synth",
-    data: {synth_data: synth_data},
-    async: true,
-    beforeSend: function (xhr) {
-        if (xhr && xhr.overrideMimeType) {
-            xhr.overrideMimeType('application/json;charset=utf-8');
-        }
-    },
-    dataType: 'json',
-    success: function (data) {
-        if (data.did_succeed) {
-            /* On Success: add to the List + Clear Input
-            //TODO
-        } else {
-            /* On Failure: either dont do anything, or show error?
-            console.log("Error while adding new Synthesis-Error");
-        }
-    },
-    fail: function (data) {
-        /* On Failure: either dont do anything, or show error?
-        console.log("Error while adding new Synthesis-Error");
-    }
-});
-}
-*/
 
 function deleteCustomError(host, method, obj_id) {
     /* Send to the Server */
@@ -809,8 +774,6 @@ function initMismatchSlider(method, elem) {
             'max': 100
         },
     });
-
-    // TODO connect on change of textboxes / slider! + add these to submit (update button pressed)
 
     elem.noUiSlider.on('update', function (values, handle) {
         let sze = values.length;

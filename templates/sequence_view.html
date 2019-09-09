@@ -1,23 +1,11 @@
-<!-- templates/sequence_view.html -->
-
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 {% block content %}
     {% include "validation_overlay.html" %}
-    <!--<script type = "text/javascript" >
-window.onload = function () {
-    document.getElementById("text_lettering").lettering();
-}
-    </script>-->
-    <!--TODO:
-    https://stackoverflow.com/questions/43757979/chart-js-drag-points-on-linear-chart
-    https://github.com/chrispahm/chartjs-plugin-dragData
-    -->
+
     <div class="control" id="overlay">
-
-
         <div class="box container is-fluid is-fluid-mobile overlay-all">
             <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
             <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
@@ -126,7 +114,8 @@ window.onload = function () {
                                             name="publish_gerr"
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);let callback_func = function (desc) { validateGraphError('{{ host }}',$('#chart-name').data('id'),false, desc) };showValidationOverlay('', callback_func);return false"
                                             data-balloon="Request validation"
-                                            data-balloon-pos="up">Publish</button>
+                                            data-balloon-pos="up">Publish
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -146,8 +135,7 @@ window.onload = function () {
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);return false;"
                                             data-balloon="Update current Error-Probability Graph"
                                             data-balloon-pos="up">
-                                        Update
-                                        Template
+                                        Update Template
                                     </button>
                                 </div>
                             </div>
@@ -178,13 +166,10 @@ window.onload = function () {
                 </div>
             </div>
         </div>
-
     </div>
-
     <h2 class="subtitle">
         Your Query:
     </h2>
-
     <div class="box container is-fluid is-fluid-mobile">
         <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
@@ -217,7 +202,6 @@ window.onload = function () {
                                         <span>Sequence to Analyse</span>
                                         <!--</p>-->
                                     </label>
-
                                 </div>
                             </div>
                         </div>
@@ -337,11 +321,38 @@ window.onload = function () {
                                 </div>
                             </div>
                         </div>
+                        <div class="column is-3 is-1-touch is-1-mobile" style="margin-top: -1.5rem">
+                            <p>Max. Expect</p>
+                            <label data-balloon="Calculate Secondary Structures"
+                                   data-balloon-pos="right">
+                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="do_max_expect"
+                                       checked class="switch is-rounded is-large button-fill no-outline"
+                                       name="do_max_expect"
+                                       onclick="$('#temperature').prop('disabled',!$(this).is(':checked'))"/>
+                                <label for="do_max_expect" class="no-outline"></label>
+                            </label>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <div class="control">
+                                    <label class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input class="input is-rounded" type=number rows="1" id="temperature"
+                                                   value="310.15" min="0" step="0.01"/>
+                                            <span class="icon is-right">
+                                            <i class="fas fa-thermometer-half"></i>
+                                        </span>
+                                        </p>
+                                        <span>Temperature (°K)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="column is-half is-full-touch">
                     <div class="columns">
-                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40">
+                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40" style="margin-top: 1.5rem">
                             <p style="text-align:left;">Calculated Error Prob.</p>
                             <label data-balloon="Use Calculated Error Probabilities"
                                    data-balloon-pos="right" style="float: left">
@@ -434,21 +445,13 @@ window.onload = function () {
                                     </div>
                                 </div>
                                 <div class="column is-full">
-                                    <!--<div class="column ">-->
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
                                                 <input class="input is-rounded" type=number rows="1" id="seed"
                                                        placeholder="Random" min="0" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
                                                 <span>Seed</span>
-                                                <!--</p>-->
                                             </label>
-
-                                            <!--</div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -508,7 +511,7 @@ window.onload = function () {
                                                 {% if subsequence.validated %} readonly {% endif %}
                                                value="{{ subsequence.error_prob * 100 }}"
                                                required min="0.0" max="100.0" step="0.01">
-                                        <span><nobr>Error Probability</nobr></span></label></td>
+                                        <span style="white-space: nowrap;">Error Probability</span></label></td>
                                     <td style="width:30%"><label class="form-group has-float-label">
                                         <input class="input is-rounded is-grayable" style="width:100%" type="text"
                                                name="description"
@@ -533,12 +536,6 @@ window.onload = function () {
                                             {% if subsequence.validated %} checked {% endif %}/></label></span></td>
                                 </tr>
                             </table>
-                            <!--<nobr>
-                            Created at:
-                            <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
-                            )
-                            </script>
-                        </nobr>-->
                         </div>
                     {% endfor %}
                 </div>
@@ -597,14 +594,14 @@ window.onload = function () {
             </div>
         </div>
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
-        <div class="box">
+        <!--<div class="box">
             <h3 class="subtitle has-text-black"> Sequence with only Synthesis errors: </h3>
             <ul class="text_lettering" id="synth_seq" style="overflow-x: auto;"></ul>
         </div>
         <div class="box">
             <h3 class="subtitle has-text-black"> Sequence with only Sequencing errors: </h3>
             <ul class="text_lettering" id="seq_seq" style="overflow-x: auto;"></ul>
-        </div>
+        </div>-->
         <div class="box">
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
             <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
@@ -616,14 +613,38 @@ window.onload = function () {
                 </button>
             </div>
         </div>
-
-
-        <!--
-        <div class="box">
-            <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>
-            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
+        <h2 class="subtitle maxExpect"> Max. Expect Secondary-Structure Results: </h2>
+        <div class="box maxExpect">
+            <h3 class="subtitle has-text-black"> Max-Expect dot-Sequence: </h3>
+            <ul class="text_lettering" id="dot_seq" style="overflow-x: auto;"></ul>
+            <div class="column is-rounded">
+                <p>Download as:</p>
+                <button class="button is-rounded downloadIMG" id="downloadSVG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'svg');return false">
+                    SVG-Image
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadPS"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ps');return false">
+                    PS-Image
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadPDF"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pdf');return false">
+                    PDF-Image
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadCT"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ct');return false">
+                    CT-File
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadDOT"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'dot');return false">
+                    DOT-File
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadPFS"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pfs');return false">
+                    PFS-Distribution-File
+                </button>
+            </div>
         </div>
-        -->
 
         <div class="box">
             <h3 class="subtitle has-text-black">Share this result:</h3>
@@ -709,7 +730,6 @@ window.onload = function () {
                     dataset.data.sort(function (a, b) {
                         return a.x - b.x;
                     });
-                    //curr_chart.data.labels.push("tmp");
                 });
                 removeDuplicatesX();
                 curr_chart.update();
@@ -726,7 +746,6 @@ window.onload = function () {
                     }
                     $('#x-val').val(valueX);
                     $('#y-val').val(valueY);
-                    //curr_chart.data.labels.push("tmp");
                 });
             });
 
@@ -747,93 +766,13 @@ window.onload = function () {
                 if (window.getSelection) {
                     sel = window.getSelection().toString();
                     var sel_start = window.getSelection().getRangeAt(0).startOffset + 1;
-                    if (window.getSelection().toString().length === 0) {
-                        var sel_end = sel_start;
-                    } else {
-                        var sel_end = sel_start + window.getSelection().toString().length - 1;
+                    var sel_end = sel_start;
+                    if (window.getSelection().toString().length !== 0) {
+                        sel_end = sel_start + window.getSelection().toString().length - 1;
                     }
                     set_mod_seq_inf(sel, sel_start, sel_end);
                 }
             })
-
         });
-
-
-        /*$(function () { // wait for page to load
-            var subDropdown = $("#seqmeth"),
-                mainDropdown = $('<select></select>'), // create a method dropdown
-                submethods = []; // ordered list of submethods
-
-            // parse the nested dropdown
-            subDropdown.children().each(function () {
-                var group = $(this),
-                    mainName = group.attr('label'),
-                    option;
-
-                // create an option for the method
-                option = $('<option></option>').text(mainName);
-
-                // store the associated submethod options
-                option.data('subMethods', group.children());
-
-                // check if the method should be selected
-                if (group.find(':selected').length > 0) {
-                    option.prop('selected', true);
-                }
-
-                // add the method to the dropdown
-                mainDropdown.append(option);
-            });
-
-            // add the method dropdown to the page
-            subDropdown.before(mainDropdown);
-
-            // this function updates the submethod dropdown based on the selected method
-            function updateSubmethods() {
-                var main = mainDropdown.find(':selected');
-                subDropdown.empty().append(main.data('subMethods'));
-            }
-
-            // call the function to set the initial subMethods
-            updateSubmethods();
-
-            // and add the change handler
-            mainDropdown.on('change', updateSubmethods);
-
-        });
-
-        $(function () {
-            var subDropdown = $("#synthmeth"),
-                mainDropdown = $('<select></select>'),
-                error_correction = []; // ordered list of submethods
-
-            subDropdown.children().each(function () {
-                var group = $(this),
-                    mainName = group.attr('label'),
-                    option;
-
-                option = $('<option></option>').text(mainName);
-
-                option.data('error_correction', group.children());
-
-                if (group.find(':selected').length > 0) {
-                    option.prop('selected', true);
-                }
-
-                mainDropdown.append(option);
-            });
-
-            subDropdown.before(mainDropdown);
-
-            function updateErrCorrection() {
-                var main = mainDropdown.find(':selected');
-                subDropdown.empty().append(main.data('error_correction'));
-            }
-
-            updateErrCorrection();
-
-            mainDropdown.on('change', updateErrCorrection);
-        });
-        */
     </script>
 {% endblock %}

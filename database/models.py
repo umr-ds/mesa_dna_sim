@@ -1,7 +1,7 @@
 import time
 
 from flask import current_app
-from itsdangerous import Serializer, TimedSerializer
+from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref
 
@@ -24,12 +24,12 @@ class User(db.Model):
 
     ###############################################
     def get_token(self, secret):
-        s = TimedSerializer(secret)
+        s = URLSafeTimedSerializer(secret)
         return s.dumps({'user_id': self.user_id})  # .decode('utf-8')
 
     @staticmethod
     def verify_token(token, secret, expiration=1800):
-        s = TimedSerializer(secret)
+        s = URLSafeTimedSerializer(secret)
         try:
             data = s.loads(token, max_age=expiration)
         except:
