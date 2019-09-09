@@ -1,5 +1,6 @@
 import json
 import re
+import time
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
 from sqlalchemy import desc, or_, and_, asc
@@ -19,9 +20,9 @@ main_page = Blueprint("main_page", __name__, template_folder="templates")
 #
 # Since Flask will only be used for the API we will redirect to the main page
 #
-@main_page.route("/api")
+@main_page.route("/")
 def main_index():
-    return render_template('index.html')
+    return render_template('index.html'), 200
     # return redirect("http://dnasimulator.mosla.de", code=302)
 
 
@@ -36,9 +37,34 @@ def inject_x_rate_headers(response):
     return response
 
 
-@main_page.route("/", methods=["GET"])
+@main_page.route("/api", methods=["GET"])
 def home():
     return render_template("index.html"), 200
+
+
+def check_existing_users():
+    # TODO maybe use different way to find out if we are in setup mode or not.
+    users = User.query.all()
+    return len(users) == 1 and users[0].id == 0
+
+
+@main_page.route("/setup", methods=["GET", "POST"])
+def setup():
+    if check_existing_users():
+        if request.method == "GET":
+            return render_template("initial_setup.html"), 200
+        else:
+            email = request.form.get('email')
+            password = request.form.get('password')
+            new_admin = User(email=email, password=gen_password(password),
+                             created=int(time.time()),
+                             validated=True, is_admin=True)
+            db.session.add(new_admin)
+            db.session.commit()
+            session['user_id'] = new_admin.user_id
+            flash("Admin-Account created. Enjoy the Software.")
+    else:
+        return redirect(url_for("main_page.main_index"))
 
 
 @main_page.route("/admin", methods=["GET"])
@@ -481,11 +507,11 @@ def get_error_prob_charts():
     try:
         if user_id and user:
             charts = ErrorProbability.query.filter(
-                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated is True),
+                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated),
                      ErrorProbability.type == typ)).order_by(asc(ErrorProbability.id)).all()
         else:
             charts = ErrorProbability.query.filter(
-                and_(ErrorProbability.validated is True, ErrorProbability.type == typ)).order_by(
+                and_(ErrorProbability.validated, ErrorProbability.type == typ)).order_by(
                 asc(ErrorProbability.id)).all()
         return jsonify(
             {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
@@ -767,7 +793,7 @@ def update_seq_error_probs():
     return jsonify({'did_succeed': False})
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
+def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
     result = re.sub(regex, "", input)
     return result
 

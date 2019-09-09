@@ -7,6 +7,8 @@ from api.error_handle import page_not_found
 from api.simulator_api import simulator_api
 from config import Config
 from database.db import db
+from database.models import User
+from usersettings.reset_password import reset
 from usersettings.delete import delete
 from usersettings.login import login
 from usersettings.logout import logout
@@ -20,11 +22,6 @@ def main(cfg=Config):
 
     db.init_app(app)
     mail.init_app(app)
-    # db.init_app(app)
-
-    # blueprint for auth routes in our app
-    # from api.auth import auth as auth_blueprint
-    # app.register_blueprint(auth_blueprint)
 
     app.register_blueprint(main_page)
     app.register_blueprint(login)
@@ -32,10 +29,21 @@ def main(cfg=Config):
     app.register_blueprint(delete)
     app.register_blueprint(validate)
     app.register_blueprint(signup)
+    app.register_blueprint(reset)
 
     app.register_blueprint(simulator_api)
-
     app.register_error_handler(404, page_not_found)
+
+    @app.context_processor
+    def utility_processor():
+        def is_user_admin(user_id):
+            try:
+                user = User.query.filter_by(user_id=int(user_id)).first()
+                return user.is_admin
+            except:
+                return False
+        return dict(is_user_admin=is_user_admin)
+
     return app
 
 

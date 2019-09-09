@@ -31,7 +31,6 @@ function makeHoverGroups(user_borders, full_border, force) {
     } else {
         lettering.css('min-height', '30px');
         lettering.css('overflow-y', 'hidden');
-        //$('#text_lettering').css('height', '80%');
     }
     if (all_groups.length > 1000 && !force) {
         all_groups.unbind();
@@ -54,11 +53,8 @@ function makeHoverGroups(user_borders, full_border, force) {
                             curr_elem.css('border', '1px solid');
                         curr_elem.css('border-color', 'black');
                         curr_elem.css('padding-bottom', (i % 30) + 'px');
-                        //curr_elem.css('overflow-y', 'hidden');
                     } else {
                         curr_elem.css('border-bottom', '5px solid'); // underline should be faster then bold font
-                        //curr_elem.css('overflow-y','initial')
-                        //curr_elem.css('font-weight', "bold");
                     }
                 }, function () {
                     let curr_elem = $("." + cls[cls.length - 1]);
@@ -69,7 +65,6 @@ function makeHoverGroups(user_borders, full_border, force) {
                             curr_elem.css('border', '');
                     } else {
                         curr_elem.css('border-bottom', ''); // underline should be faster then bold font
-                        //curr_elem.css('font-weight', "normal");
                     }
                 });
                 x++;
@@ -161,31 +156,45 @@ function round(value, decimals) {
 $(document).ready(function () {
     let seq = $("#sequence");
     let send_mail = $("#send_email");
+    let do_max_expect = $('#do_max_expect');
     seq.keypress(function (e) {
         let chr = String.fromCharCode(e.which);
         let limitAlphabet = $('#limitedChars')[0].checked;
         if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
             return false;
         }
-
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.prop("disabled", true);
         } else {
             send_mail.removeAttr("disabled");
         }
+        if (seq.val().length >= 4000) {
+            do_max_expect.prop("checked", false);
+            do_max_expect.prop("disabled", true);
+        } else {
+            do_max_expect.prop("disabled", false);
+        }
     });
+    let add_mail = $("#emailadd");
     seq.bind("propertychange change click keyup input paste", function (e) {
+        if (seq.val().length >= 4000) {
+            do_max_expect.prop("checked", false);
+            do_max_expect.prop("disabled", true);
+        } else {
+            do_max_expect.prop("disabled", false);
+        }
+        $('#temperature').prop('disabled',!do_max_expect.is(':checked'));
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.attr("disabled", true);
             if(user_id === ""){
-                $("#emailadd").show();
+                add_mail.show();
             }
         } else {
             send_mail.attr("disabled", false);
-            $("#emailadd").hide();
-            $("#emailadd").val("");
+            add_mail.hide();
+            add_mail.val("");
         }
     });
     /*seq.keyup(function () {
@@ -217,9 +226,25 @@ function download(text, name, type) {
     }
 }
 
+function downloadImg(id, type) {
+    var file = host + "api/getIMG?id=" + id + "&type=" + type;
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    if (isIE) {
+        window.navigator.msSaveOrOpenBlob(file, name);
+    } else {
+        var a = document.createElement('a');
+        a.href = file;
+        a.download = name;
+        document.body.appendChild(a);
+        a.style.display = 'none';
+        a.click();
+    }
+}
+
 function handleFileChange(evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // Great success! All the File APIs are supported.
+        let jseq = $("#sequence");
         let file = "";
         if (evt.type === "drop") {
             evt.stopPropagation();
@@ -233,34 +258,31 @@ function handleFileChange(evt) {
         reader.onload = () => {
             try {
                 let text = reader.result;
-                if(text.startsWith(">")){
+                if (text.startsWith(">")) {
                     if(user_id === ""){
                         $("#emailadd").show();
                     }
                     //split into sequences and remove headlines
                     let sequences = text.split(">");
                     sequences.shift();
-                    for(let i = 0; i < sequences.length; i++){
-                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n")+1);
+                    for (let i = 0; i < sequences.length; i++) {
+                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n") + 1);
                         sequences[i] = sequences[i].replace("\n", "");
                     }
-                    if(sequences.length === 1){
-                        let sequence = $("#sequence");
-                        sequence.val(sequences[0]);
-                    }
-                    else if(sequences.length > 1){
+                    if (sequences.length === 1) {
+                        jseq.val(sequences[0]);
+                    } else if (sequences.length > 1) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
-                        $("#sequence").data("sequence_list", sequences);
-                        $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
+                        jseq.data("sequence_list", sequences);
+                        jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
                         //queryServer(undefined);
                     }
-                }
-                else{
+                } else {
                     loadSendData(JSON5.parse(text))
                 }
             } catch (e) {
-                $("#sequence").val(reader.result.toUpperCase());
+                jseq.val(reader.result.toUpperCase());
             }
         }
     } else {
@@ -293,7 +315,7 @@ function loadSendData(dta) {
     // find dropdown-pos to select...
     /* GC */
     let gc_selection = $('#gc-dropdown option').filter(function () {
-        return $(this).html() == dta['gc_name'];
+        return $(this).html() === dta['gc_name'];
     });
     if (gc_selection.length > 0) {
         gc_selection.prop('selected', true)
@@ -306,7 +328,7 @@ function loadSendData(dta) {
     }
     /* KMER */
     let kmer_selection = $('#kmer-dropdown option').filter(function () {
-        return $(this).html() == dta['kmer_name'];
+        return $(this).html() === dta['kmer_name'];
     });
     if (kmer_selection.length > 0) {
         kmer_selection.prop('selected', true)
@@ -319,7 +341,7 @@ function loadSendData(dta) {
     }
     /* Homopolymer */
     let homopolymer_selection = $('#homopolymer-dropdown option').filter(function () {
-        return $(this).html() == dta['homopolymer_name'];
+        return $(this).html() === dta['homopolymer_name'];
     });
     if (homopolymer_selection.length > 0) {
         homopolymer_selection.prop('selected', true)
@@ -334,15 +356,14 @@ function loadSendData(dta) {
     /*SEQ*/
     seq.val(0).prop('disabled', dta['use_error_probs']);
     let seq_selection = $('#seqmeth option').filter(function () {
-        return $(this).val() == dta['sequence_method'];
+        return $(this).val() === dta['sequence_method'];
     });
     if (seq_selection.length > 0) {
         seq_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        $('#seqmeth').append(opt);
-        //TODO
-        let sm_sel = $('#seqmeth option:selected')
+        seq.append(opt);
+        let sm_sel = $('#seqmeth option:selected');
         sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
     }
@@ -350,21 +371,21 @@ function loadSendData(dta) {
     /* SYNTH */
     synth.val(0).prop('disabled', dta['use_error_probs']);
     let synth_selection = $('#synthmeth option').filter(function () {
-        return $(this).val() == dta['synthesis_method'];
+        return $(this).val() === dta['synthesis_method'];
     });
     if (synth_selection.length > 0) {
         synth_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        $('#synthmeth').append(opt);
-        //TODO
+        synth.append(opt);
         let sm_sel = $('#synthmeth option:selected');
         sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
-
+    $("#used_seed").text(dta['seed']);
     $('#calcprobs').prop("checked", dta['use_error_probs']);
-    $('limitedChars').prop("checked", dta['acgt_only']);
+    $('#limitedChars').prop("checked", dta['acgt_only']);
+    $('#do_max_expect').prop("checked", dta['do_max_expect']);
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
 }
 
@@ -427,25 +448,27 @@ function collectSendData(space) {
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
+        do_max_expect: $('#do_max_expect').is(":checked"),
+        temperature: $('#temperature').val(),
         send_mail: $('#send_email').is(":checked"),
         email: email,
         asHTML: true
     }, undefined, space);
 }
 
-function collectSendFastQ(modified){
-    if(modified==false){
-        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+document.getElementById("overall").innerText+'\n+\n'+$('#overall').data('fastq');
-    }
-    else{
+function collectSendFastQ(modified) {
+    if (modified === false) {
+        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + document.getElementById("overall").innerText + '\n+\n' + $('#overall').data('fastq');
+    } else {
         let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
-        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+sequence+'\n+\n'+$('#mod_seq').data('fastq');
+        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + sequence + '\n+\n' + $('#mod_seq').data('fastq');
     }
 }
 
 function queryServer(uuid) {
+    let jseq = $("#sequence");
     let submit_seq_btn = $('#submit_seq_btn');
-    let sequence = $("#sequence").val().toUpperCase();
+    let sequence = jseq.val().toUpperCase();
     let homopolymer = $('#homopolymer');
     let gccontent = $('#gccontent');
     let sequences = $('#subsequences');
@@ -455,7 +478,8 @@ function queryServer(uuid) {
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
     let fasta = false;
-    if($("#sequence").data("sequence_list")){
+    let dot_seq = $('#dot_seq');
+    if (jseq.data("sequence_list")) {
         fasta = true;
     }
     /*for (let i = 0; i <= overall.text().length; i++) {
@@ -479,6 +503,7 @@ function queryServer(uuid) {
         "sequencing": seq_seq,
         "synthesis": synth_seq,
         "modify": mod_seq,
+        "dot_seq": dot_seq,
     };
 
     let send_data = undefined;
@@ -497,11 +522,11 @@ function queryServer(uuid) {
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
     let mode = "all";
-    if(fasta && $("#sequence").val() === "Fasta file loaded. Your results will be send to your E-Mail"){
+    if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail") {
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
-        tmp_data["sequence_list"]=$("#sequence").data("sequence_list");
+        tmp_data["sequence_list"] = jseq.data("sequence_list");
         send_data = JSON.stringify(tmp_data);
     }
     $.post({
@@ -530,41 +555,53 @@ function queryServer(uuid) {
             if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                 if (uuid !== undefined)
                     loadSendData(data['query']);
+                data = data['res'];
+                if (uuid !== undefined)
+                    data = data[Object.keys(data)[0]];
+                dot_seq.data('id', data['maxexpectid']);
+                overall.data('fastq', data['fastqOr']);
+                mod_seq.data('fastq', data['fastqMod']);
+                $("#used_seed").text(data['seed']);
+                for (let error_source in data) {
+                    if (error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed' && error_source !== 'maxexpectid')
+                        endpoints[error_source].html(data[error_source]);
+                    if (error_source === "dot_seq")
+                        if (data[error_source] === "<nobr></nobr>")
+                            $('.maxExpect').hide();
+                        else if (data[error_source].startsWith("Error")) {
+                            $('.maxExpect').show();
+                            $(".downloadIMG").attr("disabled", true);
+                        } else {
+                            $('.maxExpect').show();
+                            $(".downloadIMG").attr("disabled", false);
+                        }
 
-                    data = data['res'];
-                    if (uuid !== undefined)
-                        data = data[Object.keys(data)[0]];
-                    overall.data('fastq',data['fastqOr']);
-                    mod_seq.data('fastq',data['fastqMod']);
-                    $("#used_seed").text(data['seed']);
-                    for (let error_source in data) {
-                        if(error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed')
-                            endpoints[error_source].html(data[error_source]);
-                    }
-                    makeHoverGroups();
-                    res.css('display', 'initial');
-                    $('html, body').animate({scrollTop: res.offset().top}, 500);
                 }
-                var element = document.getElementById('mod_seq');
-                set_mod_seq_inf(element.innerText, 1, element.innerText.length);
-                if (data['result_by_mail'] === true) {
-                    //TODO show info that the result will be send via mail
-                    resultsbymail.css('display', 'initial');
-                }
-                submit_seq_btn.removeClass('is-loading');
-            },
-            fail: function (data) {
-                console.log(data);
-                //$('#text_lettering').text(data);
-                submit_seq_btn.removeClass('is-loading');
+                makeHoverGroups();
+                res.css('display', 'initial');
+                $('html, body').animate({scrollTop: res.offset().top}, 500);
             }
-            ,
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
-                submit_seq_btn.removeClass('is-loading');
+
+
+            let element = document.getElementById('mod_seq');
+            set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+            if (data['result_by_mail'] === true) {
+                //TODO show info that the result will be send via mail
+                resultsbymail.css('display', 'initial');
             }
-        });
-        $("#sequence").removeData("sequence_list");
+            submit_seq_btn.removeClass('is-loading');
+        },
+        fail: function (data) {
+            console.log(data);
+            submit_seq_btn.removeClass('is-loading');
+        }
+        ,
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+            submit_seq_btn.removeClass('is-loading');
+        }
+    });
+    jseq.removeData("sequence_list");
 }
 
 const percentColors = [
@@ -594,21 +631,13 @@ var getColorForPercentage = function (pct) {
     // or output as hex if preferred
 };
 
-/*for (var i = 0, l = $('#text_lettering').text().length; i <= l; i++) {
-    let curr_char = $(".char" + (i + 1));
-    curr_char.css("background-color", getColorForPercentage(i / l));
-    curr_char.css("color", "gray");
-    curr_char.attr('title', (i / l));
-    //$(".text_lettering").append(li);
-}*/
-
-function copyToClipboard(element) {
+/*function copyToClipboard(element) {
     var $temp = $("<input>");
     $("body").append($temp);
     $temp.val($(element).text()).select();
     document.execCommand("copy");
     $temp.remove();
-}
+}*/
 
 
 function updateSynthDropdown(host, apikey, type) {
@@ -667,55 +696,52 @@ function changeurl(new_url) {
 }
 
 
-var dropZone = document.getElementById('main-body');
+let dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
-function set_mod_seq_inf(sel, sel_start, sel_end){
-    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/count_all(sel))*100;
-    sel_gc_con = Math.round(sel_gc_con * 100)/100;
-    var sel_tm = get_tm(sel)
-    if(sel_tm === -1){
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: Select at least 6 bases. Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
-    }
-    else{
-        sel_tm = Math.round(sel_tm * 100)/100;
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+function set_mod_seq_inf(sel, sel_start, sel_end) {
+    let sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C')) / count_all(sel)) * 100;
+    sel_gc_con = Math.round(sel_gc_con * 100) / 100;
+    let sel_tm = get_tm(sel);
+    if (sel_tm === -1) {
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_start + " End-Pos: " + sel_end;
+    } else {
+        sel_tm = Math.round(sel_tm * 100) / 100;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_start + " End-Pos: " + sel_end;
     }
 
 }
 
 function count_char(sel_seq, char) {
-    var count = 0;
-    for (var i = 0; i < sel_seq.length; i +=1){
-        if(sel_seq[i] === char){
+    let count = 0;
+    for (let i = 0; i < sel_seq.length; i += 1) {
+        if (sel_seq[i] === char) {
             count += 1;
         }
     }
     return count;
 }
 
-function count_all(sel_seq){
-    var count = 0;
-    for(var i = 0; i < sel_seq.length; i +=1){
-        tmp = sel_seq[i];
-        if(tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G'){
+function count_all(sel_seq) {
+    let count = 0;
+    for (let i = 0; i < sel_seq.length; i += 1) {
+        let tmp = sel_seq[i];
+        if (tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G') {
             count += 1;
         }
     }
     return count;
 }
 
-function get_tm(sel_seq){
-    var tm = 0;
-    if(count_all(sel_seq) < 6){
+function get_tm(sel_seq) {
+    let tm = 0;
+    if (count_all(sel_seq) < 6) {
         return -1;
-    }
-    else if(6 <= count_all(sel_seq) < 14){
-        tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
-    }
-    else if(count_all(sel_seq) >= 14){
-        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(count_all(sel_seq))
+    } else if (6 <= count_all(sel_seq) < 14) {
+        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4
+    } else if (count_all(sel_seq) >= 14) {
+        tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
     }
     return tm;
 }
