@@ -498,11 +498,11 @@ def get_error_prob_charts():
     try:
         if user_id and user:
             charts = ErrorProbability.query.filter(
-                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated is True),
+                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated),
                      ErrorProbability.type == typ)).order_by(asc(ErrorProbability.id)).all()
         else:
             charts = ErrorProbability.query.filter(
-                and_(ErrorProbability.validated is True, ErrorProbability.type == typ)).order_by(
+                and_(ErrorProbability.validated, ErrorProbability.type == typ)).order_by(
                 asc(ErrorProbability.id)).all()
         return jsonify(
             {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
@@ -784,6 +784,6 @@ def update_seq_error_probs():
     return jsonify({'did_succeed': False})
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
+def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
     result = re.sub(regex, "", input)
     return result

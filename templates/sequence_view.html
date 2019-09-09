@@ -1,20 +1,10 @@
-<!-- templates/sequence_view.html -->
-
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 {% block content %}
     {% include "validation_overlay.html" %}
-    <!--<script type = "text/javascript" >
-window.onload = function () {
-    document.getElementById("text_lettering").lettering();
-}
-    </script>-->
-    <!--TODO:
-    https://stackoverflow.com/questions/43757979/chart-js-drag-points-on-linear-chart
-    https://github.com/chrispahm/chartjs-plugin-dragData
-    -->
+
     <div class="control" id="overlay">
         <div class="box container is-fluid is-fluid-mobile overlay-all">
             <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
@@ -145,8 +135,7 @@ window.onload = function () {
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);return false;"
                                             data-balloon="Update current Error-Probability Graph"
                                             data-balloon-pos="up">
-                                        Update
-                                        Template
+                                        Update Template
                                     </button>
                                 </div>
                             </div>
@@ -178,7 +167,6 @@ window.onload = function () {
             </div>
         </div>
     </div>
-
     <h2 class="subtitle">
         Your Query:
     </h2>
@@ -364,7 +352,7 @@ window.onload = function () {
                 </div>
                 <div class="column is-half is-full-touch">
                     <div class="columns">
-                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40">
+                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40" style="margin-top: 1.5rem">
                             <p style="text-align:left;">Calculated Error Prob.</p>
                             <label data-balloon="Use Calculated Error Probabilities"
                                    data-balloon-pos="right" style="float: left">

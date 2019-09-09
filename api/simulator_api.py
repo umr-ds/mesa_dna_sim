@@ -314,6 +314,8 @@ def do_all_wrapper():
             print("Error while talking to Redis-Server:", e)
         if r_res is not None:
             return jsonify(json.loads(r_res))
+        elif 'sequence' not in r_method:
+            return jsonify({"did_succeed": False})
     # TODO estimate time needed
     send_via_mail = r_method.get('send_mail')
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:

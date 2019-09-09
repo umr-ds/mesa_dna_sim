@@ -43,7 +43,7 @@ const default_homopolymer_data_obj = {
 const default_kmer_data_obj = {
     "data": [{"x": 0, "y": 0}, {"x": 6, "y": 0.15}, {"x": 12, "y": 0.85}, {"x": 22, "y": 4.73}, {"x": 40, "y": 18.2},
         {"x": 60, "y": 40.7}, {"x": 79, "y": 67.36}, {"x": 100, "y": 100}], "interpolation": true, "maxX": 20,
-    "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Homopolymer length"
+    "maxY": 100, "xRound": 0, "yRound": 2, "label": "Error Probability", "xLabel": "Kmer repeats"
 };
 
 const default_data_obj = {
@@ -434,6 +434,7 @@ function buildDropdown(result, dropdown, emptyMessage) {
 function closeValidationOverlay() {
     let overlay = $("#validation_overlay");
     overlay.fadeOut(175, "linear");
+    $('#validation_desc').text("");
     //overlay.css("display", "none");
 }
 
@@ -441,7 +442,7 @@ function showValidationOverlay(validation_text, callback, is_admin) {
     let validation_desc = $('#validation_desc');
     validation_desc.attr('readonly', is_admin);
     let validate_btn = $('#do_request_validation');
-    validate_btn.removeAttr('onclick').off().on('click', function (){
+    validate_btn.removeAttr('onclick').off().on('click', function () {
         if (callback !== undefined)
             callback(validation_desc.val());
         closeValidationOverlay()
@@ -508,6 +509,17 @@ function showOverlay(validated, editable, id, text, type, awaits_validation) {
     overlay.fadeIn(100, "linear");
 }
 
+function exists(selector, searchterm) {
+    let exists = false;
+    $(selector).each(function () {
+        if (this.value == searchterm) {
+            exists = true;
+            return false;
+        }
+    });
+    return exists
+}
+
 function saveChart(host, apikey, create_copy, update_dropdown) {
     const chart_name = $('#chart-name');
     $.post({
@@ -531,7 +543,13 @@ function saveChart(host, apikey, create_copy, update_dropdown) {
         success: function (data) {
             if (data["did_succeed"] === true) {
                 if (update_dropdown === true) {
-                    updateDropdown(host, apikey, chart_name.data('type'));
+                    let callback = function () {
+                        // we have to use callback since the updateDropdown is asynchronous!
+                        // set selection to the currently edited element ( if exists )
+                        if (exists('#' + data["type"] + "-dropdown option", data["name"]))
+                            $('#' + data["type"] + "-dropdown").val(data["name"]);
+                    };
+                    updateDropdown(host, apikey, chart_name.data('type'), callback);
                 }
                 showOverlay(data["validated"], true, data["id"], data["name"], data["type"], data["awaits_validation"])
             } else {
@@ -613,7 +631,11 @@ function deleteChart(host, apikey) {
     });
 }
 
-function updateDropdown(host, apikey, type) {
+function updateDropdown(host, apikey, type, callback) {
+    if (callback === undefined) {
+        callback = function () {
+        }
+    }
     $.post({
         url: host + "api/get_error_prob_charts",
         dataType: 'json',
@@ -639,6 +661,7 @@ function updateDropdown(host, apikey, type) {
             });
             el.append($("<option></option>").text(default_graph_name).data('id', -1).data('validated', true)
                 .data('isowner', false).data('type', type).data('jsonblob', default_data_obj[type]));
+            callback()
         },
         fail: function (data) {
             console.log(data)
