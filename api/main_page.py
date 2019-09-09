@@ -246,7 +246,7 @@ def add_subsequences():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitize_input(request.form.get('sequence'))
-    error_prob = request.form.get('error_prob')
+    error_prob = max(0.0, min(1.0, float(request.form.get('error_prob'))))
     description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
     if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
         try:
@@ -291,7 +291,7 @@ def request_validation_g_error():
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
-            # db.session.add(curr_error)
+            db.session.add(curr_error)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
@@ -318,7 +318,7 @@ def request_validation_c_error():
     if user_id and user and error_method is not None and e_id is not None:
         try:
             if user.is_admin:
-                curr_error = q_class.query.filter_by(id=e_id).first()
+                curr_error = db.session.query(q_class).filter_by(id=e_id).first()
                 requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
                 if requesting_user.user_id != user_id:
                     send_mail("noreply@mosla.de", requesting_user.email,
@@ -326,14 +326,14 @@ def request_validation_c_error():
                               subject="[MOSLA] Validation Request")
                 curr_error.validated = True
             else:
-                curr_error = q_class.query.filter_by(user_id=user_id, id=e_id).first()
+                curr_error = db.session.query(q_class).filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
                 send_mail("noreply@mosla.de", get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
-            # db.session.add(curr_error)
+            db.session.add(curr_error)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
@@ -357,7 +357,7 @@ def apply_validation_subseq():
     if user_id and user and sequence_id is not None:
         try:
             if user.is_admin:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(id=sequence_id).first()
                 requesting_user = User.query.filter_by(user_id=curr_sub_seq.owner_id).first()
                 if requesting_user.user_id != user_id:
                     send_mail("noreply@mosla.de", requesting_user.email,
@@ -365,14 +365,15 @@ def apply_validation_subseq():
                               subject="[MOSLA] Validation Request")
                 curr_sub_seq.validated = True
             else:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(owner_id=user_id,
+                                                                                 id=sequence_id).first()
                 curr_sub_seq.validated = False
                 curr_sub_seq.validation_desc = validation_desc
                 send_mail("noreply@mosla.de", get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
-            # db.session.add(curr_sub_seq)
+            db.session.add(curr_sub_seq)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'sequence': curr_sub_seq.sequence, 'error_prob': curr_sub_seq.error_prob,
@@ -413,9 +414,10 @@ def update_subsequences():
         try:
             error_prob = float(error_prob)
             if user.is_admin:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(id=sequence_id).first()
             else:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(owner_id=user_id,
+                                                                                 id=sequence_id).first()
             curr_sub_seq.error_prob = error_prob
             curr_sub_seq.sequence = sequence
             curr_sub_seq.validated = False

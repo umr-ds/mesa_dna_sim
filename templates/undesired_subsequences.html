@@ -123,7 +123,7 @@
                                 </td>
                                 <br/>
                                 <td style="width:1%">
-                                    <button class="button" id="add_new_subseq">Add</button>
+                                    <button class="button" id="add_new_subseq" onclick="addSubSeq('{{ host }}'); return false">Add</button>
                                 </td>
                             </tr>
                         </table>
@@ -213,10 +213,10 @@
         });
 
 
-        $('#add_new_subseq').click(function (event) {
+        /*$('#add_new_subseq').click(function (event) {
             event.preventDefault();
             addSubSeq('{{ host }}')
-        });
+        });*/
 
         $("body").click(function (event) {
             if (!$(event.target).closest("#inner_validation_overlay,.button").length) {

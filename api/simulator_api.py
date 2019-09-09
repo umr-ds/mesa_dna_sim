@@ -246,7 +246,10 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
         return [basefilename, {'plain_dot': "Error: " + "Sequences longer than 4000 nt not supported"}]
     prev_wd = os.getcwd()
     os.chdir("/tmp")
-    p = RNAstructure.RNA.fromString(dna_str, "dna")
+    try:
+        p = RNAstructure.RNA.fromString(dna_str, "dna")
+    except RuntimeError as ru_e:
+        return [basefilename, {'plain_dot': "Error: " + str(ru_e)}]
     p.SetTemperature(temperature=temperature)
     # MaxExpect partition.pfs MaxExpect.ct --DNA --gamma 1 --percent 10 --structures 20 --window 3
     # RNA and ProbScan objects are iterable. To iterate over the sequence:

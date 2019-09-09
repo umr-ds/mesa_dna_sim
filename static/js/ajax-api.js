@@ -568,7 +568,7 @@ function queryServer(uuid) {
                     if (error_source === "dot_seq")
                         if (data[error_source] === "<nobr></nobr>")
                             $('.maxExpect').hide();
-                        else if (data[error_source].startsWith("Error")) {
+                        else if (data[error_source].startsWith("<nobr>Error")) {
                             $('.maxExpect').show();
                             $(".downloadIMG").attr("disabled", true);
                         } else {
