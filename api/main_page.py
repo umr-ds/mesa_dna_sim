@@ -506,7 +506,8 @@ def get_synth_error_probs():
             asc(MethodCategories.id)).all()]
         return jsonify(
             {'did_succeed': True, 'synth': get_error_probs_dict(SynthesisErrorRates, user_id, flat, methods),
-             'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods), 'methods': methods})
+             'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods),
+             'pcr': get_error_probs_dict(PcrErrorRates, user_id, flat, methods), 'methods': methods})
         # else:
         #    return jsonify({'did_succeed': False})
     except Exception as x:

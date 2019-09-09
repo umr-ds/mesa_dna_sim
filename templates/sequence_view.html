@@ -434,6 +434,41 @@ window.onload = function () {
                                     </div>
                                 </div>
                                 <div class="column is-full">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-7 correspond to the submethod id in the database -->
+                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="PCR Polymerase">
+                                            <select class="select" id="pcrmeth">
+                                                <option value="0" selected>None</option>
+                                                <option value="1">Taq</option>
+                                                <option value="2">Pfu</option>
+                                                <option value="3">Phusion</option>
+                                                <option value="1">Pwo</option>
+                                            </select><span>PCR Polymerase</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="column is-full">
+                                    <!--<div class="column ">-->
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="form-group has-float-label">
+                                                <!--<p class="control has-icons-left">-->
+                                                <input class="input is-rounded" type=number rows="1" id="cycles"
+                                                       value="30" min="1" max="50" step="1"/>
+                                                <!--<span class="icon is-right">
+                                                <i class="fas fa-dna"></i>
+                                                    </span>-->
+                                                <span>PCR Cycles</span>
+                                                <!--</p>-->
+                                            </label>
+
+                                            <!--</div>-->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column is-full">
                                     <!--<div class="column ">-->
                                     <div class="field">
                                         <div class="control">

@@ -251,6 +251,9 @@ def do_all(r_method):
     seq_meth_conf = r_method.get('sequence_method_conf')
     synth_meth = r_method.get('synthesis_method')
     synth_meth_conf = r_method.get('synthesis_method_conf')
+    pcr_meth = r_method.get('pcr_method')
+    cycles = r_method.get('pcr_cycles')
+    pcr_meth_conf = r_method.get('pcr_method_conf')
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -312,7 +315,7 @@ def do_all(r_method):
             # based on the final graph using the identifiers.
             # dc_g = deepcopy(g)
             # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
-            pcr_error(synthesis_error_seq, g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf)
+            pcr_error(synthesis_error_seq, g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles = cycles)
             sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
             # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
             # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
@@ -372,7 +375,7 @@ def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=Non
     return synth_err.lit_error_rate_mutations()
 
 
-def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None):
+def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None, cycles=1):
     """
     If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
     a SequencingError object with the configuration and calculates the mutations for the sequence.
@@ -388,9 +391,13 @@ def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None):
             PcrErrorRates.id == int(pcr_meth)).first()
         err_rate_pcr = tmp.err_data
         err_att_pcr = tmp.err_attributes
+        cycles = cycles
     else:
         err_rate_pcr = conf['err_data']
         err_att_pcr = conf['err_attributes']
+        # cycles = conf['pcr_cycles']
+        # doublecheck if I don't have to normalize the multiplicative error prob based on the cycles
+    err_rate_pcr['raw_rate'] = err_rate_pcr['raw_rate'] * int(cycles)
     pcr_err = SequencingError(sequence, g, process, err_att_pcr, err_rate_pcr, seed=seed)
     return pcr_err.lit_error_rate_mutations()
 
@@ -592,7 +599,7 @@ def colorize(error_prob):
     """
     Colorizes the bases based on the error probabilities.
     :param error_prob: Error probability for the base.
-    :return: Color for the vase.
+    :return: Color for the base.
     """
     percent_colors = [{"pct": 0.0, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 0.2}},
                       {"pct": 0.15, "color": {"r": 0x00, "g": 0xff, "b": 0, "a": 1.0}},
@@ -609,7 +616,11 @@ def colorize(error_prob):
                       {"pct": 4.0, "color": {"r": 0xff, "g": 0xff, "b": 0x99, "a": 1.0}},
                       {"pct": 4.3, "color": {"r": 0x99, "g": 0xcc, "b": 0x00, "a": 1.0}},
                       {"pct": 4.6, "color": {"r": 0xff, "g": 0xff, "b": 0x00, "a": 1.0}},
-                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 0.5}}
+                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 0.5}},
+                      {"pct": 5.0, "color": {"r": 0xff, "g": 0x00, "b": 0x7f, "a": 1.0}},
+                      {"pct": 5.3, "color": {"r": 0xff, "g": 0x33, "b": 0x99, "a": 1.0}},
+                      {"pct": 5.6, "color": {"r": 0xff, "g": 0x99, "b": 0xcc, "a": 1.0}},
+                      {"pct": 5.9, "color": {"r": 0xff, "g": 0xcc, "b": 0xe5, "a": 1.0}}
                       ]
     i = 0
     for x in range(len(percent_colors)):

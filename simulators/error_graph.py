@@ -27,8 +27,10 @@ class Graph:
             error_prob = 3.0
         elif process == 'sequencing':
             error_prob = 4.0
-        else:
+        elif process == 'pcr':
             error_prob = 5.0
+        else:
+            error_prob = 6.0
         if mode == 'insertion':
             error_prob += 0.3
         elif mode == 'deletion':
