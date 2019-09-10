@@ -1,9 +1,14 @@
 let apikey = "";
 let host = "";
+let user_id = "";
 
 function setApikey(hst, key) {
     apikey = key;
     host = hst;
+}
+
+function setUser(user_id) {
+    user_id = user_id
 }
 
 function makeHoverGroups(user_borders, full_border, force) {
@@ -171,6 +176,7 @@ $(document).ready(function () {
             do_max_expect.prop("disabled", false);
         }
     });
+    let add_mail = $("#emailadd");
     seq.bind("propertychange change click keyup input paste", function (e) {
         if (seq.val().length >= 4000) {
             do_max_expect.prop("checked", false);
@@ -178,12 +184,17 @@ $(document).ready(function () {
         } else {
             do_max_expect.prop("disabled", false);
         }
-        $('#temperature').prop('disabled',!do_max_expect.is(':checked'));
+        $('#temperature').prop('disabled', !do_max_expect.is(':checked'));
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.attr("disabled", true);
+            if (user_id === "") {
+                add_mail.show();
+            }
         } else {
             send_mail.attr("disabled", false);
+            add_mail.hide();
+            add_mail.val("");
         }
     });
     /*seq.keyup(function () {
@@ -248,6 +259,9 @@ function handleFileChange(evt) {
             try {
                 let text = reader.result;
                 if (text.startsWith(">")) {
+                    if (user_id === "") {
+                        $("#emailadd").show();
+                    }
                     //split into sequences and remove headlines
                     let sequences = text.split(">");
                     sequences.shift();
@@ -262,7 +276,7 @@ function handleFileChange(evt) {
                         document.getElementById("send_email").disabled = true;
                         jseq.data("sequence_list", sequences);
                         jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
-                        queryServer(undefined);
+                        //queryServer(undefined);
                     }
                 } else {
                     loadSendData(JSON5.parse(text))
@@ -396,6 +410,15 @@ function collectSendData(space) {
         kmer_error_prob = JSON5.parse(kmer_error_prob);
     let seq_meth = $("#seqmeth option:selected");
     let synth_meth = $("#synthmeth option:selected");
+    let email = "";
+    if (user_id === "" && $('#send_email').is(':checked')) {
+        if ($("#emailadd").val()) {
+            email = $("#emailadd").val();
+        } else {
+            alert("Please enter your email or deactivate send by mail!");
+            return
+        }
+    }
     return JSON.stringify({
         sequence: sequence,
         key: apikey,
@@ -427,6 +450,7 @@ function collectSendData(space) {
         do_max_expect: $('#do_max_expect').is(":checked"),
         temperature: $('#temperature').val(),
         send_mail: $('#send_email').is(":checked"),
+        email: email,
         asHTML: true
     }, undefined, space);
 }
@@ -491,10 +515,13 @@ function queryServer(uuid) {
                 uuid: uuid
             });
     }
+    if (send_data === undefined) {
+        return
+    }
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
     let mode = "all";
-    if (fasta) {
+    if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail") {
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
@@ -540,7 +567,7 @@ function queryServer(uuid) {
                     if (error_source === "dot_seq")
                         if (data[error_source] === "<nobr></nobr>")
                             $('.maxExpect').hide();
-                        else if (data[error_source].startsWith("Error")) {
+                        else if (data[error_source].startsWith("<nobr>Error")) {
                             $('.maxExpect').show();
                             $(".downloadIMG").attr("disabled", true);
                         } else {
@@ -716,4 +743,72 @@ function get_tm(sel_seq) {
         tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
     }
     return tm;
+}
+
+function updateUserId(host, u_id, callback) {
+    if (callback === undefined)
+        callback = function f() {
+        };
+    let new_email = $('#user_email_' + u_id).val();
+    let validated = $('#validated_' + u_id).is(":checked");
+    let is_admin = $('#isadmin_' + u_id).is(":checked");
+    $.post({
+        url: host + "manage_users",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            do_update: true,
+            user_id: u_id,
+            new_email: new_email,
+            validated: validated,
+            is_admin: is_admin
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            $('#update-user_' + u_id).removeClass('is-loading');
+            if (data['did_succeed'] === true)
+                callback();
+        },
+        fail: function (data) {
+            $('#update-user_' + u_id).removeClass('is-loading');
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function deleteUserId(host, user_id, callback) {
+    if (callback === undefined)
+        callback = function f() {
+        };
+    $.post({
+        url: host + "manage_users",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            do_delete: true,
+            user_id: user_id
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            $('#delete-user_' + user_id).removeClass('is-loading');
+            if (data['did_succeed'] === true)
+                callback();
+        },
+        fail: function (data) {
+            $('#delete-user_' + user_id).removeClass('is-loading');
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
 }

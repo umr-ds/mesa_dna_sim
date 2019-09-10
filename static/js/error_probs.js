@@ -25,12 +25,16 @@ function addSubSeq(host) {
                     "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"number\" name=\"error_prob\"\n" +
                     "placeholder=\"\" size=\"30\" value=\"" + data.error_prob * 100.0 + "\" required\n" +
                     "min=\"0.0\"\n" +
-                    "max=\"1.0\" step=\"0.01\"><span><nobr>Error Probability</nobr></span></label></td>\n" +
+                    "max=\"100.0\" step=\"0.01\"><span><nobr>Error Probability</nobr></span></label></td>\n" +
                     "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
                     "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                     "required><span>Description</span></label></td>" +
-                    "<td  style=\"width:7%\"> Validated: <input type=\"checkbox\" id=\"validated_" + data.id + "\"\n" +
-                    "value=\"" + data.id + "\" disabled\n" + "/></td >\n" +
+                    "<td style=\"width:5%\">\n" +
+                    "<button class=\"button\"\n" +
+                    "data-balloon=\"Request validation\"\n" +
+                    "data-balloon-pos=\"up\" id=\"validate_subseq_{{ subsequence.id }}\"\n" +
+                    "onclick=\"updateSeq('" + host + "'," + data.id + "); let callback_func = function (desc) { validateSeq('" + host + "'," + data.id + ", desc) };showValidationOverlay('', callback_func); return false;\">Publish</button>\n" +
+                    "</td>" +
                     "<td style=\"width:5%\"><button class=\"button\" data-balloon=\"Updating will remove the Validation!\"\n" +
                     "data-balloon-pos=\"up\" id=\"update_subseq_" + data.id + "\"\n" +
                     "onclick=\"updateSeq('" + host + "', " + data.id + "); return false;\"> Update<\/button>" +

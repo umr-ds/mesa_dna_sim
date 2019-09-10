@@ -218,7 +218,7 @@
                                                placeholder=""
                                                size="4"
                                                value="15"
-                                               required min="0" step="1"><span>GC Window</span></label>
+                                               required min="2" step="1"><span>GC Window</span></label>
                                 </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
@@ -260,7 +260,7 @@
                                                placeholder=""
                                                size="4"
                                                value="15"
-                                               required min="0" step="1"><span>Kmer Window</span></label>
+                                               required min="2" step="1"><span>Kmer Window</span></label>
                                 </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
@@ -352,7 +352,8 @@
                 </div>
                 <div class="column is-half is-full-touch">
                     <div class="columns">
-                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40" style="margin-top: 1.5rem">
+                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40"
+                             style="margin-top: 1.5rem">
                             <p style="text-align:left;">Calculated Error Prob.</p>
                             <label data-balloon="Use Calculated Error Probabilities"
                                    data-balloon-pos="right" style="float: left">
@@ -470,12 +471,11 @@
                 </div>
                 <div class="column is-rounded">
                     <button class="button is-rounded button-fill" id="uploadConfig"
-                            onclick="upload();return false">Upload config
+                            onclick="upload();return false">Upload config/fasta file
                     </button>
                 </div>
             </div>
             <br/>
-
             <input type="checkbox" id="spoiler"/>
             <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
                 Subsequences</label>
@@ -493,7 +493,7 @@
                                                id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
                                                aria-label="Enable Rule"
                                                value="{{ subsequence.id }}" checked/>
-                                        <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
+                                        <label class="no-outline" for="enabled_{{ subsequence.id }}"></label>
                                     </td>
                                     <td style="width:50%"><label class="form-group has-float-label">
                                         <input class="input is-rounded is-grayable" style="width:100%" type="text"
@@ -544,12 +544,13 @@
             <div class="columns has-no-padding-top">
                 <div class="column is-1">
                     <p>Send E-Mail</p>
-                    <label data-balloon="{% if user_id == None %}Log in to use Send2Mail{% else %}Send Result via E-Mail{% endif %}"
+                    <label data-balloon="{% if user_id == None %}Type in an email address to use this feature{% else %}Send Result via E-Mail{% endif %}"
                            data-balloon-pos="right">
                         <input type="checkbox" aria-label="Send Result to E-Mail instead of waiting for Output"
-                               id="send_email" {% if user_id == None %}disabled{% endif %}
+                               id="send_email"
                                class="switch is-rounded is-large button-fill no-outline" name="send_email"/>
                         <label for="send_email" class="no-outline"></label>
+                        <!-- {% if user_id == None %}disabled{% endif %} -->
                     </label>
                 </div>
                 <div class="column button-fill">
@@ -557,11 +558,10 @@
                             id="submit_seq_btn">Submit
                     </button>
                 </div>
-                <div class="column button-fill is-2">
-                    <button class="button is-large is-rounded button-fill has-margin-top-20" id="uploadFasta"
-                            onclick="upload();return false">Upload Fasta
-                    </button>
-                </div>
+            </div>
+            <div>
+                <input class="input" type="email" name="emailadd" id="emailadd" placeholder="Email"
+                       style="display:none;">
             </div>
         </form>
     </div>
@@ -700,7 +700,16 @@
             {%  if uuid != None %}
                 queryServer('{{ uuid }}');
             {% endif %}
-
+            {%  if user_id != None %}
+                user_id = {{user_id}};
+                setUser(user_id);
+            {% endif %}
+            $(window).keydown(function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    return false;
+                }
+            });
 
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) {
@@ -772,7 +781,17 @@
                     }
                     set_mod_seq_inf(sel, sel_start, sel_end);
                 }
+            });
+            $("#send_email").on("click", function (e) {
+                if ($("#send_email").is(":checked") && user_id == "") {
+                    $("#emailadd").show();
+                } else {
+                    $("#emailadd").val("");
+                    $("#emailadd").hide();
+                }
             })
+
         });
+
     </script>
 {% endblock %}
