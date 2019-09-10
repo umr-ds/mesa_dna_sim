@@ -9,6 +9,7 @@ from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
     MethodCategories, SequencingErrorRates
+from usersettings.delete import removeUser
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 
@@ -61,6 +62,40 @@ def setup():
         return redirect(url_for("main_page.main_index"))
 
 
+@main_page.route("/manage_users", methods=["GET", "POST"])
+@require_logged_in
+@require_admin
+def manage_users():
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    if request.method == "GET":
+        return jsonify([User.serialize(x) for x in User.query.all()])
+    else:
+        user_id = r_method.get('user_id')
+        do_delete = 'do_delete' in r_method and bool(r_method.get('do_delete'))
+        do_update = 'do_update' in r_method and bool(r_method.get('do_update'))
+        user = User.query.filter_by(user_id=user_id).first()
+        all_admins = User.query.filter_by(is_admin=True).all()
+        if do_delete and not do_update:
+            if user.is_admin and len(all_admins) == 1:
+                # we can not allow deletion of the last admin account!
+                return jsonify({'did_succeed': False})
+            return jsonify({'did_succeed': removeUser(user)})
+        elif do_update:
+            new_email = r_method.get('new_email')
+            validated = bool(r_method.get('validated'))
+            is_admin = bool(r_method.get('is_admin'))
+            user.email = new_email
+            user.validated = validated
+            user.is_admin = is_admin
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({'did_succeed': True})
+        return jsonify({'did_succeed': False})
+
+
 @main_page.route("/admin", methods=["GET"])
 # @require_logged_in
 @require_admin
@@ -88,10 +123,11 @@ def adminpage():
     seq_id_out = {}
     for x in seq_out:
         seq_id_out[int(x['id'])] = x
-
+    users = User.query.order_by(
+        asc(User.user_id)).all()
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
                            graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
-                           host=request.url_root), 200
+                           host=request.url_root, users=users), 200
 
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -321,7 +357,7 @@ def request_validation_c_error():
                 curr_error = db.session.query(q_class).filter_by(id=e_id).first()
                 requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
                 if requesting_user.user_id != user_id:
-                    send_mail("noreply@mosla.de", requesting_user.email,
+                    send_mail("noreply@mosla.de", [requesting_user.email],
                               "Your Error-Method '" + curr_error.name + "' has been validated!",
                               subject="[MOSLA] Validation Request")
                 curr_error.validated = True
@@ -338,7 +374,8 @@ def request_validation_c_error():
             return jsonify(
                 {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
                  'awaits_validation': curr_error.awaits_validation})
-        except:
+        except Exception as ex:
+            print(ex)
             return jsonify({'did_succeed': False})
     else:
         return jsonify({'did_succeed': False})
@@ -350,10 +387,7 @@ def apply_validation_subseq():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
-    validation_desc = request.form.get('validation_desc')
-    # sequence = sanitize_input(request.form.get('sequence'))
-    # error_prob = request.form.get('error_prob')
-    # description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
+    validation_desc = sanitize_input(request.form.get('validation_desc'), r'[^a-zA-Z0-9() ]')
     if user_id and user and sequence_id is not None:
         try:
             if user.is_admin:
@@ -811,7 +845,4 @@ def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
 
 def get_admin_mails():
     admins = User.query.filter_by(is_admin=True).all()
-    mails = []
-    for admin in admins:
-        mails.append(admin.email)
-    return mails
+    return [x.mail for x in admins]
