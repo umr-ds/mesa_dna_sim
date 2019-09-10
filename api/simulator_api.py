@@ -309,14 +309,13 @@ def do_all(r_method):
             manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
         else:
             seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed, conf=synth_meth_conf)
-            synthesis_error_seq = g.graph.nodes[0]['seq']
             # The code commented out is for visualization of sequencing and synthesis
             # methods seperated, it is inefficient - better to color the sequence
             # based on the final graph using the identifiers.
             # dc_g = deepcopy(g)
             # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
-            pcr_error(synthesis_error_seq, g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles = cycles)
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
+            pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
+            sequencing_error(g.graph.nodes[0]['seq'], g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
             # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
             # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
             # seq_html = htmlify(g_only_seq.get_lineages(), sequencing_error_seq, modification=True)
