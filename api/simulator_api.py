@@ -7,7 +7,7 @@ import uuid
 from threading import Thread
 from multiprocessing.pool import ThreadPool
 import os
-import RNAstructure
+#import RNAstructure
 import redis
 from flask import jsonify, request, Blueprint, current_app, copy_current_request_context, make_response
 from math import floor
@@ -242,7 +242,8 @@ def get_max_expect_file():
 
 def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
                       window=3):
-    if len(dna_str) > 4000:
+    #if len(dna_str) > 4000:
+    if True:
         return [basefilename, {'plain_dot': "Error: " + "Sequences longer than 4000 nt not supported"}]
     prev_wd = os.getcwd()
     os.chdir("/tmp")
@@ -579,7 +580,10 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
         if sequence[i] == " ":
             tmp_pos.append(i)
     for error in input:
-        for pos in range(error["startpos"], error["endpos"] + 1):
+        endpos = error["endpos"]
+        if endpos >= len(tmp):
+            endpos = len(tmp) - 1
+        for pos in range(error["startpos"], endpos + 1):
             tmp[pos] += error["errorprob"]
     res = []
     if sanger:
@@ -724,7 +728,7 @@ def build_html(res_list, reducesets=True):
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
-    return "<nobr>" + res + "</nobr>"
+    return "<pre>" + res + "</pre>"
 
 
 def colorize(error_prob):

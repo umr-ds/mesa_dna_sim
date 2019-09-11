@@ -699,17 +699,54 @@ let dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
-function set_mod_seq_inf(sel, sel_start, sel_end) {
-    let sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C')) / count_all(sel)) * 100;
-    sel_gc_con = Math.round(sel_gc_con * 100) / 100;
-    let sel_tm = get_tm(sel);
+function set_mod_seq_inf(sel_seq) {
+    let sel_pos = getSelectionCharacterOffsetWithin(document.getElementById("mod_seq"));
+    let sel_gc_con = get_gc_con(sel_seq);
+    let sel_tm = get_tm(sel_seq);
+    if (Number.isNaN(sel_gc_con)){
+        sel_gc_con = 0;
+    }
     if (sel_tm === -1) {
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_start + " End-Pos: " + sel_end;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_pos.start + " End-Pos: " + sel_pos.end;
     } else {
-        sel_tm = Math.round(sel_tm * 100) / 100;
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_start + " End-Pos: " + sel_end;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_pos.start + " End-Pos: " + sel_pos.end;
     }
 
+
+}
+
+function getSelectionCharacterOffsetWithin(element) {
+    let start = 0;
+    let end = 0;
+    let doc = element.ownerDocument || element.document;
+    let win = doc.defaultView || doc.parentWindow;
+    let sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            let range = win.getSelection().getRangeAt(0);
+            let preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.startContainer, range.startOffset);
+            start = preCaretRange.toString().length;
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            end = preCaretRange.toString().length;
+        }
+    } else if ( (sel = doc.selection) && sel.type != "Control") {
+        let textRange = sel.createRange();
+        let preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToStart", textRange);
+        start = preCaretTextRange.text.length;
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        end = preCaretTextRange.text.length;
+    }
+    return { start: start, end: end };
+}
+
+function get_gc_con(sel_seq){
+    let gc_con = ((count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) / count_all(sel_seq)) * 100;
+    return Math.round(gc_con * 100) / 100;
 }
 
 function count_char(sel_seq, char) {
@@ -735,12 +772,21 @@ function count_all(sel_seq) {
 
 function get_tm(sel_seq) {
     let tm = 0;
-    if (count_all(sel_seq) < 6) {
+    if (sel_seq.length < 6) {
         return -1;
-    } else if (6 <= count_all(sel_seq) < 14) {
+    }
+    else if (6 <= sel_seq.length < 14) {
         tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4
-    } else if (count_all(sel_seq) >= 14) {
-        tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
+    }
+    /*else if (count_all(sel_seq) >= 14) {
+        //tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
+        tm = 69.3 + (41*(count_char(sel_seq,'G') + count_char(sel_seq,'G'))/count_all(sel_seq)-(650/count_all(sel_seq)))
+    }*/
+    else if(sel_seq.length >= 14){
+        tm = calc_tm(sel_seq);
+    }
+    if(tm != -1){
+        tm = Math.round(tm * 100) / 100;
     }
     return tm;
 }
@@ -811,4 +857,126 @@ function deleteUserId(host, user_id, callback) {
             //TODO show error message on screen
         }
     });
+}
+
+/**
+ * Tm_calculation
+ *
+ *
+ *
+ *
+ *
+ */
+
+let TmSettings = {
+        Ct   : 250e-9,// DNA strand concentration
+        Na   : 50e-3,// Na+/K+ ion concentration. Default taken from Primer3
+        Mg   : 0,    // divalent salt concentration default taken from Primer3Web 2.3.6
+        dNTP : 0     // dNTP (denucleotide tri phosphate) default taken from Primer3Web 2.3.6
+};
+
+let dS = {},
+    dH = {},
+    init_GC_dH = 0.1 * 1000,
+    init_GC_dS = -2.8,
+    init_AT_dH = 2.3 * 1000,
+    init_AT_dS = 4.1,
+    sym_dS = -1.4,
+    /**
+     * molar gas constant
+     * R 8.314472 J mol-1 K-1
+     * Divided by 4.184 J / calorie for units:
+     * cal mol-1 K-1
+     */
+    R = 1.9872;
+
+
+function calc_tm(sel_seq){
+    init();
+    seq_len = sel_seq.length;
+    let self_comp = is_self_comp(sel_seq);
+    let dS_sum = calc_dS(sel_seq, self_comp);
+    let na_corr = TmSettings.Na + divalendToMonovalentCorrection(TmSettings.Mg, TmSettings.dNTP);
+    let salt_corr = (seq_len - 1) * 0.368 * Math.log(na_corr);
+    let dH_sum = calc_dH(sel_seq);
+    let h = is_self_comp ? 1.0 : 0.25;
+    return dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
+}
+
+function init(){
+    h('AA', -7.9, -22.2);
+    h('AT', -7.2, -20.4);
+    h('TA', -7.2, -21.3);
+    h('CA', -8.5, -22.7);
+    h('GT', -8.4, -22.4);
+    h('CT', -7.8, -21.0);
+    h('GA', -8.2, -22.2);
+    h('CG', -10.6, -27.2);
+    h('GC', -9.8, -24.4);
+    h('GG', -8.0, -19.9);
+}
+
+function h(seq, dH_val, dS_val)
+{
+    let rev = reverse_seq(get_comp_seq(seq));
+    dH[seq] = dH[rev] = dH_val * 1000;
+    dS[seq] = dS[rev] = dS_val;
+}
+
+function get_comp_base(base){
+    if(base === 'A') return 'T';
+    if(base === 'T') return 'A';
+    if(base === 'C') return 'G';
+    if(base === 'G') return 'C';
+}
+
+function get_comp_seq(seq){
+    let tmp_seq = [];
+    for(let i = 0; i < seq.length; i++){
+        tmp_seq.push(get_comp_base(seq.charAt(i)));
+    }
+    return tmp_seq.join("");
+}
+
+function reverse_seq(seq) {
+        return seq.split("").reverse().join("");
+}
+
+function is_self_comp(seq){
+    let comp_seq = get_comp_seq(seq);
+    for(let i = 0; i < seq.length; i++){
+        if(seq[i] !== comp_seq[seq.length-i]){
+            return false;
+        }
+    }
+    return true;
+}
+
+function divalendToMonovalentCorrection(divalent, monovalent){
+        return 12.0 / Math.sqrt(10) * Math.sqrt(Math.max(0, divalent - monovalent));
+}
+
+function calc_dS(seq, is_self_comp){
+    let first = seq[0];
+    let tmp_dS = first === 'A' || first === 'T' ? init_AT_dS : init_GC_dS;
+    for(let i = 0; i < seq.length - 1; ++i){
+        tmp_dS += dS[seq.substr(i, 2)];
+    }
+    let last = seq[seq.length - 1];
+    tmp_dS += last == 'A' || last == 'T' ? init_AT_dS : init_GC_dS;
+    if(is_self_comp){
+        tmp_dS += sym_dS;
+    }
+    return tmp_dS;
+}
+
+function calc_dH(seq){
+    let first = seq[0];
+    let tmp_dH = first === 'A' || first === 'T' ? init_AT_dH : init_GC_dH;
+    for(let i = 0; i < seq.length - 1; ++i){
+        tmp_dH += dH[seq.substr(i, 2)];
+    }
+    let last = seq[seq.length - 1];
+    tmp_dH += last == 'A' || last == 'T' ? init_AT_dH : init_GC_dH;
+    return tmp_dH;
 }

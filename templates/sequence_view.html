@@ -763,23 +763,17 @@
                     closeOverlay();
                 }
                 if (!$(event.target).closest("#mod_seq").length) {
-                    var element = document.getElementById("mod_seq");
-                    set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+                    let seq = document.getElementById("mod_seq").innerText;
+                    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + get_gc_con(seq) + "% Tm: " + get_tm(seq) + "°C Start-Pos: 0 End-Pos: " + seq.length;
                 }
                 if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
                     $("#validation_overlay").hide();
                 }
             });
             $("#mod_seq").on("click", function (e) {
-                var sel = "";
                 if (window.getSelection) {
-                    sel = window.getSelection().toString();
-                    var sel_start = window.getSelection().getRangeAt(0).startOffset + 1;
-                    var sel_end = sel_start;
-                    if (window.getSelection().toString().length !== 0) {
-                        sel_end = sel_start + window.getSelection().toString().length - 1;
-                    }
-                    set_mod_seq_inf(sel, sel_start, sel_end);
+                    let sel = window.getSelection().toString()
+                    set_mod_seq_inf(sel);
                 }
             });
             $("#send_email").on("click", function (e) {

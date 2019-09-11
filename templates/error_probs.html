@@ -18,8 +18,7 @@
                 {% if e_obj.id == "new" %}
                     <div class="column has-no-padding-top" style="flex: none;width: fit-content">
                         <button class="button"
-                                data-balloon="Add"
-                                data-balloon-pos="up" id="update_{{ mode }}_{{ e_obj.id }}"
+                                id="update_{{ mode }}_{{ e_obj.id }}"
                                 onclick="sendCustomError('{{ host }}', '{{ mode }}', 'new'); return false;">Add
                         </button>
                     </div>
@@ -50,9 +49,7 @@
                         </div>
                         <div class="column has-no-padding-bottom has-no-padding-top button-fill">
                             <button class="button button-fill" id="delete_{{ mode }}_{{ e_obj.id }}"
-                                    data-balloon="Created at: "
-                                    data-balloon-pos="up"
-                                    onclick='deleteCustomError("{{ host }}", "{{ mode }}" ,{{ e_obj.id }}); return false;'>Delete</button>
+                                   onclick='deleteCustomError("{{ host }}", "{{ mode }}" ,{{ e_obj.id }}); return false;'>Delete</button>
                         </div>
 
                     </div>
