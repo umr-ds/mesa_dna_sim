@@ -64,7 +64,7 @@
 }
 
 .roundclosebtn {
-    display:block;
+    display: block;
     height: 30px;
     width: 30px;
     border-radius: 100%;
@@ -125,9 +125,13 @@
     border-color: black;
 }
 
-  .container.is-fluid-mobile {
+.container.is-fluid-mobile {
     margin-left: 32px;
     margin-right: 32px;
     max-width: none;
     max-height: none;
-  }
+}
+
+pre {
+    min-height: 70px;
+}

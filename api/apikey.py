@@ -2,9 +2,8 @@ import time
 from functools import wraps
 import secrets
 
-from flask import request, abort, jsonify
+from flask import request, abort
 
-# @app.route("/get/<id_>")
 from database.db import db
 from database.models import Apikey
 

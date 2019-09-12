@@ -7,7 +7,13 @@ import uuid
 from threading import Thread
 from multiprocessing.pool import ThreadPool
 import os
-#import RNAstructure
+
+try:
+    import RNAstructure
+
+    rna_imported = True
+except ModuleNotFoundError:
+    rna_imported = False
 import redis
 from flask import jsonify, request, Blueprint, current_app, copy_current_request_context, make_response
 from math import floor
@@ -51,7 +57,7 @@ def do_homopolymer():
 
 @simulator_api.route('/api/gccontent', methods=['GET', 'POST'])
 @require_apikey
-def do_gccontent():
+def do_gc_content():
     """
     Takes the parameters from an uploaded config file or the website and calculates error probabilities for every base
     of the sequence based on the gc content in the whole sequence and windows that are set up by the configuration. The
@@ -149,11 +155,12 @@ def fasta_do_all_wrapper():
     This method wraps the do_multiple method (which works with multiline fasta files) to get the app context and allow
     the usage of mutliple threads to calculate the results faster. If a multiline fasta file is uploaded, the method
     gets a list with sequences and calls @do_all for every sequence in another thread. Every sequence gets a unique uuid
-    to access the results and an email with all uuids will be send to the user that uploaded the fasta file.
+    to access the results and an e_mail with all uuids will be send to the user that uploaded the fasta file.
     :return:
     """
+
     @copy_current_request_context
-    def do_multiple(lst, email, host):
+    def do_multiple(lst, e_mail, host):
         with current_app.app_context():
             cores = 2
             p = multiprocessing.Pool(cores)
@@ -168,7 +175,7 @@ def fasta_do_all_wrapper():
                 "@Your Mosla sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
                 list(res.json.values())[0]['res']['fastqOr'])
         fastq_text = "\n".join(fastq_str_list)
-        send_mail("noreply@mosla.de", [email], urls, subject="[MOSLA] Your DNA-Simulation finished",
+        send_mail("noreply@mosla.de", [e_mail], urls, subject="[MOSLA] Your DNA-Simulation finished",
                   attachment_txt=fastq_text, attachment_name="MOSLA.fastq")
 
     if request.method == 'POST':
@@ -242,8 +249,10 @@ def get_max_expect_file():
 
 def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
                       window=3):
-    #if len(dna_str) > 4000:
-    if True:
+    if not rna_imported:
+        return [basefilename, {
+            'plain_dot': "Error: " + "RNAstructure not imported correctly. Secondary Structure calculation not supported."}]
+    if len(dna_str) > 4000:
         return [basefilename, {'plain_dot': "Error: " + "Sequences longer than 4000 nt not supported"}]
     prev_wd = os.getcwd()
     os.chdir("/tmp")
@@ -285,7 +294,6 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
     my_cmd = pth + '../exe/draw ' + basefilename + '.ct ' + basefilename + '.ps -p ' + basefilename + '.pfs && ps2pdf ' + \
              basefilename + '.ps && ' + pth + '../exe/draw ' + basefilename + '.ct ' + basefilename + '.svg -p ' + \
              basefilename + '.pfs --svg -N 1'
-    # my_cmd = "pwd"
     print(os.system(my_cmd))
 
     file_content = {}
@@ -363,6 +371,7 @@ def do_all(r_method):
     :param r_method: Request to calculate the results for.
     :return: Jsonified results of the request.
     """
+
     def threaded_create_max_expect(sequence, basefilename, temp):
         return create_max_expect(sequence, basefilename=basefilename, temperature=temp, max_percent=10, gamma=1,
                                  max_structures=1, window=3)
@@ -598,7 +607,7 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
     if not sanger:
         for i in range(0, len(tmp)):
             if 0 < tmp[i] <= 1:
-                q_score = round((-10 * math.log((tmp[i]/(1-tmp[i])), 10)))
+                q_score = round((-10 * math.log((tmp[i] / (1 - tmp[i])), 10)))
             elif tmp[i] > 0 and tmp[i] > 1:
                 q_score = 0
             else:

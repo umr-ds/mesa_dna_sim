@@ -456,7 +456,6 @@ def update_subsequences():
             curr_sub_seq.sequence = sequence
             curr_sub_seq.validated = False
             curr_sub_seq.description = description
-
             # db.session.add(curr_sub_seq)
             db.session.commit()
             return jsonify(
@@ -490,7 +489,6 @@ def update_error_prob_charts():
                 curr_error_prob = ErrorProbability.query.filter_by(id=id).first()
             else:
                 curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
-
             if curr_error_prob is None or copy:
                 curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id,
                                                    type=type)
@@ -548,7 +546,6 @@ def get_error_prob_charts():
         typ = request.args.get('type')
     if typ is None:
         return jsonify({'did_succeed': False})
-
     try:
         if user_id and user:
             charts = ErrorProbability.query.filter(
@@ -560,8 +557,6 @@ def get_error_prob_charts():
                 asc(ErrorProbability.id)).all()
         return jsonify(
             {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
-
-        # return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
 
@@ -640,12 +635,10 @@ def add_seq_error_probs():
         synth_conf = request.json.get('data')
         asHTML = request.json.get('asHTML')
         if user_id and user and synth_conf is not None:
-
             # synth_conf = json.loads(synth_data)
             err_data = floatify(synth_conf['err_data'])
             err_attributes = floatify(synth_conf['err_attributes'])
             name = sanitize_input(synth_conf['name'])
-
             new_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
                                            err_data=err_data, err_attributes=err_attributes)
             db.session.add(new_seq)
@@ -660,7 +653,6 @@ def add_seq_error_probs():
             return jsonify(res)
         return jsonify({'did_succeed': False})
     except Exception as x:
-        raise x
         return jsonify({'did_succeed': False})
 
 
@@ -677,7 +669,6 @@ def add_synth_error_probs():
         synth_conf = request.json.get('data')
         asHTML = request.json.get('asHTML')
         if user_id and user and synth_conf is not None:
-
             # synth_conf = json.loads(synth_data)
             err_data = floatify(synth_conf['err_data'])
             err_attributes = floatify(synth_conf['err_attributes'])
@@ -698,7 +689,6 @@ def add_synth_error_probs():
             return jsonify(res)
         return jsonify({'did_succeed': False})
     except Exception as x:
-        raise x
         return jsonify({'did_succeed': False})
 
 
