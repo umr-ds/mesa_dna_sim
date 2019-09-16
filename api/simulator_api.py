@@ -28,6 +28,7 @@ from simulators.error_sources.kmer import kmer_counting
 from simulators.error_sources.undesired_subsequences import undesired_subsequences
 from simulators.sequencing.sequencing_error import SequencingError
 from simulators.error_graph import Graph
+from api.main_page import sanitize_input
 
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
@@ -377,6 +378,7 @@ def do_all(r_method):
                                  max_structures=1, window=3)
 
     # TODO
+    r_method = sanitize_json(r_method)
     # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
@@ -504,10 +506,71 @@ def do_all(r_method):
     return jsonify(res_all)
 
 
+def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
+    """
+    This methods takes the dictionary from the request and checks it for invalid values:
+    Probabilities for errors should be between 0.0 and 100.0, or 0.0 and 1.0.
+    The sequence and the subsequence should only contain allowed characters, ACGT by default.
+    The sum of the error probabilities of (customized) sequencing and synthesis methods shouldn't be greater than 1.0.
+    :param data: The dictionary to sanitize.
+    :param bases: The regex for allowed characters in the sequences.
+    :param max_y:
+    :param max_x:
+    :return: The sanitized dictionary.
+    """
+    for entry in data:
+        data_tmp = data.get(entry)
+        if type(data_tmp) == list:
+            for x in data_tmp:
+                sanitize_json(x, max_y=max_y, max_x=max_x)
+        elif type(data_tmp) == dict:
+            if entry == "gc_error_prob" or entry == "homopolymer_error_prob" or entry == "kmer_error_prob" or entry == 'error_prob':
+                sanitize_json(data_tmp, max_y=data_tmp.get('maxY', 100.0), max_x=data_tmp.get('maxX', 100.0))
+                max_x = max_y = 100.0
+            elif entry == "err_data":
+                tmp = 0.0
+                for prob in data_tmp:
+                    tmp += data_tmp.get(prob)
+            elif entry == "err_attributes":
+                for prob in data_tmp:
+                    tmp = 0.0
+                    data_tmp_prob = data_tmp.get(prob)
+                    if prob == 'insertion' or prob == 'deletion':
+                        for x in data_tmp_prob.get("pattern", []):
+                            tmp += data_tmp_prob.get("pattern").get(x)
+                        if tmp > 1.0:
+                            for x in data_tmp_prob.get("pattern"):
+                                data_tmp_prob.get("pattern").update({x: (data_tmp_prob.get("pattern").get(x)/tmp)})
+                    elif prob == 'mismatch':
+                        for x in data_tmp_prob.get('pattern', []):
+                            tmp = 0.0
+                            for y in data_tmp_prob.get('pattern').get(x):
+                                tmp += data_tmp_prob.get("pattern").get(x).get(y)
+                            if tmp > 1.0:
+                                for z in data_tmp_prob.get("pattern").get(x):
+                                    data_tmp_prob.get("pattern").get(x).update({z: (data_tmp_prob.get("pattern").get(x).get(z)/tmp)})
+            else:
+                sanitize_json(data_tmp)
+        elif type(data_tmp == str):
+            if entry == 'sequence':
+                data.update({entry: sanitize_input(data_tmp.upper(), bases)})
+            elif entry == 'error_prob':
+                data.update({entry: max(0.0, min(float(data_tmp), 100.0))})
+            elif 'windowsize' in entry:
+                data.update({entry: max(2, int(data_tmp))})
+            elif entry == 'x':
+                data.update({entry: max(0.0, min(float(data_tmp), max_x))})
+            elif entry == 'y':
+                data.update({entry: max(0.0, min(float(data_tmp), max_y))})
+            elif entry == 'temperature' or (entry == 'random_seed' and data_tmp is not ""):
+                data.update({entry: max(0.0, float(data_tmp))})
+    return data
+
+
 def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=None):
     """
     Either takes an uploaded configuration or gets the selected configuration by its ID from the database to build a
-    SequencingError object with the parameters. Calculates synthesis error and mutation probabilities of the sequence
+    SequencingError object with the parameters. Calculates synthesis errors and mutation probabilities of the sequence
     based on the configuration and returns the result.
     :param sequence: Sequence to calculate the synthesis error probabilites for.
     :param g: Graph to store the results.
