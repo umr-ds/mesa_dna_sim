@@ -165,6 +165,7 @@ def fasta_do_all_wrapper():
             cores = 2
             p = multiprocessing.Pool(cores)
             res_lst = p.map(do_all, lst)
+            p.close()
         urls = "Access your results at: "
         fastq_str_list = []
         for res in res_lst:
@@ -395,9 +396,10 @@ def do_all(r_method):
     do_max_expect = bool(r_method.get('do_max_expect'))
     if do_max_expect is None:
         do_max_expect = False
-    temp = float(r_method.get('temperature'))
+    temp = r_method.get('temperature')
     if temp is None:
         temp = 310.15
+    temp = float(temp)
     as_html = r_method.get('asHTML')
     res_all = {}
     if type(sequences) == str:
@@ -409,7 +411,7 @@ def do_all(r_method):
         async_res = None
         if do_max_expect:
             async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
-
+        pool.close()
         if enabled_undesired_seqs:
             try:
                 undesired_sequences = {}

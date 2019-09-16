@@ -254,7 +254,11 @@ function handleFileChange(evt) {
             file = evt.target.files[0];
         }
         let reader = new FileReader();
-        reader.readAsText(file);
+        try {
+            reader.readAsText(file);
+        } catch (e) {
+            return false;
+        }
         reader.onload = () => {
             try {
                 let text = reader.result;
@@ -300,9 +304,13 @@ function upload() {
 }
 
 function handleDragOver(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    try {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    } catch (e) {
+
+    }
 }
 
 function loadSendData(dta) {
@@ -655,11 +663,12 @@ function updateSynthDropdown(host, apikey, type) {
             }
         },
         success: function (data) {
+            let trash = document.getElementById('trash');
             let el = $('#synthmeth');
             el.empty(); // remove old options
             $.each(data['synth'], function (name) {
                 let elem = data['synth'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
+                let optgroup = $("<optgroup id='" + name + "' label='" + name + "'></optgroup>");
                 optgroup.appendTo(el);
                 $.each(elem, function (inner_id) {
                     let id = elem[inner_id]['id'];
@@ -667,12 +676,11 @@ function updateSynthDropdown(host, apikey, type) {
                     optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
             });
-
             let sel = $('#seqmeth');
             sel.empty(); // remove old options
             $.each(data['seq'], function (name) {
                 let elem = data['seq'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
+                let optgroup = $("<optgroup id='" + name + "'  label='" + name + "'></optgroup>");
                 optgroup.appendTo(sel);
                 $.each(elem, function (inner_id) {
                     let id = elem[inner_id]['id'];
@@ -680,6 +688,21 @@ function updateSynthDropdown(host, apikey, type) {
                     optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
             });
+
+            // make content draggable
+            [el, sel].forEach(function (elem) {
+                elem.children().each(function (x) {
+                    var asd = Sortable.create(elem.children()[x], {
+                        group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
+                        onEnd: function (evt) {
+                            if (evt.to === trash) {
+                                evt.to.children[evt.newIndex].remove();
+                            }
+                        }
+                    });
+                });
+            });
+
         },
         fail: function (data) {
             console.log(data)
@@ -703,7 +726,7 @@ function set_mod_seq_inf(sel_seq) {
     let sel_pos = getSelectionCharacterOffsetWithin(document.getElementById("mod_seq"));
     let sel_gc_con = get_gc_con(sel_seq);
     let sel_tm = get_tm(sel_seq);
-    if (Number.isNaN(sel_gc_con)){
+    if (Number.isNaN(sel_gc_con)) {
         sel_gc_con = 0;
     }
     if (sel_tm === -1) {
@@ -732,7 +755,7 @@ function getSelectionCharacterOffsetWithin(element) {
             preCaretRange.setEnd(range.endContainer, range.endOffset);
             end = preCaretRange.toString().length;
         }
-    } else if ( (sel = doc.selection) && sel.type != "Control") {
+    } else if ((sel = doc.selection) && sel.type != "Control") {
         let textRange = sel.createRange();
         let preCaretTextRange = doc.body.createTextRange();
         preCaretTextRange.moveToElementText(element);
@@ -741,10 +764,10 @@ function getSelectionCharacterOffsetWithin(element) {
         preCaretTextRange.setEndPoint("EndToEnd", textRange);
         end = preCaretTextRange.text.length;
     }
-    return { start: start, end: end };
+    return {start: start, end: end};
 }
 
-function get_gc_con(sel_seq){
+function get_gc_con(sel_seq) {
     let gc_con = ((count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) / count_all(sel_seq)) * 100;
     return Math.round(gc_con * 100) / 100;
 }
@@ -774,18 +797,17 @@ function get_tm(sel_seq) {
     let tm = 0;
     if (sel_seq.length < 6) {
         return -1;
-    }
-    else if (6 <= sel_seq.length < 14) {
+    } else if (6 <= sel_seq.length < 14) {
         tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4
     }
     /*else if (count_all(sel_seq) >= 14) {
         //tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
         tm = 69.3 + (41*(count_char(sel_seq,'G') + count_char(sel_seq,'G'))/count_all(sel_seq)-(650/count_all(sel_seq)))
     }*/
-    else if(sel_seq.length >= 14){
+    else if (sel_seq.length >= 14) {
         tm = calc_tm(sel_seq);
     }
-    if(tm != -1){
+    if (tm != -1) {
         tm = Math.round(tm * 100) / 100;
     }
     return tm;
@@ -869,10 +891,10 @@ function deleteUserId(host, user_id, callback) {
  */
 
 let TmSettings = {
-        Ct   : 250e-9,// DNA strand concentration
-        Na   : 50e-3,// Na+/K+ ion concentration. Default taken from Primer3
-        Mg   : 0,    // divalent salt concentration default taken from Primer3Web 2.3.6
-        dNTP : 0     // dNTP (denucleotide tri phosphate) default taken from Primer3Web 2.3.6
+    Ct: 250e-9,// DNA strand concentration
+    Na: 50e-3,// Na+/K+ ion concentration. Default taken from Primer3
+    Mg: 0,    // divalent salt concentration default taken from Primer3Web 2.3.6
+    dNTP: 0     // dNTP (denucleotide tri phosphate) default taken from Primer3Web 2.3.6
 };
 
 let dS = {},
@@ -891,7 +913,7 @@ let dS = {},
     R = 1.9872;
 
 
-function calc_tm(sel_seq){
+function calc_tm(sel_seq) {
     init();
     seq_len = sel_seq.length;
     let self_comp = is_self_comp(sel_seq);
@@ -903,7 +925,7 @@ function calc_tm(sel_seq){
     return dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
 }
 
-function init(){
+function init() {
     h('AA', -7.9, -22.2);
     h('AT', -7.2, -20.4);
     h('TA', -7.2, -21.3);
@@ -916,64 +938,63 @@ function init(){
     h('GG', -8.0, -19.9);
 }
 
-function h(seq, dH_val, dS_val)
-{
+function h(seq, dH_val, dS_val) {
     let rev = reverse_seq(get_comp_seq(seq));
     dH[seq] = dH[rev] = dH_val * 1000;
     dS[seq] = dS[rev] = dS_val;
 }
 
-function get_comp_base(base){
-    if(base === 'A') return 'T';
-    if(base === 'T') return 'A';
-    if(base === 'C') return 'G';
-    if(base === 'G') return 'C';
+function get_comp_base(base) {
+    if (base === 'A') return 'T';
+    if (base === 'T') return 'A';
+    if (base === 'C') return 'G';
+    if (base === 'G') return 'C';
 }
 
-function get_comp_seq(seq){
+function get_comp_seq(seq) {
     let tmp_seq = [];
-    for(let i = 0; i < seq.length; i++){
+    for (let i = 0; i < seq.length; i++) {
         tmp_seq.push(get_comp_base(seq.charAt(i)));
     }
     return tmp_seq.join("");
 }
 
 function reverse_seq(seq) {
-        return seq.split("").reverse().join("");
+    return seq.split("").reverse().join("");
 }
 
-function is_self_comp(seq){
+function is_self_comp(seq) {
     let comp_seq = get_comp_seq(seq);
-    for(let i = 0; i < seq.length; i++){
-        if(seq[i] !== comp_seq[seq.length-i]){
+    for (let i = 0; i < seq.length; i++) {
+        if (seq[i] !== comp_seq[seq.length - i]) {
             return false;
         }
     }
     return true;
 }
 
-function divalendToMonovalentCorrection(divalent, monovalent){
-        return 12.0 / Math.sqrt(10) * Math.sqrt(Math.max(0, divalent - monovalent));
+function divalendToMonovalentCorrection(divalent, monovalent) {
+    return 12.0 / Math.sqrt(10) * Math.sqrt(Math.max(0, divalent - monovalent));
 }
 
-function calc_dS(seq, is_self_comp){
+function calc_dS(seq, is_self_comp) {
     let first = seq[0];
     let tmp_dS = first === 'A' || first === 'T' ? init_AT_dS : init_GC_dS;
-    for(let i = 0; i < seq.length - 1; ++i){
+    for (let i = 0; i < seq.length - 1; ++i) {
         tmp_dS += dS[seq.substr(i, 2)];
     }
     let last = seq[seq.length - 1];
     tmp_dS += last == 'A' || last == 'T' ? init_AT_dS : init_GC_dS;
-    if(is_self_comp){
+    if (is_self_comp) {
         tmp_dS += sym_dS;
     }
     return tmp_dS;
 }
 
-function calc_dH(seq){
+function calc_dH(seq) {
     let first = seq[0];
     let tmp_dH = first === 'A' || first === 'T' ? init_AT_dH : init_GC_dH;
-    for(let i = 0; i < seq.length - 1; ++i){
+    for (let i = 0; i < seq.length - 1; ++i) {
         tmp_dH += dH[seq.substr(i, 2)];
     }
     let last = seq[seq.length - 1];
