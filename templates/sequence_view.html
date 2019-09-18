@@ -208,7 +208,7 @@
                     </div>
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom"></div>
-                <div class="column is-half is-full-touch">
+                <div class="column is-full is-full-touch">
                     <div class="columns is-multiline is-gapless">
                         <div class="column is-full">
                             <div class="columns is-gapless">
@@ -350,7 +350,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="column is-half is-full-touch">
+                <div class="column is-full is-full-touch">
                     <div class="columns">
                         <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40"
                              style="margin-top: 1.5rem">
@@ -459,7 +459,6 @@
                             </div>
                         </div>
                     </div>
-
                 </div>
             </div>
             <div class="columns has-no-padding-top">
@@ -483,7 +482,7 @@
                 <h3>Changes here wont be saved in your profile!</h3>
                 <br/>
                 <div style="text-align: left">Enabled:</div>
-                <div id="subseq_container">
+                <div id="subseq-container">
                     {% for subsequence in usubsequence %}
                         <div class="control" id="subseq_{{ subsequence.id }}">
                             <table>
@@ -806,11 +805,13 @@
                 }
             });
             $("#send_email").on("click", function (e) {
+                let email_txt = $("#emailadd");
                 if ($("#send_email").is(":checked") && user_id === "") {
-                    $("#emailadd").show();
+                    email_txt.show();
                 } else {
-                    $("#emailadd").val("");
-                    $("#emailadd").hide();
+
+                    email_txt.val("");
+                    email_txt.hide();
                 }
             });
 

@@ -95,7 +95,7 @@ function extractUndesiredToJson() {
 }
 
 function importUndesiredFromJson(json_in) {
-    let container = $('#subseq_container');
+    let container = $('#subseq-container');
     container.empty();
     let tmp = "";
     for (let id in json_in) {
@@ -418,6 +418,29 @@ function collectSendData(space) {
         kmer_error_prob = JSON5.parse(kmer_error_prob);
     let seq_meth = $("#seqmeth option:selected");
     let synth_meth = $("#synthmeth option:selected");
+
+
+    /* collect all error simulation elements in correct execution order */
+    let exec_order = $('#seqmeth1').children();
+    let exec_res = {};
+    exec_order.each(function (id, o_group) {
+        let tmp = [];
+        $(o_group).children().each(function (o_id, meth) {
+            let jmeth = $(meth);
+            tmp.push({
+                name: jmeth.text(),
+                id: jmeth.val(),
+                conf: {
+                    err_data: jmeth.data('err_data'),
+                    err_attributes: jmeth.data('err_attributes')
+                }
+            });
+        });
+        exec_res[o_group.label] = tmp;
+    });
+
+
+
     let email = "";
     if (user_id === "" && $('#send_email').is(':checked')) {
         if ($("#emailadd").val()) {
@@ -452,6 +475,7 @@ function collectSendData(space) {
             err_attributes: synth_meth.data('err_attributes')
         },
         synthesis_method_name: synth_meth.text(),
+        err_simulation_order: exec_res,
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
@@ -591,7 +615,7 @@ function queryServer(uuid) {
 
 
             let element = document.getElementById('mod_seq');
-            set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+            set_mod_seq_inf(element.innerText);
             if (data['result_by_mail'] === true) {
                 //TODO show info that the result will be send via mail
                 resultsbymail.css('display', 'initial');
