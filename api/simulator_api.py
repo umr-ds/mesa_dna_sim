@@ -3,6 +3,7 @@ import copy
 import json
 import math
 import multiprocessing
+import traceback
 import uuid
 from threading import Thread
 from multiprocessing.pool import ThreadPool
@@ -31,6 +32,15 @@ from simulators.sequencing.sequencing_error import SequencingError
 from simulators.error_graph import Graph
 
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
+
+
+@simulator_api.errorhandler(Exception)
+def handle_error(ex):
+    # TODO : send_mail() to a predefined e-mail or to all admins?:
+    print(request)
+    print(request.json)
+    print(request.args)
+    print(''.join(traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)))
 
 
 @simulator_api.route('/api/homopolymer', methods=['GET', 'POST'])
@@ -378,7 +388,7 @@ def do_all(r_method):
         return create_max_expect(sequence, basefilename=basefilename, temperature=temp, max_percent=10, gamma=1,
                                  max_structures=1, window=3)
 
-    # TODO
+    # TODO fix for advanced error simulation + pcr / storage
     # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
@@ -462,7 +472,7 @@ def do_all(r_method):
 
             # Storage / PCR:
             """
-            for meth in err_simulation_order['StoragePCR']:  # TODO rename at frontend
+            for meth in err_simulation_order['Storage/PCR']:  # TODO rename at frontend
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
                 seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,

@@ -377,75 +377,138 @@
                                 }"/>
                                 <label for="calcprobs" style="float:left" class="no-outline"></label>
                             </label>
+
+                            <p style="text-align:left;">Advanced Error-Simulation Settings</p>
+                            <label data-balloon="Use Calculated Error Probabilities"
+                                   data-balloon-pos="right" style="float: left">
+                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                       id="adv_exec"
+                                       class="switch is-rounded is-large button-fill no-outline"
+                                       onclick="let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
+                                    let adv_exec = $('#adv_err_settings');
+                                    if ($(this).is(':checked')) {
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    classic.hide();
+                                    adv_exec.show();
+                                } else if ($(this).not(':checked')){
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    classic.show();
+                                    adv_exec.hide();
+                                }"/>
+                                <label for="adv_exec" style="float:left" class="no-outline"></label>
+                            </label>
                         </div>
-                        <div class="column">
+                        <div id="classic_err_settings" class="column">
+                            <div id="classic_synth" class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-10 correspond to the error_correction id in the database -->
+                                    <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Synthesis Method">
+                                        <select class="select" id="classic_synthmeth">
+                                            <optgroup label="None">
+                                                <option value="0" selected>None</option>
+                                            </optgroup>
+                                            <optgroup label="Column synthesized oligos">
+                                                <option value="1">MutS</option>
+                                                <option value="2">Consensus shuffle</option>
+                                                <option value="3">ErrASE</option>
+                                                <option value="9">No error correction</option>
+                                            </optgroup>
+                                            <optgroup label="Microarray based oligo pools">
+                                                <option value="4">Oligo hybridization based</option>
+                                                <option value="5">High-temperature ligation/hybridization based
+                                                </option>
+                                                <option value="6">ErrASE</option>
+                                                <option value="7">Nuclease-based</option>
+                                                <option value="8">NGS-based</option>
+                                                <option value="10">No error correction</option>
+                                            </optgroup>
+                                            <optgroup label="User defined">
+                                                <option value="11">Error Rates</option>
+                                                <option value="12">Error Attributes</option>
+                                                <option value="13">Rates and Attributes</option>
+                                            </optgroup>
+                                        </select><span>Synthesis Method</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="classic_seq" class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-7 correspond to the submethod id in the database -->
+                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Sequencing Method">
+                                        <select class="select" id="classic_seqmeth">
+                                            <optgroup label="None">
+                                                <option value="0" selected>None</option>
+                                            </optgroup>
+                                            <optgroup label="Illumina">
+                                                <option value="1">Single End</option>
+                                                <option value="2">Paired End</option>
+                                            </optgroup>
+                                            <optgroup label="PacBio">
+                                                <option value="4">Subread</option>
+                                                <option value="3">CCS</option>
+                                            </optgroup>
+                                            <optgroup label="Nanopore">
+                                                <option value="5">1D</option>
+                                                <option value="6">2D</option>
+                                            </optgroup>
+                                            <optgroup label="User defined">
+                                                <option value="7">Error Rates</option>
+                                                <option value="8">Error Attributes</option>
+                                                <option value="9">Rates and Attributes</option>
+                                            </optgroup>
+                                        </select><span>Sequencing Method</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="adv_err_settings" class="column" style="display: none">
                             <div class="columns is-multiline">
-                                <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-10 correspond to the error_correction id in the database -->
-                                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Synthesis Method">
-                                            <select class="select" id="synthmetha">
-                                                <optgroup label="None">
-                                                    <option value="0" selected>None</option>
-                                                </optgroup>
-                                                <optgroup label="Column synthesized oligos">
-                                                    <option value="1">MutS</option>
-                                                    <option value="2">Consensus shuffle</option>
-                                                    <option value="3">ErrASE</option>
-                                                    <option value="9">No error correction</option>
-                                                </optgroup>
-                                                <optgroup label="Microarray based oligo pools">
-                                                    <option value="4">Oligo hybridization based</option>
-                                                    <option value="5">High-temperature ligation/hybridization based
-                                                    </option>
-                                                    <option value="6">ErrASE</option>
-                                                    <option value="7">Nuclease-based</option>
-                                                    <option value="8">NGS-based</option>
-                                                    <option value="10">No error correction</option>
-                                                </optgroup>
-                                                <optgroup label="User defined">
-                                                    <option value="11">Error Rates</option>
-                                                    <option value="12">Error Attributes</option>
-                                                    <option value="13">Rates and Attributes</option>
-                                                </optgroup>
-                                            </select><span>Synthesis Method</span>
-                                        </label>
+                                    <div id="adv_synth" class="column is-full-mobile is-half">
+                                        <label for="synthmeth"><p>Syntheis Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="synthmeth" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="nonee" label="None">
+                                            </optgroup>
+                                        </select>
                                     </div>
-                                </div>
-                                <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-7 correspond to the submethod id in the database -->
-                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Sequencing Method">
-                                            <select class="select" id="seqmethda">
-                                                <optgroup label="None">
-                                                    <option value="0" selected>None</option>
-                                                </optgroup>
-                                                <optgroup label="Illumina">
-                                                    <option value="1">Single End</option>
-                                                    <option value="2">Paired End</option>
-                                                </optgroup>
-                                                <optgroup label="PacBio">
-                                                    <option value="4">Subread</option>
-                                                    <option value="3">CCS</option>
-                                                </optgroup>
-                                                <optgroup label="Nanopore">
-                                                    <option value="5">1D</option>
-                                                    <option value="6">2D</option>
-                                                </optgroup>
-                                                <optgroup label="User defined">
-                                                    <option value="7">Error Rates</option>
-                                                    <option value="8">Error Attributes</option>
-                                                    <option value="9">Rates and Attributes</option>
-                                                </optgroup>
-                                            </select><span>Sequencing Method</span>
-                                        </label>
+                                    <div id="adv_seq" class="column is-full-mobile is-half">
+                                        <label for="seqmeth"><p>Sequencing Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="seqmeth" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="nonee" label="None">
+                                            </optgroup>
+                                        </select>
                                     </div>
-                                </div>
-                                <div class="column is-full">
+                                    <div id="adv_exec" class="column is-full-mobile is-full">
+                                        <label for="seqmeth1"><p>Execution Order</p></label>
+                                        <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="synthesis_sortable" label="Synthesis">
+                                            </optgroup>
+                                            <optgroup id="pcr_sortable" label="Storage/PCR">
+                                            </optgroup>
+                                            <optgroup id="sequencing_sortable" label="Sequencing">
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div id="adv_exec_trash" class="column is-full">
+                                        <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="column is-full">
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
@@ -456,9 +519,6 @@
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </div>
             <div class="columns has-no-padding-top">
@@ -563,33 +623,6 @@
                        style="display:none;">
             </div>
         </form>
-    </div>
-
-    <label for="synthmeth">Syntheis Methods</label>
-    <select class="select is-multiple is-rounded" id="synthmeth" size="7">
-        <optgroup id="nonee" label="None">
-        </optgroup>
-    </select>
-
-    <label for="seqmeth">Sequencing Methods</label><select class="select is-multiple is-rounded" id="seqmeth" size="7">
-    <optgroup id="nonee" label="None">
-    </optgroup>
-</select>
-
-
-    <label for="seqmeth1">Execution Order</label><select class="select is-multiple is-rounded" id="seqmeth1" size="7">
-    <optgroup id="synthesis_sortable" label="Synthesis">
-        <option value="0" selected>asdf</option>
-    </optgroup>
-    <optgroup id="storage_sortable" label="Storage">
-    </optgroup>
-    <optgroup id="pcr_sortable" label="PCR">
-    </optgroup>
-    <optgroup id="sequencing_sortable" label="Sequencing">
-    </optgroup>
-</select>
-    <div>
-        <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
     </div>
 
     <div id="results" style="display: none">
@@ -848,9 +881,9 @@
                     }
                 }
             });
-            let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
                 group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
+                onStart: function (/**Event/evt) {
                     if (!trash_svg) {
                         trash = document.getElementById('trash');
                         ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
@@ -862,7 +895,7 @@
                         evt.to.children[evt.newIndex].remove();
                     }
                 }
-            });
+            });*/
             let pcr_sortable = Sortable.create(document.getElementById('pcr_sortable'), {
                 group: {name: 'a', pull: true, put: true}, sort: true,
                 onStart: function (/**Event*/evt) {
