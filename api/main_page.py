@@ -9,7 +9,7 @@ from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
-    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates, PcrErrorRates
+    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates, PcrErrorRates, StorageErrorRates
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 
@@ -507,7 +507,8 @@ def get_synth_error_probs():
         return jsonify(
             {'did_succeed': True, 'synth': get_error_probs_dict(SynthesisErrorRates, user_id, flat, methods),
              'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods),
-             'pcr': get_error_probs_dict(PcrErrorRates, user_id, flat, methods), 'methods': methods})
+             'pcr': get_error_probs_dict(PcrErrorRates, user_id, flat, methods),
+             'storage': get_error_probs_dict(StorageErrorRates, user_id, flat, methods), 'methods': methods})
         # else:
         #    return jsonify({'did_succeed': False})
     except Exception as x:

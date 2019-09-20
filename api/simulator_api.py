@@ -11,7 +11,7 @@ from flask import jsonify, request, Blueprint, flash, current_app, copy_current_
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, Apikey, User
+from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, StorageErrorRates, Apikey, User
 from database.db import db
 from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
@@ -254,6 +254,9 @@ def do_all(r_method):
     pcr_meth = r_method.get('pcr_method')
     cycles = r_method.get('pcr_cycles')
     pcr_meth_conf = r_method.get('pcr_method_conf')
+    storage_meth = r_method.get('storage_method')
+    months = r_method.get('storage_months')
+    storage_meth_conf = r_method.get('storage_method_conf')
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -315,6 +318,7 @@ def do_all(r_method):
             # dc_g = deepcopy(g)
             # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
             pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
+            storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
             sequencing_error(g.graph.nodes[0]['seq'], g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
             # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
             # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
@@ -383,6 +387,7 @@ def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None, cycles=1):
     :param pcr_meth: Selected polymerase.
     :param process: "pcr"
     :param conf: Uploaded configuration, None by default.
+    :param cycles: Amount of cycles to be simulated.
     :return: Synthesis error probabilities for the sequence.
     """
     if conf is None:
@@ -394,11 +399,35 @@ def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None, cycles=1):
     else:
         err_rate_pcr = conf['err_data']
         err_att_pcr = conf['err_attributes']
-        # cycles = conf['pcr_cycles']
-        # doublecheck if I don't have to normalize the multiplicative error prob based on the cycles
     err_rate_pcr['raw_rate'] = err_rate_pcr['raw_rate'] * int(cycles)
     pcr_err = SequencingError(sequence, g, process, err_att_pcr, err_rate_pcr, seed=seed)
     return pcr_err.lit_error_rate_mutations()
+
+
+def storage_error(sequence, g, storage_meth, seed, process="storage", conf=None, months=1):
+    """
+    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
+    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param sequence: Sequence to calculate the synthesis error probabilites for.
+    :param g: Graph to store the results.
+    :param storage_meth: Selected storage host.
+    :param months: duration of the simulated storage process.
+    :param process: "storage"
+    :param conf: Uploaded configuration, None by default.
+    :return: Synthesis error probabilities for the sequence.
+    """
+    if conf is None:
+        tmp = StorageErrorRates.query.filter(
+            StorageErrorRates.id == int(storage_meth)).first()
+        err_rate_storage = tmp.err_data
+        err_att_storage = tmp.err_attributes
+        months = months
+    else:
+        err_rate_storage = conf['err_data']
+        err_att_storage = conf['err_attributes']
+    err_rate_storage['raw_rate'] = err_rate_storage['raw_rate'] * int(months)
+    storage_err = SequencingError(sequence, g, process, err_att_storage, err_rate_storage, seed=seed)
+    return storage_err.lit_error_rate_mutations()
 
 
 def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):
