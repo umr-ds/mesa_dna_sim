@@ -208,7 +208,27 @@ $(document).ready(function () {
         event.preventDefault();
         queryServer(undefined);
     });
+    set_listener();
 });
+
+function set_listener(){
+    $('[name="sequence"]').each(function (e, elem) {
+        $(elem).on("paste klick change keyup", function (f) {
+            setTimeout(function(g){
+                let data = $(elem).val();
+                $(elem).val(data.replace(/[^ACGT]/gi, "").toUpperCase());
+            });
+        });
+    });
+    $('[name="error_prob"]').each(function (e, elem) {
+        $(elem).on("paste klick change keyup", function (f) {
+            setTimeout(function(g){
+                let data = $(elem).val();
+                $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
+            });
+        });
+    });
+}
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
 function download(text, name, type) {
@@ -749,8 +769,8 @@ dropZone.addEventListener('drop', handleFileChange, false);
 function set_mod_seq_inf(sel_seq) {
     let sel_pos = getSelectionCharacterOffsetWithin(document.getElementById("mod_seq"));
     let sel_gc_con = get_gc_con(sel_seq);
-    let sel_tm = get_tm(sel_seq);
-    if (Number.isNaN(sel_gc_con)) {
+    let sel_tm = calc_tm(sel_seq);
+    if (Number.isNaN(sel_gc_con)){
         sel_gc_con = 0;
     }
     if (sel_tm === -1) {
@@ -817,25 +837,6 @@ function count_all(sel_seq) {
     return count;
 }
 
-function get_tm(sel_seq) {
-    let tm = 0;
-    if (sel_seq.length < 6) {
-        return -1;
-    } else if (6 <= sel_seq.length < 14) {
-        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4
-    }
-    /*else if (count_all(sel_seq) >= 14) {
-        //tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
-        tm = 69.3 + (41*(count_char(sel_seq,'G') + count_char(sel_seq,'G'))/count_all(sel_seq)-(650/count_all(sel_seq)))
-    }*/
-    else if (sel_seq.length >= 14) {
-        tm = calc_tm(sel_seq);
-    }
-    if (tm != -1) {
-        tm = Math.round(tm * 100) / 100;
-    }
-    return tm;
-}
 
 function updateUserId(host, u_id, callback) {
     if (callback === undefined)
@@ -937,16 +938,26 @@ let dS = {},
     R = 1.9872;
 
 
-function calc_tm(sel_seq) {
-    init();
-    seq_len = sel_seq.length;
-    let self_comp = is_self_comp(sel_seq);
-    let dS_sum = calc_dS(sel_seq, self_comp);
-    let na_corr = TmSettings.Na + divalendToMonovalentCorrection(TmSettings.Mg, TmSettings.dNTP);
-    let salt_corr = (seq_len - 1) * 0.368 * Math.log(na_corr);
-    let dH_sum = calc_dH(sel_seq);
-    let h = is_self_comp ? 1.0 : 0.25;
-    return dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
+function calc_tm(sel_seq){
+    let tm = 0;
+    let seq_len = sel_seq.length;
+    if(seq_len < 6){
+        return -1;
+    }
+    else if(seq_len < 14){
+        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4;
+    }
+    else if(14 <= seq_len) {
+        init();
+        let self_comp = is_self_comp(sel_seq);
+        let dS_sum = calc_dS(sel_seq, self_comp);
+        let na_corr = TmSettings.Na + divalendToMonovalentCorrection(TmSettings.Mg, TmSettings.dNTP);
+        let salt_corr = (seq_len - 1) * 0.368 * Math.log(na_corr);
+        let dH_sum = calc_dH(sel_seq);
+        let h = is_self_comp ? 1.0 : 0.25;
+        tm = dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
+    }
+    return Math.round(tm * 100) / 100;
 }
 
 function init() {

@@ -825,7 +825,7 @@
                 }
                 if (!$(event.target).closest("#mod_seq").length) {
                     let seq = document.getElementById("mod_seq").innerText;
-                    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + get_gc_con(seq) + "% Tm: " + get_tm(seq) + "°C Start-Pos: 0 End-Pos: " + seq.length;
+                    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + get_gc_con(seq) + "% Tm: " + calc_tm(seq) + "°C Start-Pos: 0 End-Pos: " + seq.length;
                 }
                 if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
                     $("#validation_overlay").hide();
@@ -847,7 +847,7 @@
                     email_txt.hide();
                 }
             });
-
+        });
 
             $('#seqmeth1').bind('keyup', function (e) {
                 if (e.which === 46 || e.which === 8) {
