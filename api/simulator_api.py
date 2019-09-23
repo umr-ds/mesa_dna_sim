@@ -3,10 +3,12 @@ import copy
 import json
 import math
 import multiprocessing
+import traceback
 import uuid
 from threading import Thread
 from multiprocessing.pool import ThreadPool
 import os
+import numpy as np
 
 try:
     import RNAstructure
@@ -31,6 +33,15 @@ from simulators.error_graph import Graph
 from api.main_page import sanitize_input
 
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
+
+
+@simulator_api.errorhandler(Exception)
+def handle_error(ex):
+    # TODO : send_mail() to a predefined e-mail or to all admins?:
+    print(request)
+    print(request.json)
+    print(request.args)
+    print(''.join(traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)))
 
 
 @simulator_api.route('/api/homopolymer', methods=['GET', 'POST'])
@@ -166,6 +177,7 @@ def fasta_do_all_wrapper():
             cores = 2
             p = multiprocessing.Pool(cores)
             res_lst = p.map(do_all, lst)
+            p.close()
         urls = "Access your results at: "
         fastq_str_list = []
         for res in res_lst:
@@ -377,8 +389,9 @@ def do_all(r_method):
         return create_max_expect(sequence, basefilename=basefilename, temperature=temp, max_percent=10, gamma=1,
                                  max_structures=1, window=3)
 
-    # TODO
+
     r_method = sanitize_json(r_method)
+    # TODO fix for advanced error simulation + pcr / storage
     # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
@@ -388,19 +401,18 @@ def do_all(r_method):
     seq_meth_conf = r_method.get('sequence_method_conf')
     synth_meth = r_method.get('synthesis_method')
     synth_meth_conf = r_method.get('synthesis_method_conf')
+
+    err_simulation_order = r_method.get('err_simulation_order')
+
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
     use_error_probs = r_method.get('use_error_probs')
     seed = r_method.get('random_seed')
-    seed = int(seed) if seed else None
-    do_max_expect = bool(r_method.get('do_max_expect'))
-    if do_max_expect is None:
-        do_max_expect = False
-    temp = float(r_method.get('temperature'))
-    if temp is None:
-        temp = 310.15
-    as_html = r_method.get('asHTML')
+    seed = np.uint32(np.float(seed) % 4294967296) if seed else None
+    do_max_expect = bool(r_method.get('do_max_expect', False))
+    temp = float(r_method.get('temperature', 310.15))
+    as_html = r_method.get('asHTML', False)
     res_all = {}
     if type(sequences) == str:
         sequences = [sequences]
@@ -411,13 +423,13 @@ def do_all(r_method):
         async_res = None
         if do_max_expect:
             async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
-
+        pool.close()
         if enabled_undesired_seqs:
             try:
                 undesired_sequences = {}
                 for useq in enabled_undesired_seqs:
                     if useq['enabled']:
-                        undesired_sequences[useq['sequence']] = float(useq['error_prob'])
+                        undesired_sequences[useq['sequence']] = float(useq['error_prob']) / 100.0
                 res = undesired_subsequences(sequence, undesired_sequences)
             except:
                 res = undesired_subsequences(sequence)
@@ -454,14 +466,34 @@ def do_all(r_method):
         if use_error_probs:
             manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
         else:
-            seed = synthesis_error(sequence, g, synth_meth, process="synthesis", seed=seed, conf=synth_meth_conf)
-            synthesis_error_seq = g.graph.nodes[0]['seq']
+            # Syntehsis:
+            for meth in err_simulation_order['Synthesis']:
+                # we want to permutate the seed because a user might want to use the same ruleset multiple times and
+                # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
+                seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,
+                                        conf=meth['conf']) + 1) % 4294967296  # + "_" + meth['name']
+
+            # Storage / PCR:
+            """
+            for meth in err_simulation_order['Storage/PCR']:  # TODO rename at frontend
+                # we want to permutate the seed because a user might want to use the same ruleset multiple times and
+                # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
+                seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,
+                                        conf=meth['conf']) + 1) % 4294967296  # TODO rename 'process="..."'
+            """
+            # Storage / PCR:
+            for meth in err_simulation_order['Sequencing']:
+                # we want to permutate the seed because a user might want to use the same ruleset multiple times and
+                # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
+                seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="sequencing", seed=seed,
+                                        conf=meth['conf']) + 1) % 4294967296  # + "_" + meth['name']
+
             # The code commented out is for visualization of sequencing and synthesis
             # methods seperated, it is inefficient - better to color the sequence
             # based on the final graph using the identifiers.
             # dc_g = deepcopy(g)
             # synth_html = htmlify(dc_g.get_lineages(), synthesis_error_seq, modification=True)
-            sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
+            # sequencing_error(synthesis_error_seq, g, seq_meth, process="sequencing", seed=seed, conf=seq_meth_conf)
             # sequencing_error(synthesis_error_seq, g_only_seq, seq_meth, process="sequencing", seed=seed)
             # sequencing_error_seq = g_only_seq.graph.nodes[0]['seq']
             # seq_html = htmlify(g_only_seq.get_lineages(), sequencing_error_seq, modification=True)
@@ -483,7 +515,7 @@ def do_all(r_method):
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
                            'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed),
-                           'maxexpectid': basefilename, 'dot_seq': "<nobr>" + plain_dot + "</nobr>"},
+                           'maxexpectid': basefilename, 'dot_seq': "<pre>" + plain_dot + "</pre>"},
                    'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
             res = {
