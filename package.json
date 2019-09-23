@@ -6,6 +6,7 @@
   "private": true,
   "dependencies": {
     "bulma": "^0.7.5",
+    "bulma-divider": "^0.2.0",
     "bulma-switch": "^2.0.0",
     "canvas2svg": "^1.0.16",
     "chart.js": "^2.8.0",

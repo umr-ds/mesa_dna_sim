@@ -394,6 +394,7 @@
                                     synth.val(0).prop('disabled', true);
                                     classic.hide();
                                     adv_exec.show();
+                                    initListsDnD();
                                 } else if ($(this).not(':checked')){
                                     seq.val(0).prop('disabled', false);
                                     synth.val(0).prop('disabled', false);
@@ -474,51 +475,51 @@
                         </div>
                         <div id="adv_err_settings" class="column" style="display: none">
                             <div class="columns is-multiline">
-                                    <div id="adv_synth" class="column is-full-mobile is-half">
-                                        <label for="synthmeth"><p>Syntheis Methods</p></label>
-                                        <select class="select is-multiple is-rounded" id="synthmeth" size="7"
-                                                style="width: 100%">
-                                            <optgroup id="nonee" label="None">
-                                            </optgroup>
-                                        </select>
-                                    </div>
-                                    <div id="adv_seq" class="column is-full-mobile is-half">
-                                        <label for="seqmeth"><p>Sequencing Methods</p></label>
-                                        <select class="select is-multiple is-rounded" id="seqmeth" size="7"
-                                                style="width: 100%">
-                                            <optgroup id="nonee" label="None">
-                                            </optgroup>
-                                        </select>
-                                    </div>
-                                    <div id="adv_exec" class="column is-full-mobile is-full">
-                                        <label for="seqmeth1"><p>Execution Order</p></label>
-                                        <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
-                                                style="width: 100%">
-                                            <optgroup id="synthesis_sortable" label="Synthesis">
-                                            </optgroup>
-                                            <optgroup id="pcr_sortable" label="Storage/PCR">
-                                            </optgroup>
-                                            <optgroup id="sequencing_sortable" label="Sequencing">
-                                            </optgroup>
-                                        </select>
-                                    </div>
-                                    <div id="adv_exec_trash" class="column is-full">
-                                        <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
-                                    </div>
+                                <div id="adv_synth" class="column is-full-mobile is-half">
+                                    <label for="synthmeth"><p>Syntheis Methods</p></label>
+                                    <select class="select is-multiple is-rounded" id="synthmeth" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="nonee" label="None">
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="adv_seq" class="column is-full-mobile is-half">
+                                    <label for="seqmeth"><p>Sequencing Methods</p></label>
+                                    <select class="select is-multiple is-rounded" id="seqmeth" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="nonee" label="None">
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="adv_exec" class="column is-full-mobile is-full">
+                                    <label for="seqmeth1"><p>Execution Order</p></label>
+                                    <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="synthesis_sortable" label="Synthesis">
+                                        </optgroup>
+                                        <optgroup id="pcr_sortable" label="Storage/PCR">
+                                        </optgroup>
+                                        <optgroup id="sequencing_sortable" label="Sequencing">
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="adv_exec_trash" class="column is-full">
+                                    <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="column is-full">
-                                    <div class="field">
-                                        <div class="control">
-                                            <label class="form-group has-float-label">
-                                                <input class="input is-rounded" type=number rows="1" id="seed"
-                                                       placeholder="Random" min="0" step="1"/>
-                                                <span>Seed</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <input class="input is-rounded" type=number rows="1" id="seed"
+                                           placeholder="Random" min="0" step="1"/>
+                                    <span>Seed</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="columns has-no-padding-top">
@@ -849,94 +850,19 @@
             });
         });
 
-            $('#seqmeth1').bind('keyup', function (e) {
-                if (e.which === 46 || e.which === 8) {
-                    $('#seqmeth1 :selected').remove();
-                    // or your stuff here...
-                }
-            });
-            let trash = document.getElementById('trash');
-            let ssort;
-            let trash_svg = false;
-            let source = document.getElementById('nonee');
-            let sortable = Sortable.create(source, {
-                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            let synthesis_sortable = Sortable.create(document.getElementById('synthesis_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });*/
-            let pcr_sortable = Sortable.create(document.getElementById('pcr_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            let sequencing_sortable = Sortable.create(document.getElementById('sequencing_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-
-            $('#seqmeth').children().each(function (x) {
-                var asd = Sortable.create($('#seqmeth').children()[x], {
-                    group: {name: 'a', pull: true, put: true}, sort: true,
-                    onEnd: function (evt) {
-                        if (evt.to === trash) {
-                            evt.to.children[evt.newIndex].remove();
-                        }
-                    }
-                });
-            });
+        $('#seqmeth1').bind('keyup', function (e) {
+            if (e.which === 46 || e.which === 8) {
+                $('#seqmeth1 :selected').remove();
+                // or your stuff here...
+            }
         });
+
+        /*
+        let adv_exec = $('#adv_err_settings');
+        adv_exec.show();
+        initListsDnD();
+        adv_exec.hide();
+        */
+
     </script>
 {% endblock %}
