@@ -208,6 +208,7 @@ $(document).ready(function () {
         event.preventDefault();
         queryServer(undefined);
     });
+    $('#informationcontainer').hide();
     set_listener();
 });
 
@@ -436,30 +437,45 @@ function collectSendData(space) {
     let kmer_error_prob = kmer_dropdown_select.data('jsonblob');
     if (typeof (kmer_error_prob) === "string")
         kmer_error_prob = JSON5.parse(kmer_error_prob);
-    let seq_meth = $("#seqmeth option:selected");
-    let synth_meth = $("#synthmeth option:selected");
 
-
-    /* collect all error simulation elements in correct execution order */
-    let exec_order = $('#seqmeth1').children();
+    let adv_meth = $("#adv_exec");
+    let seq_meth, synth_meth;
     let exec_res = {};
-    exec_order.each(function (id, o_group) {
-        let tmp = [];
-        $(o_group).children().each(function (o_id, meth) {
-            let jmeth = $(meth);
-            tmp.push({
-                name: jmeth.text(),
-                id: jmeth.val(),
-                conf: {
-                    err_data: jmeth.data('err_data'),
-                    err_attributes: jmeth.data('err_attributes')
-                }
+    if(adv_meth.prop("checked")){
+        seq_meth = $("#seqmeth option:selected");
+        synth_meth = $("#synthmeth option:selected");
+        /* collect all error simulation elements in correct execution order */
+        let exec_order = $('#seqmeth1').children();
+        exec_order.each(function (id, o_group) {
+            let tmp = [];
+            $(o_group).children().each(function (o_id, meth) {
+                let jmeth = $(meth);
+                tmp.push({
+                    name: jmeth.text(),
+                    id: jmeth.val(),
+                    conf: {
+                        err_data: jmeth.data('err_data'),
+                        err_attributes: jmeth.data('err_attributes')
+                    }
+                });
             });
+            exec_res[o_group.label] = tmp;
         });
-        exec_res[o_group.label] = tmp;
-    });
-
-
+    }
+    else{
+        seq_meth = $("#classic_seqmeth option:selected");
+        synth_meth = $("#classic_synthmeth option:selected");
+        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing']].forEach(function (meth) {
+            exec_res[meth[1]] = [{
+                name: meth[0].text(),
+                id: meth[0].val(),
+                conf: {
+                    err_data: meth[0].data('err_data'),
+                    err_attributes: meth[0].data('err_attributes')
+                }
+            }];
+        })
+    }
 
     let email = "";
     if (user_id === "" && $('#send_email').is(':checked')) {
@@ -708,33 +724,24 @@ function updateSynthDropdown(host, apikey, type) {
         },
         success: function (data) {
             let trash = document.getElementById('trash');
-            let el = $('#synthmeth');
-            el.empty(); // remove old options
-            $.each(data['synth'], function (name) {
-                let elem = data['synth'][name];
-                let optgroup = $("<optgroup id='" + name + "' label='" + name + "'></optgroup>");
-                optgroup.appendTo(el);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
-                });
-            });
-            let sel = $('#seqmeth');
-            sel.empty(); // remove old options
-            $.each(data['seq'], function (name) {
-                let elem = data['seq'][name];
-                let optgroup = $("<optgroup id='" + name + "'  label='" + name + "'></optgroup>");
-                optgroup.appendTo(sel);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
-                });
+            let methods = [['synth', '#synthmeth'], ['synth', '#classic_synthmeth'], ['seq', '#seqmeth'], ['seq', '#classic_seqmeth']];
+            methods.forEach(function (method) {
+                let el = $(method[1]);
+                el.empty();
+                $.each(data[method[0]], function (name) {
+                    let elem = data[method[0]][name];
+                    let optgroup = $("<optgroup id='" + name + "' label='" + name + "'></optgroup>");
+                    optgroup.appendTo(el);
+                    $.each(elem, function (inner_id) {
+                        let id = elem[inner_id]['id'];
+                        let id_name = "" + name + "_" + id;
+                        optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                    });
+                })
             });
 
             // make content draggable
-            [el, sel].forEach(function (elem) {
+            [$('#synthmeth'), $('#seqmeth')].forEach(function (elem) {
                 elem.children().each(function (x) {
                     var asd = Sortable.create(elem.children()[x], {
                         group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
@@ -746,7 +753,6 @@ function updateSynthDropdown(host, apikey, type) {
                     });
                 });
             });
-
         },
         fail: function (data) {
             console.log(data)
@@ -940,6 +946,7 @@ let dS = {},
 
 function calc_tm(sel_seq){
     let tm = 0;
+    sel_seq = sel_seq.replace(/ /g, "");
     let seq_len = sel_seq.length;
     if(seq_len < 6){
         return -1;
