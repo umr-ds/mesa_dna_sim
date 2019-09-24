@@ -213,7 +213,7 @@
                 <div class="column is-full">
                     <input type="checkbox" id="spoiler"/>
                     <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
-                Subsequences</label>
+                Undesired Motifs</label>
                     <div class="spoiler">
                 <h3>Changes here wont be saved in your profile!</h3>
                 <br/>
@@ -548,7 +548,7 @@
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
                                         <!-- or intercept these values before the database request.  -->
                                         <label class="form-group has-float-label" aria-label="PCR Polymerase">
-                                            <select class="select" id="pcrmeth">
+                                            <select class="select" id="classic_pcrmeth">
                                                 <option value="0" selected>None</option>
                                                 <option value="1">Taq</option>
                                                 <option value="2">Pfu</option>
@@ -583,7 +583,7 @@
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
                                         <!-- or intercept these values before the database request.  -->
                                         <label class="form-group has-float-label" aria-label="Storage">
-                                            <select class="select" id="storagemeth">
+                                            <select class="select" id="classic_storagemeth">
                                                 <option value="0" selected>None</option>
                                                 <option value="1">H. sapiens</option>
                                                 <option value="2">M. musculus</option>
@@ -647,37 +647,75 @@
                         </div>
                         <div id="adv_err_settings" class="column" style="display: none">
                             <div class="columns is-multiline">
-                                    <div id="adv_synth" class="column is-full-mobile is-half">
-                                        <label for="synthmeth"><p>Synthesis Methods</p></label>
-                                        <select class="select is-multiple is-rounded" id="synthmeth" size="7"
+                                <div id="adv_synth" class="column is-full-mobile is-half">
+                                    <label for="synthmeth"><p>Synthesis Methods</p></label>
+                                    <select class="select is-multiple is-rounded" id="synthmeth" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="nonee" label="None">
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="adv_seq" class="column is-full-mobile is-half">
+                                    <label for="seqmeth"><p>Sequencing Methods</p></label>
+                                    <select class="select is-multiple is-rounded" id="seqmeth" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="nonee" label="None">
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="adv_storage" class="column is-full-mobile is-half">
+                                        <label for="storagemeth"><p>Storage Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="storagemeth" size="7"
                                                 style="width: 100%">
                                             <optgroup id="nonee" label="None">
                                             </optgroup>
                                         </select>
                                     </div>
-                                    <div id="adv_seq" class="column is-full-mobile is-half">
-                                        <label for="seqmeth"><p>Sequencing Methods</p></label>
-                                        <select class="select is-multiple is-rounded" id="seqmeth" size="7"
+                                <div id="adv_pcr" class="column is-full-mobile is-half">
+                                        <label for="pcrmeth"><p>PCR Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="pcrmeth" size="7"
                                                 style="width: 100%">
                                             <optgroup id="nonee" label="None">
                                             </optgroup>
                                         </select>
                                     </div>
-                                    <div id="adv_exec" class="column is-full-mobile is-full">
-                                        <label for="seqmeth1"><p>Execution Order</p></label>
-                                        <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
-                                                style="width: 100%">
-                                            <optgroup id="synthesis_sortable" label="Synthesis">
-                                            </optgroup>
-                                            <optgroup id="pcr_sortable" label="Storage/PCR">
-                                            </optgroup>
-                                            <optgroup id="sequencing_sortable" label="Sequencing">
-                                            </optgroup>
-                                        </select>
+                                <div class="column is-full-mobile is-half">
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="form-group has-float-label">
+                                                <input class="input is-rounded" type=number rows="1" id="mon"
+                                                       value="1" min="1" step="1"/>
+                                                <span>Month (Storage)</span>
+                                            </label>
+                                        </div>
                                     </div>
-                                    <div id="adv_exec_trash" class="column is-full">
-                                        <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
+                                </div>
+                                <div class="column is-full-mobile is-half">
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="form-group has-float-label">
+                                                <input class="input is-rounded" type=number rows="1" id="cyc"
+                                                       value="1" min="1" step="1"/>
+                                                <span>Cycles (PCR)</span>
+                                            </label>
+                                        </div>
                                     </div>
+                                </div>
+                                <div id="adv_exec" class="column is-full-mobile is-full">
+                                    <label for="seqmeth1"><p>Execution Order</p></label>
+                                    <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="synthesis_sortable" label="Synthesis">
+                                        </optgroup>
+                                        <optgroup id="pcr_sortable" label="Storage/PCR">
+                                        </optgroup>
+                                        <optgroup id="sequencing_sortable" label="Sequencing">
+                                        </optgroup>
+                                    </select>
+                                </div>
+                                <div id="adv_exec_trash" class="column is-full">
+                                    <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
+                                </div>
                             </div>
                         </div>
                     </div>

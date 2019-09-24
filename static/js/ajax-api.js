@@ -221,12 +221,29 @@ function set_listener(){
             });
         });
     });
-    $('[name="error_prob"]').each(function (e, elem) {
+    $('[name="error_prob"], [name="raw_error_rate"]').each(function (e, elem) {
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
                 let data = $(elem).val();
                 $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
             });
+        });
+    });
+    let methods = [['#synthmeth', '#synthesis_sortable'], ['#seqmeth', '#sequencing_sortable'], ['#storagemeth', '#pcr_sortable'], ['#pcrmeth', '#pcr_sortable']];
+    methods.forEach(function (meth) {
+        $(meth[0]).bind('dbclick, keyup', function (e) {
+            if(e.which === 13 || e.type === 'dbclick'){
+                let clone = $(meth[0]+' :selected').clone(true).unbind();
+                $(meth[1]).append(clone);
+                if(meth[0] === '#storagemeth'){
+                    let name = $(clone).text();
+                    $(clone).text(name + " ("+$('#mon').val()+" month(s))");
+                }
+                else if(meth[0] === '#pcrmeth'){
+                    let name = $(clone).text();
+                    $(clone).text(name + " ("+$('#cyc').val()+" cycle(s))");
+                }
+            }
         });
     });
 }
@@ -474,11 +491,13 @@ function collectSendData(space) {
         kmer_error_prob = JSON5.parse(kmer_error_prob);
 
     let adv_meth = $("#adv_exec");
-    let seq_meth, synth_meth;
+    let seq_meth, synth_meth, storage_meth, pcr_meth;
     let exec_res = {};
     if(adv_meth.prop("checked")){
         seq_meth = $("#seqmeth option:selected");
         synth_meth = $("#synthmeth option:selected");
+        storage_meth = $("#storagemeth option:selected");
+        pcr_meth = $("pcrmeth option:selected");
         /* collect all error simulation elements in correct execution order */
         let exec_order = $('#seqmeth1').children();
         exec_order.each(function (id, o_group) {
@@ -500,7 +519,9 @@ function collectSendData(space) {
     else{
         seq_meth = $("#classic_seqmeth option:selected");
         synth_meth = $("#classic_synthmeth option:selected");
-        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing']].forEach(function (meth) {
+        storage_meth = $("#classic_storagemeth option:selected");
+        pcr_meth = $("#classic_pcrmeth option:selected");
+        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing'], [storage_meth, 'Storage'], [pcr_meth, 'Pcr']].forEach(function (meth) {
             exec_res[meth[1]] = [{
                 name: meth[0].text(),
                 id: meth[0].val(),
@@ -521,8 +542,6 @@ function collectSendData(space) {
             return
         }
     }
-    let pcr_meth = $("#pcrmeth option:selected");
-    let storage_meth = $("#storagemeth option:selected");
     return JSON.stringify({
         sequence: sequence,
         key: apikey,
@@ -775,7 +794,7 @@ function updateSynthDropdown(host, apikey, type) {
         },
         success: function (data) {
             let trash = document.getElementById('trash');
-            let methods = [['synth', '#synthmeth'], ['synth', '#classic_synthmeth'], ['seq', '#seqmeth'], ['seq', '#classic_seqmeth']];
+            let methods = [['synth', '#synthmeth'], ['synth', '#classic_synthmeth'], ['seq', '#seqmeth'], ['seq', '#classic_seqmeth'], ['pcr', '#classic_pcrmeth'], ['pcr', '#pcrmeth'], ['storage', '#classic_storagemeth'], ['storage', '#storagemeth']];
             methods.forEach(function (method) {
                 let el = $(method[1]);
                 el.empty();
@@ -792,7 +811,7 @@ function updateSynthDropdown(host, apikey, type) {
             });
 
             // make content draggable
-            [$('#synthmeth'), $('#seqmeth')].forEach(function (elem) {
+            [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
                 elem.children().each(function (x) {
                     var asd = Sortable.create(elem.children()[x], {
                         group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
@@ -805,7 +824,7 @@ function updateSynthDropdown(host, apikey, type) {
                 });
             });
 
-            let sele = $('#pcrmeth');
+            /**let sele = $('#classic_pcrmeth');
             sele.empty(); // remove old options
             $.each(data['pcr'], function (name) {
                 let elem = data['pcr'][name];
@@ -818,7 +837,7 @@ function updateSynthDropdown(host, apikey, type) {
                 });
             });
 
-            let e = $('#storagemeth');
+            let e = $('#classic_storagemeth');
             e.empty(); // remove old options
             $.each(data['storage'], function (name) {
                 let elem = data['storage'][name];
@@ -831,7 +850,7 @@ function updateSynthDropdown(host, apikey, type) {
                     let id_name = "" + name + "_" + id;
                     optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
-            });
+            });*/
             initListsDnD();
         },
         fail: function (data) {
