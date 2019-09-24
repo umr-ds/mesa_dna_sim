@@ -1,7 +1,7 @@
 import time
 
 from flask import current_app
-from itsdangerous import Serializer, TimedSerializer
+from itsdangerous import URLSafeTimedSerializer
 from sqlalchemy import ForeignKey
 from sqlalchemy.orm import backref
 
@@ -24,12 +24,12 @@ class User(db.Model):
 
     ###############################################
     def get_token(self, secret):
-        s = TimedSerializer(secret)
+        s = URLSafeTimedSerializer(secret)
         return s.dumps({'user_id': self.user_id})  # .decode('utf-8')
 
     @staticmethod
     def verify_token(token, secret, expiration=1800):
-        s = TimedSerializer(secret)
+        s = URLSafeTimedSerializer(secret)
         try:
             data = s.loads(token, max_age=expiration)
         except:
@@ -58,6 +58,12 @@ class User(db.Model):
 
     def __repr__(self):
         return '<User {}>'.format(self.username)
+
+    @staticmethod
+    def serialize(ob):
+        tmp = {'id': ob.user_id, 'email': ob.email, 'created': ob.created, 'validated': ob.validated,
+               'is_admin': ob.is_admin}
+        return tmp
 
 
 ###############################################
@@ -107,8 +113,6 @@ class ErrorProbability(db.Model):
     awaits_validation = db.Column(db.Boolean, default=False, nullable=False)
     validation_desc = db.Column(db.String(512))
 
-    # error_probability_user_user_id_fk = db.relationship('User', backref=backref("User", uselist=False))
-
     def __repr__(self):
         return '<ErrorProbability(id={}, owner={}) = {}>'.format(self.id, self.user_id, self.jsonblob)
 
@@ -127,7 +131,6 @@ class SequencingErrorRates(db.Model):
     __tablename__ = 'seq_err_rates'
     id = db.Column(db.Integer, primary_key=True)
     method_id = db.Column(db.Integer, ForeignKey('meth_categories.id'), nullable=False)
-    # correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
     err_data = db.Column(db.JSON)
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
     validated = db.Column(db.Boolean, default=False, nullable=False)
@@ -142,7 +145,7 @@ class SequencingErrorRates(db.Model):
 
     def as_dict(self):
         return dict((col, getattr(self, col)) for col in
-                    self.__table__.columns.keys())  # {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+                    self.__table__.columns.keys())
 
 
 ###############################################
@@ -152,7 +155,6 @@ class SynthesisErrorRates(db.Model):
     __tablename__ = 'synth_err_rates'
     id = db.Column(db.Integer, primary_key=True)
     method_id = db.Column(db.Integer, ForeignKey('meth_categories.id'), nullable=False)
-    # correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
     err_data = db.Column(db.JSON)
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
     validated = db.Column(db.Boolean, default=False, nullable=False)
@@ -167,7 +169,7 @@ class SynthesisErrorRates(db.Model):
 
     def as_dict(self):
         return dict((col, getattr(self, col)) for col in
-                    self.__table__.columns.keys())  # {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
+                    self.__table__.columns.keys())
 
 
 ###############################################
@@ -219,26 +221,7 @@ class StorageErrorRates(db.Model):
 
 
 ###############################################
-"""
-class SynthesisErrorAttributes(db.Model):
-    __tablename__ = 'synth_err_att'
-    id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, ForeignKey('synth_meth.id'), nullable=False)
-    correction_id = db.Column(db.Integer, ForeignKey('synth_err_correction.id'))
-    err_att = db.Column(db.JSON)
-    user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
-    validated = db.Column(db.Boolean, default=False, nullable=False)
 
-    def __repr__(self):
-        return '<SequencingErrorAttributes(id={}, method_id={}, correction_id={}, err_data={}'.format(
-            self.id, self.method, self.correction_id, self.err_att)
-
-    def as_dict(self):
-        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
-"""
-
-
-###############################################
 
 class MethodCategories(db.Model):
     __tablename__ = 'meth_categories'

@@ -1,28 +1,24 @@
-import json
 import re
+import time
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
 from sqlalchemy import desc, or_, and_, asc
-from sqlalchemy.orm import Query
-
+from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
-    SynthesisErrorCorrection, MethodCategories, SequencingErrorRates, PcrErrorRates, StorageErrorRates
+    MethodCategories, SequencingErrorRates, SynthesisErrorCorrection
+from usersettings.delete import removeUser
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 
 main_page = Blueprint("main_page", __name__, template_folder="templates")
 
 
-#
-# Since Flask will only be used for the API we will redirect to the main page
-#
-@main_page.route("/api")
+@main_page.route("/")
 def main_index():
-    return render_template('index.html')
-    # return redirect("http://dnasimulator.mosla.de", code=302)
+    return render_template('index.html'), 200
 
 
 @main_page.after_request
@@ -36,9 +32,68 @@ def inject_x_rate_headers(response):
     return response
 
 
-@main_page.route("/", methods=["GET"])
+@main_page.route("/api", methods=["GET"])
 def home():
     return render_template("index.html"), 200
+
+
+def check_existing_users():
+    # TODO maybe use different way to find out if we are in setup mode or not.
+    users = User.query.all()
+    return len(users) == 1 and users[0].id == 0
+
+
+@main_page.route("/setup", methods=["GET", "POST"])
+def setup():
+    if check_existing_users():
+        if request.method == "GET":
+            return render_template("initial_setup.html"), 200
+        else:
+            email = request.form.get('email')
+            password = request.form.get('password')
+            new_admin = User(email=email, password=gen_password(password),
+                             created=int(time.time()),
+                             validated=True, is_admin=True)
+            db.session.add(new_admin)
+            db.session.commit()
+            session['user_id'] = new_admin.user_id
+            flash("Admin-Account created. Enjoy the Software.")
+    else:
+        return redirect(url_for("main_page.main_index"))
+
+
+@main_page.route("/manage_users", methods=["GET", "POST"])
+@require_logged_in
+@require_admin
+def manage_users():
+    if request.method == 'POST':
+        r_method = request.json
+    else:
+        r_method = request.args
+    if request.method == "GET":
+        return jsonify([User.serialize(x) for x in User.query.all()])
+    else:
+        user_id = r_method.get('user_id')
+        do_delete = 'do_delete' in r_method and bool(r_method.get('do_delete'))
+        do_update = 'do_update' in r_method and bool(r_method.get('do_update'))
+        user = User.query.filter_by(user_id=user_id).first()
+        all_admins = User.query.filter_by(is_admin=True).all()
+        if do_delete and not do_update:
+            if user.is_admin and len(all_admins) == 1:
+                # we can not allow deletion of the last admin account!
+                return jsonify({'did_succeed': False})
+            return jsonify({'did_succeed': removeUser(user)})
+        elif do_update:
+            new_email = r_method.get('new_email')
+            validated = bool(r_method.get('validated'))
+            is_admin = bool(r_method.get('is_admin'))
+            user.email = new_email
+            user.validated = validated
+            user.is_admin = is_admin
+            db.session.add(user)
+            db.session.commit()
+            return jsonify({'did_succeed': True})
+        return jsonify({'did_succeed': False})
 
 
 @main_page.route("/admin", methods=["GET"])
@@ -68,10 +123,11 @@ def adminpage():
     seq_id_out = {}
     for x in seq_out:
         seq_id_out[int(x['id'])] = x
-
+    users = User.query.order_by(
+        asc(User.user_id)).all()
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
                            graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
-                           host=request.url_root), 200
+                           host=request.url_root, users=users), 200
 
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -226,7 +282,7 @@ def add_subsequences():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitize_input(request.form.get('sequence'))
-    error_prob = request.form.get('error_prob')
+    error_prob = max(0.0, min(1.0, float(request.form.get('error_prob'))))
     description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
     if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
         try:
@@ -257,13 +313,21 @@ def request_validation_g_error():
         try:
             if user.is_admin:
                 curr_error = ErrorProbability.query.filter_by(id=e_id).first()
+                requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
+                if requesting_user.user_id != user_id:
+                    send_mail("noreply@mosla.de", requesting_user.email,
+                              "Your Graph '" + curr_error.name + "' has been validated!",
+                              subject="[MOSLA] Validation Request")
                 curr_error.validated = True
             else:
                 curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
+                send_mail("noreply@mosla.de", get_admin_mails(),
+                          "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
+                          subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
-            # db.session.add(curr_error)
+            db.session.add(curr_error)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
@@ -290,19 +354,28 @@ def request_validation_c_error():
     if user_id and user and error_method is not None and e_id is not None:
         try:
             if user.is_admin:
-                curr_error = q_class.query.filter_by(id=e_id).first()
+                curr_error = db.session.query(q_class).filter_by(id=e_id).first()
+                requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
+                if requesting_user.user_id != user_id:
+                    send_mail("noreply@mosla.de", [requesting_user.email],
+                              "Your Error-Method '" + curr_error.name + "' has been validated!",
+                              subject="[MOSLA] Validation Request")
                 curr_error.validated = True
             else:
-                curr_error = q_class.query.filter_by(user_id=user_id, id=e_id).first()
+                curr_error = db.session.query(q_class).filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
+                send_mail("noreply@mosla.de", get_admin_mails(),
+                          "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
+                          subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
-            # db.session.add(curr_error)
+            db.session.add(curr_error)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'id': curr_error.id, 'validated': curr_error.validated,
                  'awaits_validation': curr_error.awaits_validation})
-        except:
+        except Exception as ex:
+            print(ex)
             return jsonify({'did_succeed': False})
     else:
         return jsonify({'did_succeed': False})
@@ -314,21 +387,27 @@ def apply_validation_subseq():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
-    validation_desc = request.form.get('validation_desc')
-    # sequence = sanitize_input(request.form.get('sequence'))
-    # error_prob = request.form.get('error_prob')
-    # description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
+    validation_desc = sanitize_input(request.form.get('validation_desc'), r'[^a-zA-Z0-9() ]')
     if user_id and user and sequence_id is not None:
         try:
             if user.is_admin:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(id=sequence_id).first()
+                requesting_user = User.query.filter_by(user_id=curr_sub_seq.owner_id).first()
+                if requesting_user.user_id != user_id:
+                    send_mail("noreply@mosla.de", requesting_user.email,
+                              "Your Motif / Subsequence '" + curr_sub_seq.description + "' has been validated!",
+                              subject="[MOSLA] Validation Request")
                 curr_sub_seq.validated = True
             else:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(owner_id=user_id,
+                                                                                 id=sequence_id).first()
                 curr_sub_seq.validated = False
                 curr_sub_seq.validation_desc = validation_desc
+                send_mail("noreply@mosla.de", get_admin_mails(),
+                          "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
+                          subject="[MOSLA] Validation Request")
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
-            # db.session.add(curr_sub_seq)
+            db.session.add(curr_sub_seq)
             db.session.commit()
             return jsonify(
                 {'did_succeed': True, 'sequence': curr_sub_seq.sequence, 'error_prob': curr_sub_seq.error_prob,
@@ -369,14 +448,14 @@ def update_subsequences():
         try:
             error_prob = float(error_prob)
             if user.is_admin:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(id=sequence_id).first()
             else:
-                curr_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id, id=sequence_id).first()
+                curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(owner_id=user_id,
+                                                                                 id=sequence_id).first()
             curr_sub_seq.error_prob = error_prob
             curr_sub_seq.sequence = sequence
             curr_sub_seq.validated = False
             curr_sub_seq.description = description
-
             # db.session.add(curr_sub_seq)
             db.session.commit()
             return jsonify(
@@ -410,7 +489,6 @@ def update_error_prob_charts():
                 curr_error_prob = ErrorProbability.query.filter_by(id=id).first()
             else:
                 curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
-
             if curr_error_prob is None or copy:
                 curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id,
                                                    type=type)
@@ -468,20 +546,17 @@ def get_error_prob_charts():
         typ = request.args.get('type')
     if typ is None:
         return jsonify({'did_succeed': False})
-
     try:
         if user_id and user:
             charts = ErrorProbability.query.filter(
-                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated is True),
+                and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated),
                      ErrorProbability.type == typ)).order_by(asc(ErrorProbability.id)).all()
         else:
             charts = ErrorProbability.query.filter(
-                and_(ErrorProbability.validated is True, ErrorProbability.type == typ)).order_by(
+                and_(ErrorProbability.validated, ErrorProbability.type == typ)).order_by(
                 asc(ErrorProbability.id)).all()
         return jsonify(
             {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
-
-        # return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
 
@@ -562,12 +637,10 @@ def add_seq_error_probs():
         synth_conf = request.json.get('data')
         asHTML = request.json.get('asHTML')
         if user_id and user and synth_conf is not None:
-
             # synth_conf = json.loads(synth_data)
             err_data = floatify(synth_conf['err_data'])
             err_attributes = floatify(synth_conf['err_attributes'])
             name = sanitize_input(synth_conf['name'])
-
             new_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
                                            err_data=err_data, err_attributes=err_attributes)
             db.session.add(new_seq)
@@ -582,7 +655,6 @@ def add_seq_error_probs():
             return jsonify(res)
         return jsonify({'did_succeed': False})
     except Exception as x:
-        raise x
         return jsonify({'did_succeed': False})
 
 
@@ -599,7 +671,6 @@ def add_synth_error_probs():
         synth_conf = request.json.get('data')
         asHTML = request.json.get('asHTML')
         if user_id and user and synth_conf is not None:
-
             # synth_conf = json.loads(synth_data)
             err_data = floatify(synth_conf['err_data'])
             err_attributes = floatify(synth_conf['err_attributes'])
@@ -620,7 +691,6 @@ def add_synth_error_probs():
             return jsonify(res)
         return jsonify({'did_succeed': False})
     except Exception as x:
-        raise x
         return jsonify({'did_succeed': False})
 
 
@@ -760,6 +830,11 @@ def update_seq_error_probs():
     return jsonify({'did_succeed': False})
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z0-9()]'):
+def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
     result = re.sub(regex, "", input)
     return result
+
+
+def get_admin_mails():
+    admins = User.query.filter_by(is_admin=True).all()
+    return [x.mail for x in admins]

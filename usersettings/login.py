@@ -3,7 +3,6 @@ from functools import wraps
 import bcrypt as bcrypt
 from flask import flash, request, redirect, url_for, Blueprint, render_template, session
 
-from database.db import db
 from database.models import User
 
 login = Blueprint("login", __name__, template_folder="templates")
@@ -25,7 +24,7 @@ def require_admin(function_to_protect):
                     return function_to_protect(*args, **kwargs)
                 else:
                     flash("Your Account is not allowed to perform this request.", 'warning')
-                    return redirect(url_for('main_page.home'))
+                    return redirect(url_for('main_page.main_index'))
             else:
                 flash("Session exists, but user does not exist (anymore)", 'warning')
                 return redirect(url_for('login.do_login'))
@@ -108,8 +107,6 @@ def do_login():
                 session.pop("user_id", None)
                 flash("Session exists, but user does not exist (anymore)", 'warning')
                 return redirect(url_for('login.do_login'))
-    # user = db.get(session.get('user_id'))
-    # return redirect(url_for('login'))  #
     return render_template('login.html')
 
 

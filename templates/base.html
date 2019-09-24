@@ -1,4 +1,3 @@
-<!-- templates/base.html -->
 <!DOCTYPE html>
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">-->
 <html lang="en">
@@ -23,6 +22,8 @@
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/Chart.min.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/overlay.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/nouislider.css') }}>
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma-divider.min.css') }}>
+
             <script defer src="{{ url_for('static',filename='js/fontawesome.min.js') }}"></script>
         {% else %}
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
@@ -33,49 +34,47 @@
 <body>
 <section class="hero is-light is-fullheight">
     <div class="hero-head">
-        <nav class="navbar">
-            <div class="container">
-                <div class="navbar-brand">
-                    <a class="navbar-item" href="{{ url_for('main_page.home') }}" aria-label="MOSLA Image"
-                       style="font-weight:bold;">
-                        <img src="{{ url_for('static',filename='img/header_logo_sm.png') }}" alt="MOSLA"/>
-                    </a>
-                </div>
-                <div id="navbarMenuHeroA" class="navbar-menu">
-                    <div class="navbar-end">
-                        <a href="{{ url_for('main_page.home') }}" aria-label="Home Page" class="navbar-item is-black">
-                            Home </a>
-                        <a href="{{ url_for('main_page.query_sequence') }}" aria-label="Simulation System"
-                           class="navbar-item"> Simulate </a>
-                        {% if session['user_id'] %}
-
-                            <a href="{{ url_for('main_page.undesired_subsequences') }}" aria-label="Simulation Settings"
-                               class="navbar-item">
-                                Simulation Settings
-                            </a>
-                            {% if is_user_admin(session['user_id']) %}
+        <nav class="navbar" role="navigation" aria-label="main navigation">
+            <div class="navbar-brand">
+                <a class="navbar-item" href="{{ url_for('main_page.main_index') }}" aria-label="MOSLA Image"
+                   style="font-weight:bold;">
+                    <img src="{{ url_for('static',filename='img/header_logo_sm.png') }}" width="117" height="28"
+                         alt="MOSLA"/>
+                </a>
+                <a role="button" class="navbar-burger burger" aria-label="menu" aria-expanded="false"
+                   data-target="navMenu">
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                    <span aria-hidden="true"></span>
+                </a>
+            </div>
+            <div id="navbarMenuHeroA" class="navbar-menu">
+                <div class="navbar-start"></div>
+                <div class="navbar-end">
+                    <a href="{{ url_for('main_page.main_index') }}" aria-label="Home Page"
+                       class="navbar-item is-black"> Home </a>
+                    <a href="{{ url_for('main_page.query_sequence') }}" aria-label="Simulation System"
+                       class="navbar-item"> Simulate </a>
+                    {% if session['user_id'] %}
+                        <a href="{{ url_for('main_page.undesired_subsequences') }}" aria-label="Simulation Settings"
+                           class="navbar-item">
+                            Simulation Settings
+                        </a>
+                        {% if is_user_admin(session['user_id']) %}
                             <a href="{{ url_for('main_page.adminpage') }}" aria-label="Simulation Settings"
-                               class="navbar-item">
-                                Administration
-                            </a>
-                            {% endif %}
-                            <a href="{{ url_for('main_page.profile') }}" aria-label="Profile" class="navbar-item">
-                                Profile </a>
-                            <a href="{{ url_for('logout.do_logout') }}" aria-label="Logout" class="navbar-item">
-                                Logout </a>
-                        {% else %}
-                            <a href="{{ url_for('login.do_login') }}" aria-label="Login" class="navbar-item"> Login </a>
-                            <a href="{{ url_for('signup.register') }}" aria-label="Signup" class="navbar-item"> Sign
-                                Up </a>
+                               class="navbar-item"> Administration </a>
                         {% endif %}
-                    </div>
+                        <a href="{{ url_for('main_page.profile') }}" aria-label="Profile" class="navbar-item">
+                            Profile </a>
+                        <a href="{{ url_for('logout.do_logout') }}" aria-label="Logout" class="navbar-item">
+                            Logout </a>
+                    {% else %}
+                        <a href="{{ url_for('login.do_login') }}" aria-label="Login" class="navbar-item"> Login </a>
+                        <a href="{{ url_for('signup.register') }}" aria-label="Signup" class="navbar-item"> Sign
+                            Up </a>
+                    {% endif %}
                 </div>
             </div>
-            <span class="navbar-burger burger" data-target="navMenu">
-                            <span aria-hidden="true"></span>
-                            <span aria-hidden="true"></span>
-                            <span aria-hidden="true"></span>
-            </span>
         </nav>
     </div>
     {% with messages = get_flashed_messages(with_categories=true) %}
@@ -150,40 +149,13 @@
         <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
     {% endif %}
     <script type="text/javascript">
-        document.addEventListener('DOMContentLoaded', () => {
-
-            // Get all "navbar-burger" elements
-            const $navbarBurgers = $('.navbar-burger');
-
-            // Check if there are any navbar burgers
-            if ($navbarBurgers.length > 0) {
-
-                // Add a click event on each of them
-                $navbarBurgers.each(el => {
-                    $navbarBurgers[el].addEventListener('click', () => {
-
-                        // Get the target from the "data-target" attribute
-                        const target = $navbarBurgers[el].dataset.target;
-                        const tget = $('#' + target);
-
-                        // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
-                        $navbarBurgers[el].classList.toggle('is-active');
-                        tget.toggleClass('is-active');
-                    });
-                });
-            }
-
-        });
-
         $(document).ready(function () {
-            // Check for click events on the navbar burger icon
             $(".navbar-burger").click(function () {
-                // Toggle the "is-active" class on both the "navbar-burger" and the "navbar-menu"
                 $(".navbar-burger").toggleClass("is-active");
                 $(".navbar-menu").toggleClass("is-active");
-
             });
-        });</script>
+        });
+    </script>
 
 {% endblock javascript %}
 </body>

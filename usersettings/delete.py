@@ -1,7 +1,8 @@
 from flask import session, Blueprint, request, flash, redirect, url_for, render_template
 
 from database.db import db
-from database.models import User, Apikey
+from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SequencingErrorRates, \
+    SynthesisErrorRates
 from usersettings.login import require_logged_in
 
 delete = Blueprint("delete", __name__, template_folder="templates")
@@ -26,18 +27,11 @@ def do_delete():
         # error message, but for the sake of a simple
         # example we'll just assume they are provided
 
-        # delete_token = request.args.get('token')
         delete_token = request.form["token"]
 
         if user:
             if user.verify_account_deletion_token(delete_token):
-                # delete all associated API-Keys:
-                db.session.query(Apikey).filter(Apikey.owner_id == user_id).delete()
-                db.session.commit()
-
-                # delete the user from the database
-                db.session.delete(user)
-                db.session.commit()
+                removeUser(user)
                 session.pop('user_id', None)
                 flash('Your account has been deleted.', 'info')
                 return redirect(url_for('main_page.main_index'))
@@ -52,6 +46,29 @@ def do_delete():
         # "Do you really want to delete your account? This action can not be undone <a hrf=.../delete?token=user.get_account_deletion_token()
         return render_template('delete.html', token=user.get_account_deletion_token())
 
+
+def removeUser(user):
+    if user.user_id == 0:
+        # We do not allow deletion of User 0!
+        return False
+    user_id = user.user_id
+    db.session.query(Apikey).filter(Apikey.owner_id == user_id).delete()
+    db.session.commit()
+
+    # delete all (custom) subsequences, synth, storage and sequencing rules from this user
+    db.session.query(UndesiredSubsequences).filter(UndesiredSubsequences.owner_id == user_id).delete()
+    db.session.commit()
+    db.session.query(ErrorProbability).filter(ErrorProbability.user_id == user_id).delete()
+    db.session.commit()
+    db.session.query(SequencingErrorRates).filter(SequencingErrorRates.user_id == user_id).delete()
+    db.session.commit()
+    db.session.query(SynthesisErrorRates).filter(SynthesisErrorRates.user_id == user_id).delete()
+    db.session.commit()
+
+    # delete the user from the database
+    db.session.delete(user)
+    db.session.commit()
+    return True
 
 """
 @delete.route('/delete')

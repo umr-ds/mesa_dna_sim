@@ -1,0 +1,32 @@
+<!-- templates/login.html -->
+
+{% extends "base.html" %}
+
+{% block content %}
+    <div class="column is-4 is-offset-4">
+        <h3 class="title">Setup</h3>
+        <div class="box">
+            <span class="subtitle" style="white-space: nowrap">Create your Admin account:</span>
+            <form method="POST" action="/setup">
+                <div class="field">
+                    <div class="control has-icons-left">
+                        <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                    </div>
+                </div>
+
+                <div class="field">
+                    <div class="control has-icons-left">
+                        <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                        <span class="icon is-small is-left">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                    </div>
+                </div>
+                <button class="button is-block is-info is-large is-fullwidth">Create Account and Login</button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

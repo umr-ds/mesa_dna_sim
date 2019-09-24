@@ -1,23 +1,11 @@
-<!-- templates/sequence_view.html -->
-
 {% extends "base.html" %}
 {% block head %}
     {{ super() }}
 {% endblock %}
 {% block content %}
     {% include "validation_overlay.html" %}
-    <!--<script type = "text/javascript" >
-window.onload = function () {
-    document.getElementById("text_lettering").lettering();
-}
-    </script>-->
-    <!--TODO:
-    https://stackoverflow.com/questions/43757979/chart-js-drag-points-on-linear-chart
-    https://github.com/chrispahm/chartjs-plugin-dragData
-    -->
+
     <div class="control" id="overlay">
-
-
         <div class="box container is-fluid is-fluid-mobile overlay-all">
             <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
             <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
@@ -126,7 +114,8 @@ window.onload = function () {
                                             name="publish_gerr"
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);let callback_func = function (desc) { validateGraphError('{{ host }}',$('#chart-name').data('id'),false, desc) };showValidationOverlay('', callback_func);return false"
                                             data-balloon="Request validation"
-                                            data-balloon-pos="up">Publish</button>
+                                            data-balloon-pos="up">Publish
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -146,8 +135,7 @@ window.onload = function () {
                                             onclick="saveChart('{{ host }}', '{{ apikey }}', false, true);return false;"
                                             data-balloon="Update current Error-Probability Graph"
                                             data-balloon-pos="up">
-                                        Update
-                                        Template
+                                        Update Template
                                     </button>
                                 </div>
                             </div>
@@ -178,13 +166,10 @@ window.onload = function () {
                 </div>
             </div>
         </div>
-
     </div>
-
     <h2 class="subtitle">
         Your Query:
     </h2>
-
     <div class="box container is-fluid is-fluid-mobile">
         <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
@@ -194,11 +179,11 @@ window.onload = function () {
                 <div class="column is-full">
                     <div class="columns">
                         <div class="column is-1 is-pulled-left">
-                            <p>ACGT only</p>
+                            <p style="font-size:12px;">ACGT only</p>
                             <label data-balloon="Limit Alphabet"
                                    data-balloon-pos="right">
                                 <input type="checkbox" aria-label="Limit Alphabet to ACGT" id="limitedChars" checked
-                                       class="switch is-rounded is-large button-fill no-outline" name="enableall"/>
+                                       class="switch is-rounded button-fill no-outline" name="enableall"/>
                                 <label for="limitedChars" class="no-outline"></label>
                             </label>
                         </div>
@@ -217,24 +202,91 @@ window.onload = function () {
                                         <span>Sequence to Analyse</span>
                                         <!--</p>-->
                                     </label>
-
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                <div class="column is-full has-no-padding-top has-no-padding-bottom"></div>
-                <div class="column is-half is-full-touch">
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full">
+                    <input type="checkbox" id="spoiler"/>
+                    <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
+                Subsequences</label>
+                    <div class="spoiler">
+                <h3>Changes here wont be saved in your profile!</h3>
+                <br/>
+                <div style="text-align: left">Enabled:</div>
+                <div id="subseq-container">
+                    {% for subsequence in usubsequence %}
+                        <div class="control" id="subseq_{{ subsequence.id }}">
+                            <table>
+                                <tr>
+                                    <td><input type="checkbox"
+                                               class="switch is-large is-rounded button-fill no-outline"
+                                               id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
+                                               aria-label="Enable Rule"
+                                               value="{{ subsequence.id }}" checked/>
+                                        <label class="no-outline" for="enabled_{{ subsequence.id }}"></label>
+                                    </td>
+                                    <td style="width:50%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
+                                               name="sequence"
+                                               aria-label="Sequence"
+                                               id="sequence_{{ subsequence.id }}" placeholder=""
+                                                {% if subsequence.validated %} readonly {% endif %}
+                                               value="{{ subsequence.sequence }}" required>
+                                        <span>Sequence</span></label></td>
+                                    <td style="width:15%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded is-grayable" style="width:100%" type="number"
+                                               id="error_prob_{{ subsequence.id }}"
+                                               aria-label="Error Probability"
+                                               name="error_prob" placeholder=""
+                                                {% if subsequence.validated %} readonly {% endif %}
+                                               value="{{ subsequence.error_prob * 100 }}"
+                                               required min="0.0" max="100.0" step="0.01">
+                                        <span style="white-space: nowrap;">Error Probability</span></label></td>
+                                    <td style="width:30%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
+                                               name="description"
+                                               aria-label="Description"
+                                               id="description_{{ subsequence.id }}" placeholder="No Description"
+                                               size="30"
+                                                {% if subsequence.description != None %}
+                                               value="{{ subsequence.description }}"
+                                                {% endif %} readonly><span>Description</span></label></td>
+                                    <!--
+                            {% if subsequence.description != None %}
+                                Description: {{ subsequence.description }}
+                            {% else %}
+                                No Description
+                            {% endif %}-->
+                                    <td><span class="" style="white-space: nowrap;"><label
+                                            class="checkbox">Validated: <input type="checkbox"
+                                                                               id="validated_{{ subsequence.id }}"
+                                                                               value="{{ subsequence.id }}"
+                                                                               aria-label="Validated"
+                                                                               disabled
+                                            {% if subsequence.validated %} checked {% endif %}/></label></span></td>
+                                </tr>
+                            </table>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+                </div>
+                <div class="column is-full is-full-touch">
                     <div class="columns is-multiline is-gapless">
                         <div class="column is-full">
                             <div class="columns is-gapless">
-                                <div class="column is-3 is-full-mobile is-pulled-left">
+                                <div class="column is-2 is-full-mobile is-pulled-left">
                                     <label class="form-group has-float-label">
                                         <input class="input is-rounded" type="number" id="gc_window_size"
                                                placeholder=""
                                                size="4"
                                                value="15"
-                                               required min="0" step="1"><span>GC Window</span></label>
+                                               required min="2" step="1"><span>GC Window</span></label>
                                 </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
@@ -270,13 +322,13 @@ window.onload = function () {
                         </div>
                         <div class="column is-full">
                             <div class="columns is-gapless">
-                                <div class="column is-3 is-full-mobile is-pulled-left">
+                                <div class="column is-2 is-full-mobile is-pulled-left">
                                     <label class="form-group has-float-label">
                                         <input class="input is-rounded" type="number" id="kmer_window_size"
                                                placeholder=""
                                                size="4"
                                                value="15"
-                                               required min="0" step="1"><span>Kmer Window</span></label>
+                                               required min="2" step="1"><span>Kmer Window</span></label>
                                 </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
@@ -302,7 +354,33 @@ window.onload = function () {
                         </div>
                         <div class="column is-full">
                             <div class="columns is-gapless">
-                                <div class="column is-3 is-hidden-mobile is-pulled-left"></div>
+                                <div class="column is-2">
+                                    <p style="font-size:12px">Calculated Error Prob.</p>
+                                    <label data-balloon="Use Calculated Error Probabilities" data-balloon-pos="left">
+                                        <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                               id="calcprobs" class="switch is-rounded button-fill no-outline"
+                                               name="cprobs" onclick="let adv_con = $('#advancedcontainer'); let inf_con = $('#informationcontainer'); if ($(this).is(':checked')) {
+                                    let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    adv_con.hide();
+                                    inf_con.show();
+                                } else if ($(this).not(':checked')){
+                                    let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    adv_con.show();
+                                    inf_con.hide();
+                                }">
+                                        <label for="calcprobs" style="" class="no-outline"></label>
+                                    </label>
+                                </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
                                     <div class="control is-expanded">
                                         <div class="select is-fullwidth is-2 select is-primary is-rounded">
@@ -339,9 +417,13 @@ window.onload = function () {
                         </div>
                     </div>
                 </div>
-                <div class="column is-half is-full-touch">
-                    <div class="columns">
-                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40">
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns is-gapless" id="advancedcontainer">
+                        <!--<div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40"
+                             style="margin-top: 1.5rem">
                             <p style="text-align:left;">Calculated Error Prob.</p>
                             <label data-balloon="Use Calculated Error Probabilities"
                                    data-balloon-pos="right" style="float: left">
@@ -365,75 +447,102 @@ window.onload = function () {
                                 }"/>
                                 <label for="calcprobs" style="float:left" class="no-outline"></label>
                             </label>
-                        </div>
-                        <div class="column">
+
+                            <p style="text-align:left;">Advanced Error-Simulation Settings</p>
+                            <label data-balloon="Use Advanced Error Simulation Settings"
+                                   data-balloon-pos="right" style="float: left">
+                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                       id="adv_exec"
+                                       class="switch is-rounded is-large button-fill no-outline"
+                                       onclick="let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
+                                    let adv_exec = $('#adv_err_settings');
+                                    if ($(this).is(':checked')) {
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    classic.hide();
+                                    adv_exec.show();
+                                    initListsDnD();
+                                } else if ($(this).not(':checked')){
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    classic.show();
+                                    adv_exec.hide();
+                                }"/>
+                                <label for="adv_exec" style="float:left" class="no-outline"></label>
+                            </label>
+                        </div>-->
+                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top "
+                             style="margin-top: 1.0rem">
                             <div class="columns is-multiline">
                                 <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-10 correspond to the error_correction id in the database -->
-                                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Synthesis Method">
-                                            <select class="select" id="synthmeth">
-                                                <optgroup label="None">
-                                                    <option value="0" selected>None</option>
-                                                </optgroup>
-                                                <optgroup label="Column synthesized oligos">
-                                                    <option value="1">MutS</option>
-                                                    <option value="2">Consensus shuffle</option>
-                                                    <option value="3">ErrASE</option>
-                                                    <option value="9">No error correction</option>
-                                                </optgroup>
-                                                <optgroup label="Microarray based oligo pools">
-                                                    <option value="4">Oligo hybridization based</option>
-                                                    <option value="5">High-temperature ligation/hybridization based
-                                                    </option>
-                                                    <option value="6">ErrASE</option>
-                                                    <option value="7">Nuclease-based</option>
-                                                    <option value="8">NGS-based</option>
-                                                    <option value="10">No error correction</option>
-                                                </optgroup>
-                                                <optgroup label="User defined">
-                                                    <option value="11">Error Rates</option>
-                                                    <option value="12">Error Attributes</option>
-                                                    <option value="13">Rates and Attributes</option>
-                                                </optgroup>
-                                            </select><span>Synthesis Method</span>
-                                        </label>
-                                    </div>
+                                    <p style="font-size:12px;">Advanced Error-Simulation Settings</p>
+                                    <label data-balloon="Use Advanced Error Simulation Settings"
+                                           data-balloon-pos="right">
+                                        <input type="checkbox" aria-label="Use Advanced Error Simulation Settings"
+                                               id="adv_exec" class="switch is-rounded button-fill no-outline" onclick="let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
+                                    let adv_exec = $('#adv_err_settings');
+                                    if ($(this).is(':checked')) {
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    classic.hide();
+                                    adv_exec.show();
+                                } else if ($(this).not(':checked')){
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    classic.show();
+                                    adv_exec.hide();
+                                }">
+                                        <label for="adv_exec" style="" class="no-outline"></label>
+                                    </label>
                                 </div>
-                                <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-7 correspond to the submethod id in the database -->
-                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Sequencing Method">
-                                            <select class="select" id="seqmeth">
-                                                <optgroup label="None">
-                                                    <option value="0" selected>None</option>
-                                                </optgroup>
-                                                <optgroup label="Illumina">
-                                                    <option value="1">Single End</option>
-                                                    <option value="2">Paired End</option>
-                                                </optgroup>
-                                                <optgroup label="PacBio">
-                                                    <option value="4">Subread</option>
-                                                    <option value="3">CCS</option>
-                                                </optgroup>
-                                                <optgroup label="Nanopore">
-                                                    <option value="5">1D</option>
-                                                    <option value="6">2D</option>
-                                                </optgroup>
-                                                <optgroup label="User defined">
-                                                    <option value="7">Error Rates</option>
-                                                    <option value="8">Error Attributes</option>
-                                                    <option value="9">Rates and Attributes</option>
-                                                </optgroup>
-                                            </select><span>Sequencing Method</span>
-                                        </label>
-                                    </div>
+                            </div>
+                        </div>
+                        <div id="classic_err_settings" class="column">
+                            <div id="classic_synth" class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-10 correspond to the error_correction id in the database -->
+                                    <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Synthesis Method">
+                                        <select class="select" id="classic_synthmeth">
+                                            <optgroup label="None">
+                                                <option value="0" selected>None</option>
+                                            </optgroup>
+                                            <optgroup label="Column synthesized oligos">
+                                                <option value="1">MutS</option>
+                                                <option value="2">Consensus shuffle</option>
+                                                <option value="3">ErrASE</option>
+                                                <option value="9">No error correction</option>
+                                            </optgroup>
+                                            <optgroup label="Microarray based oligo pools">
+                                                <option value="4">Oligo hybridization based</option>
+                                                <option value="5">High-temperature ligation/hybridization based
+                                                </option>
+                                                <option value="6">ErrASE</option>
+                                                <option value="7">Nuclease-based</option>
+                                                <option value="8">NGS-based</option>
+                                                <option value="10">No error correction</option>
+                                            </optgroup>
+                                            <optgroup label="User defined">
+                                                <option value="11">Error Rates</option>
+                                                <option value="12">Error Attributes</option>
+                                                <option value="13">Rates and Attributes</option>
+                                            </optgroup>
+                                        </select><span>Synthesis Method</span>
+                                    </label>
                                 </div>
-                                <div class="column is-full">
+                            </div>
+                            <div class="column is-full">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -504,30 +613,131 @@ window.onload = function () {
                                         </div>
                                     </div>
                                 </div>
-                                <div class="column is-full">
-                                    <!--<div class="column ">-->
-                                    <div class="field">
-                                        <div class="control">
-                                            <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
-                                                <input class="input is-rounded" type=number rows="1" id="seed"
-                                                       placeholder="Random" min="0" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
-                                                <span>Seed</span>
-                                                <!--</p>-->
-                                            </label>
-
-                                            <!--</div>-->
-                                        </div>
+                            <div id="classic_seq" class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-7 correspond to the submethod id in the database -->
+                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Sequencing Method">
+                                        <select class="select" id="classic_seqmeth">
+                                            <optgroup label="None">
+                                                <option value="0" selected>None</option>
+                                            </optgroup>
+                                            <optgroup label="Illumina">
+                                                <option value="1">Single End</option>
+                                                <option value="2">Paired End</option>
+                                            </optgroup>
+                                            <optgroup label="PacBio">
+                                                <option value="4">Subread</option>
+                                                <option value="3">CCS</option>
+                                            </optgroup>
+                                            <optgroup label="Nanopore">
+                                                <option value="5">1D</option>
+                                                <option value="6">2D</option>
+                                            </optgroup>
+                                            <optgroup label="User defined">
+                                                <option value="7">Error Rates</option>
+                                                <option value="8">Error Attributes</option>
+                                                <option value="9">Rates and Attributes</option>
+                                            </optgroup>
+                                        </select><span>Sequencing Method</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="adv_err_settings" class="column" style="display: none">
+                            <div class="columns is-multiline">
+                                    <div id="adv_synth" class="column is-full-mobile is-half">
+                                        <label for="synthmeth"><p>Synthesis Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="synthmeth" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="nonee" label="None">
+                                            </optgroup>
+                                        </select>
                                     </div>
+                                    <div id="adv_seq" class="column is-full-mobile is-half">
+                                        <label for="seqmeth"><p>Sequencing Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="seqmeth" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="nonee" label="None">
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div id="adv_exec" class="column is-full-mobile is-full">
+                                        <label for="seqmeth1"><p>Execution Order</p></label>
+                                        <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="synthesis_sortable" label="Synthesis">
+                                            </optgroup>
+                                            <optgroup id="pcr_sortable" label="Storage/PCR">
+                                            </optgroup>
+                                            <optgroup id="sequencing_sortable" label="Sequencing">
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div id="adv_exec_trash" class="column is-full">
+                                        <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns is-gapless is-centered" id="informationcontainer">
+                        <p style="font-size:12px;color: grey;">Using calculated error probabilities for the simulation.</p>
+                    </div>
+                </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns is-gapless">
+                        <div class="column is-2 is-1-touch is-1-mobile" style="margin-top: -0.5rem">
+                            <p style="font-size:12px;">Max. Expect</p>
+                            <label data-balloon="Calculate Secondary Structures"
+                                   data-balloon-pos="right">
+                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="do_max_expect"
+                                       checked class="switch is-rounded button-fill no-outline"
+                                       name="do_max_expect"
+                                       onclick="$('#temperature').prop('disabled',!$(this).is(':checked'))"/>
+                                <label for="do_max_expect" class="no-outline"></label>
+                            </label>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <div class="control">
+                                    <label class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input class="input is-rounded" type=number rows="1" id="temperature"
+                                                   value="310.15" min="0" step="0.01"/>
+                                            <span class="icon is-right">
+                                            <i class="fas fa-thermometer-half"></i>
+                                        </span>
+                                        </p>
+                                        <span>Temperature (°K)</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
                     </div>
-
                 </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns">
+                        <div class="column is-full">
+                            <div class="field">
+                                <div class="control">
+                                    <label class="form-group has-float-label">
+                                        <input class="input is-rounded" type=number rows="1" id="seed"
+                                               placeholder="Random" min="0" step="1"/>
+                                        <span>Seed</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
             <div class="columns has-no-padding-top">
                 <div class="column is-rounded">
@@ -538,92 +748,23 @@ window.onload = function () {
                 </div>
                 <div class="column is-rounded">
                     <button class="button is-rounded button-fill" id="uploadConfig"
-                            onclick="upload();return false">Upload config
+                            onclick="upload();return false">Upload config/fasta file
                     </button>
                 </div>
             </div>
             <br/>
 
-            <input type="checkbox" id="spoiler"/>
-            <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
-                Subsequences</label>
-            <div class="spoiler">
-                <h3>Changes here wont be saved in your profile!</h3>
-                <br/>
-                <div style="text-align: left">Enabled:</div>
-                <div id="subseq_container">
-                    {% for subsequence in usubsequence %}
-                        <div class="control" id="subseq_{{ subsequence.id }}">
-                            <table>
-                                <tr>
-                                    <td><input type="checkbox"
-                                               class="switch is-large is-rounded button-fill no-outline"
-                                               id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
-                                               aria-label="Enable Rule"
-                                               value="{{ subsequence.id }}" checked/>
-                                        <label class="no-outline" for="enabled{{ subsequence.id }}"></label>
-                                    </td>
-                                    <td style="width:50%"><label class="form-group has-float-label">
-                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
-                                               name="sequence"
-                                               aria-label="Sequence"
-                                               id="sequence_{{ subsequence.id }}" placeholder=""
-                                                {% if subsequence.validated %} readonly {% endif %}
-                                               value="{{ subsequence.sequence }}" required>
-                                        <span>Sequence</span></label></td>
-                                    <td style="width:15%"><label class="form-group has-float-label">
-                                        <input class="input is-rounded is-grayable" style="width:100%" type="number"
-                                               id="error_prob_{{ subsequence.id }}"
-                                               aria-label="Error Probability"
-                                               name="error_prob" placeholder=""
-                                                {% if subsequence.validated %} readonly {% endif %}
-                                               value="{{ subsequence.error_prob * 100 }}"
-                                               required min="0.0" max="100.0" step="0.01">
-                                        <span><nobr>Error Probability</nobr></span></label></td>
-                                    <td style="width:30%"><label class="form-group has-float-label">
-                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
-                                               name="description"
-                                               aria-label="Description"
-                                               id="description_{{ subsequence.id }}" placeholder="No Description"
-                                               size="30"
-                                                {% if subsequence.description != None %}
-                                               value="{{ subsequence.description }}"
-                                                {% endif %} readonly><span>Description</span></label></td>
-                                    <!--
-                            {% if subsequence.description != None %}
-                                Description: {{ subsequence.description }}
-                            {% else %}
-                                No Description
-                            {% endif %}-->
-                                    <td><span class="" style="white-space: nowrap;"><label
-                                            class="checkbox">Validated: <input type="checkbox"
-                                                                               id="validated_{{ subsequence.id }}"
-                                                                               value="{{ subsequence.id }}"
-                                                                               aria-label="Validated"
-                                                                               disabled
-                                            {% if subsequence.validated %} checked {% endif %}/></label></span></td>
-                                </tr>
-                            </table>
-                            <!--<nobr>
-                            Created at:
-                            <script>document.write(new Date({{ subsequence.created }} * 1000).toUTCString()
-                            )
-                            </script>
-                        </nobr>-->
-                        </div>
-                    {% endfor %}
-                </div>
-            </div>
 
             <div class="columns has-no-padding-top">
                 <div class="column is-1">
-                    <p>Send E-Mail</p>
-                    <label data-balloon="{% if user_id == None %}Log in to use Send2Mail{% else %}Send Result via E-Mail{% endif %}"
+                    <p style="font-size:12px;">Send E-Mail</p>
+                    <label data-balloon="{% if user_id == None %}Type in an email address to use this feature{% else %}Send Result via E-Mail{% endif %}"
                            data-balloon-pos="right">
                         <input type="checkbox" aria-label="Send Result to E-Mail instead of waiting for Output"
-                               id="send_email" {% if user_id == None %}disabled{% endif %}
-                               class="switch is-rounded is-large button-fill no-outline" name="send_email"/>
+                               id="send_email"
+                               class="switch is-rounded button-fill no-outline" name="send_email"/>
                         <label for="send_email" class="no-outline"></label>
+                        <!-- {% if user_id == None %}disabled{% endif %} -->
                     </label>
                 </div>
                 <div class="column button-fill">
@@ -631,14 +772,14 @@ window.onload = function () {
                             id="submit_seq_btn">Submit
                     </button>
                 </div>
-                <div class="column button-fill is-2">
-                    <button class="button is-large is-rounded button-fill has-margin-top-20" id="uploadFasta"
-                            onclick="upload();return false">Upload Fasta
-                    </button>
-                </div>
+            </div>
+            <div>
+                <input class="input" type="email" name="emailadd" id="emailadd" placeholder="Email"
+                       style="display:none;">
             </div>
         </form>
     </div>
+
     <div id="results" style="display: none">
         <h2 class="subtitle"> Your Results: </h2>
         <div class="box">
@@ -668,14 +809,14 @@ window.onload = function () {
             </div>
         </div>
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
-        <div class="box">
+        <!--<div class="box">
             <h3 class="subtitle has-text-black"> Sequence with only Synthesis errors: </h3>
             <ul class="text_lettering" id="synth_seq" style="overflow-x: auto;"></ul>
         </div>
         <div class="box">
             <h3 class="subtitle has-text-black"> Sequence with only Sequencing errors: </h3>
             <ul class="text_lettering" id="seq_seq" style="overflow-x: auto;"></ul>
-        </div>
+        </div>-->
         <div class="box">
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
             <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
@@ -687,14 +828,38 @@ window.onload = function () {
                 </button>
             </div>
         </div>
-
-
-        <!--
-        <div class="box">
-            <h3 class="subtitle" style="color: black"> Modified Sequence: </h3>
-            <ul class="text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
+        <h2 class="subtitle maxExpect"> Max. Expect Secondary-Structure Results: </h2>
+        <div class="box maxExpect">
+            <h3 class="subtitle has-text-black"> Max-Expect dot-Sequence: </h3>
+            <ul class="text_lettering" id="dot_seq" style="overflow-x: auto;"></ul>
+            <div class="column is-rounded">
+                <p>Download as:</p>
+                <button class="button is-rounded downloadIMG" id="downloadSVG"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'svg');return false">
+                    SVG-Image
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadPS"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ps');return false">
+                    PS-Image
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadPDF"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pdf');return false">
+                    PDF-Image
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadCT"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'ct');return false">
+                    CT-File
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadDOT"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'dot');return false">
+                    DOT-File
+                </button>
+                <button class="button is-rounded downloadIMG" id="downloadPFS"
+                        onclick="let id = $('#dot_seq').data('id');downloadImg(id, 'pfs');return false">
+                    PFS-Distribution-File
+                </button>
+            </div>
         </div>
-        -->
 
         <div class="box">
             <h3 class="subtitle has-text-black">Share this result:</h3>
@@ -734,6 +899,7 @@ window.onload = function () {
         <script src={{ url_for('static',filename='js/jquery.lettering.js') }}></script>
         <script src={{ url_for('static',filename='js/Chart.min.js') }}></script>
         <script src={{ url_for('static',filename='js/chartjs-plugin-dragData.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/Sortable.js') }}></script>
         <script src={{ url_for('static',filename='js/error-chart.js') }}></script>
         <script src={{ url_for('static',filename='js/autoscroll.js') }}></script>
         <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
@@ -750,7 +916,16 @@ window.onload = function () {
             {%  if uuid != None %}
                 queryServer('{{ uuid }}');
             {% endif %}
-
+            {%  if user_id != None %}
+                user_id = {{user_id}};
+                setUser(user_id);
+            {% endif %}
+            $(window).keydown(function (event) {
+                if (event.keyCode === 13) {
+                    event.preventDefault();
+                    return false;
+                }
+            });
 
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) {
@@ -780,7 +955,6 @@ window.onload = function () {
                     dataset.data.sort(function (a, b) {
                         return a.x - b.x;
                     });
-                    //curr_chart.data.labels.push("tmp");
                 });
                 removeDuplicatesX();
                 curr_chart.update();
@@ -797,7 +971,6 @@ window.onload = function () {
                     }
                     $('#x-val').val(valueX);
                     $('#y-val').val(valueY);
-                    //curr_chart.data.labels.push("tmp");
                 });
             });
 
@@ -806,105 +979,117 @@ window.onload = function () {
                     closeOverlay();
                 }
                 if (!$(event.target).closest("#mod_seq").length) {
-                    var element = document.getElementById("mod_seq");
-                    set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+                    let seq = document.getElementById("mod_seq").innerText;
+                    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + get_gc_con(seq) + "% Tm: " + calc_tm(seq) + "°C Start-Pos: 0 End-Pos: " + seq.length;
                 }
                 if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
                     $("#validation_overlay").hide();
                 }
             });
             $("#mod_seq").on("click", function (e) {
-                var sel = "";
                 if (window.getSelection) {
-                    sel = window.getSelection().toString();
-                    var sel_start = window.getSelection().getRangeAt(0).startOffset + 1;
-                    if (window.getSelection().toString().length === 0) {
-                        var sel_end = sel_start;
-                    } else {
-                        var sel_end = sel_start + window.getSelection().toString().length - 1;
+                    let sel = window.getSelection().toString();
+                    set_mod_seq_inf(sel);
+                }
+            });
+            $("#send_email").on("click", function (e) {
+                let email_txt = $("#emailadd");
+                if ($("#send_email").is(":checked") && user_id === "") {
+                    email_txt.show();
+                } else {
+
+                    email_txt.val("");
+                    email_txt.hide();
+                }
+            });
+        });
+            $('#seqmeth1').bind('keyup', function (e) {
+                if (e.which === 46 || e.which === 8) {
+                    $('#seqmeth1 :selected').remove();
+                    // or your stuff here...
+                }
+            });
+            let trash = document.getElementById('trash');
+            let ssort;
+            let trash_svg = false;
+            let source = document.getElementById('nonee');
+            let sortable = Sortable.create(source, {
+                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
                     }
-                    set_mod_seq_inf(sel, sel_start, sel_end);
                 }
-            })
-
-        });
-
-
-        /*$(function () { // wait for page to load
-            var subDropdown = $("#seqmeth"),
-                mainDropdown = $('<select></select>'), // create a method dropdown
-                submethods = []; // ordered list of submethods
-
-            // parse the nested dropdown
-            subDropdown.children().each(function () {
-                var group = $(this),
-                    mainName = group.attr('label'),
-                    option;
-
-                // create an option for the method
-                option = $('<option></option>').text(mainName);
-
-                // store the associated submethod options
-                option.data('subMethods', group.children());
-
-                // check if the method should be selected
-                if (group.find(':selected').length > 0) {
-                    option.prop('selected', true);
+            });
+            let synthesis_sortable = Sortable.create(document.getElementById('synthesis_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
                 }
-
-                // add the method to the dropdown
-                mainDropdown.append(option);
+            });
+            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });*/
+            let pcr_sortable = Sortable.create(document.getElementById('pcr_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            let sequencing_sortable = Sortable.create(document.getElementById('sequencing_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
             });
 
-            // add the method dropdown to the page
-            subDropdown.before(mainDropdown);
-
-            // this function updates the submethod dropdown based on the selected method
-            function updateSubmethods() {
-                var main = mainDropdown.find(':selected');
-                subDropdown.empty().append(main.data('subMethods'));
-            }
-
-            // call the function to set the initial subMethods
-            updateSubmethods();
-
-            // and add the change handler
-            mainDropdown.on('change', updateSubmethods);
-
-        });
-
-        $(function () {
-            var subDropdown = $("#synthmeth"),
-                mainDropdown = $('<select></select>'),
-                error_correction = []; // ordered list of submethods
-
-            subDropdown.children().each(function () {
-                var group = $(this),
-                    mainName = group.attr('label'),
-                    option;
-
-                option = $('<option></option>').text(mainName);
-
-                option.data('error_correction', group.children());
-
-                if (group.find(':selected').length > 0) {
-                    option.prop('selected', true);
-                }
-
-                mainDropdown.append(option);
+            $('#seqmeth').children().each(function (x) {
+                var asd = Sortable.create($('#seqmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: true,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
             });
-
-            subDropdown.before(mainDropdown);
-
-            function updateErrCorrection() {
-                var main = mainDropdown.find(':selected');
-                subDropdown.empty().append(main.data('error_correction'));
-            }
-
-            updateErrCorrection();
-
-            mainDropdown.on('change', updateErrCorrection);
-        });
-        */
     </script>
 {% endblock %}

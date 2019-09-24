@@ -1,9 +1,14 @@
 let apikey = "";
 let host = "";
+let user_id = "";
 
 function setApikey(hst, key) {
     apikey = key;
     host = hst;
+}
+
+function setUser(user_id) {
+    user_id = user_id
 }
 
 function makeHoverGroups(user_borders, full_border, force) {
@@ -26,7 +31,6 @@ function makeHoverGroups(user_borders, full_border, force) {
     } else {
         lettering.css('min-height', '30px');
         lettering.css('overflow-y', 'hidden');
-        //$('#text_lettering').css('height', '80%');
     }
     if (all_groups.length > 1000 && !force) {
         all_groups.unbind();
@@ -49,11 +53,8 @@ function makeHoverGroups(user_borders, full_border, force) {
                             curr_elem.css('border', '1px solid');
                         curr_elem.css('border-color', 'black');
                         curr_elem.css('padding-bottom', (i % 30) + 'px');
-                        //curr_elem.css('overflow-y', 'hidden');
                     } else {
                         curr_elem.css('border-bottom', '5px solid'); // underline should be faster then bold font
-                        //curr_elem.css('overflow-y','initial')
-                        //curr_elem.css('font-weight', "bold");
                     }
                 }, function () {
                     let curr_elem = $("." + cls[cls.length - 1]);
@@ -64,7 +65,6 @@ function makeHoverGroups(user_borders, full_border, force) {
                             curr_elem.css('border', '');
                     } else {
                         curr_elem.css('border-bottom', ''); // underline should be faster then bold font
-                        //curr_elem.css('font-weight', "normal");
                     }
                 });
                 x++;
@@ -95,7 +95,7 @@ function extractUndesiredToJson() {
 }
 
 function importUndesiredFromJson(json_in) {
-    let container = $('#subseq_container');
+    let container = $('#subseq-container');
     container.empty();
     let tmp = "";
     for (let id in json_in) {
@@ -156,26 +156,45 @@ function round(value, decimals) {
 $(document).ready(function () {
     let seq = $("#sequence");
     let send_mail = $("#send_email");
+    let do_max_expect = $('#do_max_expect');
     seq.keypress(function (e) {
         let chr = String.fromCharCode(e.which);
         let limitAlphabet = $('#limitedChars')[0].checked;
         if ("ACGTacgt".indexOf(chr) < 0 && limitAlphabet) {
             return false;
         }
-
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.prop("disabled", true);
         } else {
             send_mail.removeAttr("disabled");
         }
+        if (seq.val().length >= 4000) {
+            do_max_expect.prop("checked", false);
+            do_max_expect.prop("disabled", true);
+        } else {
+            do_max_expect.prop("disabled", false);
+        }
     });
+    let add_mail = $("#emailadd");
     seq.bind("propertychange change click keyup input paste", function (e) {
+        if (seq.val().length >= 4000) {
+            do_max_expect.prop("checked", false);
+            do_max_expect.prop("disabled", true);
+        } else {
+            do_max_expect.prop("disabled", false);
+        }
+        $('#temperature').prop('disabled', !do_max_expect.is(':checked'));
         if (seq.val().length >= 1000) {
             send_mail.prop("checked", true);
             send_mail.attr("disabled", true);
+            if (user_id === "") {
+                add_mail.show();
+            }
         } else {
             send_mail.attr("disabled", false);
+            add_mail.hide();
+            add_mail.val("");
         }
     });
     /*seq.keyup(function () {
@@ -189,7 +208,28 @@ $(document).ready(function () {
         event.preventDefault();
         queryServer(undefined);
     });
+    $('#informationcontainer').hide();
+    set_listener();
 });
+
+function set_listener(){
+    $('[name="sequence"]').each(function (e, elem) {
+        $(elem).on("paste klick change keyup", function (f) {
+            setTimeout(function(g){
+                let data = $(elem).val();
+                $(elem).val(data.replace(/[^ACGT]/gi, "").toUpperCase());
+            });
+        });
+    });
+    $('[name="error_prob"]').each(function (e, elem) {
+        $(elem).on("paste klick change keyup", function (f) {
+            setTimeout(function(g){
+                let data = $(elem).val();
+                $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
+            });
+        });
+    });
+}
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
 function download(text, name, type) {
@@ -207,9 +247,25 @@ function download(text, name, type) {
     }
 }
 
+function downloadImg(id, type) {
+    var file = host + "api/getIMG?id=" + id + "&type=" + type;
+    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    if (isIE) {
+        window.navigator.msSaveOrOpenBlob(file, name);
+    } else {
+        var a = document.createElement('a');
+        a.href = file;
+        a.download = name;
+        document.body.appendChild(a);
+        a.style.display = 'none';
+        a.click();
+    }
+}
+
 function handleFileChange(evt) {
     if (window.File && window.FileReader && window.FileList && window.Blob) {
         // Great success! All the File APIs are supported.
+        let jseq = $("#sequence");
         let file = "";
         if (evt.type === "drop") {
             evt.stopPropagation();
@@ -219,35 +275,39 @@ function handleFileChange(evt) {
             file = evt.target.files[0];
         }
         let reader = new FileReader();
-        reader.readAsText(file);
+        try {
+            reader.readAsText(file);
+        } catch (e) {
+            return false;
+        }
         reader.onload = () => {
             try {
                 let text = reader.result;
-                if(text.startsWith(">")){
+                if (text.startsWith(">")) {
+                    if (user_id === "") {
+                        $("#emailadd").show();
+                    }
                     //split into sequences and remove headlines
                     let sequences = text.split(">");
                     sequences.shift();
-                    for(let i = 0; i < sequences.length; i++){
-                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n")+1);
+                    for (let i = 0; i < sequences.length; i++) {
+                        sequences[i] = sequences[i].substring(sequences[i].indexOf("\n") + 1);
                         sequences[i] = sequences[i].replace("\n", "");
                     }
-                    if(sequences.length === 1){
-                        let sequence = $("#sequence");
-                        sequence.val(sequences[0]);
-                    }
-                    else if(sequences.length > 1){
+                    if (sequences.length === 1) {
+                        jseq.val(sequences[0]);
+                    } else if (sequences.length > 1) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
-                        $("#sequence").data("sequence_list", sequences);
-                        $("#sequence").val("Fasta file loaded. Your results will be send to your E-Mail");
-                        queryServer(undefined);
+                        jseq.data("sequence_list", sequences);
+                        jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
+                        //queryServer(undefined);
                     }
-                }
-                else{
+                } else {
                     loadSendData(JSON5.parse(text))
                 }
             } catch (e) {
-                $("#sequence").val(reader.result.toUpperCase());
+                jseq.val(reader.result.toUpperCase());
             }
         }
     } else {
@@ -265,9 +325,13 @@ function upload() {
 }
 
 function handleDragOver(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    try {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    } catch (e) {
+
+    }
 }
 
 function loadSendData(dta) {
@@ -282,7 +346,7 @@ function loadSendData(dta) {
     // find dropdown-pos to select...
     /* GC */
     let gc_selection = $('#gc-dropdown option').filter(function () {
-        return $(this).html() == dta['gc_name'];
+        return $(this).html() === dta['gc_name'];
     });
     if (gc_selection.length > 0) {
         gc_selection.prop('selected', true)
@@ -295,7 +359,7 @@ function loadSendData(dta) {
     }
     /* KMER */
     let kmer_selection = $('#kmer-dropdown option').filter(function () {
-        return $(this).html() == dta['kmer_name'];
+        return $(this).html() === dta['kmer_name'];
     });
     if (kmer_selection.length > 0) {
         kmer_selection.prop('selected', true)
@@ -308,7 +372,7 @@ function loadSendData(dta) {
     }
     /* Homopolymer */
     let homopolymer_selection = $('#homopolymer-dropdown option').filter(function () {
-        return $(this).html() == dta['homopolymer_name'];
+        return $(this).html() === dta['homopolymer_name'];
     });
     if (homopolymer_selection.length > 0) {
         homopolymer_selection.prop('selected', true)
@@ -323,15 +387,14 @@ function loadSendData(dta) {
     /*SEQ*/
     seq.val(0).prop('disabled', dta['use_error_probs']);
     let seq_selection = $('#seqmeth option').filter(function () {
-        return $(this).val() == dta['sequence_method'];
+        return $(this).val() === dta['sequence_method'];
     });
     if (seq_selection.length > 0) {
         seq_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        $('#seqmeth').append(opt);
-        //TODO
-        let sm_sel = $('#seqmeth option:selected')
+        seq.append(opt);
+        let sm_sel = $('#seqmeth option:selected');
         sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
     }
@@ -339,18 +402,18 @@ function loadSendData(dta) {
     /* SYNTH */
     synth.val(0).prop('disabled', dta['use_error_probs']);
     let synth_selection = $('#synthmeth option').filter(function () {
-        return $(this).val() == dta['synthesis_method'];
+        return $(this).val() === dta['synthesis_method'];
     });
     if (synth_selection.length > 0) {
         synth_selection.prop('selected', true)
     } else {
         let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        $('#synthmeth').append(opt);
-        //TODO
+        synth.append(opt);
         let sm_sel = $('#synthmeth option:selected');
         sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
         sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
+    $("#used_seed").text(dta['seed']);
 
     /* PCR */
     pcr.val(0).prop('disabled', dta['use_error_probs']);
@@ -385,7 +448,8 @@ function loadSendData(dta) {
     }
 
     $('#calcprobs').prop("checked", dta['use_error_probs']);
-    $('limitedChars').prop("checked", dta['acgt_only']);
+    $('#limitedChars').prop("checked", dta['acgt_only']);
+    $('#do_max_expect').prop("checked", dta['do_max_expect']);
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
 }
 
@@ -408,8 +472,55 @@ function collectSendData(space) {
     let kmer_error_prob = kmer_dropdown_select.data('jsonblob');
     if (typeof (kmer_error_prob) === "string")
         kmer_error_prob = JSON5.parse(kmer_error_prob);
-    let seq_meth = $("#seqmeth option:selected");
-    let synth_meth = $("#synthmeth option:selected");
+
+    let adv_meth = $("#adv_exec");
+    let seq_meth, synth_meth;
+    let exec_res = {};
+    if(adv_meth.prop("checked")){
+        seq_meth = $("#seqmeth option:selected");
+        synth_meth = $("#synthmeth option:selected");
+        /* collect all error simulation elements in correct execution order */
+        let exec_order = $('#seqmeth1').children();
+        exec_order.each(function (id, o_group) {
+            let tmp = [];
+            $(o_group).children().each(function (o_id, meth) {
+                let jmeth = $(meth);
+                tmp.push({
+                    name: jmeth.text(),
+                    id: jmeth.val(),
+                    conf: {
+                        err_data: jmeth.data('err_data'),
+                        err_attributes: jmeth.data('err_attributes')
+                    }
+                });
+            });
+            exec_res[o_group.label] = tmp;
+        });
+    }
+    else{
+        seq_meth = $("#classic_seqmeth option:selected");
+        synth_meth = $("#classic_synthmeth option:selected");
+        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing']].forEach(function (meth) {
+            exec_res[meth[1]] = [{
+                name: meth[0].text(),
+                id: meth[0].val(),
+                conf: {
+                    err_data: meth[0].data('err_data'),
+                    err_attributes: meth[0].data('err_attributes')
+                }
+            }];
+        })
+    }
+
+    let email = "";
+    if (user_id === "" && $('#send_email').is(':checked')) {
+        if ($("#emailadd").val()) {
+            email = $("#emailadd").val();
+        } else {
+            alert("Please enter your email or deactivate send by mail!");
+            return
+        }
+    }
     let pcr_meth = $("#pcrmeth option:selected");
     let storage_meth = $("#storagemeth option:selected");
     return JSON.stringify({
@@ -437,6 +548,7 @@ function collectSendData(space) {
             err_attributes: synth_meth.data('err_attributes')
         },
         synthesis_method_name: synth_meth.text(),
+        err_simulation_order: exec_res,
         pcr_method_name: pcr_meth.text(),
         pcr_method: pcr_meth.val(),
         pcr_cycles: $('#cycles').val(),
@@ -454,24 +566,27 @@ function collectSendData(space) {
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
+        do_max_expect: $('#do_max_expect').is(":checked"),
+        temperature: $('#temperature').val(),
         send_mail: $('#send_email').is(":checked"),
+        email: email,
         asHTML: true
     }, undefined, space);
 }
 
-function collectSendFastQ(modified){
-    if(modified==false){
-        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+document.getElementById("overall").innerText+'\n+\n'+$('#overall').data('fastq');
-    }
-    else{
+function collectSendFastQ(modified) {
+    if (modified === false) {
+        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + document.getElementById("overall").innerText + '\n+\n' + $('#overall').data('fastq');
+    } else {
         let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
-        return '@Your Moslasequence at '+document.getElementById("link_to_share").innerText+'\n'+sequence+'\n+\n'+$('#mod_seq').data('fastq');
+        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + sequence + '\n+\n' + $('#mod_seq').data('fastq');
     }
 }
 
 function queryServer(uuid) {
+    let jseq = $("#sequence");
     let submit_seq_btn = $('#submit_seq_btn');
-    let sequence = $("#sequence").val().toUpperCase();
+    let sequence = jseq.val().toUpperCase();
     let homopolymer = $('#homopolymer');
     let gccontent = $('#gccontent');
     let sequences = $('#subsequences');
@@ -481,7 +596,8 @@ function queryServer(uuid) {
     let synth_seq = $('#synth_seq');
     let mod_seq = $('#mod_seq');
     let fasta = false;
-    if($("#sequence").data("sequence_list")){
+    let dot_seq = $('#dot_seq');
+    if (jseq.data("sequence_list")) {
         fasta = true;
     }
     /*for (let i = 0; i <= overall.text().length; i++) {
@@ -505,6 +621,7 @@ function queryServer(uuid) {
         "sequencing": seq_seq,
         "synthesis": synth_seq,
         "modify": mod_seq,
+        "dot_seq": dot_seq,
     };
 
     let send_data = undefined;
@@ -517,14 +634,17 @@ function queryServer(uuid) {
                 uuid: uuid
             });
     }
+    if (send_data === undefined) {
+        return
+    }
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
     let mode = "all";
-    if(fasta){
+    if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail") {
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
-        tmp_data["sequence_list"]=$("#sequence").data("sequence_list");
+        tmp_data["sequence_list"] = jseq.data("sequence_list");
         send_data = JSON.stringify(tmp_data);
     }
     $.post({
@@ -553,41 +673,53 @@ function queryServer(uuid) {
             if (data['did_succeed'] !== false && data['result_by_mail'] !== true) {
                 if (uuid !== undefined)
                     loadSendData(data['query']);
+                data = data['res'];
+                if (uuid !== undefined)
+                    data = data[Object.keys(data)[0]];
+                dot_seq.data('id', data['maxexpectid']);
+                overall.data('fastq', data['fastqOr']);
+                mod_seq.data('fastq', data['fastqMod']);
+                $("#used_seed").text(data['seed']);
+                for (let error_source in data) {
+                    if (error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed' && error_source !== 'maxexpectid')
+                        endpoints[error_source].html(data[error_source]);
+                    if (error_source === "dot_seq")
+                        if (data[error_source] === "<nobr></nobr>")
+                            $('.maxExpect').hide();
+                        else if (data[error_source].startsWith("<nobr>Error")) {
+                            $('.maxExpect').show();
+                            $(".downloadIMG").attr("disabled", true);
+                        } else {
+                            $('.maxExpect').show();
+                            $(".downloadIMG").attr("disabled", false);
+                        }
 
-                    data = data['res'];
-                    if (uuid !== undefined)
-                        data = data[Object.keys(data)[0]];
-                    overall.data('fastq',data['fastqOr']);
-                    mod_seq.data('fastq',data['fastqMod']);
-                    $("#used_seed").text(data['seed']);
-                    for (let error_source in data) {
-                        if(error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed')
-                            endpoints[error_source].html(data[error_source]);
-                    }
-                    makeHoverGroups();
-                    res.css('display', 'initial');
-                    $('html, body').animate({scrollTop: res.offset().top}, 500);
                 }
-                var element = document.getElementById('mod_seq');
-                set_mod_seq_inf(element.innerText, 1, element.innerText.length);
-                if (data['result_by_mail'] === true) {
-                    //TODO show info that the result will be send via mail
-                    resultsbymail.css('display', 'initial');
-                }
-                submit_seq_btn.removeClass('is-loading');
-            },
-            fail: function (data) {
-                console.log(data);
-                //$('#text_lettering').text(data);
-                submit_seq_btn.removeClass('is-loading');
+                makeHoverGroups();
+                res.css('display', 'initial');
+                $('html, body').animate({scrollTop: res.offset().top}, 500);
             }
-            ,
-            error: function (jqXHR, textStatus, errorThrown) {
-                console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
-                submit_seq_btn.removeClass('is-loading');
+
+
+            let element = document.getElementById('mod_seq');
+            set_mod_seq_inf(element.innerText);
+            if (data['result_by_mail'] === true) {
+                //TODO show info that the result will be send via mail
+                resultsbymail.css('display', 'initial');
             }
-        });
-        $("#sequence").removeData("sequence_list");
+            submit_seq_btn.removeClass('is-loading');
+        },
+        fail: function (data) {
+            console.log(data);
+            submit_seq_btn.removeClass('is-loading');
+        }
+        ,
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+            submit_seq_btn.removeClass('is-loading');
+        }
+    });
+    jseq.removeData("sequence_list");
 }
 
 const percentColors = [
@@ -617,21 +749,13 @@ var getColorForPercentage = function (pct) {
     // or output as hex if preferred
 };
 
-/*for (var i = 0, l = $('#text_lettering').text().length; i <= l; i++) {
-    let curr_char = $(".char" + (i + 1));
-    curr_char.css("background-color", getColorForPercentage(i / l));
-    curr_char.css("color", "gray");
-    curr_char.attr('title', (i / l));
-    //$(".text_lettering").append(li);
-}*/
-
-function copyToClipboard(element) {
+/*function copyToClipboard(element) {
     var $temp = $("<input>");
     $("body").append($temp);
     $temp.val($(element).text()).select();
     document.execCommand("copy");
     $temp.remove();
-}
+}*/
 
 
 function updateSynthDropdown(host, apikey, type) {
@@ -650,29 +774,34 @@ function updateSynthDropdown(host, apikey, type) {
             }
         },
         success: function (data) {
-            let el = $('#synthmeth');
-            el.empty(); // remove old options
-            $.each(data['synth'], function (name) {
-                let elem = data['synth'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
-                optgroup.appendTo(el);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
-                });
+            let trash = document.getElementById('trash');
+            let methods = [['synth', '#synthmeth'], ['synth', '#classic_synthmeth'], ['seq', '#seqmeth'], ['seq', '#classic_seqmeth']];
+            methods.forEach(function (method) {
+                let el = $(method[1]);
+                el.empty();
+                $.each(data[method[0]], function (name) {
+                    let elem = data[method[0]][name];
+                    let optgroup = $("<optgroup id='" + name + "' label='" + name + "'></optgroup>");
+                    optgroup.appendTo(el);
+                    $.each(elem, function (inner_id) {
+                        let id = elem[inner_id]['id'];
+                        let id_name = "" + name + "_" + id;
+                        optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                    });
+                })
             });
 
-            let sel = $('#seqmeth');
-            sel.empty(); // remove old options
-            $.each(data['seq'], function (name) {
-                let elem = data['seq'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
-                optgroup.appendTo(sel);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+            // make content draggable
+            [$('#synthmeth'), $('#seqmeth')].forEach(function (elem) {
+                elem.children().each(function (x) {
+                    var asd = Sortable.create(elem.children()[x], {
+                        group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
+                        onEnd: function (evt) {
+                            if (evt.to === trash) {
+                                evt.to.children[evt.newIndex].remove();
+                            }
+                        }
+                    });
                 });
             });
 
@@ -703,6 +832,7 @@ function updateSynthDropdown(host, apikey, type) {
                     optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
             });
+            initListsDnD();
         },
         fail: function (data) {
             console.log(data)
@@ -718,55 +848,374 @@ function changeurl(new_url) {
 }
 
 
-var dropZone = document.getElementById('main-body');
+let dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
-function set_mod_seq_inf(sel, sel_start, sel_end){
-    var sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C'))/count_all(sel))*100;
-    sel_gc_con = Math.round(sel_gc_con * 100)/100;
-    var sel_tm = get_tm(sel)
-    if(sel_tm === -1){
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: Select at least 6 bases. Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+function set_mod_seq_inf(sel_seq) {
+    let sel_pos = getSelectionCharacterOffsetWithin(document.getElementById("mod_seq"));
+    let sel_gc_con = get_gc_con(sel_seq);
+    let sel_tm = calc_tm(sel_seq);
+    if (Number.isNaN(sel_gc_con)){
+        sel_gc_con = 0;
     }
-    else{
-        sel_tm = Math.round(sel_tm * 100)/100;
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: "+sel_gc_con+"% Tm: "+sel_tm+"°C Start-Pos: "+ sel_start+" End-Pos: "+ sel_end;
+    if (sel_tm === -1) {
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_pos.start + " End-Pos: " + sel_pos.end;
+    } else {
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_pos.start + " End-Pos: " + sel_pos.end;
     }
 
+
+}
+
+function getSelectionCharacterOffsetWithin(element) {
+    let start = 0;
+    let end = 0;
+    let doc = element.ownerDocument || element.document;
+    let win = doc.defaultView || doc.parentWindow;
+    let sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            let range = win.getSelection().getRangeAt(0);
+            let preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.startContainer, range.startOffset);
+            start = preCaretRange.toString().length;
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            end = preCaretRange.toString().length;
+        }
+    } else if ((sel = doc.selection) && sel.type != "Control") {
+        let textRange = sel.createRange();
+        let preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToStart", textRange);
+        start = preCaretTextRange.text.length;
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        end = preCaretTextRange.text.length;
+    }
+    return {start: start, end: end};
+}
+
+function get_gc_con(sel_seq) {
+    let gc_con = ((count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) / count_all(sel_seq)) * 100;
+    return Math.round(gc_con * 100) / 100;
 }
 
 function count_char(sel_seq, char) {
-    var count = 0;
-    for (var i = 0; i < sel_seq.length; i +=1){
-        if(sel_seq[i] === char){
+    let count = 0;
+    for (let i = 0; i < sel_seq.length; i += 1) {
+        if (sel_seq[i] === char) {
             count += 1;
         }
     }
     return count;
 }
 
-function count_all(sel_seq){
-    var count = 0;
-    for(var i = 0; i < sel_seq.length; i +=1){
-        tmp = sel_seq[i];
-        if(tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G'){
+function count_all(sel_seq) {
+    let count = 0;
+    for (let i = 0; i < sel_seq.length; i += 1) {
+        let tmp = sel_seq[i];
+        if (tmp === 'A' || tmp === 'T' || tmp === 'C' || tmp === 'G') {
             count += 1;
         }
     }
     return count;
 }
 
-function get_tm(sel_seq){
-    var tm = 0;
-    if(count_all(sel_seq) < 6){
+
+function updateUserId(host, u_id, callback) {
+    if (callback === undefined)
+        callback = function f() {
+        };
+    let new_email = $('#user_email_' + u_id).val();
+    let validated = $('#validated_' + u_id).is(":checked");
+    let is_admin = $('#isadmin_' + u_id).is(":checked");
+    $.post({
+        url: host + "manage_users",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            do_update: true,
+            user_id: u_id,
+            new_email: new_email,
+            validated: validated,
+            is_admin: is_admin
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            $('#update-user_' + u_id).removeClass('is-loading');
+            if (data['did_succeed'] === true)
+                callback();
+        },
+        fail: function (data) {
+            $('#update-user_' + u_id).removeClass('is-loading');
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+function deleteUserId(host, user_id, callback) {
+    if (callback === undefined)
+        callback = function f() {
+        };
+    $.post({
+        url: host + "manage_users",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            do_delete: true,
+            user_id: user_id
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            $('#delete-user_' + user_id).removeClass('is-loading');
+            if (data['did_succeed'] === true)
+                callback();
+        },
+        fail: function (data) {
+            $('#delete-user_' + user_id).removeClass('is-loading');
+            console.log(data)
+            //TODO show error message on screen
+        }
+    });
+}
+
+/**
+ * Tm_calculation
+ *
+ *
+ *
+ *
+ *
+ */
+
+let TmSettings = {
+    Ct: 250e-9,// DNA strand concentration
+    Na: 50e-3,// Na+/K+ ion concentration. Default taken from Primer3
+    Mg: 0,    // divalent salt concentration default taken from Primer3Web 2.3.6
+    dNTP: 0     // dNTP (denucleotide tri phosphate) default taken from Primer3Web 2.3.6
+};
+
+let dS = {},
+    dH = {},
+    init_GC_dH = 0.1 * 1000,
+    init_GC_dS = -2.8,
+    init_AT_dH = 2.3 * 1000,
+    init_AT_dS = 4.1,
+    sym_dS = -1.4,
+    /**
+     * molar gas constant
+     * R 8.314472 J mol-1 K-1
+     * Divided by 4.184 J / calorie for units:
+     * cal mol-1 K-1
+     */
+    R = 1.9872;
+
+
+function calc_tm(sel_seq){
+    let tm = 0;
+    sel_seq = sel_seq.replace(/ /g, "");
+    let seq_len = sel_seq.length;
+    if(seq_len < 6){
         return -1;
     }
-    else if(6 <= count_all(sel_seq) < 14){
-        tm = (count_char(sel_seq, 'A')+count_char(sel_seq, 'T'))*2 + (count_char(sel_seq, 'G')+count_char(sel_seq, 'C'))*4
+    else if(seq_len < 14){
+        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4;
     }
-    else if(count_all(sel_seq) >= 14){
-        tm = 64.9 + 41*(count_char(sel_seq, 'G')+count_char(sel_seq,'C')-16.4)/(count_all(sel_seq))
+    else if(14 <= seq_len) {
+        init();
+        let self_comp = is_self_comp(sel_seq);
+        let dS_sum = calc_dS(sel_seq, self_comp);
+        let na_corr = TmSettings.Na + divalendToMonovalentCorrection(TmSettings.Mg, TmSettings.dNTP);
+        let salt_corr = (seq_len - 1) * 0.368 * Math.log(na_corr);
+        let dH_sum = calc_dH(sel_seq);
+        let h = is_self_comp ? 1.0 : 0.25;
+        tm = dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
     }
-    return tm;
+    return Math.round(tm * 100) / 100;
 }
+
+function init() {
+    h('AA', -7.9, -22.2);
+    h('AT', -7.2, -20.4);
+    h('TA', -7.2, -21.3);
+    h('CA', -8.5, -22.7);
+    h('GT', -8.4, -22.4);
+    h('CT', -7.8, -21.0);
+    h('GA', -8.2, -22.2);
+    h('CG', -10.6, -27.2);
+    h('GC', -9.8, -24.4);
+    h('GG', -8.0, -19.9);
+}
+
+function h(seq, dH_val, dS_val) {
+    let rev = reverse_seq(get_comp_seq(seq));
+    dH[seq] = dH[rev] = dH_val * 1000;
+    dS[seq] = dS[rev] = dS_val;
+}
+
+function get_comp_base(base) {
+    if (base === 'A') return 'T';
+    if (base === 'T') return 'A';
+    if (base === 'C') return 'G';
+    if (base === 'G') return 'C';
+}
+
+function get_comp_seq(seq) {
+    let tmp_seq = [];
+    for (let i = 0; i < seq.length; i++) {
+        tmp_seq.push(get_comp_base(seq.charAt(i)));
+    }
+    return tmp_seq.join("");
+}
+
+function reverse_seq(seq) {
+    return seq.split("").reverse().join("");
+}
+
+function is_self_comp(seq) {
+    let comp_seq = get_comp_seq(seq);
+    for (let i = 0; i < seq.length; i++) {
+        if (seq[i] !== comp_seq[seq.length - i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function divalendToMonovalentCorrection(divalent, monovalent) {
+    return 12.0 / Math.sqrt(10) * Math.sqrt(Math.max(0, divalent - monovalent));
+}
+
+function calc_dS(seq, is_self_comp) {
+    let first = seq[0];
+    let tmp_dS = first === 'A' || first === 'T' ? init_AT_dS : init_GC_dS;
+    for (let i = 0; i < seq.length - 1; ++i) {
+        tmp_dS += dS[seq.substr(i, 2)];
+    }
+    let last = seq[seq.length - 1];
+    tmp_dS += last == 'A' || last == 'T' ? init_AT_dS : init_GC_dS;
+    if (is_self_comp) {
+        tmp_dS += sym_dS;
+    }
+    return tmp_dS;
+}
+
+function calc_dH(seq) {
+    let first = seq[0];
+    let tmp_dH = first === 'A' || first === 'T' ? init_AT_dH : init_GC_dH;
+    for (let i = 0; i < seq.length - 1; ++i) {
+        tmp_dH += dH[seq.substr(i, 2)];
+    }
+    let last = seq[seq.length - 1];
+    tmp_dH += last == 'A' || last == 'T' ? init_AT_dH : init_GC_dH;
+    return tmp_dH;
+}
+
+
+function initListsDnD() {
+            let trash = $('#trash')[0];
+            let ssort;
+            let trash_svg = false;
+            /*let source = $('#synthmeth')[0];
+            let sortable = Sortable.create(source, {
+                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            }); */
+            let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+                    group: {name: 'a', pull: true, put: true}, sort: true,
+                    onStart: function (/**Event/evt) {
+                        if (!trash_svg) {
+                            trash = document.getElementById('trash');
+                            ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                            trash_svg = true;
+                        }
+                    },
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });*/
+            let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+
+            $('#seqmeth').children().each(function (x) {
+                var asd = Sortable.create($('#seqmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: false,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
+            $('#synthmeth').children().each(function (x) {
+                var asd = Sortable.create($('#synthmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: false,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
+        }
