@@ -338,6 +338,8 @@ function loadSendData(dta) {
     $("#sequence").val(dta['sequence']);
     let seq = $('#seqmeth');
     let synth = $('#synthmeth');
+    let pcr = $('#pcrmeth');
+    let storage = $('#storagemeth');
     $('#kmer_window_size').val(dta['kmer_windowsize']);
     $('#gc_window_size').val(dta['gc_windowsize']);
 
@@ -412,6 +414,39 @@ function loadSendData(dta) {
         sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
     }
     $("#used_seed").text(dta['seed']);
+
+    /* PCR */
+    pcr.val(0).prop('disabled', dta['use_error_probs']);
+    let pcr_selection = $('#pcrmeth option').filter(function () {
+        return $(this).val() == dta['pcr_method'];
+    });
+    if (pcr_selection.length > 0) {
+        pcr_selection.prop('selected', true)
+    } else {
+        let opt = new Option(dta['pcr_method_name'] + " (CUSTOM)", dta['pcr_method_name'], undefined, true);
+        $('#pcrmeth').append(opt);
+        //TODO
+        let sm_sel = $('#pcrmeth option:selected');
+        sm_sel.data('err_attributes', dta['pcr_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['pcr_method_conf']['err_data']);
+    }
+
+    /* Storage */
+    storage.val(0).prop('disabled', dta['use_error_probs']);
+    let storage_selection = $('#storagemeth option').filter(function () {
+        return $(this).val() == dta['storage_method'];
+    });
+    if (storage_selection.length > 0) {
+        storage_selection.prop('selected', true)
+    } else {
+        let opt = new Option(dta['storage_method_name'] + " (CUSTOM)", dta['storage_method_name'], undefined, true);
+        $('#storagemeth').append(opt);
+        //TODO
+        let sm_sel = $('#storagemeth option:selected');
+        sm_sel.data('err_attributes', dta['storage_method_conf']['err_attributes']);
+        sm_sel.data('err_data', dta['storage_method_conf']['err_data']);
+    }
+
     $('#calcprobs').prop("checked", dta['use_error_probs']);
     $('#limitedChars').prop("checked", dta['acgt_only']);
     $('#do_max_expect').prop("checked", dta['do_max_expect']);
@@ -486,6 +521,8 @@ function collectSendData(space) {
             return
         }
     }
+    let pcr_meth = $("#pcrmeth option:selected");
+    let storage_meth = $("#storagemeth option:selected");
     return JSON.stringify({
         sequence: sequence,
         key: apikey,
@@ -512,6 +549,20 @@ function collectSendData(space) {
         },
         synthesis_method_name: synth_meth.text(),
         err_simulation_order: exec_res,
+        pcr_method_name: pcr_meth.text(),
+        pcr_method: pcr_meth.val(),
+        pcr_cycles: $('#cycles').val(),
+        pcr_method_conf: {
+            err_data: pcr_meth.data('err_data'),
+            err_attributes: pcr_meth.data('err_attributes')
+        },
+        storage_method_name: storage_meth.text(),
+        storage_method: storage_meth.val(),
+        storage_months: $('#months').val(),
+        storage_method_conf: {
+            err_data: storage_meth.data('err_data'),
+            err_attributes: storage_meth.data('err_attributes')
+        },
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
@@ -751,6 +802,34 @@ function updateSynthDropdown(host, apikey, type) {
                             }
                         }
                     });
+                });
+            });
+
+            let sele = $('#pcrmeth');
+            sele.empty(); // remove old options
+            $.each(data['pcr'], function (name) {
+                let elem = data['pcr'][name];
+                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
+                optgroup.appendTo(sele);
+                $.each(elem, function (inner_id) {
+                    let id = elem[inner_id]['id'];
+                    let id_name = "" + name + "_" + id;
+                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                });
+            });
+
+            let e = $('#storagemeth');
+            e.empty(); // remove old options
+            $.each(data['storage'], function (name) {
+                let elem = data['storage'][name];
+                console.log(elem);
+                console.log(data['storage']);
+                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
+                optgroup.appendTo(e);
+                $.each(elem, function (inner_id) {
+                    let id = elem[inner_id]['id'];
+                    let id_name = "" + name + "_" + id;
+                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
                 });
             });
             initListsDnD();

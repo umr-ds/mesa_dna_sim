@@ -21,7 +21,7 @@ from flask import jsonify, request, Blueprint, current_app, copy_current_request
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
 from api.apikey import require_apikey
-from database.models import SequencingErrorRates, SynthesisErrorRates, Apikey, User
+from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, StorageErrorRates, Apikey, User
 from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
@@ -401,6 +401,12 @@ def do_all(r_method):
     seq_meth_conf = r_method.get('sequence_method_conf')
     synth_meth = r_method.get('synthesis_method')
     synth_meth_conf = r_method.get('synthesis_method_conf')
+    pcr_meth = r_method.get('pcr_method')
+    cycles = r_method.get('pcr_cycles')
+    pcr_meth_conf = r_method.get('pcr_method_conf')
+    storage_meth = r_method.get('storage_method')
+    months = r_method.get('storage_months')
+    storage_meth_conf = r_method.get('storage_method_conf')
 
     err_simulation_order = r_method.get('err_simulation_order')
 
@@ -481,7 +487,11 @@ def do_all(r_method):
                 seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,
                                         conf=meth['conf']) + 1) % 4294967296  # TODO rename 'process="..."'
             """
-            # Storage / PCR:
+            #TODO
+            pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
+            storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
+
+            # Sequencing:
             for meth in err_simulation_order['Sequencing']:
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
@@ -622,6 +632,58 @@ def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=Non
         err_att_syn = conf['err_attributes']
     synth_err = SequencingError(sequence, g, process, err_att_syn, err_rate_syn, seed=seed)
     return synth_err.lit_error_rate_mutations()
+
+
+def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None, cycles=1):
+    """
+    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
+    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param sequence: Sequence to calculate the synthesis error probabilites for.
+    :param g: Graph to store the results.
+    :param pcr_meth: Selected polymerase.
+    :param process: "pcr"
+    :param conf: Uploaded configuration, None by default.
+    :param cycles: Amount of cycles to be simulated.
+    :return: Synthesis error probabilities for the sequence.
+    """
+    if conf is None:
+        tmp = PcrErrorRates.query.filter(
+            PcrErrorRates.id == int(pcr_meth)).first()
+        err_rate_pcr = tmp.err_data
+        err_att_pcr = tmp.err_attributes
+        cycles = cycles
+    else:
+        err_rate_pcr = conf['err_data']
+        err_att_pcr = conf['err_attributes']
+    err_rate_pcr['raw_rate'] = err_rate_pcr['raw_rate'] * int(cycles)
+    pcr_err = SequencingError(sequence, g, process, err_att_pcr, err_rate_pcr, seed=seed)
+    return pcr_err.lit_error_rate_mutations()
+
+
+def storage_error(sequence, g, storage_meth, seed, process="storage", conf=None, months=1):
+    """
+    If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
+    a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param sequence: Sequence to calculate the synthesis error probabilites for.
+    :param g: Graph to store the results.
+    :param storage_meth: Selected storage host.
+    :param months: duration of the simulated storage process.
+    :param process: "storage"
+    :param conf: Uploaded configuration, None by default.
+    :return: Synthesis error probabilities for the sequence.
+    """
+    if conf is None:
+        tmp = StorageErrorRates.query.filter(
+            StorageErrorRates.id == int(storage_meth)).first()
+        err_rate_storage = tmp.err_data
+        err_att_storage = tmp.err_attributes
+        months = months
+    else:
+        err_rate_storage = conf['err_data']
+        err_att_storage = conf['err_attributes']
+    err_rate_storage['raw_rate'] = err_rate_storage['raw_rate'] * int(months)
+    storage_err = SequencingError(sequence, g, process, err_att_storage, err_rate_storage, seed=seed)
+    return storage_err.lit_error_rate_mutations()
 
 
 def sequencing_error(sequence, g, seq_meth, seed, process="sequencing", conf=None):
@@ -856,7 +918,11 @@ def colorize(error_prob):
                       {"pct": 4.0, "color": {"r": 0xff, "g": 0xff, "b": 0x99, "a": 1.0}},
                       {"pct": 4.3, "color": {"r": 0x99, "g": 0xcc, "b": 0x00, "a": 1.0}},
                       {"pct": 4.6, "color": {"r": 0xff, "g": 0xff, "b": 0x00, "a": 1.0}},
-                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 0.5}}
+                      {"pct": 4.9, "color": {"r": 0x80, "g": 0x80, "b": 0x00, "a": 0.5}},
+                      {"pct": 5.0, "color": {"r": 0xff, "g": 0x00, "b": 0x7f, "a": 1.0}},
+                      {"pct": 5.3, "color": {"r": 0xff, "g": 0x33, "b": 0x99, "a": 1.0}},
+                      {"pct": 5.6, "color": {"r": 0xff, "g": 0x99, "b": 0xcc, "a": 1.0}},
+                      {"pct": 5.9, "color": {"r": 0xff, "g": 0xcc, "b": 0xe5, "a": 1.0}}
                       ]
     i = 0
     for x in range(len(percent_colors)):
