@@ -8,7 +8,7 @@ from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
-    MethodCategories, SequencingErrorRates
+    MethodCategories, SequencingErrorRates, PcrErrorRates, StorageErrorRates
 from usersettings.delete import removeUser
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password

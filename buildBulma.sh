@@ -3,7 +3,7 @@ npm install
 sass --no-source-map node_modules/bulma/sass/mosla.scss:static/styles/bulma.min.css --style compressed
 #sass --no-source-map node_modules/bulma-switch/dist/css/bulma-switch.sass:static/styles/bulma-switch.min.css --style compressed
 
-cp node_modules/bulma-divider/dist/css/bulma-divider.min.css static/css/bulma-divider.min.css
+cp node_modules/bulma-divider/dist/css/bulma-divider.min.css static/styles/bulma-divider.min.css
 
 cp node_modules/chart.js/dist/Chart.min.js static/js/Chart.min.js
 #cp node_modules/bulma-switch/dist/css/bulma-switch.min.css static/styles/bulma-switch.min.css
