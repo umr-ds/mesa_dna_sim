@@ -360,7 +360,7 @@
                                         <p class="control has-icons-right">
                                             <input style="width:100%" class="input is-rounded"
                                                    id="{{ mode }}_error_raw_rate_{{ e_obj.id }}"
-                                                   type="number" name="description" placeholder="Raw Rate" step="0.01"
+                                                   type="number" name="raw_error_rate" placeholder="Raw Rate" step="0.01"
                                                    min="0.00" max="100.00"
 
                                                    value="{% if e_obj.id == "new" %}0.05{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
