@@ -178,7 +178,7 @@ class SynthesisErrorRates(db.Model):
 class PcrErrorRates(db.Model):
     __tablename__ = 'pcr'
     id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, ForeignKey('pcr_categories.id'), nullable=False)
+    method_id = db.Column(db.Integer, ForeignKey('meth_categories.id'), nullable=False)
     err_data = db.Column(db.JSON)
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
     validated = db.Column(db.Boolean, default=False, nullable=False)
@@ -202,7 +202,7 @@ class PcrErrorRates(db.Model):
 class StorageErrorRates(db.Model):
     __tablename__ = 'storage'
     id = db.Column(db.Integer, primary_key=True)
-    method_id = db.Column(db.Integer, ForeignKey('storage_categories.id'), nullable=False)
+    method_id = db.Column(db.Integer, ForeignKey('meth_categories.id'), nullable=False)
     err_data = db.Column(db.JSON)
     user_id = db.Column(db.Integer, ForeignKey('User.user_id'))
     validated = db.Column(db.Boolean, default=False, nullable=False)

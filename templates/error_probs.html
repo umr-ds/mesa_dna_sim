@@ -44,7 +44,7 @@
                                     onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">Update</button>
                         </div>
                         <div class="column has-no-padding-bottom has-no-padding-top button-fill">
-                            <label style="white-space: nowrap;" for="spoiler-{{ e_obj.id }}"
+                            <label style="white-space: nowrap;" for="spoiler-{{ mode }}-{{ e_obj.id }}"
                                    class="column button is-flex">Modify</label>
                         </div>
                         <div class="column has-no-padding-bottom has-no-padding-top button-fill">
@@ -57,8 +57,8 @@
             </div>
         </div>
         {% if e_obj.id !=  "new" %}
-            <input type="checkbox" id="spoiler-{{ e_obj.id }}"/>
-            <label style="white-space: nowrap; display: none" for="spoiler-{{ e_obj.id }}"></label>
+            <input type="checkbox" id="spoiler-{{ mode }}-{{ e_obj.id }}"/>
+            <label style="white-space: nowrap; display: none" for="spoiler-{{ mode }}-{{ e_obj.id }}"></label>
         {% endif %}
         <div class="column is-full {% if e_obj.id != "new" %}spoiler{% else %}has-no-padding-left{% endif %} ">
             <div class="has-no-padding-left has-margin-bottom-12 has-overflow-unset has-no-padding-top has-no-padding-bottom control columns is-multiline {{ mode }}-editor-{{ e_obj.id }}"
@@ -363,7 +363,7 @@
                                                    type="number" name="raw_error_rate" placeholder="Raw Rate" step="0.01"
                                                    min="0.00" max="100.00"
 
-                                                   value="{% if e_obj.id == "new" %}0.05{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
+                                                   value="{% if e_obj.id == "new" %}1.25{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
                                                    required>
                                             <span class="icon is-right">
                                 <i class="fas fa-percentage"></i>

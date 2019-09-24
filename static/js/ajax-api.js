@@ -235,13 +235,17 @@ function set_listener(){
             if(e.which === 13 || e.type === 'dbclick'){
                 let clone = $(meth[0]+' :selected').clone(true).unbind();
                 $(meth[1]).append(clone);
-                if(meth[0] === '#storagemeth'){
+                if(meth[0] === '#storagemeth') {
                     let name = $(clone).text();
-                    $(clone).text(name + " ("+$('#mon').val()+" month(s))");
+                    let mon = $('#mon').val();
+                    $(clone).text(name + " (" + mon + " month(s))");
+                    $(clone).data('multiplier', mon)
                 }
                 else if(meth[0] === '#pcrmeth'){
                     let name = $(clone).text();
-                    $(clone).text(name + " ("+$('#cyc').val()+" cycle(s))");
+                    let mon = $('#cyc').val();
+                    $(clone).text(name + " (" + mon + " cycle(s))");
+                    $(clone).data('multiplier', mon)
                 }
             }
         });
@@ -793,14 +797,13 @@ function updateSynthDropdown(host, apikey, type) {
             }
         },
         success: function (data) {
-            let trash = document.getElementById('trash');
             let methods = [['synth', '#synthmeth'], ['synth', '#classic_synthmeth'], ['seq', '#seqmeth'], ['seq', '#classic_seqmeth'], ['pcr', '#classic_pcrmeth'], ['pcr', '#pcrmeth'], ['storage', '#classic_storagemeth'], ['storage', '#storagemeth']];
             methods.forEach(function (method) {
                 let el = $(method[1]);
                 el.empty();
                 $.each(data[method[0]], function (name) {
                     let elem = data[method[0]][name];
-                    let optgroup = $("<optgroup id='" + name + "' label='" + name + "'></optgroup>");
+                    let optgroup = $("<optgroup id='"+ method[0] + "_" + name + "' label='" + name + "'></optgroup>");
                     optgroup.appendTo(el);
                     $.each(elem, function (inner_id) {
                         let id = elem[inner_id]['id'];
@@ -1160,7 +1163,6 @@ function initListsDnD() {
                 group: {name: 'a', pull: true, put: true}, sort: true,
                 onStart: function (/**Event*/evt) {
                     if (!trash_svg) {
-                        trash = $('#trash')[0];
                         ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
                         trash_svg = true;
                     }
@@ -1190,7 +1192,6 @@ function initListsDnD() {
                 group: {name: 'a', pull: true, put: true}, sort: true,
                 onStart: function (/**Event*/evt) {
                     if (!trash_svg) {
-                        trash = $('#trash')[0];
                         ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
                         trash_svg = true;
                     }
@@ -1205,7 +1206,6 @@ function initListsDnD() {
                 group: {name: 'a', pull: true, put: true}, sort: true,
                 onStart: function (/**Event*/evt) {
                     if (!trash_svg) {
-                        trash = $('#trash')[0];
                         ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
                         trash_svg = true;
                     }

@@ -123,9 +123,27 @@ def adminpage():
     seq_id_out = {}
     for x in seq_out:
         seq_id_out[int(x['id'])] = x
+
+    pcr_res = db.session.query(PcrErrorRates).filter(
+        or_(PcrErrorRates.awaits_validation.is_(True), PcrErrorRates.validated.is_(True))).order_by(
+        asc(PcrErrorRates.id)).all()
+    pcr_out = [x.as_dict() for x in pcr_res]
+    pcr_id_out = {}
+    for x in pcr_out:
+        pcr_id_out[int(x['id'])] = x
+
+    storage_res = db.session.query(StorageErrorRates).filter(
+        or_(StorageErrorRates.awaits_validation.is_(True), StorageErrorRates.validated.is_(True))).order_by(
+        asc(StorageErrorRates.id)).all()
+    storage_out = [x.as_dict() for x in storage_res]
+    storage_id_out = {}
+    for x in storage_out:
+        storage_id_out[int(x['id'])] = x
+
     users = User.query.order_by(
         asc(User.user_id)).all()
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
+                           storage_errors=storage_id_out, pcr_errors=pcr_id_out,
                            graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
                            host=request.url_root, users=users), 200
 
@@ -245,7 +263,24 @@ def undesired_subsequences():
         for x in seq_out:
             seq_id_out[int(x['id'])] = x
 
+        pcr_res = db.session.query(PcrErrorRates).filter(
+            or_(PcrErrorRates.user_id == user_id, PcrErrorRates.validated.is_(True))).order_by(
+            asc(PcrErrorRates.id)).all()
+        pcr_out = [x.as_dict() for x in pcr_res]
+        pcr_id_out = {}
+        for x in pcr_out:
+            pcr_id_out[int(x['id'])] = x
+
+        storage_res = db.session.query(StorageErrorRates).filter(
+            or_(StorageErrorRates.user_id == user_id, StorageErrorRates.validated.is_(True))).order_by(
+            asc(StorageErrorRates.id)).all()
+        storage_out = [x.as_dict() for x in storage_res]
+        storage_id_out = {}
+        for x in storage_out:
+            storage_id_out[int(x['id'])] = x
+
         return render_template('undesired_subsequences.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
+                               pcr_errors=pcr_id_out, storage_errors=storage_id_out,
                                usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.url_root)
     else:
         flash("Could not find user, please login again", 'warning')
@@ -346,10 +381,13 @@ def request_validation_c_error():
     error_method = request.json.get('method')
     validation_desc = request.json.get('validation_desc')
     # TODO add validation description!
-    if error_method == "synth":
-        q_class = SynthesisErrorRates
-    else:
-        q_class = SequencingErrorRates
+    try:
+        q_class = \
+            {'synth': SynthesisErrorRates, 'seq': SequencingErrorRates, 'pcr': PcrErrorRates,
+             'storage': StorageErrorRates}[
+                error_method]
+    except:
+        return jsonify({'did_succeed': False})
     e_id = request.json.get('id')
     if user_id and user and error_method is not None and e_id is not None:
         try:
@@ -624,13 +662,14 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
     return db_result
 
 
+"""
 @main_page.route("/api/add_seq_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_seq_error_probs():
-    """
+    "
     Adds sequencing error probabilities.
     :return:
-    """
+    "
     try:
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
@@ -661,10 +700,10 @@ def add_seq_error_probs():
 @main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
 @require_logged_in
 def add_synth_error_probs():
-    """
+    "
     Adds synthesis error probabilities.
     :return:
-    """
+    "
     try:
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
@@ -694,6 +733,84 @@ def add_synth_error_probs():
         return jsonify({'did_succeed': False})
 
 
+@main_page.route("/api/add_pcr_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def add_pcr_error_probs():
+    ""
+    Adds synthesis error probabilities.
+    :return:
+    ""
+    try:
+        user_id = session.get('user_id')
+        user = User.query.filter_by(user_id=user_id).first()
+        pcr_conf = request.json.get('data')
+        asHTML = request.json.get('asHTML')
+        if user_id and user and pcr_conf is not None:
+            err_data = floatify(pcr_conf['err_data'])
+            err_attributes = floatify(pcr_conf['err_attributes'])
+            name = sanitize_input(pcr_conf['name'])
+
+            new_pcr = PcrErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
+                                    err_data=err_data, err_attributes=err_attributes)
+
+            db.session.add(new_pcr)
+            db.session.commit()
+            res = {'did_succeed': True, 'id': new_pcr.id}
+
+            if asHTML is not None and asHTML:
+                res['content'] = render_template('error_probs.html', e_obj=new_pcr.as_dict(), host=request.url_root,
+                                                 mode='pcr')
+            else:
+                res['content'] = new_pcr.as_dict()
+            return jsonify(res)
+        return jsonify({'did_succeed': False})
+    except Exception as x:
+        return jsonify({'did_succeed': False})
+"""
+
+
+@main_page.route("/api/add_<mode>_error_probs", methods=['GET', 'POST'])
+@require_logged_in
+def add_error_probs(mode):
+    """
+    Adds synthesis error probabilities.
+    :return:
+    """
+    try:
+        choose = \
+            {'synth': SynthesisErrorRates, 'seq': SequencingErrorRates, 'pcr': PcrErrorRates,
+             'storage': StorageErrorRates}[
+                mode]
+    except:
+        return jsonify({'did_succeed': False})
+    try:
+        user_id = session.get('user_id')
+        user = User.query.filter_by(user_id=user_id).first()
+        data_conf = request.json.get('data')
+        asHTML = request.json.get('asHTML')
+        if user_id and user and data_conf is not None:
+            err_data = floatify(data_conf['err_data'])
+            err_attributes = floatify(data_conf['err_attributes'])
+            name = sanitize_input(data_conf['name'])
+
+            new_elem = choose(method_id=0, user_id=user_id, validated=False, name=name,
+                              err_data=err_data, err_attributes=err_attributes)
+
+            db.session.add(new_elem)
+            db.session.commit()
+            res = {'did_succeed': True, 'id': new_elem.id}
+
+            if asHTML is not None and asHTML:
+                res['content'] = render_template('error_probs.html', e_obj=new_elem.as_dict(), host=request.url_root,
+                                                 mode=mode)
+            else:
+                res['content'] = new_elem.as_dict()
+            return jsonify(res)
+        return jsonify({'did_succeed': False})
+    except Exception as x:
+        return jsonify({'did_succeed': False})
+
+
 def floatify(x, sanitize_mode=False):
     for key in x:
         if (key == "mismatch" and isinstance(x[key], dict)) or sanitize_mode:
@@ -710,31 +827,39 @@ def floatify(x, sanitize_mode=False):
     return x
 
 
-@main_page.route("/api/update_synth_error_probs", methods=['GET', 'POST'])
+@main_page.route("/api/update_<mode>_error_probs", methods=['GET', 'POST'])
 @require_logged_in
-def update_synth_error_probs():
+def update_synth_error_probs(mode):
     """
     Updates synthesis error probabilities.
     :return:
     """
+    try:
+        choose = \
+            {'synth': SynthesisErrorRates, 'seq': SequencingErrorRates, 'pcr': PcrErrorRates,
+             'storage': StorageErrorRates}[
+                mode]
+    except:
+        return jsonify({'did_succeed': False})
+
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
-    synth_conf = request.json.get('data')
-    if user_id and user and synth_conf is not None:
+    data_conf = request.json.get('data')
+    if user_id and user and data_conf is not None:
         try:
-            err_data = synth_conf['err_data']
-            err_attributes = synth_conf['err_attributes']
-            name = sanitize_input(synth_conf['name'])
+            err_data = data_conf['err_data']
+            err_attributes = data_conf['err_attributes']
+            name = sanitize_input(data_conf['name'])
             copy = bool(request.json.get('copy'))
-            id = int(synth_conf['id'])
+            id = int(data_conf['id'])
             if user.is_admin:
-                curr_synth = SynthesisErrorRates.query.filter_by(id=id).first()
+                curr_synth = choose.query.filter_by(id=id).first()
             else:
-                curr_synth = SynthesisErrorRates.query.filter_by(user_id=user_id, id=id).first()
+                curr_synth = choose.query.filter_by(user_id=user_id, id=id).first()
 
             if curr_synth is None or copy:
-                curr_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                                 err_data=err_data, err_attributes=err_attributes)
+                curr_synth = choose(method_id=0, user_id=user_id, validated=False, name=name,
+                                    err_data=err_data, err_attributes=err_attributes)
                 db.session.add(curr_synth)
             else:
                 curr_synth.validated = False
@@ -748,19 +873,27 @@ def update_synth_error_probs():
     return jsonify({'did_succeed': False})
 
 
-@main_page.route("/api/delete_synth", methods=['POST'])
+@main_page.route("/api/delete_<mode>", methods=['POST'])
 @require_logged_in
-def delete_synth():
+def delete_synth(mode):
     """
     Deletes synthesis method.
     :return:
     """
+    try:
+        choose = \
+            {'synth': SynthesisErrorRates, 'seq': SequencingErrorRates, 'pcr': PcrErrorRates,
+             'storage': StorageErrorRates}[
+                mode]
+    except:
+        return jsonify({'did_succeed': False})
+
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
-    synth_id = request.form.get('synth_id')
+    synth_id = request.form.get('id')
     if user_id and user and synth_id is not None:
         try:
-            synth_err_to_delete = SynthesisErrorRates.query.filter_by(user_id=user_id, id=synth_id).first()
+            synth_err_to_delete = choose.query.filter_by(user_id=user_id, id=synth_id).first()
             db.session.delete(synth_err_to_delete)
             db.session.commit()
             return jsonify({'did_succeed': True, 'deleted_id': synth_id})
@@ -768,66 +901,6 @@ def delete_synth():
             return jsonify({'did_succeed': False, 'deleted_id': synth_id})
     else:
         return jsonify({'did_succeed': False, 'deleted_id': synth_id})
-
-
-@main_page.route("/api/delete_seq", methods=['POST'])
-@require_logged_in
-def delete_seq():
-    """
-    Deletes sequencing method.
-    :return:
-    """
-    user_id = session.get('user_id')
-    user = User.query.filter_by(user_id=user_id).first()
-    synth_id = request.form.get('synth_id')
-    if user_id and user and synth_id is not None:
-        try:
-            seq_error_to_delete = SequencingErrorRates.query.filter_by(user_id=user_id, id=synth_id).first()
-            db.session.delete(seq_error_to_delete)
-            db.session.commit()
-            return jsonify({'did_succeed': True, 'deleted_id': synth_id})
-        except Exception as ex:
-            return jsonify({'did_succeed': False, 'deleted_id': synth_id})
-    else:
-        return jsonify({'did_succeed': False, 'deleted_id': synth_id})
-
-
-@main_page.route("/api/update_seq_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def update_seq_error_probs():
-    """
-    Updates sequencing error probabilities.
-    :return:
-    """
-    user_id = session.get('user_id')
-    user = User.query.filter_by(user_id=user_id).first()
-    synth_conf = request.json.get('data')
-    if user_id and user and synth_conf is not None:
-        try:
-            err_data = synth_conf['err_data']
-            err_attributes = synth_conf['err_attributes']
-            name = sanitize_input(synth_conf['name'])
-            copy = bool(request.json.get('copy'))
-            id = int(synth_conf['id'])
-            if user.is_admin:
-                curr_seq = SequencingErrorRates.query.filter_by(id=id).first()
-            else:
-                curr_seq = SequencingErrorRates.query.filter_by(user_id=user_id, id=id).first()
-
-            if curr_seq is None or copy:
-                curr_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                                err_data=err_data, err_attributes=err_attributes)
-                db.session.add(curr_seq)
-            else:
-                curr_seq.validated = False
-                curr_seq.name = name
-                curr_seq.err_data = err_data
-                curr_seq.err_attributes = err_attributes
-            db.session.commit()
-            return jsonify({'did_succeed': True})
-        except Exception as x:
-            return jsonify({'did_succeed': False})
-    return jsonify({'did_succeed': False})
 
 
 def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):

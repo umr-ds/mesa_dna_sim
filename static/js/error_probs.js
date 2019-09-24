@@ -510,8 +510,12 @@ function sendCustomError(host, method, id) {
                     result['isOwner'] = true;
                     if (method === "seq") {
                         seq_errors[data.id] = result;
-                    } else {
+                    } else if (method === "synth") {
                         synth_errors[data.id] = result;
+                    } else if (method === "pcr") {
+                        pcr_errors[data.id] = result;
+                    } else {
+                        storage_errors[data.id] = result;
                     }
 
                     let drawingDOM = $('#' + method + '_errors');
@@ -548,7 +552,7 @@ function deleteCustomError(host, method, obj_id) {
     /* Send to the Server */
     $.post({
         url: host + "api/delete_" + method,
-        data: {synth_id: obj_id, do_delete: true},
+        data: {id: obj_id, do_delete: true},
         async: true,
         beforeSend: function (xhr) {
             if (xhr && xhr.overrideMimeType) {
@@ -580,8 +584,12 @@ function initErrorSliders(method, elem) {
     if (eid !== "new") {
         if (method === "seq") {
             err_data = seq_errors[eid].err_data;
-        } else {
+        } else if (method === "synth") {
             err_data = synth_errors[eid].err_data;
+        } else if (method === "pcr") {
+            err_data = pcr_errors[eid].err_data;
+        }else {
+            err_data = storage_errors[eid].err_data;
         }
     }
     let startvar = [33.33, 66.66];
@@ -633,8 +641,12 @@ function initSlider(method, elem) {
     if (eid !== "new") {
         if (method === "seq") {
             position = seq_errors[eid].err_attributes[etype].position;
-        } else {
+        } else if (method === "synth") {
             position = synth_errors[eid].err_attributes[etype].position;
+        } else if (method ==="pcr") {
+            position = pcr_errors[eid].err_attributes[etype].position;
+        } else {
+            position = storage_errors[eid].err_attributes[etype].position;
         }
     }
     let startvar = 50;
@@ -684,8 +696,12 @@ function initACGTSlider(method, elem) {
     if (eid !== "new") {
         if (method === "seq") {
             pattern = seq_errors[eid].err_attributes[etype].pattern;
-        } else {
+        } else if (method === "synth") {
             pattern = synth_errors[eid].err_attributes[etype].pattern;
+        } else if (method === "pcr") {
+            pattern = pcr_errors[eid].err_attributes[etype].pattern;
+        } else {
+            pattern = storage_errors[eid].err_attributes[etype].pattern;
         }
     }
     let startvar = [25, 50, 75];

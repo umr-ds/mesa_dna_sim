@@ -208,73 +208,78 @@
                     </div>
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom">
-                    <hr>
+                    <div class="is-divider" data-content="Error Detection"></div>
                 </div>
                 <div class="column is-full">
                     <input type="checkbox" id="spoiler"/>
                     <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
-                Undesired Motifs</label>
+                        Undesired Motifs</label>
                     <div class="spoiler">
-                <h3>Changes here wont be saved in your profile!</h3>
-                <br/>
-                <div style="text-align: left">Enabled:</div>
-                <div id="subseq-container">
-                    {% for subsequence in usubsequence %}
-                        <div class="control" id="subseq_{{ subsequence.id }}">
-                            <table>
-                                <tr>
-                                    <td><input type="checkbox"
-                                               class="switch is-large is-rounded button-fill no-outline"
-                                               id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
-                                               aria-label="Enable Rule"
-                                               value="{{ subsequence.id }}" checked/>
-                                        <label class="no-outline" for="enabled_{{ subsequence.id }}"></label>
-                                    </td>
-                                    <td style="width:50%"><label class="form-group has-float-label">
-                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
-                                               name="sequence"
-                                               aria-label="Sequence"
-                                               id="sequence_{{ subsequence.id }}" placeholder=""
-                                                {% if subsequence.validated %} readonly {% endif %}
-                                               value="{{ subsequence.sequence }}" required>
-                                        <span>Sequence</span></label></td>
-                                    <td style="width:15%"><label class="form-group has-float-label">
-                                        <input class="input is-rounded is-grayable" style="width:100%" type="number"
-                                               id="error_prob_{{ subsequence.id }}"
-                                               aria-label="Error Probability"
-                                               name="error_prob" placeholder=""
-                                                {% if subsequence.validated %} readonly {% endif %}
-                                               value="{{ subsequence.error_prob * 100 }}"
-                                               required min="0.0" max="100.0" step="0.01">
-                                        <span style="white-space: nowrap;">Error Probability</span></label></td>
-                                    <td style="width:30%"><label class="form-group has-float-label">
-                                        <input class="input is-rounded is-grayable" style="width:100%" type="text"
-                                               name="description"
-                                               aria-label="Description"
-                                               id="description_{{ subsequence.id }}" placeholder="No Description"
-                                               size="30"
-                                                {% if subsequence.description != None %}
-                                               value="{{ subsequence.description }}"
-                                                {% endif %} readonly><span>Description</span></label></td>
-                                    <!--
+                        <h3>Changes here wont be saved in your profile!</h3>
+                        <br/>
+                        <div style="text-align: left">Enabled:</div>
+                        <div id="subseq-container">
+                            {% for subsequence in usubsequence %}
+                                <div class="control" id="subseq_{{ subsequence.id }}">
+                                    <table>
+                                        <tr>
+                                            <td><input type="checkbox"
+                                                       class="switch is-large is-rounded button-fill no-outline"
+                                                       id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
+                                                       aria-label="Enable Rule"
+                                                       value="{{ subsequence.id }}" checked/>
+                                                <label class="no-outline" for="enabled_{{ subsequence.id }}"></label>
+                                            </td>
+                                            <td style="width:50%"><label class="form-group has-float-label">
+                                                <input class="input is-rounded is-grayable" style="width:100%"
+                                                       type="text"
+                                                       name="sequence"
+                                                       aria-label="Sequence"
+                                                       id="sequence_{{ subsequence.id }}" placeholder=""
+                                                        {% if subsequence.validated %} readonly {% endif %}
+                                                       value="{{ subsequence.sequence }}" required>
+                                                <span>Sequence</span></label></td>
+                                            <td style="width:15%"><label class="form-group has-float-label">
+                                                <input class="input is-rounded is-grayable" style="width:100%"
+                                                       type="number"
+                                                       id="error_prob_{{ subsequence.id }}"
+                                                       aria-label="Error Probability"
+                                                       name="error_prob" placeholder=""
+                                                        {% if subsequence.validated %} readonly {% endif %}
+                                                       value="{{ subsequence.error_prob * 100 }}"
+                                                       required min="0.0" max="100.0" step="0.01">
+                                                <span style="white-space: nowrap;">Error Probability</span></label></td>
+                                            <td style="width:30%"><label class="form-group has-float-label">
+                                                <input class="input is-rounded is-grayable" style="width:100%"
+                                                       type="text"
+                                                       name="description"
+                                                       aria-label="Description"
+                                                       id="description_{{ subsequence.id }}"
+                                                       placeholder="No Description"
+                                                       size="30"
+                                                        {% if subsequence.description != None %}
+                                                       value="{{ subsequence.description }}"
+                                                        {% endif %} readonly><span>Description</span></label></td>
+                                            <!--
                             {% if subsequence.description != None %}
                                 Description: {{ subsequence.description }}
                             {% else %}
                                 No Description
                             {% endif %}-->
-                                    <td><span class="" style="white-space: nowrap;"><label
-                                            class="checkbox">Validated: <input type="checkbox"
-                                                                               id="validated_{{ subsequence.id }}"
-                                                                               value="{{ subsequence.id }}"
-                                                                               aria-label="Validated"
-                                                                               disabled
-                                            {% if subsequence.validated %} checked {% endif %}/></label></span></td>
-                                </tr>
-                            </table>
+                                            <td><span class="" style="white-space: nowrap;"><label
+                                                    class="checkbox">Validated: <input type="checkbox"
+                                                                                       id="validated_{{ subsequence.id }}"
+                                                                                       value="{{ subsequence.id }}"
+                                                                                       aria-label="Validated"
+                                                                                       disabled
+                                                    {% if subsequence.validated %} checked {% endif %}/></label></span>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            {% endfor %}
                         </div>
-                    {% endfor %}
-                </div>
-            </div>
+                    </div>
                 </div>
                 <div class="column is-full is-full-touch">
                     <div class="columns is-multiline is-gapless">
@@ -418,7 +423,7 @@
                     </div>
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom">
-                    <hr>
+                    <div class="is-divider" data-content="Error Simulation"></div>
                 </div>
                 <div class="column is-full is-full-touch">
                     <div class="columns is-gapless" id="advancedcontainer">
@@ -494,6 +499,7 @@
                                     synth.val(0).prop('disabled', true);
                                     classic.hide();
                                     adv_exec.show();
+                                    initListsDnD();
                                 } else if ($(this).not(':checked')){
                                     seq.val(0).prop('disabled', false);
                                     synth.val(0).prop('disabled', false);
@@ -543,76 +549,76 @@
                                 </div>
                             </div>
                             <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-7 correspond to the submethod id in the database -->
-                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="PCR Polymerase">
-                                            <select class="select" id="classic_pcrmeth">
-                                                <option value="0" selected>None</option>
-                                                <option value="1">Taq</option>
-                                                <option value="2">Pfu</option>
-                                                <option value="3">Phusion</option>
-                                                <option value="4">Pwo</option>
-                                            </select><span>PCR Polymerase</span>
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-7 correspond to the submethod id in the database -->
+                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="PCR Polymerase">
+                                        <select class="select" id="classic_pcrmeth">
+                                            <option value="0" selected>None</option>
+                                            <option value="1">Taq</option>
+                                            <option value="2">Pfu</option>
+                                            <option value="3">Phusion</option>
+                                            <option value="4">Pwo</option>
+                                        </select><span>PCR Polymerase</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="column is-full">
+                                <!--<div class="column ">-->
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="form-group has-float-label">
+                                            <!--<p class="control has-icons-left">-->
+                                            <input class="input is-rounded" type=number rows="1" id="cycles"
+                                                   value="30" min="1" max="50" step="1"/>
+                                            <!--<span class="icon is-right">
+                                            <i class="fas fa-dna"></i>
+                                                </span>-->
+                                            <span>PCR Cycles</span>
+                                            <!--</p>-->
                                         </label>
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <!--<div class="column ">-->
-                                    <div class="field">
-                                        <div class="control">
-                                            <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
-                                                <input class="input is-rounded" type=number rows="1" id="cycles"
-                                                       value="30" min="1" max="50" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
-                                                <span>PCR Cycles</span>
-                                                <!--</p>-->
-                                            </label>
 
-                                            <!--</div>-->
-                                        </div>
+                                        <!--</div>-->
                                     </div>
                                 </div>
-                                <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-7 correspond to the submethod id in the database -->
-                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Storage">
-                                            <select class="select" id="classic_storagemeth">
-                                                <option value="0" selected>None</option>
-                                                <option value="1">H. sapiens</option>
-                                                <option value="2">M. musculus</option>
-                                                <option value="3">D. melanogaster</option>
-                                                <option value="4">E. coli</option>
-                                                <option value="5">S. cerevisiae</option>
-                                            </select><span>Storage Host</span>
+                            </div>
+                            <div class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-7 correspond to the submethod id in the database -->
+                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Storage">
+                                        <select class="select" id="classic_storagemeth">
+                                            <option value="0" selected>None</option>
+                                            <option value="1">H. sapiens</option>
+                                            <option value="2">M. musculus</option>
+                                            <option value="3">D. melanogaster</option>
+                                            <option value="4">E. coli</option>
+                                            <option value="5">S. cerevisiae</option>
+                                        </select><span>Storage Host</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="column is-full">
+                                <!--<div class="column ">-->
+                                <div class="field">
+                                    <div class="control">
+                                        <label class="form-group has-float-label">
+                                            <!--<p class="control has-icons-left">-->
+                                            <input class="input is-rounded" type=number rows="1" id="months"
+                                                   value="24" min="1" step="1"/>
+                                            <!--<span class="icon is-right">
+                                            <i class="fas fa-dna"></i>
+                                                </span>-->
+                                            <span>Months of storage to be simulated</span>
+                                            <!--</p>-->
                                         </label>
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <!--<div class="column ">-->
-                                    <div class="field">
-                                        <div class="control">
-                                            <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
-                                                <input class="input is-rounded" type=number rows="1" id="months"
-                                                       value="24" min="1" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
-                                                <span>Months of storage to be simulated</span>
-                                                <!--</p>-->
-                                            </label>
 
-                                            <!--</div>-->
-                                        </div>
+                                        <!--</div>-->
                                     </div>
                                 </div>
+                            </div>
                             <div id="classic_seq" class="column is-full">
                                 <div class="select is-fullwidth is-primary is-rounded">
                                     <!-- values 1-7 correspond to the submethod id in the database -->
@@ -664,21 +670,21 @@
                                     </select>
                                 </div>
                                 <div id="adv_storage" class="column is-full-mobile is-half">
-                                        <label for="storagemeth"><p>Storage Methods</p></label>
-                                        <select class="select is-multiple is-rounded" id="storagemeth" size="7"
-                                                style="width: 100%">
-                                            <optgroup id="nonee" label="None">
-                                            </optgroup>
-                                        </select>
-                                    </div>
+                                    <label for="storagemeth"><p>Storage Methods</p></label>
+                                    <select class="select is-multiple is-rounded" id="storagemeth" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="nonee" label="None">
+                                        </optgroup>
+                                    </select>
+                                </div>
                                 <div id="adv_pcr" class="column is-full-mobile is-half">
-                                        <label for="pcrmeth"><p>PCR Methods</p></label>
-                                        <select class="select is-multiple is-rounded" id="pcrmeth" size="7"
-                                                style="width: 100%">
-                                            <optgroup id="nonee" label="None">
-                                            </optgroup>
-                                        </select>
-                                    </div>
+                                    <label for="pcrmeth"><p>PCR Methods</p></label>
+                                    <select class="select is-multiple is-rounded" id="pcrmeth" size="7"
+                                            style="width: 100%">
+                                        <optgroup id="nonee" label="None">
+                                        </optgroup>
+                                    </select>
+                                </div>
                                 <div class="column is-full-mobile is-half">
                                     <div class="field">
                                         <div class="control">
@@ -720,11 +726,13 @@
                         </div>
                     </div>
                     <div class="columns is-gapless is-centered" id="informationcontainer">
-                        <p style="font-size:12px;color: grey;">Using calculated error probabilities for the simulation.</p>
+                        <p style="font-size:12px;color: grey;">Using calculated error probabilities for the
+                            simulation.</p>
                     </div>
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom">
-                    <hr>
+                    <div class="is-divider" data-content="Secondary Structure prediction">
+                    </div>
                 </div>
                 <div class="column is-full is-full-touch">
                     <div class="columns is-gapless">
@@ -758,7 +766,8 @@
                     </div>
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom">
-                    <hr>
+                    <div class="is-divider" data-content="Configuration">
+                    </div>
                 </div>
                 <div class="column is-full is-full-touch">
                     <div class="columns">
@@ -942,6 +951,7 @@
         <script src={{ url_for('static',filename='js/autoscroll.js') }}></script>
         <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
         <script src={{ url_for('static',filename='js/index.min.js') }}></script>
+        <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
     {% endif %}
 
     <script>
@@ -1041,93 +1051,16 @@
                 }
             });
         });
-            $('#seqmeth1').bind('keyup', function (e) {
-                if (e.which === 46 || e.which === 8) {
-                    $('#seqmeth1 :selected').remove();
-                    // or your stuff here...
-                }
-            });
-            let trash = document.getElementById('trash');
-            let ssort;
-            let trash_svg = false;
-            let source = document.getElementById('nonee');
-            let sortable = Sortable.create(source, {
-                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            let synthesis_sortable = Sortable.create(document.getElementById('synthesis_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });*/
-            let pcr_sortable = Sortable.create(document.getElementById('pcr_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            let sequencing_sortable = Sortable.create(document.getElementById('sequencing_sortable'), {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        trash = document.getElementById('trash');
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-
-            $('#seqmeth').children().each(function (x) {
-                var asd = Sortable.create($('#seqmeth').children()[x], {
-                    group: {name: 'a', pull: true, put: true}, sort: true,
-                    onEnd: function (evt) {
-                        if (evt.to === trash) {
-                            evt.to.children[evt.newIndex].remove();
-                        }
-                    }
-                });
-            });
+        $('#seqmeth1').bind('keyup', function (e) {
+            if (e.which === 46 || e.which === 8) {
+                $('#seqmeth1 :selected').remove();
+                // or your stuff here...
+            }
+        });
+        let adv_exec = $('#adv_err_settings');
+        adv_exec.show();
+        initListsDnD();
+        adv_exec.hide();
+        //initListsDnD();
     </script>
 {% endblock %}

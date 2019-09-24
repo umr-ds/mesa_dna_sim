@@ -274,6 +274,40 @@
             </div>
         </form>
     </div>
+    <p class="has-text-weight-bold">PCR-Errors:</p>
+    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
+        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+            <div class="field">
+                <div class="control">
+                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                         id="pcr_errors">
+                         {% for error_id in pcr_errors %}
+                            {% with e_obj=pcr_errors[error_id], mode='pcr', is_admin=True %}
+                                {% include "error_probs.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <p class="has-text-weight-bold">Storage-Errors:</p>
+    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
+        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+            <div class="field">
+                <div class="control">
+                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                         id="storage_errors">
+                        {% for error_id in storage_errors %}
+                            {% with e_obj=storage_errors[error_id], mode='storage', is_admin=True %}
+                                {% include "error_probs.html" %}
+                            {% endwith %}
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
     <p class="has-text-weight-bold">GC/K-mer/Homopolymer-Error Prob.:</p>
     <div class="box is-large">
         <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
@@ -505,17 +539,17 @@
 
         let synth_errors = {{ synthesis_errors|tojson|safe }};
         let seq_errors = {{ sequencing_errors|tojson|safe }};
+        let storage_errors = {{ storage_errors|tojson|safe }};
+        let pcr_errors = {{ pcr_errors|tojson|safe }};
 
-        {%  for mode in ['synth','seq'] %}
+        {%  for mode in ['synth','seq', 'pcr', 'storage'] %}
             $('[id^="{{ mode }}-slider"]').each(function () {
                 initACGTSlider('{{ mode }}', $(this)[0]);
             });
 
-
             $('[id^="{{ mode }}-position-slider"]').each(function () {
-                    initSlider('{{ mode }}', $(this)[0]);
-                }
-            );
+                initSlider('{{ mode }}', $(this)[0]);
+            });
 
             $('[id^="err_data-{{ mode }}-slider-"]').each(function () {
                 initErrorSliders('{{ mode }}', $(this)[0])

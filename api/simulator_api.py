@@ -480,16 +480,16 @@ def do_all(r_method):
                                         conf=meth['conf']) + 1) % 4294967296  # + "_" + meth['name']
 
             # Storage / PCR:
-            """
+
             for meth in err_simulation_order['Storage/PCR']:  # TODO rename at frontend
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
-                seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,
-                                        conf=meth['conf']) + 1) % 4294967296  # TODO rename 'process="..."'
-            """
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles) + 1) % 4294967296  # TODO rename 'process="..."'
+
             #TODO
             pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
-            storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
+
+            #storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:
@@ -560,7 +560,6 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
     :param max_x:
     :return: The sanitized dictionary.
     """
-    return data
     for entry in data:
         data_tmp = data.get(entry)
         if type(data_tmp) == list:
