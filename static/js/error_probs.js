@@ -49,6 +49,7 @@ function addSubSeq(host) {
                     "<br/><\/div>"
                 ).fadeIn(400)
                 ;
+                set_listener();
                 $('#addsequence').val('');
                 $('#errorprob').val('');
                 $('#description').val('');

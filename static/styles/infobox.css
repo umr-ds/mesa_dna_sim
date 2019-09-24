@@ -25,7 +25,7 @@ input[id^="spoiler"] + label {
     display: block;
     width: 200px;
     margin: 0 auto;
-    padding: 5px 0px;
+    padding: 5px 10px;
     background: #baa861; /*mediumblue;*/
     /*color: #fff;*/
     text-align: center;

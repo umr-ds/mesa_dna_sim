@@ -25,6 +25,3 @@ def send_mail(sender, recipients, text, subject="Confirmation Link for MOSLA-DNA
                 attachment_name = "mosla.fastq"
             msg.attach(filename=attachment_name, content_type="text/plain", data=attachment_txt)
         mail.send(msg)
-
-
-

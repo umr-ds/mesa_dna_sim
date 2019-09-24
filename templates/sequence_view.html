@@ -179,11 +179,11 @@
                 <div class="column is-full">
                     <div class="columns">
                         <div class="column is-1 is-pulled-left">
-                            <p>ACGT only</p>
+                            <p style="font-size:12px;">ACGT only</p>
                             <label data-balloon="Limit Alphabet"
                                    data-balloon-pos="right">
                                 <input type="checkbox" aria-label="Limit Alphabet to ACGT" id="limitedChars" checked
-                                       class="switch is-rounded is-large button-fill no-outline" name="enableall"/>
+                                       class="switch is-rounded button-fill no-outline" name="enableall"/>
                                 <label for="limitedChars" class="no-outline"></label>
                             </label>
                         </div>
@@ -207,283 +207,18 @@
                         </div>
                     </div>
                 </div>
-                <div class="column is-full has-no-padding-top has-no-padding-bottom"></div>
-                <div class="column is-half is-full-touch">
-                    <div class="columns is-multiline is-gapless">
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-3 is-full-mobile is-pulled-left">
-                                    <label class="form-group has-float-label">
-                                        <input class="input is-rounded" type="number" id="gc_window_size"
-                                               placeholder=""
-                                               size="4"
-                                               value="15"
-                                               required min="2" step="1"><span>GC Window</span></label>
-                                </div>
-                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
-                                    <div class="control is-expanded">
-                                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
-                                            <label for="gc-dropdown" aria-label="GC-Method"></label><select
-                                                class="button-fill" id="gc-dropdown">
-                                            <!--{% for chart in gc_charts %}
-
-                                <option data-id="{{ chart.id }}" data-type="gc"
-                                        data-validated="{{ chart.validated }}"
-                                        data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
-                            {% endfor %}
-                            <option data-id="-1" data-type="gc"
-                                    data-validated="false" data-isowner="false">New Graph
-                            </option>-->
-                                        </select>
-                                        </div>
-                                    </div>
-                                    <div class="control">
-                                        <input class="button is-block button-fill is-rounded" type="button"
-                                               id="showOvrly"
-                                               name="mybutton"
-                                               onclick="let dropdown_select = $('#gc-dropdown option:selected');
-                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
-                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
-                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
-                                               value="Change GC Probability" style="height: 36px; width: 240px;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-3 is-full-mobile is-pulled-left">
-                                    <label class="form-group has-float-label">
-                                        <input class="input is-rounded" type="number" id="kmer_window_size"
-                                               placeholder=""
-                                               size="4"
-                                               value="15"
-                                               required min="2" step="1"><span>Kmer Window</span></label>
-                                </div>
-                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
-                                    <div class="control is-expanded">
-                                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
-                                            <label for="kmer-dropdown" aria-label="Kmer-Method"></label><select
-                                                class="button-fill"
-                                                id="kmer-dropdown"></select>
-                                        </div>
-                                    </div>
-                                    <div class="control">
-                                        <input class="button is-block button-fill is-rounded" type="button"
-                                               id="showOvrly"
-                                               name="mybutton"
-                                               onclick="let dropdown_select = $('#kmer-dropdown option:selected');
-                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
-                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
-                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
-                                               value="Change Kmer Probability" style="height: 36px; width: 240px;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-3 is-hidden-mobile is-pulled-left"></div>
-                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
-                                    <div class="control is-expanded">
-                                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
-                                            <label for="homopolymer-dropdown"
-                                                   aria-label="Homopolymer-Method"></label><select
-                                                class="button-fill" id="homopolymer-dropdown">
-                                            <!--{% for chart in homopolymer_charts %}
-
-                                <option data-id="{{ chart.id }}" data-type="homopolymer"
-                                        data-validated="{{ chart.validated }}"
-                                        data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
-                            {% endfor %}
-                            <option data-id="-1" data-type="homopolymer"
-                                    data-validated="false" data-isowner="false">New Graph
-                            </option>-->
-                                        </select>
-                                        </div>
-                                    </div>
-                                    <div class="control">
-                                        <input class="is-rounded button is-block is-info-deactivated button-fill"
-                                               type="button"
-                                               id="showOvrly"
-                                               name="mybutton"
-                                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
-                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
-                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
-                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
-                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
-                                               value="Change Homopolymer Prob." style="height: 36px; width: 240px;">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="column is-3 is-1-touch is-1-mobile" style="margin-top: -1.5rem">
-                            <p>Max. Expect</p>
-                            <label data-balloon="Calculate Secondary Structures"
-                                   data-balloon-pos="right">
-                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="do_max_expect"
-                                       checked class="switch is-rounded is-large button-fill no-outline"
-                                       name="do_max_expect"
-                                       onclick="$('#temperature').prop('disabled',!$(this).is(':checked'))"/>
-                                <label for="do_max_expect" class="no-outline"></label>
-                            </label>
-                        </div>
-                        <div class="column">
-                            <div class="field">
-                                <div class="control">
-                                    <label class="form-group has-float-label">
-                                        <p class="control has-icons-right">
-                                            <input class="input is-rounded" type=number rows="1" id="temperature"
-                                                   value="310.15" min="0" step="0.01"/>
-                                            <span class="icon is-right">
-                                            <i class="fas fa-thermometer-half"></i>
-                                        </span>
-                                        </p>
-                                        <span>Temperature (°K)</span>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
                 </div>
-                <div class="column is-half is-full-touch">
-                    <div class="columns">
-                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40"
-                             style="margin-top: 1.5rem">
-                            <p style="text-align:left;">Calculated Error Prob.</p>
-                            <label data-balloon="Use Calculated Error Probabilities"
-                                   data-balloon-pos="right" style="float: left">
-                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
-                                       id="calcprobs"
-                                       class="switch is-rounded is-large button-fill no-outline" name="cprobs"
-                                       onclick="if ($(this).is(':checked')) {
-                                    let seq  = $('#seqmeth');
-                                    let synth = $('#synthmeth');
-                                    seq.data('selected', $('#seqmeth option:selected').val());
-                                    synth.data('selected', $('#synthmeth option:selected').val());
-                                    seq.val(0).prop('disabled', true);
-                                    synth.val(0).prop('disabled', true);
-                                } else if ($(this).not(':checked')){
-                                    let seq  = $('#seqmeth');
-                                    let synth = $('#synthmeth');
-                                    seq.val(0).prop('disabled', false);
-                                    synth.val(0).prop('disabled', false);
-                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
-                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
-                                }"/>
-                                <label for="calcprobs" style="float:left" class="no-outline"></label>
-                            </label>
-                        </div>
-                        <div class="column">
-                            <div class="columns is-multiline">
-                                <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-10 correspond to the error_correction id in the database -->
-                                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Synthesis Method">
-                                            <select class="select" id="synthmeth">
-                                                <optgroup label="None">
-                                                    <option value="0" selected>None</option>
-                                                </optgroup>
-                                                <optgroup label="Column synthesized oligos">
-                                                    <option value="1">MutS</option>
-                                                    <option value="2">Consensus shuffle</option>
-                                                    <option value="3">ErrASE</option>
-                                                    <option value="9">No error correction</option>
-                                                </optgroup>
-                                                <optgroup label="Microarray based oligo pools">
-                                                    <option value="4">Oligo hybridization based</option>
-                                                    <option value="5">High-temperature ligation/hybridization based
-                                                    </option>
-                                                    <option value="6">ErrASE</option>
-                                                    <option value="7">Nuclease-based</option>
-                                                    <option value="8">NGS-based</option>
-                                                    <option value="10">No error correction</option>
-                                                </optgroup>
-                                                <optgroup label="User defined">
-                                                    <option value="11">Error Rates</option>
-                                                    <option value="12">Error Attributes</option>
-                                                    <option value="13">Rates and Attributes</option>
-                                                </optgroup>
-                                            </select><span>Synthesis Method</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-7 correspond to the submethod id in the database -->
-                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                        <!-- or intercept these values before the database request.  -->
-                                        <label class="form-group has-float-label" aria-label="Sequencing Method">
-                                            <select class="select" id="seqmeth">
-                                                <optgroup label="None">
-                                                    <option value="0" selected>None</option>
-                                                </optgroup>
-                                                <optgroup label="Illumina">
-                                                    <option value="1">Single End</option>
-                                                    <option value="2">Paired End</option>
-                                                </optgroup>
-                                                <optgroup label="PacBio">
-                                                    <option value="4">Subread</option>
-                                                    <option value="3">CCS</option>
-                                                </optgroup>
-                                                <optgroup label="Nanopore">
-                                                    <option value="5">1D</option>
-                                                    <option value="6">2D</option>
-                                                </optgroup>
-                                                <optgroup label="User defined">
-                                                    <option value="7">Error Rates</option>
-                                                    <option value="8">Error Attributes</option>
-                                                    <option value="9">Rates and Attributes</option>
-                                                </optgroup>
-                                            </select><span>Sequencing Method</span>
-                                        </label>
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <div class="field">
-                                        <div class="control">
-                                            <label class="form-group has-float-label">
-                                                <input class="input is-rounded" type=number rows="1" id="seed"
-                                                       placeholder="Random" min="0" step="1"/>
-                                                <span>Seed</span>
-                                            </label>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-            <div class="columns has-no-padding-top">
-                <div class="column is-rounded">
-                    <button class="button is-rounded button-fill" id="downloadConfig"
-                            onclick="download(collectSendData(2), 'mosla.json','application/json');return false">
-                        Download current config
-                    </button>
-                </div>
-                <div class="column is-rounded">
-                    <button class="button is-rounded button-fill" id="uploadConfig"
-                            onclick="upload();return false">Upload config/fasta file
-                    </button>
-                </div>
-            </div>
-            <br/>
-            <input type="checkbox" id="spoiler"/>
-            <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
+                <div class="column is-full">
+                    <input type="checkbox" id="spoiler"/>
+                    <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
                 Subsequences</label>
-            <div class="spoiler">
+                    <div class="spoiler">
                 <h3>Changes here wont be saved in your profile!</h3>
                 <br/>
                 <div style="text-align: left">Enabled:</div>
-                <div id="subseq_container">
+                <div id="subseq-container">
                     {% for subsequence in usubsequence %}
                         <div class="control" id="subseq_{{ subsequence.id }}">
                             <table>
@@ -540,15 +275,423 @@
                     {% endfor %}
                 </div>
             </div>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns is-multiline is-gapless">
+                        <div class="column is-full">
+                            <div class="columns is-gapless">
+                                <div class="column is-2 is-full-mobile is-pulled-left">
+                                    <label class="form-group has-float-label">
+                                        <input class="input is-rounded" type="number" id="gc_window_size"
+                                               placeholder=""
+                                               size="4"
+                                               value="15"
+                                               required min="2" step="1"><span>GC Window</span></label>
+                                </div>
+                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
+                                    <div class="control is-expanded">
+                                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
+                                            <label for="gc-dropdown" aria-label="GC-Method"></label><select
+                                                class="button-fill" id="gc-dropdown">
+                                            <!--{% for chart in gc_charts %}
+
+                                <option data-id="{{ chart.id }}" data-type="gc"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
+                            {% endfor %}
+                            <option data-id="-1" data-type="gc"
+                                    data-validated="false" data-isowner="false">New Graph
+                            </option>-->
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <div class="control">
+                                        <input class="button is-block button-fill is-rounded" type="button"
+                                               id="showOvrly"
+                                               name="mybutton"
+                                               onclick="let dropdown_select = $('#gc-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
+                                               value="Change GC Probability" style="height: 36px; width: 240px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-full">
+                            <div class="columns is-gapless">
+                                <div class="column is-2 is-full-mobile is-pulled-left">
+                                    <label class="form-group has-float-label">
+                                        <input class="input is-rounded" type="number" id="kmer_window_size"
+                                               placeholder=""
+                                               size="4"
+                                               value="15"
+                                               required min="2" step="1"><span>Kmer Window</span></label>
+                                </div>
+                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
+                                    <div class="control is-expanded">
+                                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
+                                            <label for="kmer-dropdown" aria-label="Kmer-Method"></label><select
+                                                class="button-fill"
+                                                id="kmer-dropdown"></select>
+                                        </div>
+                                    </div>
+                                    <div class="control">
+                                        <input class="button is-block button-fill is-rounded" type="button"
+                                               id="showOvrly"
+                                               name="mybutton"
+                                               onclick="let dropdown_select = $('#kmer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
+                                               value="Change Kmer Probability" style="height: 36px; width: 240px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="column is-full">
+                            <div class="columns is-gapless">
+                                <div class="column is-2">
+                                    <p style="font-size:12px">Calculated Error Prob.</p>
+                                    <label data-balloon="Use Calculated Error Probabilities" data-balloon-pos="left">
+                                        <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                               id="calcprobs" class="switch is-rounded button-fill no-outline"
+                                               name="cprobs" onclick="let adv_con = $('#advancedcontainer'); let inf_con = $('#informationcontainer'); if ($(this).is(':checked')) {
+                                    let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    adv_con.hide();
+                                    inf_con.show();
+                                } else if ($(this).not(':checked')){
+                                    let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    adv_con.show();
+                                    inf_con.hide();
+                                }">
+                                        <label for="calcprobs" style="" class="no-outline"></label>
+                                    </label>
+                                </div>
+                                <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
+                                    <div class="control is-expanded">
+                                        <div class="select is-fullwidth is-2 select is-primary is-rounded">
+                                            <label for="homopolymer-dropdown"
+                                                   aria-label="Homopolymer-Method"></label><select
+                                                class="button-fill" id="homopolymer-dropdown">
+                                            <!--{% for chart in homopolymer_charts %}
+
+                                <option data-id="{{ chart.id }}" data-type="homopolymer"
+                                        data-validated="{{ chart.validated }}"
+                                        data-isowner="{{ chart.user_id == user_id }}"
+                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
+                            {% endfor %}
+                            <option data-id="-1" data-type="homopolymer"
+                                    data-validated="false" data-isowner="false">New Graph
+                            </option>-->
+                                        </select>
+                                        </div>
+                                    </div>
+                                    <div class="control">
+                                        <input class="is-rounded button is-block is-info-deactivated button-fill"
+                                               type="button"
+                                               id="showOvrly"
+                                               name="mybutton"
+                                               onclick="let dropdown_select = $('#homopolymer-dropdown option:selected');
+                               deserializeDataAndLoadDraw(dropdown_select.data('jsonblob'),
+                               dropdown_select.data('type'));showOverlay(dropdown_select.data('validated'),
+                               dropdown_select.data('isowner'), dropdown_select.data('id'), dropdown_select.text(),
+                               dropdown_select.data('type'), dropdown_select.data('awaits_validation'));"
+                                               value="Change Homopolymer Prob." style="height: 36px; width: 240px;">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns is-gapless" id="advancedcontainer">
+                        <!--<div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40"
+                             style="margin-top: 1.5rem">
+                            <p style="text-align:left;">Calculated Error Prob.</p>
+                            <label data-balloon="Use Calculated Error Probabilities"
+                                   data-balloon-pos="right" style="float: left">
+                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                       id="calcprobs"
+                                       class="switch is-rounded is-large button-fill no-outline" name="cprobs"
+                                       onclick="if ($(this).is(':checked')) {
+                                    let seq  = $('#seqmeth');
+                                    let synth = $('#synthmeth');
+                                    seq.data('selected', $('#seqmeth option:selected').val());
+                                    synth.data('selected', $('#synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                } else if ($(this).not(':checked')){
+                                    let seq  = $('#seqmeth');
+                                    let synth = $('#synthmeth');
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                }"/>
+                                <label for="calcprobs" style="float:left" class="no-outline"></label>
+                            </label>
+
+                            <p style="text-align:left;">Advanced Error-Simulation Settings</p>
+                            <label data-balloon="Use Advanced Error Simulation Settings"
+                                   data-balloon-pos="right" style="float: left">
+                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
+                                       id="adv_exec"
+                                       class="switch is-rounded is-large button-fill no-outline"
+                                       onclick="let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
+                                    let adv_exec = $('#adv_err_settings');
+                                    if ($(this).is(':checked')) {
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    classic.hide();
+                                    adv_exec.show();
+                                    initListsDnD();
+                                } else if ($(this).not(':checked')){
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    classic.show();
+                                    adv_exec.hide();
+                                }"/>
+                                <label for="adv_exec" style="float:left" class="no-outline"></label>
+                            </label>
+                        </div>-->
+                        <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top "
+                             style="margin-top: 1.0rem">
+                            <div class="columns is-multiline">
+                                <div class="column is-full">
+                                    <p style="font-size:12px;">Advanced Error-Simulation Settings</p>
+                                    <label data-balloon="Use Advanced Error Simulation Settings"
+                                           data-balloon-pos="right">
+                                        <input type="checkbox" aria-label="Use Advanced Error Simulation Settings"
+                                               id="adv_exec" class="switch is-rounded button-fill no-outline" onclick="let seq  = $('#classic_seqmeth');
+                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
+                                    let adv_exec = $('#adv_err_settings');
+                                    if ($(this).is(':checked')) {
+                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
+                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
+                                    seq.val(0).prop('disabled', true);
+                                    synth.val(0).prop('disabled', true);
+                                    classic.hide();
+                                    adv_exec.show();
+                                } else if ($(this).not(':checked')){
+                                    seq.val(0).prop('disabled', false);
+                                    synth.val(0).prop('disabled', false);
+                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
+                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
+                                    classic.show();
+                                    adv_exec.hide();
+                                }">
+                                        <label for="adv_exec" style="" class="no-outline"></label>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="classic_err_settings" class="column">
+                            <div id="classic_synth" class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-10 correspond to the error_correction id in the database -->
+                                    <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Synthesis Method">
+                                        <select class="select" id="classic_synthmeth">
+                                            <optgroup label="None">
+                                                <option value="0" selected>None</option>
+                                            </optgroup>
+                                            <optgroup label="Column synthesized oligos">
+                                                <option value="1">MutS</option>
+                                                <option value="2">Consensus shuffle</option>
+                                                <option value="3">ErrASE</option>
+                                                <option value="9">No error correction</option>
+                                            </optgroup>
+                                            <optgroup label="Microarray based oligo pools">
+                                                <option value="4">Oligo hybridization based</option>
+                                                <option value="5">High-temperature ligation/hybridization based
+                                                </option>
+                                                <option value="6">ErrASE</option>
+                                                <option value="7">Nuclease-based</option>
+                                                <option value="8">NGS-based</option>
+                                                <option value="10">No error correction</option>
+                                            </optgroup>
+                                            <optgroup label="User defined">
+                                                <option value="11">Error Rates</option>
+                                                <option value="12">Error Attributes</option>
+                                                <option value="13">Rates and Attributes</option>
+                                            </optgroup>
+                                        </select><span>Synthesis Method</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div id="classic_seq" class="column is-full">
+                                <div class="select is-fullwidth is-primary is-rounded">
+                                    <!-- values 1-7 correspond to the submethod id in the database -->
+                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                    <!-- or intercept these values before the database request.  -->
+                                    <label class="form-group has-float-label" aria-label="Sequencing Method">
+                                        <select class="select" id="classic_seqmeth">
+                                            <optgroup label="None">
+                                                <option value="0" selected>None</option>
+                                            </optgroup>
+                                            <optgroup label="Illumina">
+                                                <option value="1">Single End</option>
+                                                <option value="2">Paired End</option>
+                                            </optgroup>
+                                            <optgroup label="PacBio">
+                                                <option value="4">Subread</option>
+                                                <option value="3">CCS</option>
+                                            </optgroup>
+                                            <optgroup label="Nanopore">
+                                                <option value="5">1D</option>
+                                                <option value="6">2D</option>
+                                            </optgroup>
+                                            <optgroup label="User defined">
+                                                <option value="7">Error Rates</option>
+                                                <option value="8">Error Attributes</option>
+                                                <option value="9">Rates and Attributes</option>
+                                            </optgroup>
+                                        </select><span>Sequencing Method</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="adv_err_settings" class="column" style="display: none">
+                            <div class="columns is-multiline">
+                                    <div id="adv_synth" class="column is-full-mobile is-half">
+                                        <label for="synthmeth"><p>Synthesis Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="synthmeth" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="nonee" label="None">
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div id="adv_seq" class="column is-full-mobile is-half">
+                                        <label for="seqmeth"><p>Sequencing Methods</p></label>
+                                        <select class="select is-multiple is-rounded" id="seqmeth" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="nonee" label="None">
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div id="adv_exec" class="column is-full-mobile is-full">
+                                        <label for="seqmeth1"><p>Execution Order</p></label>
+                                        <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
+                                                style="width: 100%">
+                                            <optgroup id="synthesis_sortable" label="Synthesis">
+                                            </optgroup>
+                                            <optgroup id="pcr_sortable" label="Storage/PCR">
+                                            </optgroup>
+                                            <optgroup id="sequencing_sortable" label="Sequencing">
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    <div id="adv_exec_trash" class="column is-full">
+                                        <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
+                                    </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="columns is-gapless is-centered" id="informationcontainer">
+                        <p style="font-size:12px;color: grey;">Using calculated error probabilities for the simulation.</p>
+                    </div>
+                </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns is-gapless">
+                        <div class="column is-2 is-1-touch is-1-mobile" style="margin-top: -0.5rem">
+                            <p style="font-size:12px;">Max. Expect</p>
+                            <label data-balloon="Calculate Secondary Structures"
+                                   data-balloon-pos="right">
+                                <input type="checkbox" aria-label="Calculate Secondary Structures" id="do_max_expect"
+                                       checked class="switch is-rounded button-fill no-outline"
+                                       name="do_max_expect"
+                                       onclick="$('#temperature').prop('disabled',!$(this).is(':checked'))"/>
+                                <label for="do_max_expect" class="no-outline"></label>
+                            </label>
+                        </div>
+                        <div class="column">
+                            <div class="field">
+                                <div class="control">
+                                    <label class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input class="input is-rounded" type=number rows="1" id="temperature"
+                                                   value="310.15" min="0" step="0.01"/>
+                                            <span class="icon is-right">
+                                            <i class="fas fa-thermometer-half"></i>
+                                        </span>
+                                        </p>
+                                        <span>Temperature (°K)</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <hr>
+                </div>
+                <div class="column is-full is-full-touch">
+                    <div class="columns">
+                        <div class="column is-full">
+                            <div class="field">
+                                <div class="control">
+                                    <label class="form-group has-float-label">
+                                        <input class="input is-rounded" type=number rows="1" id="seed"
+                                               placeholder="Random" min="0" step="1"/>
+                                        <span>Seed</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="columns has-no-padding-top">
+                <div class="column is-rounded">
+                    <button class="button is-rounded button-fill" id="downloadConfig"
+                            onclick="download(collectSendData(2), 'mosla.json','application/json');return false">
+                        Download current config
+                    </button>
+                </div>
+                <div class="column is-rounded">
+                    <button class="button is-rounded button-fill" id="uploadConfig"
+                            onclick="upload();return false">Upload config/fasta file
+                    </button>
+                </div>
+            </div>
+            <br/>
+
 
             <div class="columns has-no-padding-top">
                 <div class="column is-1">
-                    <p>Send E-Mail</p>
+                    <p style="font-size:12px;">Send E-Mail</p>
                     <label data-balloon="{% if user_id == None %}Type in an email address to use this feature{% else %}Send Result via E-Mail{% endif %}"
                            data-balloon-pos="right">
                         <input type="checkbox" aria-label="Send Result to E-Mail instead of waiting for Output"
                                id="send_email"
-                               class="switch is-rounded is-large button-fill no-outline" name="send_email"/>
+                               class="switch is-rounded button-fill no-outline" name="send_email"/>
                         <label for="send_email" class="no-outline"></label>
                         <!-- {% if user_id == None %}disabled{% endif %} -->
                     </label>
@@ -565,6 +708,7 @@
             </div>
         </form>
     </div>
+
     <div id="results" style="display: none">
         <h2 class="subtitle"> Your Results: </h2>
         <div class="box">
@@ -684,6 +828,7 @@
         <script src={{ url_for('static',filename='js/jquery.lettering.js') }}></script>
         <script src={{ url_for('static',filename='js/Chart.min.js') }}></script>
         <script src={{ url_for('static',filename='js/chartjs-plugin-dragData.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/Sortable.js') }}></script>
         <script src={{ url_for('static',filename='js/error-chart.js') }}></script>
         <script src={{ url_for('static',filename='js/autoscroll.js') }}></script>
         <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
@@ -763,35 +908,117 @@
                     closeOverlay();
                 }
                 if (!$(event.target).closest("#mod_seq").length) {
-                    var element = document.getElementById("mod_seq");
-                    set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+                    let seq = document.getElementById("mod_seq").innerText;
+                    document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + get_gc_con(seq) + "% Tm: " + calc_tm(seq) + "°C Start-Pos: 0 End-Pos: " + seq.length;
                 }
                 if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
                     $("#validation_overlay").hide();
                 }
             });
             $("#mod_seq").on("click", function (e) {
-                var sel = "";
                 if (window.getSelection) {
-                    sel = window.getSelection().toString();
-                    var sel_start = window.getSelection().getRangeAt(0).startOffset + 1;
-                    var sel_end = sel_start;
-                    if (window.getSelection().toString().length !== 0) {
-                        sel_end = sel_start + window.getSelection().toString().length - 1;
-                    }
-                    set_mod_seq_inf(sel, sel_start, sel_end);
+                    let sel = window.getSelection().toString();
+                    set_mod_seq_inf(sel);
                 }
             });
             $("#send_email").on("click", function (e) {
-                if ($("#send_email").is(":checked") && user_id == "") {
-                    $("#emailadd").show();
+                let email_txt = $("#emailadd");
+                if ($("#send_email").is(":checked") && user_id === "") {
+                    email_txt.show();
                 } else {
-                    $("#emailadd").val("");
-                    $("#emailadd").hide();
+
+                    email_txt.val("");
+                    email_txt.hide();
                 }
-            })
-
+            });
         });
+            $('#seqmeth1').bind('keyup', function (e) {
+                if (e.which === 46 || e.which === 8) {
+                    $('#seqmeth1 :selected').remove();
+                    // or your stuff here...
+                }
+            });
+            let trash = document.getElementById('trash');
+            let ssort;
+            let trash_svg = false;
+            let source = document.getElementById('nonee');
+            let sortable = Sortable.create(source, {
+                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            let synthesis_sortable = Sortable.create(document.getElementById('synthesis_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });*/
+            let pcr_sortable = Sortable.create(document.getElementById('pcr_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            let sequencing_sortable = Sortable.create(document.getElementById('sequencing_sortable'), {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = document.getElementById('trash');
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
 
+            $('#seqmeth').children().each(function (x) {
+                var asd = Sortable.create($('#seqmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: true,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
     </script>
 {% endblock %}

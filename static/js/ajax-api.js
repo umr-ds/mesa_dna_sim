@@ -95,7 +95,7 @@ function extractUndesiredToJson() {
 }
 
 function importUndesiredFromJson(json_in) {
-    let container = $('#subseq_container');
+    let container = $('#subseq-container');
     container.empty();
     let tmp = "";
     for (let id in json_in) {
@@ -208,7 +208,28 @@ $(document).ready(function () {
         event.preventDefault();
         queryServer(undefined);
     });
+    $('#informationcontainer').hide();
+    set_listener();
 });
+
+function set_listener(){
+    $('[name="sequence"]').each(function (e, elem) {
+        $(elem).on("paste klick change keyup", function (f) {
+            setTimeout(function(g){
+                let data = $(elem).val();
+                $(elem).val(data.replace(/[^ACGT]/gi, "").toUpperCase());
+            });
+        });
+    });
+    $('[name="error_prob"]').each(function (e, elem) {
+        $(elem).on("paste klick change keyup", function (f) {
+            setTimeout(function(g){
+                let data = $(elem).val();
+                $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
+            });
+        });
+    });
+}
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
 function download(text, name, type) {
@@ -254,7 +275,11 @@ function handleFileChange(evt) {
             file = evt.target.files[0];
         }
         let reader = new FileReader();
-        reader.readAsText(file);
+        try {
+            reader.readAsText(file);
+        } catch (e) {
+            return false;
+        }
         reader.onload = () => {
             try {
                 let text = reader.result;
@@ -300,9 +325,13 @@ function upload() {
 }
 
 function handleDragOver(evt) {
-    evt.stopPropagation();
-    evt.preventDefault();
-    evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    try {
+        evt.stopPropagation();
+        evt.preventDefault();
+        evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+    } catch (e) {
+
+    }
 }
 
 function loadSendData(dta) {
@@ -408,8 +437,46 @@ function collectSendData(space) {
     let kmer_error_prob = kmer_dropdown_select.data('jsonblob');
     if (typeof (kmer_error_prob) === "string")
         kmer_error_prob = JSON5.parse(kmer_error_prob);
-    let seq_meth = $("#seqmeth option:selected");
-    let synth_meth = $("#synthmeth option:selected");
+
+    let adv_meth = $("#adv_exec");
+    let seq_meth, synth_meth;
+    let exec_res = {};
+    if(adv_meth.prop("checked")){
+        seq_meth = $("#seqmeth option:selected");
+        synth_meth = $("#synthmeth option:selected");
+        /* collect all error simulation elements in correct execution order */
+        let exec_order = $('#seqmeth1').children();
+        exec_order.each(function (id, o_group) {
+            let tmp = [];
+            $(o_group).children().each(function (o_id, meth) {
+                let jmeth = $(meth);
+                tmp.push({
+                    name: jmeth.text(),
+                    id: jmeth.val(),
+                    conf: {
+                        err_data: jmeth.data('err_data'),
+                        err_attributes: jmeth.data('err_attributes')
+                    }
+                });
+            });
+            exec_res[o_group.label] = tmp;
+        });
+    }
+    else{
+        seq_meth = $("#classic_seqmeth option:selected");
+        synth_meth = $("#classic_synthmeth option:selected");
+        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing']].forEach(function (meth) {
+            exec_res[meth[1]] = [{
+                name: meth[0].text(),
+                id: meth[0].val(),
+                conf: {
+                    err_data: meth[0].data('err_data'),
+                    err_attributes: meth[0].data('err_attributes')
+                }
+            }];
+        })
+    }
+
     let email = "";
     if (user_id === "" && $('#send_email').is(':checked')) {
         if ($("#emailadd").val()) {
@@ -444,6 +511,7 @@ function collectSendData(space) {
             err_attributes: synth_meth.data('err_attributes')
         },
         synthesis_method_name: synth_meth.text(),
+        err_simulation_order: exec_res,
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
@@ -583,7 +651,7 @@ function queryServer(uuid) {
 
 
             let element = document.getElementById('mod_seq');
-            set_mod_seq_inf(element.innerText, 1, element.innerText.length);
+            set_mod_seq_inf(element.innerText);
             if (data['result_by_mail'] === true) {
                 //TODO show info that the result will be send via mail
                 resultsbymail.css('display', 'initial');
@@ -655,31 +723,37 @@ function updateSynthDropdown(host, apikey, type) {
             }
         },
         success: function (data) {
-            let el = $('#synthmeth');
-            el.empty(); // remove old options
-            $.each(data['synth'], function (name) {
-                let elem = data['synth'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
-                optgroup.appendTo(el);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
-                });
+            let trash = document.getElementById('trash');
+            let methods = [['synth', '#synthmeth'], ['synth', '#classic_synthmeth'], ['seq', '#seqmeth'], ['seq', '#classic_seqmeth']];
+            methods.forEach(function (method) {
+                let el = $(method[1]);
+                el.empty();
+                $.each(data[method[0]], function (name) {
+                    let elem = data[method[0]][name];
+                    let optgroup = $("<optgroup id='" + name + "' label='" + name + "'></optgroup>");
+                    optgroup.appendTo(el);
+                    $.each(elem, function (inner_id) {
+                        let id = elem[inner_id]['id'];
+                        let id_name = "" + name + "_" + id;
+                        optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                    });
+                })
             });
 
-            let sel = $('#seqmeth');
-            sel.empty(); // remove old options
-            $.each(data['seq'], function (name) {
-                let elem = data['seq'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
-                optgroup.appendTo(sel);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+            // make content draggable
+            [$('#synthmeth'), $('#seqmeth')].forEach(function (elem) {
+                elem.children().each(function (x) {
+                    var asd = Sortable.create(elem.children()[x], {
+                        group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
+                        onEnd: function (evt) {
+                            if (evt.to === trash) {
+                                evt.to.children[evt.newIndex].remove();
+                            }
+                        }
+                    });
                 });
             });
+            initListsDnD();
         },
         fail: function (data) {
             console.log(data)
@@ -699,17 +773,54 @@ let dropZone = document.getElementById('main-body');
 dropZone.addEventListener('dragover', handleDragOver, false);
 dropZone.addEventListener('drop', handleFileChange, false);
 
-function set_mod_seq_inf(sel, sel_start, sel_end) {
-    let sel_gc_con = ((count_char(sel, 'G') + count_char(sel, 'C')) / count_all(sel)) * 100;
-    sel_gc_con = Math.round(sel_gc_con * 100) / 100;
-    let sel_tm = get_tm(sel);
+function set_mod_seq_inf(sel_seq) {
+    let sel_pos = getSelectionCharacterOffsetWithin(document.getElementById("mod_seq"));
+    let sel_gc_con = get_gc_con(sel_seq);
+    let sel_tm = calc_tm(sel_seq);
+    if (Number.isNaN(sel_gc_con)){
+        sel_gc_con = 0;
+    }
     if (sel_tm === -1) {
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_start + " End-Pos: " + sel_end;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: Select at least 6 bases. Start-Pos: " + sel_pos.start + " End-Pos: " + sel_pos.end;
     } else {
-        sel_tm = Math.round(sel_tm * 100) / 100;
-        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_start + " End-Pos: " + sel_end;
+        document.getElementById("mod_seq_inf").innerHTML = "GC-Content: " + sel_gc_con + "% Tm: " + sel_tm + "°C Start-Pos: " + sel_pos.start + " End-Pos: " + sel_pos.end;
     }
 
+
+}
+
+function getSelectionCharacterOffsetWithin(element) {
+    let start = 0;
+    let end = 0;
+    let doc = element.ownerDocument || element.document;
+    let win = doc.defaultView || doc.parentWindow;
+    let sel;
+    if (typeof win.getSelection != "undefined") {
+        sel = win.getSelection();
+        if (sel.rangeCount > 0) {
+            let range = win.getSelection().getRangeAt(0);
+            let preCaretRange = range.cloneRange();
+            preCaretRange.selectNodeContents(element);
+            preCaretRange.setEnd(range.startContainer, range.startOffset);
+            start = preCaretRange.toString().length;
+            preCaretRange.setEnd(range.endContainer, range.endOffset);
+            end = preCaretRange.toString().length;
+        }
+    } else if ((sel = doc.selection) && sel.type != "Control") {
+        let textRange = sel.createRange();
+        let preCaretTextRange = doc.body.createTextRange();
+        preCaretTextRange.moveToElementText(element);
+        preCaretTextRange.setEndPoint("EndToStart", textRange);
+        start = preCaretTextRange.text.length;
+        preCaretTextRange.setEndPoint("EndToEnd", textRange);
+        end = preCaretTextRange.text.length;
+    }
+    return {start: start, end: end};
+}
+
+function get_gc_con(sel_seq) {
+    let gc_con = ((count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) / count_all(sel_seq)) * 100;
+    return Math.round(gc_con * 100) / 100;
 }
 
 function count_char(sel_seq, char) {
@@ -733,17 +844,6 @@ function count_all(sel_seq) {
     return count;
 }
 
-function get_tm(sel_seq) {
-    let tm = 0;
-    if (count_all(sel_seq) < 6) {
-        return -1;
-    } else if (6 <= count_all(sel_seq) < 14) {
-        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4
-    } else if (count_all(sel_seq) >= 14) {
-        tm = 64.9 + 41 * (count_char(sel_seq, 'G') + count_char(sel_seq, 'C') - 16.4) / (count_all(sel_seq))
-    }
-    return tm;
-}
 
 function updateUserId(host, u_id, callback) {
     if (callback === undefined)
@@ -812,3 +912,231 @@ function deleteUserId(host, user_id, callback) {
         }
     });
 }
+
+/**
+ * Tm_calculation
+ *
+ *
+ *
+ *
+ *
+ */
+
+let TmSettings = {
+    Ct: 250e-9,// DNA strand concentration
+    Na: 50e-3,// Na+/K+ ion concentration. Default taken from Primer3
+    Mg: 0,    // divalent salt concentration default taken from Primer3Web 2.3.6
+    dNTP: 0     // dNTP (denucleotide tri phosphate) default taken from Primer3Web 2.3.6
+};
+
+let dS = {},
+    dH = {},
+    init_GC_dH = 0.1 * 1000,
+    init_GC_dS = -2.8,
+    init_AT_dH = 2.3 * 1000,
+    init_AT_dS = 4.1,
+    sym_dS = -1.4,
+    /**
+     * molar gas constant
+     * R 8.314472 J mol-1 K-1
+     * Divided by 4.184 J / calorie for units:
+     * cal mol-1 K-1
+     */
+    R = 1.9872;
+
+
+function calc_tm(sel_seq){
+    let tm = 0;
+    sel_seq = sel_seq.replace(/ /g, "");
+    let seq_len = sel_seq.length;
+    if(seq_len < 6){
+        return -1;
+    }
+    else if(seq_len < 14){
+        tm = (count_char(sel_seq, 'A') + count_char(sel_seq, 'T')) * 2 + (count_char(sel_seq, 'G') + count_char(sel_seq, 'C')) * 4;
+    }
+    else if(14 <= seq_len) {
+        init();
+        let self_comp = is_self_comp(sel_seq);
+        let dS_sum = calc_dS(sel_seq, self_comp);
+        let na_corr = TmSettings.Na + divalendToMonovalentCorrection(TmSettings.Mg, TmSettings.dNTP);
+        let salt_corr = (seq_len - 1) * 0.368 * Math.log(na_corr);
+        let dH_sum = calc_dH(sel_seq);
+        let h = is_self_comp ? 1.0 : 0.25;
+        tm = dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
+    }
+    return Math.round(tm * 100) / 100;
+}
+
+function init() {
+    h('AA', -7.9, -22.2);
+    h('AT', -7.2, -20.4);
+    h('TA', -7.2, -21.3);
+    h('CA', -8.5, -22.7);
+    h('GT', -8.4, -22.4);
+    h('CT', -7.8, -21.0);
+    h('GA', -8.2, -22.2);
+    h('CG', -10.6, -27.2);
+    h('GC', -9.8, -24.4);
+    h('GG', -8.0, -19.9);
+}
+
+function h(seq, dH_val, dS_val) {
+    let rev = reverse_seq(get_comp_seq(seq));
+    dH[seq] = dH[rev] = dH_val * 1000;
+    dS[seq] = dS[rev] = dS_val;
+}
+
+function get_comp_base(base) {
+    if (base === 'A') return 'T';
+    if (base === 'T') return 'A';
+    if (base === 'C') return 'G';
+    if (base === 'G') return 'C';
+}
+
+function get_comp_seq(seq) {
+    let tmp_seq = [];
+    for (let i = 0; i < seq.length; i++) {
+        tmp_seq.push(get_comp_base(seq.charAt(i)));
+    }
+    return tmp_seq.join("");
+}
+
+function reverse_seq(seq) {
+    return seq.split("").reverse().join("");
+}
+
+function is_self_comp(seq) {
+    let comp_seq = get_comp_seq(seq);
+    for (let i = 0; i < seq.length; i++) {
+        if (seq[i] !== comp_seq[seq.length - i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
+function divalendToMonovalentCorrection(divalent, monovalent) {
+    return 12.0 / Math.sqrt(10) * Math.sqrt(Math.max(0, divalent - monovalent));
+}
+
+function calc_dS(seq, is_self_comp) {
+    let first = seq[0];
+    let tmp_dS = first === 'A' || first === 'T' ? init_AT_dS : init_GC_dS;
+    for (let i = 0; i < seq.length - 1; ++i) {
+        tmp_dS += dS[seq.substr(i, 2)];
+    }
+    let last = seq[seq.length - 1];
+    tmp_dS += last == 'A' || last == 'T' ? init_AT_dS : init_GC_dS;
+    if (is_self_comp) {
+        tmp_dS += sym_dS;
+    }
+    return tmp_dS;
+}
+
+function calc_dH(seq) {
+    let first = seq[0];
+    let tmp_dH = first === 'A' || first === 'T' ? init_AT_dH : init_GC_dH;
+    for (let i = 0; i < seq.length - 1; ++i) {
+        tmp_dH += dH[seq.substr(i, 2)];
+    }
+    let last = seq[seq.length - 1];
+    tmp_dH += last == 'A' || last == 'T' ? init_AT_dH : init_GC_dH;
+    return tmp_dH;
+}
+
+
+function initListsDnD() {
+            let trash = $('#trash')[0];
+            let ssort;
+            let trash_svg = false;
+            /*let source = $('#synthmeth')[0];
+            let sortable = Sortable.create(source, {
+                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            }); */
+            let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+                    group: {name: 'a', pull: true, put: true}, sort: true,
+                    onStart: function (/**Event/evt) {
+                        if (!trash_svg) {
+                            trash = document.getElementById('trash');
+                            ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                            trash_svg = true;
+                        }
+                    },
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });*/
+            let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+
+            $('#seqmeth').children().each(function (x) {
+                var asd = Sortable.create($('#seqmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: false,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
+            $('#synthmeth').children().each(function (x) {
+                var asd = Sortable.create($('#synthmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: false,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
+        }
