@@ -238,17 +238,3 @@ class MethodCategories(db.Model):
 
 
 ###############################################
-
-class SynthesisErrorCorrection(db.Model):
-    __tablename__ = 'synth_err_correction'
-    id = db.Column(db.Integer, primary_key=True)
-    data = db.Column(db.String(128), nullable=False)
-
-    def __repr__(self):
-        return '<SequencingErrorAttributes(id={}, method_id={}, correction_id={}, err_data={}'.format(
-            self.id, self.method, self.correction_id, self.err_data)
-
-    def as_dict(self):
-        return {c.name: str(getattr(self, c.name)) for c in self.__table__.columns}
-
-###############################################
