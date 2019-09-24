@@ -560,6 +560,7 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
     :param max_x:
     :return: The sanitized dictionary.
     """
+    return data
     for entry in data:
         data_tmp = data.get(entry)
         if type(data_tmp) == list:
