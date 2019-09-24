@@ -464,6 +464,7 @@
                                     synth.val(0).prop('disabled', true);
                                     classic.hide();
                                     adv_exec.show();
+                                    initListsDnD();
                                 } else if ($(this).not(':checked')){
                                     seq.val(0).prop('disabled', false);
                                     synth.val(0).prop('disabled', false);
@@ -931,7 +932,6 @@
                 }
             });
         });
-
             $('#seqmeth1').bind('keyup', function (e) {
                 if (e.which === 46 || e.which === 8) {
                     $('#seqmeth1 :selected').remove();

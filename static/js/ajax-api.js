@@ -753,6 +753,7 @@ function updateSynthDropdown(host, apikey, type) {
                     });
                 });
             });
+            initListsDnD();
         },
         fail: function (data) {
             console.log(data)
@@ -1043,3 +1044,99 @@ function calc_dH(seq) {
     tmp_dH += last == 'A' || last == 'T' ? init_AT_dH : init_GC_dH;
     return tmp_dH;
 }
+
+
+function initListsDnD() {
+            let trash = $('#trash')[0];
+            let ssort;
+            let trash_svg = false;
+            /*let source = $('#synthmeth')[0];
+            let sortable = Sortable.create(source, {
+                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            }); */
+            let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+                    group: {name: 'a', pull: true, put: true}, sort: true,
+                    onStart: function (/**Event/evt) {
+                        if (!trash_svg) {
+                            trash = document.getElementById('trash');
+                            ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                            trash_svg = true;
+                        }
+                    },
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });*/
+            let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+            let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
+                group: {name: 'a', pull: true, put: true}, sort: true,
+                onStart: function (/**Event*/evt) {
+                    if (!trash_svg) {
+                        trash = $('#trash')[0];
+                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                        trash_svg = true;
+                    }
+                },
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
+                }
+            });
+
+            $('#seqmeth').children().each(function (x) {
+                var asd = Sortable.create($('#seqmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: false,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
+            $('#synthmeth').children().each(function (x) {
+                var asd = Sortable.create($('#synthmeth').children()[x], {
+                    group: {name: 'a', pull: true, put: true}, sort: false,
+                    onEnd: function (evt) {
+                        if (evt.to === trash) {
+                            evt.to.children[evt.newIndex].remove();
+                        }
+                    }
+                });
+            });
+        }
