@@ -511,6 +511,7 @@ function collectSendData(space) {
                 tmp.push({
                     name: jmeth.text(),
                     id: jmeth.val(),
+                    cycles: jmeth.data('multiplier'),
                     conf: {
                         err_data: jmeth.data('err_data'),
                         err_attributes: jmeth.data('err_attributes')
@@ -525,10 +526,19 @@ function collectSendData(space) {
         synth_meth = $("#classic_synthmeth option:selected");
         storage_meth = $("#classic_storagemeth option:selected");
         pcr_meth = $("#classic_pcrmeth option:selected");
-        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing'], [storage_meth, 'Storage'], [pcr_meth, 'Pcr']].forEach(function (meth) {
+        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing'], [storage_meth, 'Storage'], [pcr_meth, 'PCR']].forEach(function (meth) {
+            let cycles;
+            if (meth[1] === 'Storage') {
+                cycles = $('#cycles').val()
+            } else if (meth[1] === 'PCR') {
+                cycles = $('#months').val()
+            } else {
+                cycles = 1;
+            }
             exec_res[meth[1]] = [{
                 name: meth[0].text(),
                 id: meth[0].val(),
+                cycles: cycles,
                 conf: {
                     err_data: meth[0].data('err_data'),
                     err_attributes: meth[0].data('err_attributes')

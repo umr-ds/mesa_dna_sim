@@ -453,3 +453,7 @@ br {
   visibility: visible;
   opacity: 1;
 }
+
+.text_lettering, .full_modified_text_lettering {
+    background-color: #f5f5f5;
+}

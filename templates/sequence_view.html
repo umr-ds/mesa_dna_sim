@@ -174,7 +174,7 @@
         <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
                 <div class="tooltip">?
-                    <span class="tooltiptext">You can upload your configuration or fasta files by dragging them in here!</span>
+                    <span class="tooltiptext">You can upload your Sequnce, FASTA-files or configuration by dragging them in here!</span>
                 </div>
                 <div class="column is-full">
                     <div class="columns">
@@ -867,7 +867,7 @@
         <div class="box">
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
             <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
-            <ul class="full_modified_text_lettering" id="mod_seq_inf" style="overflow-x: auto;"></ul>
+            <ul id="mod_seq_inf" style="overflow-x: auto;"></ul>
             <div class="column is-rounded">
                 <button class="button is-rounded" id="downloadFastqMod"
                         onclick="download(collectSendFastQ(true), 'mosla.fastq');return false">

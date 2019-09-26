@@ -472,6 +472,7 @@ def do_all(r_method):
         if use_error_probs:
             manual_errors(sequence, g, [kmer_res, res, homopolymer_res, gc_window_res], seed=seed)
         else:
+            # TODO we could reduce allfor-loops with a single one...
             # Syntehsis:
             for meth in err_simulation_order['Synthesis']:
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
@@ -481,14 +482,23 @@ def do_all(r_method):
 
             # Storage / PCR:
 
+            # if we are in classic-mode we have to combine Storage and PC:
+            if "Storage/PCR" not in err_simulation_order:
+                err_simulation_order["Storage/PCR"] = []
+            if "Storage" in err_simulation_order:
+                err_simulation_order['Storage/PCR'].append(err_simulation_order["Storage"][0])
+            if "PCR" in err_simulation_order:
+                err_simulation_order['Storage/PCR'].append(err_simulation_order["PCR"][0])
+
             for meth in err_simulation_order['Storage/PCR']:  # TODO rename at frontend
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles) + 1) % 4294967296  # TODO rename 'process="..."'
-
-            #TODO
-            pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
-
+                try:
+                    inner_cycles = int(meth['cycles'])
+                except:
+                    inner_cycles = 1
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process="pcr", seed=seed, conf=meth['conf'], cycles=inner_cycles) + 1) % 4294967296  # TODO rename 'process="..."'
+            #pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
             #storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
 
             # Sequencing:
