@@ -9,6 +9,7 @@ from threading import Thread
 from multiprocessing.pool import ThreadPool
 import os
 import numpy as np
+from werkzeug.exceptions import HTTPException
 
 try:
     import RNAstructure
@@ -37,11 +38,18 @@ simulator_api = Blueprint("simulator_api", __name__, template_folder="templates"
 
 @simulator_api.errorhandler(Exception)
 def handle_error(ex):
-    # TODO : send_mail() to a predefined e-mail or to all admins?:
-    print(request)
-    print(request.json)
-    print(request.args)
-    print(''.join(traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)))
+    code = 500
+
+    text = str(request) + "\n"
+    text += str(request.json) + "\n"
+    text += str(request.args) + "\n"
+    text += str(''.join(traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)))
+    if isinstance(ex, HTTPException):
+        code = ex.code
+    exception_recv = current_app.config['EXCEPTION_RECV']
+    if exception_recv is not None and code != 409:  # we do not want to send an email for invalid credentials
+        send_mail("noreply@mosla.de", [exception_recv], text, subject="[MOSLA] Exception happened!")
+    return jsonify({'did_succeed': False, 'code': code}), code
 
 
 @simulator_api.route('/api/homopolymer', methods=['GET', 'POST'])
@@ -389,7 +397,6 @@ def do_all(r_method):
         return create_max_expect(sequence, basefilename=basefilename, temperature=temp, max_percent=10, gamma=1,
                                  max_structures=1, window=3)
 
-
     r_method = sanitize_json(r_method)
     # TODO fix for advanced error simulation + pcr / storage
     # getting the configuration of the website to calculate the error probabilities
@@ -497,9 +504,10 @@ def do_all(r_method):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process="pcr", seed=seed, conf=meth['conf'], cycles=inner_cycles) + 1) % 4294967296  # TODO rename 'process="..."'
-            #pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
-            #storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process="pcr", seed=seed, conf=meth['conf'],
+                                  cycles=inner_cycles) + 1) % 4294967296  # TODO rename 'process="..."'
+            # pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
+            # storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:
@@ -592,7 +600,7 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
                             tmp += data_tmp_prob.get("pattern").get(x)
                         if tmp > 1.0:
                             for x in data_tmp_prob.get("pattern"):
-                                data_tmp_prob.get("pattern").update({x: (data_tmp_prob.get("pattern").get(x)/tmp)})
+                                data_tmp_prob.get("pattern").update({x: (data_tmp_prob.get("pattern").get(x) / tmp)})
                     elif prob == 'mismatch':
                         for x in data_tmp_prob.get('pattern', []):
                             tmp = 0.0
@@ -600,7 +608,8 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
                                 tmp += data_tmp_prob.get("pattern").get(x).get(y)
                             if tmp > 1.0:
                                 for z in data_tmp_prob.get("pattern").get(x):
-                                    data_tmp_prob.get("pattern").get(x).update({z: (data_tmp_prob.get("pattern").get(x).get(z)/tmp)})
+                                    data_tmp_prob.get("pattern").get(x).update(
+                                        {z: (data_tmp_prob.get("pattern").get(x).get(z) / tmp)})
             else:
                 sanitize_json(data_tmp)
         elif type(data_tmp == str):

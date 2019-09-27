@@ -514,140 +514,142 @@
                             </div>
                         </div>
                         <div id="classic_err_settings" class="column">
-                            <div id="classic_synth" class="column is-full">
-                                <div class="select is-fullwidth is-primary is-rounded">
-                                    <!-- values 1-10 correspond to the error_correction id in the database -->
-                                    <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                    <!-- or intercept these values before the database request.  -->
-                                    <label class="form-group has-float-label" aria-label="Synthesis Method">
-                                        <select class="select" id="classic_synthmeth">
-                                            <optgroup label="None">
-                                                <option value="0" selected>None</option>
-                                            </optgroup>
-                                            <optgroup label="Column synthesized oligos">
-                                                <option value="1">MutS</option>
-                                                <option value="2">Consensus shuffle</option>
-                                                <option value="3">ErrASE</option>
-                                                <option value="9">No error correction</option>
-                                            </optgroup>
-                                            <optgroup label="Microarray based oligo pools">
-                                                <option value="4">Oligo hybridization based</option>
-                                                <option value="5">High-temperature ligation/hybridization based
-                                                </option>
-                                                <option value="6">ErrASE</option>
-                                                <option value="7">Nuclease-based</option>
-                                                <option value="8">NGS-based</option>
-                                                <option value="10">No error correction</option>
-                                            </optgroup>
-                                            <optgroup label="User defined">
-                                                <option value="11">Error Rates</option>
-                                                <option value="12">Error Attributes</option>
-                                                <option value="13">Rates and Attributes</option>
-                                            </optgroup>
-                                        </select><span>Synthesis Method</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="column is-full">
-                                <div class="select is-fullwidth is-primary is-rounded">
-                                    <!-- values 1-7 correspond to the submethod id in the database -->
-                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                    <!-- or intercept these values before the database request.  -->
-                                    <label class="form-group has-float-label" aria-label="PCR Polymerase">
-                                        <select class="select" id="classic_pcrmeth">
-                                            <option value="0" selected>None</option>
-                                            <option value="1">Taq</option>
-                                            <option value="2">Pfu</option>
-                                            <option value="3">Phusion</option>
-                                            <option value="4">Pwo</option>
-                                        </select><span>PCR Polymerase</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="column is-full">
-                                <!--<div class="column ">-->
-                                <div class="field">
-                                    <div class="control">
-                                        <label class="form-group has-float-label">
-                                            <!--<p class="control has-icons-left">-->
-                                            <input class="input is-rounded" type=number rows="1" id="cycles"
-                                                   value="30" min="1" max="50" step="1"/>
-                                            <!--<span class="icon is-right">
-                                            <i class="fas fa-dna"></i>
-                                                </span>-->
-                                            <span>PCR Cycles</span>
-                                            <!--</p>-->
+                            <div class="columns is-multiline">
+                                <div id="classic_synth" class="column is-full">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-10 correspond to the error_correction id in the database -->
+                                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="Synthesis Method">
+                                            <select class="select" id="classic_synthmeth">
+                                                <optgroup label="None">
+                                                    <option value="0" selected>None</option>
+                                                </optgroup>
+                                                <optgroup label="Column synthesized oligos">
+                                                    <option value="1">MutS</option>
+                                                    <option value="2">Consensus shuffle</option>
+                                                    <option value="3">ErrASE</option>
+                                                    <option value="9">No error correction</option>
+                                                </optgroup>
+                                                <optgroup label="Microarray based oligo pools">
+                                                    <option value="4">Oligo hybridization based</option>
+                                                    <option value="5">High-temperature ligation/hybridization based
+                                                    </option>
+                                                    <option value="6">ErrASE</option>
+                                                    <option value="7">Nuclease-based</option>
+                                                    <option value="8">NGS-based</option>
+                                                    <option value="10">No error correction</option>
+                                                </optgroup>
+                                                <optgroup label="User defined">
+                                                    <option value="11">Error Rates</option>
+                                                    <option value="12">Error Attributes</option>
+                                                    <option value="13">Rates and Attributes</option>
+                                                </optgroup>
+                                            </select><span>Synthesis Method</span>
                                         </label>
-
-                                        <!--</div>-->
                                     </div>
                                 </div>
-                            </div>
-                            <div class="column is-full">
-                                <div class="select is-fullwidth is-primary is-rounded">
-                                    <!-- values 1-7 correspond to the submethod id in the database -->
-                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                    <!-- or intercept these values before the database request.  -->
-                                    <label class="form-group has-float-label" aria-label="Storage">
-                                        <select class="select" id="classic_storagemeth">
-                                            <option value="0" selected>None</option>
-                                            <option value="1">H. sapiens</option>
-                                            <option value="2">M. musculus</option>
-                                            <option value="3">D. melanogaster</option>
-                                            <option value="4">E. coli</option>
-                                            <option value="5">S. cerevisiae</option>
-                                        </select><span>Storage Host</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="column is-full">
-                                <!--<div class="column ">-->
-                                <div class="field">
-                                    <div class="control">
-                                        <label class="form-group has-float-label">
-                                            <!--<p class="control has-icons-left">-->
-                                            <input class="input is-rounded" type=number rows="1" id="months"
-                                                   value="24" min="1" step="1"/>
-                                            <!--<span class="icon is-right">
-                                            <i class="fas fa-dna"></i>
-                                                </span>-->
-                                            <span>Months of storage to be simulated</span>
-                                            <!--</p>-->
-                                        </label>
+                                <div class="column is-two-fifths is-full-mobile">
+                                    <!--<div class="column ">-->
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="form-group has-float-label">
+                                                <!--<p class="control has-icons-left">-->
+                                                <input class="input is-rounded" type=number rows="1" id="cycles"
+                                                       value="30" min="1" max="50" step="1"/>
+                                                <!--<span class="icon is-right">
+                                                <i class="fas fa-dna"></i>
+                                                    </span>-->
+                                                <span>PCR Cycles</span>
+                                                <!--</p>-->
+                                            </label>
 
-                                        <!--</div>-->
+                                            <!--</div>-->
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div id="classic_seq" class="column is-full">
-                                <div class="select is-fullwidth is-primary is-rounded">
-                                    <!-- values 1-7 correspond to the submethod id in the database -->
-                                    <!-- I either have to change the database entries for 0, 8 and 9 -->
-                                    <!-- or intercept these values before the database request.  -->
-                                    <label class="form-group has-float-label" aria-label="Sequencing Method">
-                                        <select class="select" id="classic_seqmeth">
-                                            <optgroup label="None">
+                                <div class="column is-three-fifths is-full-mobile">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-7 correspond to the submethod id in the database -->
+                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="PCR Polymerase">
+                                            <select class="select" id="classic_pcrmeth">
                                                 <option value="0" selected>None</option>
-                                            </optgroup>
-                                            <optgroup label="Illumina">
-                                                <option value="1">Single End</option>
-                                                <option value="2">Paired End</option>
-                                            </optgroup>
-                                            <optgroup label="PacBio">
-                                                <option value="4">Subread</option>
-                                                <option value="3">CCS</option>
-                                            </optgroup>
-                                            <optgroup label="Nanopore">
-                                                <option value="5">1D</option>
-                                                <option value="6">2D</option>
-                                            </optgroup>
-                                            <optgroup label="User defined">
-                                                <option value="7">Error Rates</option>
-                                                <option value="8">Error Attributes</option>
-                                                <option value="9">Rates and Attributes</option>
-                                            </optgroup>
-                                        </select><span>Sequencing Method</span>
-                                    </label>
+                                                <option value="1">Taq</option>
+                                                <option value="2">Pfu</option>
+                                                <option value="3">Phusion</option>
+                                                <option value="4">Pwo</option>
+                                            </select><span>PCR Polymerase</span>
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="column is-two-fifths is-full-mobile">
+                                    <!--<div class="column ">-->
+                                    <div class="field">
+                                        <div class="control">
+                                            <label class="form-group has-float-label">
+                                                <!--<p class="control has-icons-left">-->
+                                                <input class="input is-rounded" type=number rows="1" id="months"
+                                                       value="24" min="1" step="1"/>
+                                                <!--<span class="icon is-right">
+                                                <i class="fas fa-dna"></i>
+                                                    </span>-->
+                                                <span>Months of storage to be simulated</span>
+                                                <!--</p>-->
+                                            </label>
+                                            <!--</div>-->
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="column is-three-fifths is-full-mobile">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-7 correspond to the submethod id in the database -->
+                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="Storage">
+                                            <select class="select" id="classic_storagemeth">
+                                                <option value="0" selected>None</option>
+                                                <option value="1">H. sapiens</option>
+                                                <option value="2">M. musculus</option>
+                                                <option value="3">D. melanogaster</option>
+                                                <option value="4">E. coli</option>
+                                                <option value="5">S. cerevisiae</option>
+                                            </select><span>Storage Host</span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div id="classic_seq" class="column is-full">
+                                    <div class="select is-fullwidth is-primary is-rounded">
+                                        <!-- values 1-7 correspond to the submethod id in the database -->
+                                        <!-- I either have to change the database entries for 0, 8 and 9 -->
+                                        <!-- or intercept these values before the database request.  -->
+                                        <label class="form-group has-float-label" aria-label="Sequencing Method">
+                                            <select class="select" id="classic_seqmeth">
+                                                <optgroup label="None">
+                                                    <option value="0" selected>None</option>
+                                                </optgroup>
+                                                <optgroup label="Illumina">
+                                                    <option value="1">Single End</option>
+                                                    <option value="2">Paired End</option>
+                                                </optgroup>
+                                                <optgroup label="PacBio">
+                                                    <option value="4">Subread</option>
+                                                    <option value="3">CCS</option>
+                                                </optgroup>
+                                                <optgroup label="Nanopore">
+                                                    <option value="5">1D</option>
+                                                    <option value="6">2D</option>
+                                                </optgroup>
+                                                <optgroup label="User defined">
+                                                    <option value="7">Error Rates</option>
+                                                    <option value="8">Error Attributes</option>
+                                                    <option value="9">Rates and Attributes</option>
+                                                </optgroup>
+                                            </select><span>Sequencing Method</span>
+                                        </label>
+                                    </div>
                                 </div>
                             </div>
                         </div>
