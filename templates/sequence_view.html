@@ -211,8 +211,8 @@
                     <div class="is-divider" data-content="Error Detection"></div>
                 </div>
                 <div class="column is-full">
-                    <input type="checkbox" id="spoiler"/>
-                    <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler">Manage
+                    <input type="checkbox" id="spoiler1"/>
+                    <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler1">Manage
                         Undesired Motifs</label>
                     <div class="spoiler">
                         <h3>Changes here wont be saved in your profile!</h3>
@@ -840,12 +840,38 @@
                     Download original sequence as FastQ
                 </button>
             </div>
-            <div class="column is-rounded">
-                <button class="button is-rounded" id="show_results"
-                        onclick="show_results();return false">
-                    Show detailed results
-                </button>
+        </div>
+        <div class="box" id="resultbox">
+            <div class="column is-full">
+                <input type="checkbox" id="spoiler2"/>
+                <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler2">Expand
+                    Results</label>
+                <div class="spoiler">
+                    <div class="box" id="subseqbox">
+                        <h3 class="subtitle has-text-black"> Subsequences: </h3>
+                        <div class="text_lettering" id="subsequences"></div>
+                    </div>
+                    <div class="box" id="gcbox">
+                        <h3 class="subtitle has-text-black"> GC-Content: </h3>
+                        <div class="text_lettering" id="gccontent"></div>
+                    </div>
+                    <div class="box" id="kmerbox">
+                        <h3 class="subtitle has-text-black"> Kmer: </h3>
+                        <div class="text_lettering" id="kmer"></div>
+                    </div>
+                    <div class="box" id="hopobox">
+                        <h3 class="subtitle has-text-black"> Homopolymers: </h3>
+                        <div class="text_lettering" id="homopolymer"></div>
+                    </div>
+                </div>
             </div>
+        </div>
+
+        <!--<div class="column is-rounded">
+            <button class="button is-rounded" id="show_results"
+                    onclick="show_results();return false">
+                Expand results
+            </button>
         </div>
         <div class="box" id="subseqbox">
             <h3 class="subtitle has-text-black"> Subsequences: </h3>
@@ -862,7 +888,8 @@
         <div class="box" id="hopobox">
             <h3 class="subtitle has-text-black"> Homopolymers: </h3>
             <div class="text_lettering" id="homopolymer"></div>
-        </div>
+        </div>-->
+
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
         <!--<div class="box">
             <h3 class="subtitle has-text-black"> Sequence with only Synthesis errors: </h3>

@@ -407,24 +407,45 @@ function loadSendData(dta) {
         document.getElementById("adv_exec").checked = true;
         $('#adv_err_settings').show();
         $('#classic_err_settings').hide();
-        let meths = [['#synthesis_sortable', 'Synthesis', '#synthmeth'], ['#pcr_sortable', 'PCR', '#pcrmeth'], ['#sequencing_sortable', 'Sequencing', '#seqmeth'], ['#pcr_sortable', 'Storage', '#storagemeth']];
+        let meths = [['#synthesis_sortable', 'Synthesis'], ['#pcr_sortable', 'Storage/PCR'], ['#sequencing_sortable', 'Sequencing']];
+        let lists = ['#synthmeth', '#pcrmeth', '#seqmeth', '#storagemeth'];
         meths.forEach(function (method) {
-           let tmp = err_sim_order[method[1]];
-           tmp.forEach(function (err_meth) {
-                //$(method[0]).val(0).prop('disabled', dta['use_error_probs']);
-                let meth_selection = $(method[2]+' option').filter(function () {
-                    return $(this)[0]['value'] === err_meth['id'];
-                });
-                if(meth_selection.length > 0){
-                    let clone = $(meth_selection).clone(true).unbind();
-                    $(method[0]).append(clone);
-                }else{
-                    //TODO add new opt to list
+            $(method[0]).children().remove();
+            let tmp = err_sim_order[method[1]];
+            tmp.forEach(function (err_meth) {
+                let meth_selection;
+                for (let i = 0; i < lists.length; i++) {
+                    let tmp_selection = $(lists[i] + ' option').filter(function () {
+                        return $(this)[0]['value'] === err_meth['id'];
+                    });
+                    if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
+                        meth_selection = tmp_selection;
+                        break;
+                    }
                 }
-           });
+                let sel;
+                if (meth_selection !== undefined) {
+                    sel = $(meth_selection).clone(true).unbind();
+                    $(method[0]).append(sel);
+                } else {
+                    let opt = new Option(err_meth['name'] + " (CUSTOM)", err_meth['name'], undefined, true);
+                    $(method[0]).append(opt);
+                    sel = $(method[0] + ' option:selected');
+                    sel.data('err_attributes', err_meth['conf']['err_attributes']);
+                    sel.data('err_data', err_meth['conf']['err_data']);
+                }
+                if (method[1] === 'Storage/PCR'){
+                    let name = $(sel).text();
+                    $(sel).text(name + " (" + err_meth['cycles'] + " month(s))");
+                    $(sel).data('multiplier', err_meth['cycles']);
+                }
+            });
         });
         initListsDnD();
     } else {
+        document.getElementById("adv_exec").checked = false;
+        $('#adv_err_settings').hide();
+        $('#classic_err_settings').show();
         let meths = [['#classic_synthmeth', 'synthesis_method'], ['#classic_seqmeth', 'sequence_method'], ['#classic_pcrmeth', 'pcr_method'], ['#classic_storagemeth', 'storage_method']];
         meths.forEach(function (method) {
             $(method[0]).val(0).prop('disabled', dta['use_error_probs']);
@@ -452,10 +473,6 @@ function loadSendData(dta) {
     $('#calcprobs').prop("checked", dta['use_error_probs']);
     $('#limitedChars').prop("checked", dta['acgt_only']);
     $('#do_max_expect').prop("checked", dta['do_max_expect']);
-    $('#subseqbox').hide();
-    $('#gcbox').hide();
-    $('#kmerbox').hide();
-    $('#hopobox').hide();
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
 }
 
@@ -1234,19 +1251,3 @@ function initListsDnD() {
             });
         }
 
-function show_results(){
-    let elem = $('#show_results');
-    let result_elems = [$('#subseqbox'), $('#gcbox'), $('#kmerbox'), $('#hopobox')];
-    if(elem[0].innerText === 'Show detailed results'){
-        elem[0].innerText = 'Reduce results';
-        result_elems.forEach(function (e) {
-            e.show();
-        });
-    }
-    else if(elem[0].innerText === 'Reduce results'){
-        elem[0].innerText = 'Show detailed results';
-        result_elems.forEach(function (e) {
-            e.hide();
-        });
-    }
-}
