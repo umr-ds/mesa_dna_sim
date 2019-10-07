@@ -670,7 +670,6 @@ def pcr_error(sequence, g, pcr_meth, seed, process="pcr", conf=None, cycles=1):
             PcrErrorRates.id == int(pcr_meth)).first()
         err_rate_pcr = tmp.err_data
         err_att_pcr = tmp.err_attributes
-        cycles = cycles
     else:
         err_rate_pcr = conf['err_data']
         err_att_pcr = conf['err_attributes']

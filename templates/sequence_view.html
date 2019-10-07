@@ -178,7 +178,7 @@
                 </div>
                 <div class="column is-full">
                     <div class="columns">
-                        <div class="column is-1 is-pulled-left">
+                        <div class="column is-1">
                             <p style="font-size:12px;">ACGT only</p>
                             <label data-balloon="Limit Alphabet"
                                    data-balloon-pos="right">
@@ -187,7 +187,7 @@
                                 <label for="limitedChars" class="no-outline"></label>
                             </label>
                         </div>
-                        <div class="column is-pulled-left">
+                        <div class="column">
                             <div class="field">
                                 <div class="control">
                                     <label class="form-group has-float-label">
@@ -995,10 +995,13 @@
             updateDropdown("{{ host }}", "{{ apikey }}", "gc");
             updateDropdown("{{ host }}", "{{ apikey }}", "homopolymer");
             updateDropdown("{{ host }}", "{{ apikey }}", "kmer");
-            updateSynthDropdown("{{ host }}", "{{ apikey }}");
+            let callback = undefined;
             {%  if uuid != None %}
-                queryServer('{{ uuid }}');
+                callback = function (data) {
+                    return queryServer('{{ uuid }}');
+                };
             {% endif %}
+            updateSynthDropdown("{{ host }}", "{{ apikey }}", undefined, callback);
             {%  if user_id != None %}
                 user_id = {{user_id}};
                 setUser(user_id);

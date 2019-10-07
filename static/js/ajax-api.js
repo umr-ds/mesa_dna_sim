@@ -793,7 +793,8 @@ var getColorForPercentage = function (pct) {
 }*/
 
 
-function updateSynthDropdown(host, apikey, type) {
+function updateSynthDropdown(host, apikey, type, post_success_callback) {
+
     $.post({
         url: host + "api/get_error_probs",
         dataType: 'json',
@@ -867,6 +868,8 @@ function updateSynthDropdown(host, apikey, type) {
                 });
             });*/
             initListsDnD();
+            if (post_success_callback !== undefined)
+                post_success_callback(data);
         },
         fail: function (data) {
             console.log(data)
