@@ -357,10 +357,7 @@ function handleDragOver(evt) {
 
 function loadSendData(dta) {
     $("#sequence").val(dta['sequence']);
-    let seq = $('#seqmeth');
-    let synth = $('#synthmeth');
-    let pcr = $('#pcrmeth');
-    let storage = $('#storagemeth');
+    let adv_err = $('#adv_err_settings');
     $('#kmer_window_size').val(dta['kmer_windowsize']);
     $('#gc_window_size').val(dta['gc_windowsize']);
 
@@ -405,72 +402,60 @@ function loadSendData(dta) {
         $('#homopolymer-dropdown option:selected').data('jsonblob', dta['homopolymer_error_prob']);
     }
 
-    /*SEQ*/
-    seq.val(0).prop('disabled', dta['use_error_probs']);
-    let seq_selection = $('#seqmeth option').filter(function () {
-        return $(this).val() === dta['sequence_method'];
-    });
-    if (seq_selection.length > 0) {
-        seq_selection.prop('selected', true)
+    let err_sim_order = dta['err_simulation_order'];
+    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Storage'].length > 1 || err_sim_order['Synthesis'].length > 1 || err_sim_order['PCR'].length > 1){
+        document.getElementById("adv_exec").checked = true;
+        $('#adv_err_settings').show();
+        $('#classic_err_settings').hide();
+        let meths = [['#synthesis_sortable', 'Synthesis', '#synthmeth'], ['#pcr_sortable', 'PCR', '#pcrmeth'], ['#sequencing_sortable', 'Sequencing', '#seqmeth'], ['#pcr_sortable', 'Storage', '#storagemeth']];
+        meths.forEach(function (method) {
+           let tmp = err_sim_order[method[1]];
+           tmp.forEach(function (err_meth) {
+                //$(method[0]).val(0).prop('disabled', dta['use_error_probs']);
+                let meth_selection = $(method[2]+' option').filter(function () {
+                    return $(this)[0]['value'] === err_meth['id'];
+                });
+                if(meth_selection.length > 0){
+                    let clone = $(meth_selection).clone(true).unbind();
+                    $(method[0]).append(clone);
+                }else{
+                    //TODO add new opt to list
+                }
+           });
+        });
+        initListsDnD();
     } else {
-        let opt = new Option(dta['sequence_method_name'] + " (CUSTOM)", dta['sequence_method_name'], undefined, true);
-        seq.append(opt);
-        let sm_sel = $('#seqmeth option:selected');
-        sm_sel.data('err_attributes', dta['sequence_method_conf']['err_attributes']);
-        sm_sel.data('err_data', dta['sequence_method_conf']['err_data']);
-    }
-
-    /* SYNTH */
-    synth.val(0).prop('disabled', dta['use_error_probs']);
-    let synth_selection = $('#synthmeth option').filter(function () {
-        return $(this).val() === dta['synthesis_method'];
-    });
-    if (synth_selection.length > 0) {
-        synth_selection.prop('selected', true)
-    } else {
-        let opt = new Option(dta['synthesis_method_name'] + " (CUSTOM)", dta['synthesis_method_name'], undefined, true);
-        synth.append(opt);
-        let sm_sel = $('#synthmeth option:selected');
-        sm_sel.data('err_attributes', dta['synthesis_method_conf']['err_attributes']);
-        sm_sel.data('err_data', dta['synthesis_method_conf']['err_data']);
+        let meths = [['#classic_synthmeth', 'synthesis_method'], ['#classic_seqmeth', 'sequence_method'], ['#classic_pcrmeth', 'pcr_method'], ['#classic_storagemeth', 'storage_method']];
+        meths.forEach(function (method) {
+            $(method[0]).val(0).prop('disabled', dta['use_error_probs']);
+            let meth_selection = $(method[0]+' option').filter(function () {
+                return $(this).val() === dta[method[1]];
+            });
+            if(meth_selection.length > 0){
+                meth_selection.prop('selected', true);
+            }else{
+                let opt = new Option(dta[method[1]+'_name'] + "(CUSTOM)", dta[method[1]+'_name'], undefined, true);
+                $(method[0]).append(opt);
+                let sel = $(method[0] + ' option:selected');
+                sel.data('err_attributes', dta[method[1]+'_conf']['err_attributes']);
+                sel.data('err_data', dta[method[1]+'_conf']['err_data']);
+            }
+        });
+        if(dta['pcr_cycles']){
+            $('#cycles').val(dta['pcr_cycles']);
+        }
+        if(dta['storage_months']) {
+            $('#months').val(dta['storage_months']);
+        }
     }
     $("#used_seed").text(dta['seed']);
-
-    /* PCR */
-    pcr.val(0).prop('disabled', dta['use_error_probs']);
-    let pcr_selection = $('#pcrmeth option').filter(function () {
-        return $(this).val() == dta['pcr_method'];
-    });
-    if (pcr_selection.length > 0) {
-        pcr_selection.prop('selected', true)
-    } else {
-        let opt = new Option(dta['pcr_method_name'] + " (CUSTOM)", dta['pcr_method_name'], undefined, true);
-        $('#pcrmeth').append(opt);
-        //TODO
-        let sm_sel = $('#pcrmeth option:selected');
-        sm_sel.data('err_attributes', dta['pcr_method_conf']['err_attributes']);
-        sm_sel.data('err_data', dta['pcr_method_conf']['err_data']);
-    }
-
-    /* Storage */
-    storage.val(0).prop('disabled', dta['use_error_probs']);
-    let storage_selection = $('#storagemeth option').filter(function () {
-        return $(this).val() == dta['storage_method'];
-    });
-    if (storage_selection.length > 0) {
-        storage_selection.prop('selected', true)
-    } else {
-        let opt = new Option(dta['storage_method_name'] + " (CUSTOM)", dta['storage_method_name'], undefined, true);
-        $('#storagemeth').append(opt);
-        //TODO
-        let sm_sel = $('#storagemeth option:selected');
-        sm_sel.data('err_attributes', dta['storage_method_conf']['err_attributes']);
-        sm_sel.data('err_data', dta['storage_method_conf']['err_data']);
-    }
-
     $('#calcprobs').prop("checked", dta['use_error_probs']);
     $('#limitedChars').prop("checked", dta['acgt_only']);
     $('#do_max_expect').prop("checked", dta['do_max_expect']);
+    $('#subseqbox').hide();
+    $('#gcbox').hide();
+    $('#kmerbox').hide();
+    $('#hopobox').hide();
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
 }
 
@@ -1248,3 +1233,20 @@ function initListsDnD() {
                 });
             });
         }
+
+function show_results(){
+    let elem = $('#show_results');
+    let result_elems = [$('#subseqbox'), $('#gcbox'), $('#kmerbox'), $('#hopobox')];
+    if(elem[0].innerText === 'Show detailed results'){
+        elem[0].innerText = 'Reduce results';
+        result_elems.forEach(function (e) {
+            e.show();
+        });
+    }
+    else if(elem[0].innerText === 'Reduce results'){
+        elem[0].innerText = 'Show detailed results';
+        result_elems.forEach(function (e) {
+            e.hide();
+        });
+    }
+}

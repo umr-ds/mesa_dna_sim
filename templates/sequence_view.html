@@ -832,22 +832,6 @@
     <div id="results" style="display: none">
         <h2 class="subtitle"> Your Results: </h2>
         <div class="box">
-            <h3 class="subtitle has-text-black"> Homopolymers: </h3>
-            <div class="text_lettering" id="homopolymer"></div>
-        </div>
-        <div class="box">
-            <h3 class="subtitle has-text-black"> GC-Content: </h3>
-            <div class="text_lettering" id="gccontent"></div>
-        </div>
-        <div class="box">
-            <h3 class="subtitle has-text-black"> Kmer: </h3>
-            <div class="text_lettering" id="kmer"></div>
-        </div>
-        <div class="box">
-            <h3 class="subtitle has-text-black"> Subsequences: </h3>
-            <div class="text_lettering" id="subsequences"></div>
-        </div>
-        <div class="box">
             <h3 class="subtitle has-text-black"> Overall: </h3>
             <div class="text_lettering" id="overall"></div>
             <div class="column is-rounded">
@@ -856,6 +840,28 @@
                     Download original sequence as FastQ
                 </button>
             </div>
+            <div class="column is-rounded">
+                <button class="button is-rounded" id="show_results"
+                        onclick="show_results();return false">
+                    Show detailed results
+                </button>
+            </div>
+        </div>
+        <div class="box" id="subseqbox">
+            <h3 class="subtitle has-text-black"> Subsequences: </h3>
+            <div class="text_lettering" id="subsequences"></div>
+        </div>
+        <div class="box" id="gcbox">
+            <h3 class="subtitle has-text-black"> GC-Content: </h3>
+            <div class="text_lettering" id="gccontent"></div>
+        </div>
+        <div class="box" id="kmerbox">
+            <h3 class="subtitle has-text-black"> Kmer: </h3>
+            <div class="text_lettering" id="kmer"></div>
+        </div>
+        <div class="box" id="hopobox">
+            <h3 class="subtitle has-text-black"> Homopolymers: </h3>
+            <div class="text_lettering" id="homopolymer"></div>
         </div>
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
         <!--<div class="box">
