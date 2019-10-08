@@ -1,7 +1,7 @@
 # MESA - MOSLA Error Simulator
-#####A flexible DNA Error Detection and Simulation Framework
+##### A flexible DNA Error Detection and Simulation Framework
 
-##Usage:
+## Usage:
  
 The integrated docker-compose.yml file is all you need to get started!
 
