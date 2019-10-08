@@ -350,7 +350,7 @@ def request_validation_g_error():
                 curr_error = ErrorProbability.query.filter_by(id=e_id).first()
                 requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
                 if requesting_user.user_id != user_id:
-                    send_mail("noreply@mosla.de", requesting_user.email,
+                    send_mail(None, requesting_user.email,
                               "Your Graph '" + curr_error.name + "' has been validated!",
                               subject="[MOSLA] Validation Request")
                 curr_error.validated = True
@@ -358,7 +358,7 @@ def request_validation_g_error():
                 curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
-                send_mail("noreply@mosla.de", get_admin_mails(),
+                send_mail(None, get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
@@ -395,7 +395,7 @@ def request_validation_c_error():
                 curr_error = db.session.query(q_class).filter_by(id=e_id).first()
                 requesting_user = User.query.filter_by(user_id=curr_error.user_id).first()
                 if requesting_user.user_id != user_id:
-                    send_mail("noreply@mosla.de", [requesting_user.email],
+                    send_mail(None, [requesting_user.email],
                               "Your Error-Method '" + curr_error.name + "' has been validated!",
                               subject="[MOSLA] Validation Request")
                 curr_error.validated = True
@@ -403,7 +403,7 @@ def request_validation_c_error():
                 curr_error = db.session.query(q_class).filter_by(user_id=user_id, id=e_id).first()
                 curr_error.validated = False
                 curr_error.validation_desc = validation_desc
-                send_mail("noreply@mosla.de", get_admin_mails(),
+                send_mail(None, get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
@@ -432,7 +432,7 @@ def apply_validation_subseq():
                 curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(id=sequence_id).first()
                 requesting_user = User.query.filter_by(user_id=curr_sub_seq.owner_id).first()
                 if requesting_user.user_id != user_id:
-                    send_mail("noreply@mosla.de", requesting_user.email,
+                    send_mail(None, requesting_user.email,
                               "Your Motif / Subsequence '" + curr_sub_seq.description + "' has been validated!",
                               subject="[MOSLA] Validation Request")
                 curr_sub_seq.validated = True
@@ -441,7 +441,7 @@ def apply_validation_subseq():
                                                                                  id=sequence_id).first()
                 curr_sub_seq.validated = False
                 curr_sub_seq.validation_desc = validation_desc
-                send_mail("noreply@mosla.de", get_admin_mails(),
+                send_mail(None, get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
                           subject="[MOSLA] Validation Request")
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False

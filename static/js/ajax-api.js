@@ -7,8 +7,8 @@ function setApikey(hst, key) {
     host = hst;
 }
 
-function setUser(user_id) {
-    user_id = user_id
+function setUser(id) {
+    user_id = id;
 }
 
 function makeHoverGroups(user_borders, full_border, force) {
@@ -39,7 +39,6 @@ function makeHoverGroups(user_borders, full_border, force) {
 
                 let cls = $(this).attr('class').split(" ");
                 let tmp = $("." + cls[cls.length - 1]);
-                //user_borders = !(cls[cls.length - 1].startsWith("g_A") || cls[cls.length - 1].startsWith("g_C") || cls[cls.length - 1].startsWith("g_T") || cls[cls.length - 1].startsWith("g_G"));
                 if (user_borders) {
                     tmp.data('depth_id', x);
                 }
@@ -127,7 +126,7 @@ function importUndesiredFromJson(json_in) {
             "                                           name=\"error_prob\" placeholder=\"\"\n" +
             "                                           value=\"" + error_prob + "\"\n" +
             "                                           required min=\"0.0\" max=\"100.0\" step=\"0.01\">\n" +
-            "                                    <span><nobr>Error Probability</nobr></span></label></td>\n" +
+            "                                    <span style=\"white-space: nowrap;\">Error Probability</span></label></td>\n" +
             "                                <td style=\"width:30%\"><label class=\"form-group has-float-label\">\n" +
             "                                    <input class=\"input is-rounded is-grayable\" style=\"width:100%\" type=\"text\"\n" +
             "                                           name=\"description\"\n" +
@@ -197,12 +196,6 @@ $(document).ready(function () {
             add_mail.val("");
         }
     });
-    /*seq.keyup(function () {
-        var start = this.selectionStart,
-            end = this.selectionEnd;
-        $(this).val($(this).val().toUpperCase());
-        this.setSelectionRange(start, end);
-    });*/
     let submit_seq = $("#submit_sequence");
     submit_seq.submit(function (event) {
         event.preventDefault();
@@ -332,7 +325,7 @@ function handleFileChange(evt) {
             }
         }
     } else {
-        alert('The File APIs are not fully supported in this browser.');
+        log('The File APIs are not fully supported in this browser.');
     }
     evt.target.removeEventListener('change', handleFileChange);
 }
@@ -357,7 +350,7 @@ function handleDragOver(evt) {
 
 function loadSendData(dta) {
     $("#sequence").val(dta['sequence']);
-    let adv_err = $('#adv_err_settings');
+    //let adv_err = $('#adv_err_settings');
     $('#kmer_window_size').val(dta['kmer_windowsize']);
     $('#gc_window_size').val(dta['gc_windowsize']);
 
@@ -403,7 +396,7 @@ function loadSendData(dta) {
     }
 
     let err_sim_order = dta['err_simulation_order'];
-    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Storage'].length > 1 || err_sim_order['Synthesis'].length > 1 || err_sim_order['PCR'].length > 1){
+    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Storage/PCR'].length > 1 || err_sim_order['Synthesis'].length > 1){
         document.getElementById("adv_exec").checked = true;
         $('#adv_err_settings').show();
         $('#classic_err_settings').hide();
@@ -500,10 +493,10 @@ function collectSendData(space) {
     let seq_meth, synth_meth, storage_meth, pcr_meth;
     let exec_res = {};
     if(adv_meth.prop("checked")){
-        seq_meth = $("#seqmeth option:selected");
+        /*seq_meth = $("#seqmeth option:selected");
         synth_meth = $("#synthmeth option:selected");
         storage_meth = $("#storagemeth option:selected");
-        pcr_meth = $("pcrmeth option:selected");
+        pcr_meth = $("#pcrmeth option:selected");*/
         /* collect all error simulation elements in correct execution order */
         let exec_order = $('#seqmeth1').children();
         exec_order.each(function (id, o_group) {
@@ -571,33 +564,33 @@ function collectSendData(space) {
         homopolymer_name: homopolymer_dropdown_select.text(),
         kmer_error_prob: kmer_error_prob,
         kmer_name: kmer_dropdown_select.text(),
-        sequence_method: seq_meth.val(),
+        /*sequence_method: seq_meth.val(),
         sequence_method_conf: {
             err_data: seq_meth.data('err_data'),
             err_attributes: seq_meth.data('err_attributes')
         },
-        sequence_method_name: seq_meth.text(),
-        synthesis_method: synth_meth.val(),
+        sequence_method_name: seq_meth.text(),*/
+        /*synthesis_method: synth_meth.val(),
         synthesis_method_conf: {
             err_data: synth_meth.data('err_data'),
             err_attributes: synth_meth.data('err_attributes')
         },
-        synthesis_method_name: synth_meth.text(),
+        synthesis_method_name: synth_meth.text(),*/
         err_simulation_order: exec_res,
-        pcr_method_name: pcr_meth.text(),
+        /*pcr_method_name: pcr_meth.text(),
         pcr_method: pcr_meth.val(),
         pcr_cycles: $('#cycles').val(),
         pcr_method_conf: {
             err_data: pcr_meth.data('err_data'),
             err_attributes: pcr_meth.data('err_attributes')
-        },
-        storage_method_name: storage_meth.text(),
+        },*/
+        /*storage_method_name: storage_meth.text(),
         storage_method: storage_meth.val(),
         storage_months: $('#months').val(),
         storage_method_conf: {
             err_data: storage_meth.data('err_data'),
             err_attributes: storage_meth.data('err_attributes')
-        },
+        },*/
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
@@ -719,9 +712,9 @@ function queryServer(uuid) {
                     if (error_source !== 'fastqOr' && error_source !== 'fastqMod' && error_source !== 'seed' && error_source !== 'maxexpectid')
                         endpoints[error_source].html(data[error_source]);
                     if (error_source === "dot_seq")
-                        if (data[error_source] === "<nobr></nobr>")
+                        if (data[error_source] === "<pre></pre>")
                             $('.maxExpect').hide();
-                        else if (data[error_source].startsWith("<nobr>Error")) {
+                        else if (data[error_source].startsWith("<pre>Error")) {
                             $('.maxExpect').show();
                             $(".downloadIMG").attr("disabled", true);
                         } else {
@@ -794,7 +787,6 @@ var getColorForPercentage = function (pct) {
 
 
 function updateSynthDropdown(host, apikey, type, post_success_callback) {
-
     $.post({
         url: host + "api/get_error_probs",
         dataType: 'json',
@@ -1163,94 +1155,115 @@ function calc_dH(seq) {
 
 
 function initListsDnD() {
-            let trash = $('#trash')[0];
-            let ssort;
-            let trash_svg = false;
-            /*let source = $('#synthmeth')[0];
-            let sortable = Sortable.create(source, {
-                group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            }); */
-            let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
-                    group: {name: 'a', pull: true, put: true}, sort: true,
-                    onStart: function (/**Event/evt) {
-                        if (!trash_svg) {
-                            trash = document.getElementById('trash');
-                            ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                            trash_svg = true;
-                        }
-                    },
-                    onEnd: function (evt) {
-                        if (evt.to === trash) {
-                            evt.to.children[evt.newIndex].remove();
-                        }
-                    }
-                });*/
-            let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-            let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
-                group: {name: 'a', pull: true, put: true}, sort: true,
-                onStart: function (/**Event*/evt) {
-                    if (!trash_svg) {
-                        ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                        trash_svg = true;
-                    }
-                },
-                onEnd: function (evt) {
-                    if (evt.to === trash) {
-                        evt.to.children[evt.newIndex].remove();
-                    }
-                }
-            });
-
-            $('#seqmeth').children().each(function (x) {
-                var asd = Sortable.create($('#seqmeth').children()[x], {
-                    group: {name: 'a', pull: true, put: true}, sort: false,
-                    onEnd: function (evt) {
-                        if (evt.to === trash) {
-                            evt.to.children[evt.newIndex].remove();
-                        }
-                    }
-                });
-            });
-            $('#synthmeth').children().each(function (x) {
-                var asd = Sortable.create($('#synthmeth').children()[x], {
-                    group: {name: 'a', pull: true, put: true}, sort: false,
-                    onEnd: function (evt) {
-                        if (evt.to === trash) {
-                            evt.to.children[evt.newIndex].remove();
-                        }
-                    }
-                });
-            });
+    let trash = $('#trash')[0];
+    let ssort;
+    let trash_svg = false;
+    /*let source = $('#synthmeth')[0];
+    let sortable = Sortable.create(source, {
+        group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
+            if (evt.to === trash) {
+                evt.to.children[evt.newIndex].remove();
+            }
         }
+    }); */
+    let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
+        group: {name: 'a', pull: true, put: true}, sort: true,
+        onStart: function (/**Event*/evt) {
+            if (!trash_svg) {
+                ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                trash_svg = true;
+            }
+        },
+        onEnd: function (evt) {
+            if (evt.to === trash) {
+                evt.to.children[evt.newIndex].remove();
+            }
+        }
+    });
+    /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
+            group: {name: 'a', pull: true, put: true}, sort: true,
+            onStart: function (/**Event/evt) {
+                if (!trash_svg) {
+                    trash = document.getElementById('trash');
+                    ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                    trash_svg = true;
+                }
+            },
+            onEnd: function (evt) {
+                if (evt.to === trash) {
+                    evt.to.children[evt.newIndex].remove();
+                }
+            }
+        });*/
+    let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
+        group: {name: 'a', pull: true, put: true}, sort: true,
+        onStart: function (/**Event*/evt) {
+            if (!trash_svg) {
+                ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                trash_svg = true;
+            }
+        },
+        onEnd: function (evt) {
+            if (evt.to === trash) {
+                evt.to.children[evt.newIndex].remove();
+            }
+        }
+    });
+    let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
+        group: {name: 'a', pull: true, put: true}, sort: true,
+        onStart: function (/**Event*/evt) {
+            if (!trash_svg) {
+                ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
+                trash_svg = true;
+            }
+        },
+        onEnd: function (evt) {
+            if (evt.to === trash) {
+                evt.to.children[evt.newIndex].remove();
+            }
+        }
+    });
 
+    $('#seqmeth').children().each(function (x) {
+        var asd = Sortable.create($('#seqmeth').children()[x], {
+            group: {name: 'a', pull: true, put: true}, sort: false,
+            onEnd: function (evt) {
+                if (evt.to === trash) {
+                    evt.to.children[evt.newIndex].remove();
+                }
+            }
+        });
+    });
+    $('#synthmeth').children().each(function (x) {
+        var asd = Sortable.create($('#synthmeth').children()[x], {
+            group: {name: 'a', pull: true, put: true}, sort: false,
+            onEnd: function (evt) {
+                if (evt.to === trash) {
+                    evt.to.children[evt.newIndex].remove();
+                }
+            }
+        });
+    });
+}
+
+function showWarn(text, level, warn_id) {
+    if (level === undefined)
+        level = "warning";
+    if (warn_id === undefined)
+        warn_id = Math.floor((Math.random() * 10000) + 1);
+    let content = "<article class=\"message is-" + level + "\"  id='warning-"+ warn_id + "\'>\n" +
+    "<div class=\"message-header\">\n" +
+    "<p>Warning</p>\n" +
+    "<button class=\"delete\" aria-label=\"delete\" onclick='hideWarn(\"warning-"+ warn_id + "\")'></button>\n" +
+    "</div>\n" +
+    "<div class=\"message-body\">\n" +
+    text + "\n" +
+    "</div>\n" +
+    "</article>";
+    $('#error-container').append(content);
+}
+
+function hideWarn(warnId) {
+    let elem = $('#' + warnId);
+    elem.fadeOut(300, function() { $(this).remove(); })
+}

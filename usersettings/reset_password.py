@@ -32,7 +32,7 @@ def new_reset_password():
             return redirect(url_for('main_page.main_index'))
         user = User.query.filter_by(email=email).first()
         if user and user.validated:
-            send_mail("noreply@mosla.de", [user.email],
+            send_mail(None, [user.email],
                       "Use this link to reset your Password: " + request.host + "/reset_password/" +
                       user.get_password_reset_token() + "\nIf you did not request a Password reset you can ignore this E-Mail",
                       subject="[MOSLA] Your requested Password-reset")
@@ -57,7 +57,7 @@ def confirm_reset_password(token):
         user.password = gen_password(new_pass)
         db.session.add(user)
         db.session.commit()
-        send_mail("noreply@mosla.de", [user.email],
+        send_mail(None, [user.email],
                   "Your new Password: " + new_pass + "\nYou can change it in your profile.",
                   subject="[MOSLA] Your new Password for MOSLA_DNASimulator")
         flash('A new password hat been generated and will be send to you by mail', 'success')

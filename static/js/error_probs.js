@@ -25,7 +25,7 @@ function addSubSeq(host) {
                     "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"number\" name=\"error_prob\"\n" +
                     "placeholder=\"\" size=\"30\" value=\"" + data.error_prob * 100.0 + "\" required\n" +
                     "min=\"0.0\"\n" +
-                    "max=\"100.0\" step=\"0.01\"><span><nobr>Error Probability</nobr></span></label></td>\n" +
+                    "max=\"100.0\" step=\"0.01\"><span style=\"white-space: nowrap;\">Error Probability</span></label></td>\n" +
                     "<td  style=\"width:15%\"><label class=\"form-group has-float-label\"><input style=\"width:100%\" class=\"input is-rounded\" type=\"text\" name=\"description\"\n" +
                     "placeholder=\"Description\" value=\"" + data.description + "\" size=\"20\" value=\"\"\n" +
                     "required><span>Description</span></label></td>" +
@@ -184,7 +184,7 @@ function addMismatch(method, obj_id) {
         "    <i class=\"fas fa-dna\"></i>\n" +
         "</span>\n" +
         "        </p>\n" +
-        "        <span><nobr>Original DNA-Sequence</nobr></span>\n" +
+        "        <span style=\"white-space: nowrap;\">Original DNA-Sequence</span>\n" +
         "    </label>\n" +
         "</div>\n" +
         "<div class=\"column is-two-fifths has-no-margin-left has-no-padding-left\">\n" +
@@ -199,7 +199,7 @@ function addMismatch(method, obj_id) {
         "    <i class=\"fas fa-percentage\"></i>\n" +
         "</span>\n" +
         "        </p>\n" +
-        "        <span><nobr># possible Mismatches</nobr></span>\n" +
+        "        <span style=\"white-space: nowrap;\"># possible Mismatches</span>\n" +
         "    </label>\n" +
         "</div>\n" +
         "\n" +
@@ -236,7 +236,7 @@ function addMismatch(method, obj_id) {
         "    <i class=\"fas fa-step-backward\"></i>\n" +
         "</span>\n" +
         "        </p>\n" +
-        "        <span><nobr>Start Position</nobr></span>\n" +
+        "        <span style=\"white-space: nowrap;\">Start Position</span>\n" +
         "    </label>\n" +
         "</div>\n" +
         "    <div class=\"column is-two-fifths has-no-margin-bottom has-no-margin-left has-no-padding-left\">\n" +
@@ -253,7 +253,7 @@ function addMismatch(method, obj_id) {
         "    <i class=\"fas fa-step-forward\"></i>\n" +
         "</span>\n" +
         "        </p>\n" +
-        "        <span><nobr>End Position</nobr></span>\n" +
+        "        <span style=\"white-space: nowrap;\">End Position</span>\n" +
         "    </label>\n" +
         "</div>";
 
@@ -276,7 +276,7 @@ function addMismatch(method, obj_id) {
             "                    <i class=\"fas fa-dna\"></i>\n" +
             "                </span>\n" +
             "            </p>\n" +
-            "            <span><nobr>Mismatch " + possible_mismatch_no + "</nobr></span>\n" +
+            "            <span style=\"white-space: nowrap;\">Mismatch " + possible_mismatch_no + "</span>\n" +
             "        </label>\n" +
             "    </div>\n";
     }
@@ -315,12 +315,11 @@ function addMismatch(method, obj_id) {
             "                    <i class=\"fas fa-percentage\"></i>\n" +
             "                </span>\n" +
             "            </p>\n" +
-            "            <span><nobr>Mismatch " + possible_mismatch_no + "</nobr></span>\n" +
+            "            <span style=\"white-space: nowrap;\">Mismatch " + possible_mismatch_no + "</span>\n" +
             "        </label>\n" +
             "    </div>\n";
-
     }
-    buildup_html = buildup_html + "</div>\n"
+    buildup_html = buildup_html + "</div>\n";
     host_container.append(buildup_html);
     dna_seq.val("");
     noPossibleMismatches.val(2);
@@ -563,7 +562,7 @@ function deleteCustomError(host, method, obj_id) {
         success: function (data) {
             if (data.did_succeed) {
                 /* On Success: Remove from List*/
-                let host_container = $('#' + method + '_error_' + obj_id);
+                let host_container = $('#' + method + '_error_' + obj_id).parent();
                 host_container.remove();
             } else {
                 /* On Failure: either dont do anything, or show error?*/
@@ -627,9 +626,9 @@ function initErrorSliders(method, elem) {
     });
 
 
-    var connect = elem.querySelectorAll('.noUi-connect');
-    var classes = ['deletion-color', 'insertion-color', 'mismatch-color'];
-    for (var i = 0; i < connect.length; i++) {
+    let connect = elem.querySelectorAll('.noUi-connect');
+    let classes = ['deletion-color', 'insertion-color', 'mismatch-color'];
+    for (let i = 0; i < connect.length; i++) {
         connect[i].classList.add(classes[i]);
     }
 }
@@ -783,8 +782,6 @@ function initMismatchSlider(method, elem) {
 
     }
     arr.pop();
-
-
     noUiSlider.create(elem, {
         start: arr, // T MUST be the remainder
         connect: cnect,
@@ -830,9 +827,9 @@ function initMismatchSlider(method, elem) {
         elem.noUiSlider.set(tmp_arr);
     });
 
-    var connect = elem.querySelectorAll('.noUi-connect');
+    let connect = elem.querySelectorAll('.noUi-connect');
     const classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color', 'c-5-color', 'homopolymer-color', 'random-color', 'deletion-color'];
-    for (var i = 0; i < connect.length; i++) {
+    for (let i = 0; i < connect.length; i++) {
         connect[i].classList.add(classes[i % classes.length]);
     }
 }

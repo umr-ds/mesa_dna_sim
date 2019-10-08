@@ -2,11 +2,9 @@
 
 {% extends "base.html" %}
 
-
 {% block content %}
     <div class="column is-6 is-offset-3">
         <h3 class="title">Profile</h3>
-
         <hr/>
         <br/>
 
@@ -16,7 +14,7 @@
         <div class="spoiler">
             {% for apikey in apikeys %}
                 <div>
-                    <nobr>{{ apikey.apikey }}</nobr>
+                    <span style="white-space: nowrap;">{{ apikey.apikey }}</span>
                 </div>
             {% endfor %}
         </div>
@@ -111,7 +109,7 @@
         window.onload = function () {
             document.getElementById("new_password").onkeyup = validatePassword;
             document.getElementById("new_password2").onkeyup = validatePassword;
-        }
+        };
 
         function validatePassword() {
             var pass2 = document.getElementById("new_password").value;
@@ -125,7 +123,6 @@
                 document.getElementById('new_password').style.backgroundColor = "";
                 document.getElementById("new_password2").setCustomValidity('');
             }
-//empty string means no validation error
         }
     </script>
 {% endblock %}

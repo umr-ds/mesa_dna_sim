@@ -48,7 +48,8 @@ def handle_error(ex):
         code = ex.code
     exception_recv = current_app.config['EXCEPTION_RECV']
     if exception_recv is not None and code != 409:  # we do not want to send an email for invalid credentials
-        send_mail("noreply@mosla.de", [exception_recv], text, subject="[MOSLA] Exception happened!")
+        send_mail(None, [exception_recv], text, subject="[MOSLA] Exception happened!")
+        raise ex
     return jsonify({'did_succeed': False, 'code': code}), code
 
 
@@ -196,7 +197,7 @@ def fasta_do_all_wrapper():
                 "@Your Mosla sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
                 list(res.json.values())[0]['res']['fastqOr'])
         fastq_text = "\n".join(fastq_str_list)
-        send_mail("noreply@mosla.de", [e_mail], urls, subject="[MOSLA] Your DNA-Simulation finished",
+        send_mail(None, [e_mail], urls, subject="[MOSLA] Your DNA-Simulation finished",
                   attachment_txt=fastq_text, attachment_name="MOSLA.fastq")
 
     if request.method == 'POST':
@@ -345,7 +346,7 @@ def do_all_wrapper():
     def thread_do_all(r_method, email, host):
         res = do_all(r_method)
         uuid = list(res.json.values())[0]["uuid"]
-        send_mail("noreply@mosla.de", [email],
+        send_mail(None, [email],
                   "Access your result at: " + host + "query_sequence?uuid=" + uuid,
                   subject="[MOSLA] Your DNA-Simulation finished")
 
@@ -382,7 +383,6 @@ def do_all_wrapper():
         return do_all(r_method)
 
 
-# @require_apikey
 def do_all(r_method):
     """
     This method collects all the parameters for the calculation of the different error probabilities for the sequence.
@@ -398,22 +398,21 @@ def do_all(r_method):
                                  max_structures=1, window=3)
 
     r_method = sanitize_json(r_method)
-    # TODO fix for advanced error simulation + pcr / storage
     # getting the configuration of the website to calculate the error probabilities
     sequences = r_method.get('sequence')  # list
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
-    seq_meth = r_method.get('sequence_method')
-    seq_meth_conf = r_method.get('sequence_method_conf')
-    synth_meth = r_method.get('synthesis_method')
-    synth_meth_conf = r_method.get('synthesis_method_conf')
-    pcr_meth = r_method.get('pcr_method')
-    cycles = r_method.get('pcr_cycles')
-    pcr_meth_conf = r_method.get('pcr_method_conf')
-    storage_meth = r_method.get('storage_method')
-    months = r_method.get('storage_months')
-    storage_meth_conf = r_method.get('storage_method_conf')
+    # seq_meth = r_method.get('sequence_method')
+    # seq_meth_conf = r_method.get('sequence_method_conf')
+    # synth_meth = r_method.get('synthesis_method')
+    # synth_meth_conf = r_method.get('synthesis_method_conf')
+    # pcr_meth = r_method.get('pcr_method')
+    # cycles = r_method.get('pcr_cycles')
+    # pcr_meth_conf = r_method.get('pcr_method_conf')
+    # storage_meth = r_method.get('storage_method')
+    # months = r_method.get('storage_months')
+    # storage_meth_conf = r_method.get('storage_method_conf')
 
     err_simulation_order = r_method.get('err_simulation_order')
 
@@ -497,7 +496,7 @@ def do_all(r_method):
             if "PCR" in err_simulation_order:
                 err_simulation_order['Storage/PCR'].append(err_simulation_order["PCR"][0])
 
-            for meth in err_simulation_order['Storage/PCR']:  # TODO rename at frontend
+            for meth in err_simulation_order['Storage/PCR']:
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
                 try:
@@ -506,6 +505,7 @@ def do_all(r_method):
                     inner_cycles = 1
                 seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process="pcr", seed=seed, conf=meth['conf'],
                                   cycles=inner_cycles) + 1) % 4294967296  # TODO rename 'process="..."'
+
             # pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
             # storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
 
@@ -695,7 +695,6 @@ def storage_error(sequence, g, storage_meth, seed, process="storage", conf=None,
             StorageErrorRates.id == int(storage_meth)).first()
         err_rate_storage = tmp.err_data
         err_att_storage = tmp.err_attributes
-        months = months
     else:
         err_rate_storage = conf['err_data']
         err_att_storage = conf['err_attributes']

@@ -200,7 +200,7 @@
                                                     <i class="fas fa-percentage"></i>
                                                 </span>
                                             </p>
-                                            <span><nobr>Error Probability</nobr></span>
+                                            <span style="white-space: nowrap;">Error Probability</span>
                                         </label>
                                         </td>
                                         <td style="width:15%"><label class="form-group has-float-label">
@@ -333,7 +333,7 @@
                                                 <input style="width:100%" class="input is-rounded" type="text"
                                                id="g_error_type_{{ g_error.id }}" name="description" disabled
                                                placeholder="Type" value="{{ g_error.type | upper }}">
-                                            <span><nobr>Type</nobr></span>
+                                            <span style="white-space: nowrap;">Type</span>
                                         </label>
                                     </div>
                                     <div class="column is-two-fifths is-full-mobile">
@@ -341,7 +341,7 @@
                                                 <input style="width:100%" class="input is-rounded" type="text"
                                                id="g_error_title_{{ g_error.id }}" name="description" readonly
                                                placeholder="No Title" value="{{ g_error.name | escape }}">
-                                            <span><nobr>Title</nobr></span>
+                                            <span style="white-space: nowrap;">Title</span>
                                         </label>
                                     </div>
                                     <div class="column is-full-mobile">
@@ -397,7 +397,7 @@
                                                 <input style="width:100%" class="input is-rounded" type="text"
                                                id="user_id_{{ user.user_id }}" name="description" disabled
                                                placeholder="ID" value="{{ user.user_id }}">
-                                            <span><nobr>ID</nobr></span>
+                                            <span style="white-space: nowrap;">ID</span>
                                         </label>
                                     </div>
                                     <div class="column is-two-fifths is-full-mobile">
@@ -406,7 +406,7 @@
                                                id="user_email_{{ user.user_id }}" name="email"
                                                {% if user.user_id == 0 %}disabled{% endif %}
                                                placeholder="No E-Mail" value="{{ user.email | escape }}">
-                                            <span><nobr>E-Mail</nobr></span>
+                                            <span style="white-space: nowrap;">E-Mail</span>
                                         </label>
                                     </div>
                                     <div class="column is-full-mobile">
