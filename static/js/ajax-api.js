@@ -396,7 +396,7 @@ function loadSendData(dta) {
     }
 
     let err_sim_order = dta['err_simulation_order'];
-    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Storage/PCR'].length > 1 || err_sim_order['Synthesis'].length > 1){
+    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Synthesis'].length > 1 || (err_sim_order['Storage/PCR'] && err_sim_order['Storage/PCR'].length > 0)){
         document.getElementById("adv_exec").checked = true;
         $('#adv_err_settings').show();
         $('#classic_err_settings').hide();
@@ -435,32 +435,46 @@ function loadSendData(dta) {
             });
         });
         initListsDnD();
-    } else {
+    }
+    else {
         document.getElementById("adv_exec").checked = false;
         $('#adv_err_settings').hide();
         $('#classic_err_settings').show();
-        let meths = [['#classic_synthmeth', 'synthesis_method'], ['#classic_seqmeth', 'sequence_method'], ['#classic_pcrmeth', 'pcr_method'], ['#classic_storagemeth', 'storage_method']];
+        let meths = [['#classic_synthmeth', 'Synthesis'], ['#classic_seqmeth', 'Sequencing'], ['#classic_pcrmeth', 'PCR'], ['#classic_storagemeth', 'Storage']];
+        if(!err_sim_order['Storage'] && !err_sim_order['PCR']){
+            err_sim_order['Storage'] = [];
+            err_sim_order['PCR'] = [];
+        }
         meths.forEach(function (method) {
             $(method[0]).val(0).prop('disabled', dta['use_error_probs']);
-            let meth_selection = $(method[0]+' option').filter(function () {
-                return $(this).val() === dta[method[1]];
-            });
-            if(meth_selection.length > 0){
+            if(err_sim_order[method[1]].length === 0){
+                let meth_selection = $(method[0] + ' option').filter(function () {
+                    return $(this).text() === 'None';
+                });
                 meth_selection.prop('selected', true);
-            }else{
-                let opt = new Option(dta[method[1]+'_name'] + "(CUSTOM)", dta[method[1]+'_name'], undefined, true);
-                $(method[0]).append(opt);
-                let sel = $(method[0] + ' option:selected');
-                sel.data('err_attributes', dta[method[1]+'_conf']['err_attributes']);
-                sel.data('err_data', dta[method[1]+'_conf']['err_data']);
+            }
+            else {
+                let meth_id = err_sim_order[method[1]][0]['id'];
+                let meth_selection = $(method[0] + ' option').filter(function () {
+                    return $(this).val() === meth_id;
+                });
+                if (meth_selection.length > 0) {
+                    meth_selection.prop('selected', true);
+                } else {
+                    let opt = new Option(err_sim_order[method[1]][0]['name'] + "(CUSTOM)", err_sim_order[method[1]]['name'], undefined, true);
+                    $(method[0]).append(opt);
+                    let sel = $(method[0] + ' option:selected');
+                    sel.data('err_attributes', err_sim_order[method[1]]['conf']['err_attributes']);
+                    sel.data('err_data', err_sim_order[method[1]][0]['conf']['err_data']);
+                }
+                if (method[1] === 'PCR') {
+                    $('#cycles').val(err_sim_order[method[1]][0]['cycles'])
+                }
+                if (method[1] === 'Storage') {
+                    $('#months').val(err_sim_order[method[1]][0]['cycles'])
+                }
             }
         });
-        if(dta['pcr_cycles']){
-            $('#cycles').val(dta['pcr_cycles']);
-        }
-        if(dta['storage_months']) {
-            $('#months').val(dta['storage_months']);
-        }
     }
     $("#used_seed").text(dta['seed']);
     $('#calcprobs').prop("checked", dta['use_error_probs']);
@@ -521,12 +535,12 @@ function collectSendData(space) {
         synth_meth = $("#classic_synthmeth option:selected");
         storage_meth = $("#classic_storagemeth option:selected");
         pcr_meth = $("#classic_pcrmeth option:selected");
-        [[seq_meth, 'Synthesis'], [synth_meth, 'Sequencing'], [storage_meth, 'Storage'], [pcr_meth, 'PCR']].forEach(function (meth) {
+        [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage'], [pcr_meth, 'PCR']].forEach(function (meth) {
             let cycles;
             if (meth[1] === 'Storage') {
-                cycles = $('#cycles').val()
-            } else if (meth[1] === 'PCR') {
                 cycles = $('#months').val()
+            } else if (meth[1] === 'PCR') {
+                cycles = $('#cycles').val()
             } else {
                 cycles = 1;
             }
@@ -558,39 +572,13 @@ function collectSendData(space) {
         kmer_windowsize: $('#kmer_window_size').val(),
         gc_windowsize: $('#gc_window_size').val(),
         gc_name: gc_dropdown_select.text(),
-        error_prob: gc_error_prob,
+        //error_prob: gc_error_prob,
         gc_error_prob: gc_error_prob,
         homopolymer_error_prob: homopolymer_error_prob,
         homopolymer_name: homopolymer_dropdown_select.text(),
         kmer_error_prob: kmer_error_prob,
         kmer_name: kmer_dropdown_select.text(),
-        /*sequence_method: seq_meth.val(),
-        sequence_method_conf: {
-            err_data: seq_meth.data('err_data'),
-            err_attributes: seq_meth.data('err_attributes')
-        },
-        sequence_method_name: seq_meth.text(),*/
-        /*synthesis_method: synth_meth.val(),
-        synthesis_method_conf: {
-            err_data: synth_meth.data('err_data'),
-            err_attributes: synth_meth.data('err_attributes')
-        },
-        synthesis_method_name: synth_meth.text(),*/
         err_simulation_order: exec_res,
-        /*pcr_method_name: pcr_meth.text(),
-        pcr_method: pcr_meth.val(),
-        pcr_cycles: $('#cycles').val(),
-        pcr_method_conf: {
-            err_data: pcr_meth.data('err_data'),
-            err_attributes: pcr_meth.data('err_attributes')
-        },*/
-        /*storage_method_name: storage_meth.text(),
-        storage_method: storage_meth.val(),
-        storage_months: $('#months').val(),
-        storage_method_conf: {
-            err_data: storage_meth.data('err_data'),
-            err_attributes: storage_meth.data('err_attributes')
-        },*/
         use_error_probs: $('#calcprobs').is(":checked"),
         acgt_only: $('#limitedChars').is(":checked"),
         random_seed: $('#seed').val(),
