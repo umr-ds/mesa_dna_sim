@@ -404,9 +404,6 @@ br {
 
 /* Tooltip container */
 .tooltip {
-    position: absolute;
-    top: 4px;
-    right: 4px;
     text-align: center;
     background-color: #baa861;
     color: black;
@@ -416,6 +413,18 @@ br {
     font-size: 15px;
     line-height: 18px;
     cursor: default;
+}
+
+.tooltip[data-position = "upper"] {
+    position: absolute;
+    right: 4px;
+    top: 4px;
+}
+
+.tooltip[data-position = "lower"] {
+    position: absolute;
+    right: 4px;
+    top: 470px;
 }
 
 /* Tooltip text */
