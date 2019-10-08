@@ -45,7 +45,7 @@ def generate_confirmation_token(email):
     :return:
     """
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-    return serializer.dumps(email, salt=current_app.config['SECURITY_VALIDATION_SALT'])
+    return serializer.dumps(email, salt=current_app.config['SECRET_VALIDATION_SALT'])
 
 
 def confirm_token(token, expiration=3600):
@@ -59,7 +59,7 @@ def confirm_token(token, expiration=3600):
     try:
         email = serializer.loads(
             token,
-            salt=current_app.config['SECURITY_VALIDATION_SALT'],
+            salt=current_app.config['SECRET_VALIDATION_SALT'],
             max_age=expiration
         )
     except:
