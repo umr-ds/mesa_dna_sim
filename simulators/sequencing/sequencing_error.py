@@ -241,7 +241,10 @@ class SequencingError:
         :param position_range:
         :return:
         """
-        reg = re.compile("|".join(pattern.keys()))  # '(?=(' + "|".join(pattern.keys()) + '))')
+        a = [x for x in pattern.keys()]
+        a.sort(key=lambda s: len(s))
+        a.reverse()
+        reg = re.compile("|".join(a))  # '(?=(' + "|".join(pattern.keys()) + '))')
         if position_range:
             check_seq_range = self.seq[position_range[0]:position_range[1] + 1]
         else:
@@ -252,7 +255,7 @@ class SequencingError:
             idx = np.random.choice(len(choices))
             chosen_ele = choices[idx]
         except ValueError:
-            return self._no_pattern_mismatch()
+            return None # self._no_pattern_mismatch()
 
         if type(pattern[chosen_ele[1]]) == dict:  # TODO check: chosen_ele[1] in pattern and
             final_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),

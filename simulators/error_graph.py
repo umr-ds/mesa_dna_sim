@@ -39,23 +39,25 @@ class Graph:
             error_prob += 0.9
 
         # In the case of an insertion
-        if len(mod) > len(orig):
+        if len(mod) != len(orig):
             offset = len(mod) - len(orig)
             self.shift_indices(offset, orig_end, process)
-            orig = ' ' + orig
-        for i in range(len(mod)):
-            # In the case of an mismatch where one of the mismatched bases stayed the same or if a mismatch happens
-            # at a deleted position.
-            if mod[i] == orig[i] or (orig[i] == ' ' and mode != 'insertion'):
-                pass
-            else:
-                self.graph.add_node(len(self.graph.nodes), startpos=mod_start + i, endpos=mod_start + i,
-                                    errorprob=error_prob, orig=orig[i], mod=mod[i],
-                                    identifier=process, mode=mode)
-                node_id = len(self.graph.nodes) - 1
-                self.add_edges(node_id)
-                self.visited_nodes[process].add(mod_start)
-                self.visited_nodes['modified_positions'].update(range(mod_start, mod_end))
+            if mode == 'insertion':
+                orig = ' ' + orig
+
+        #for i in range(len(mod)):
+        #    # In the case of an mismatch where one of the mismatched bases stayed the same or if a mismatch happens
+        #    # at a deleted position.
+        #    if i != 0 and i < len(orig) and (mod[i] == orig[i] or (orig[i] == ' ' and mode != 'insertion')):
+        #        pass
+        #    else:
+        self.graph.add_node(len(self.graph.nodes), startpos=mod_start, endpos=mod_start + len(mod) - 1,
+                            errorprob=error_prob, orig=orig, mod=mod,
+                            identifier=process, mode=mode)
+        node_id = len(self.graph.nodes) - 1
+        self.add_edges(node_id)
+        self.visited_nodes[process].add(mod_start)
+        self.visited_nodes['modified_positions'].update(range(mod_start, mod_end))
 
     def shift_indices(self, offset, orig_end, process):
         for i in range(1, len(self.graph.nodes())):
@@ -66,7 +68,7 @@ class Graph:
                 except KeyError:
                     pass
                 self.visited_nodes[process].add(self.graph.node[i]["startpos"] + offset)
-                self.visited_nodes["modified_positions"].add(self.graph.node[i]["startpos"]+offset)
+                self.visited_nodes["modified_positions"].add(self.graph.node[i]["startpos"] + offset)
                 self.graph.node[i]["startpos"] += offset
                 self.graph.node[i]["endpos"] += offset
         self.graph.node[0]["endpos"] += offset

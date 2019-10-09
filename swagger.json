@@ -1,490 +1,772 @@
-swagger: '2.0'
-info:
-  description: Project description
-  version: 1.0.0
-  title: DNA Simulator
-  termsOfService: 'http://swagger.io/terms/'
-  contact:
-    email: a@b.c
-  license:
-    name: Apache 2.0
-    url: 'http://www.apache.org/licenses/LICENSE-2.0.html'
-host: 'pc12291.mathematik.uni-marburg.de:5000'
-basePath: /
-tags:
-  - name: API
-    description: API Description
-    externalDocs:
-      description: Find out more
-      url: 'http://a.b'
-schemes:
-  - http
-paths:
-  /api/homopolymer:
-    post:
-      tags:
-        - error probs
-      summary: Calculate homopolymer error probabilities
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: Sequence and parameters to calculate the error probabilities with.
-          required: true
-          schema:
-            $ref: '#/definitions/Requestbody_homopolymer'
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/gccontent:
-    post:
-      tags:
-        - error probs
-      summary: Calculate error probabilities based on gc-content
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: Sequence and parameters to calculate the error probabilities with.
-          required: true
-          schema:
-            $ref: '#/definitions/Requestbody_gccontent'
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/kmer:
-    post:
-      tags:
-        - error probs
-      summary: Calculate error probabilities based on the occurence of kmers
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: Sequence and parameters to calculate the error probabilities with.
-          required: true
-          schema:
-            $ref: '#/definitions/Requestbody_kmer'
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/subsequences:
-    post:
-      tags:
-        - error probs
-      summary: Calculate error probabilities based on the occurence of subsequences
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: Sequence and undesired motifs to calculate the error probabilities with.
-          required: true
-          schema:
-            $ref: '#/definitions/Requestbody_undesiredSeqs'
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/max_expect:
-    post:
-      tags:
-        - max expect
-      summary: ''
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: ''
-          required: true
-          schema:
-            $ref: '#/definitions/Requestbody_maxExpect'
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/getIMG:
-    get:
-      tags: 
-        - max expect
-      summary: ''
-      description: ''
-      parameters:
-        - in: query
-          name: id
-          type: integer
-        - in: query
-          name: type
-          type: string
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/all:
-    post:
-      tags:
-        - complete calculation
-      summary: 'Takes a sequence and calculates all error probabilities'
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: ''
-          required: true
-          schema:
-            $ref: '#/definitions/Requestbody_all'
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-  /api/fasta_all:
-    post:
-      tags:
-        - complete calculation
-      summary: Takes a list of sequences to calculate error probabilities for.
-      description: ''
-      parameters:
-        - in: body
-          name: requestbody
-          description: ''
-          schema:
-            type: object
-      responses:
-        '200':
-          description: Ok
-        '405':
-          description: Invalid input
-        '429':
-          description: Too Many Requests
-securityDefinitions:
-  api_key:
-    type: apiKey
-    name: api_key
-    in: header
-definitions:
-  Requestbody_homopolymer:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      sequence:
-        type: string
-        example: AAAAAAAAAGGGGGGGGAAAAAAAAAA
-      homopolymer_error_prob:
-        $ref: '#/definitions/Error_prob'
-      asHTML:
-        type: boolean
-        example: false
-  Requestbody_gccontent:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      sequence:
-        type: string
-        example: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-      gc_error_prob:
-        $ref: '#/definitions/Error_prob'
-      asHTML:
-        type: boolean
-        example: false
-      gc_windowsize:
-        type: integer
-        example: 15
-  Requestbody_kmer:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      sequence:
-        type: string
-        example: TTAATTGGGGGGGGTTAATTAATT
-      kmer_error_prob:
-        $ref: '#/definitions/Error_prob'
-      asHTML:
-        type: boolean
-        example: false
-      kmer_windowsize:
-        type: integer
-        example: 15
-  Requestbody_undesiredSeqs:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      sequence:
-        type: string
-        example: AAAATTTTGGGGCCCC
-      enabledUndesiredSeqs:
-        type: array
-        items:
-          $ref: '#/definitions/EnabledSubsequences'
-      asHTML:
-        type: boolean
-        example: false
-  Requestbody_maxExpect:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      sequence:
-        type: string
-        example: AGACGTAGCATCAGCTACGATCAGCTATGCAGC
-  Requestbody_all:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      uuid:
-        type: string
-      sequence:
-        type: string
-        example: AGACTACGATCACGACGTACGTATGCGACGTATGCAGCAGCTACGACG
-      homopolymer_name:
-        type: string
-        example: Default Graph
-      homopolymer_error_prob:
-        $ref: '#/definitions/Error_prob'
-      gc_windowsize:
-        type: integer
-        example: 15
-      gc_name:
-        type: string
-        example: Default Graph
-      gc_error_prob:
-        $ref: '#/definitions/Error_prob'
-      kmer_windowssize:
-        type: integer
-        example: 15
-      kmer_name:
-        type: string
-        example: Default Graph
-      kmer_error_prob:
-        $ref: '#/definitions/Error_prob'
-      enabledUndesiredSeqs:
-        type: array
-        items:
-          $ref: '#/definitions/EnabledSubsequences'
-      err_simulation_order:
-        $ref: '#/definitions/Error_sim_order'
-      use_error_probs:
-        type: boolean
-        example: false
-      acgt_only:
-        type: boolean
-        example: true
-      random_seed:
-        type: string
-        example: ''
-      do_max_expect:
-        type: boolean
-        example: true
-      temperature:
-        type: number
-        example: 310.15
-      send_mail:
-        type: boolean
-        example: false
-      email:
-        type: string
-        example: ''
-      asHTML:
-        type: boolean
-        example: false
-  Requestbody_fasta_all:
-    type: object
-    properties:
-      key:
-        type: string
-        example: TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST
-      uuid:
-        type: string
-      sequences:
-        type: array
-        items:
-          type: string
-          example:
-            - AAAGGACTAGCGATCGACGATG
-            - AGCATCGACTGACGAGTCGGAC
-            - ACGAGTGCATGCAGCATGCGAC
-  Error_sim_order:
-    type: object
-    properties:
-      Synthesis:
-        type: array
-        items:
-          $ref: '#/definitions/Error_meth'
-      Storage/PCR:
-        type: array
-        items:
-          $ref: '#/definitions/Error_meth'
-      Sequencing:
-        type: array
-        items:
-          $ref: '#/definitions/Error_meth'
-  Error_meth:
-    type: object
-    properties:
-      name: 
-        type: string
-        example: example_method
-      id:
-        type: integer
-        example: 14
-      conf:
-        $ref: '#/definitions/Error_conf'
-  Error_conf:
-    type: object
-    properties:
-      err_data:
-        $ref: '#/definitions/Error_data'
-      err_attributes:
-        $ref: '#/definitions/Error_attributes'
-  Error_data:
-    type: object
-    properties:
-      deletion:
-        type: number
-        example: 0.3333
-      insertion:
-        type: number
-        example: 0.3333
-      mismatch:
-        type: number
-        example: 0.3334
-      raw_rate:
-        type: number
-        example: 0.0005
-  Error_attributes:
-    type: object
-    properties:
-      deletion:
-        $ref: '#/definitions/Error_attribute'
-      insertion:
-        $ref: '#/definitions/Error_attribute'
-      mismatch:
-        $ref: '#/definitions/Error_attribute'
-  Error_attribute:
-    type: object
-    properties:
-      pattern:
-        type: object
-        properties:
-          A:
-            type: number
-            example: 0.25
-          C:
-            type: number
-            example: 0.25
-          G:
-            type: number
-            example: 0.25
-          T:
-            type: number
-            example: 0.25
-      position:
-        type: object
-        properties:
-          homopolymer:
-            type: number
-            example: 0.5
-          random:
-            type: number
-            example: 0.5
-  EnabledSubsequences:
-    type: object
-    properties:
-      sequence:
-        type: string
-        example: AAAA
-      error_prob:
-        type: number
-        example: 100.0
-      enabled:
-        type: boolean
-        example: true
-      description:
-        type: string
-        example: "Random description"
-  Error_prob:
-    type: object
-    properties:
-      data:
-        type: array
-        items:
-          $ref: '#/definitions/Graph_point'
-        example:
-          - x: 0
-            'y': 0
-          - x: 2
-            'y': 0
-          - x: 4
-            'y': 20
-          - x: 5
-            'y': 50
-          - x: 6
-            'y': 80
-          - x: 7
-            'y': 100
-          - x: 20
-            'y': 100
-      interpolation:
-        type: boolean
-        example: true
-      maxX:
-        type: integer
-        example: 20
-      maxY:
-        type: integer
-        example: 100
-      xRound:
-        type: integer
-        example: 0
-      yRound:
-        type: integer
-        example: 2
-      label:
-        type: string
-        example: Error Probability
-      xLabel:
-        type: string
-        example: xLabel
-  Graph_point:
-    type: object
-    properties:
-      x:
-        type: number
-      'y':
-        type: number
-externalDocs:
-  description: ''
-  url: 'http://a.b'
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Project description",
+    "version": "1.0.0",
+    "title": "DNA Simulator",
+    "termsOfService": "http://swagger.io/terms/",
+    "contact": {
+      "email": "a@b.c"
+    },
+    "license": {
+      "name": "Apache 2.0",
+      "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
+    }
+  },
+  "host": "pc12291.mathematik.uni-marburg.de:5000",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "API",
+      "description": "API Description",
+      "externalDocs": {
+        "description": "Find out more",
+        "url": "http://a.b"
+      }
+    }
+  ],
+  "schemes": [
+    "http"
+  ],
+  "paths": {
+    "/api/homopolymer": {
+      "post": {
+        "tags": [
+          "error probs"
+        ],
+        "summary": "Calculate homopolymer error probabilities",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "Sequence and parameters to calculate the error probabilities with.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Requestbody_homopolymer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/gccontent": {
+      "post": {
+        "tags": [
+          "error probs"
+        ],
+        "summary": "Calculate error probabilities based on gc-content",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "Sequence and parameters to calculate the error probabilities with.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Requestbody_gccontent"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/kmer": {
+      "post": {
+        "tags": [
+          "error probs"
+        ],
+        "summary": "Calculate error probabilities based on the occurence of kmers",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "Sequence and parameters to calculate the error probabilities with.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Requestbody_kmer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/subsequences": {
+      "post": {
+        "tags": [
+          "error probs"
+        ],
+        "summary": "Calculate error probabilities based on the occurence of subsequences",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "Sequence and undesired motifs to calculate the error probabilities with.",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Requestbody_undesiredSeqs"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/max_expect": {
+      "post": {
+        "tags": [
+          "max expect"
+        ],
+        "summary": "",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Requestbody_maxExpect"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/getIMG": {
+      "get": {
+        "tags": [
+          "max expect"
+        ],
+        "summary": "",
+        "description": "",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "id",
+            "type": "integer"
+          },
+          {
+            "in": "query",
+            "name": "type",
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/all": {
+      "post": {
+        "tags": [
+          "complete calculation"
+        ],
+        "summary": "Takes a sequence and calculates all error probabilities",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/Requestbody_all"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    },
+    "/api/fasta_all": {
+      "post": {
+        "tags": [
+          "complete calculation"
+        ],
+        "summary": "Takes a list of sequences to calculate error probabilities for.",
+        "description": "",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "requestbody",
+            "description": "",
+            "schema": {
+              "type": "object"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ok"
+          },
+          "405": {
+            "description": "Invalid input"
+          },
+          "429": {
+            "description": "Too Many Requests"
+          }
+        },
+        "security": [
+          {
+            "api_key": []
+          }
+        ]
+      }
+    }
+  },
+  "securityDefinitions": {
+    "api_key": {
+      "type": "apiKey",
+      "name": "key",
+      "in": "header"
+    }
+  },
+  "definitions": {
+    "Requestbody_homopolymer": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "sequence": {
+          "type": "string",
+          "example": "AAAAAAAAAGGGGGGGGAAAAAAAAAA"
+        },
+        "homopolymer_error_prob": {
+          "$ref": "#/definitions/Error_prob"
+        },
+        "asHTML": {
+          "type": "boolean",
+          "example": false
+        }
+      }
+    },
+    "Requestbody_gccontent": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "sequence": {
+          "type": "string",
+          "example": "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+        },
+        "gc_error_prob": {
+          "$ref": "#/definitions/Error_prob"
+        },
+        "asHTML": {
+          "type": "boolean",
+          "example": false
+        },
+        "gc_windowsize": {
+          "type": "integer",
+          "example": 15
+        }
+      }
+    },
+    "Requestbody_kmer": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "sequence": {
+          "type": "string",
+          "example": "TTAATTGGGGGGGGTTAATTAATT"
+        },
+        "kmer_error_prob": {
+          "$ref": "#/definitions/Error_prob"
+        },
+        "asHTML": {
+          "type": "boolean",
+          "example": false
+        },
+        "kmer_windowsize": {
+          "type": "integer",
+          "example": 15
+        }
+      }
+    },
+    "Requestbody_undesiredSeqs": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "sequence": {
+          "type": "string",
+          "example": "AAAATTTTGGGGCCCC"
+        },
+        "enabledUndesiredSeqs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnabledSubsequences"
+          }
+        },
+        "asHTML": {
+          "type": "boolean",
+          "example": false
+        }
+      }
+    },
+    "Requestbody_maxExpect": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "sequence": {
+          "type": "string",
+          "example": "AGACGTAGCATCAGCTACGATCAGCTATGCAGC"
+        }
+      }
+    },
+    "Requestbody_all": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "uuid": {
+          "type": "string"
+        },
+        "sequence": {
+          "type": "string",
+          "example": "AGACTACGATCACGACGTACGTATGCGACGTATGCAGCAGCTACGACG"
+        },
+        "homopolymer_name": {
+          "type": "string",
+          "example": "Default Graph"
+        },
+        "homopolymer_error_prob": {
+          "$ref": "#/definitions/Error_prob"
+        },
+        "gc_windowsize": {
+          "type": "integer",
+          "example": 15
+        },
+        "gc_name": {
+          "type": "string",
+          "example": "Default Graph"
+        },
+        "gc_error_prob": {
+          "$ref": "#/definitions/Error_prob"
+        },
+        "kmer_windowssize": {
+          "type": "integer",
+          "example": 15
+        },
+        "kmer_name": {
+          "type": "string",
+          "example": "Default Graph"
+        },
+        "kmer_error_prob": {
+          "$ref": "#/definitions/Error_prob"
+        },
+        "enabledUndesiredSeqs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EnabledSubsequences"
+          }
+        },
+        "err_simulation_order": {
+          "$ref": "#/definitions/Error_sim_order"
+        },
+        "use_error_probs": {
+          "type": "boolean",
+          "example": false
+        },
+        "acgt_only": {
+          "type": "boolean",
+          "example": true
+        },
+        "random_seed": {
+          "type": "string",
+          "example": ""
+        },
+        "do_max_expect": {
+          "type": "boolean",
+          "example": true
+        },
+        "temperature": {
+          "type": "number",
+          "example": 310.15
+        },
+        "send_mail": {
+          "type": "boolean",
+          "example": false
+        },
+        "email": {
+          "type": "string",
+          "example": ""
+        },
+        "asHTML": {
+          "type": "boolean",
+          "example": false
+        }
+      }
+    },
+    "Requestbody_fasta_all": {
+      "type": "object",
+      "properties": {
+        "key": {
+          "type": "string",
+          "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
+        },
+        "uuid": {
+          "type": "string"
+        },
+        "sequences": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "example": [
+              "AAAGGACTAGCGATCGACGATG",
+              "AGCATCGACTGACGAGTCGGAC",
+              "ACGAGTGCATGCAGCATGCGAC"
+            ]
+          }
+        }
+      }
+    },
+    "Error_sim_order": {
+      "type": "object",
+      "properties": {
+        "Synthesis": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error_meth"
+          }
+        },
+        "Storage/PCR": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error_meth"
+          }
+        },
+        "Sequencing": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error_meth"
+          }
+        }
+      }
+    },
+    "Error_meth": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "example": "example_method"
+        },
+        "id": {
+          "type": "integer",
+          "example": 14
+        },
+        "conf": {
+          "$ref": "#/definitions/Error_conf"
+        }
+      }
+    },
+    "Error_conf": {
+      "type": "object",
+      "properties": {
+        "err_data": {
+          "$ref": "#/definitions/Error_data"
+        },
+        "err_attributes": {
+          "$ref": "#/definitions/Error_attributes"
+        }
+      }
+    },
+    "Error_data": {
+      "type": "object",
+      "properties": {
+        "deletion": {
+          "type": "number",
+          "example": 0.3333
+        },
+        "insertion": {
+          "type": "number",
+          "example": 0.3333
+        },
+        "mismatch": {
+          "type": "number",
+          "example": 0.3334
+        },
+        "raw_rate": {
+          "type": "number",
+          "example": 0.0005
+        }
+      }
+    },
+    "Error_attributes": {
+      "type": "object",
+      "properties": {
+        "deletion": {
+          "$ref": "#/definitions/Error_attribute"
+        },
+        "insertion": {
+          "$ref": "#/definitions/Error_attribute"
+        },
+        "mismatch": {
+          "$ref": "#/definitions/Error_attribute"
+        }
+      }
+    },
+    "Error_attribute": {
+      "type": "object",
+      "properties": {
+        "pattern": {
+          "type": "object",
+          "properties": {
+            "A": {
+              "type": "number",
+              "example": 0.25
+            },
+            "C": {
+              "type": "number",
+              "example": 0.25
+            },
+            "G": {
+              "type": "number",
+              "example": 0.25
+            },
+            "T": {
+              "type": "number",
+              "example": 0.25
+            }
+          }
+        },
+        "position": {
+          "type": "object",
+          "properties": {
+            "homopolymer": {
+              "type": "number",
+              "example": 0.5
+            },
+            "random": {
+              "type": "number",
+              "example": 0.5
+            }
+          }
+        }
+      }
+    },
+    "EnabledSubsequences": {
+      "type": "object",
+      "properties": {
+        "sequence": {
+          "type": "string",
+          "example": "AAAA"
+        },
+        "error_prob": {
+          "type": "number",
+          "example": 100
+        },
+        "enabled": {
+          "type": "boolean",
+          "example": true
+        },
+        "description": {
+          "type": "string",
+          "example": "Random description"
+        }
+      }
+    },
+    "Error_prob": {
+      "type": "object",
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Graph_point"
+          },
+          "example": [
+            {
+              "x": 0,
+              "y": 0
+            },
+            {
+              "x": 2,
+              "y": 0
+            },
+            {
+              "x": 4,
+              "y": 20
+            },
+            {
+              "x": 5,
+              "y": 50
+            },
+            {
+              "x": 6,
+              "y": 80
+            },
+            {
+              "x": 7,
+              "y": 100
+            },
+            {
+              "x": 20,
+              "y": 100
+            }
+          ]
+        },
+        "interpolation": {
+          "type": "boolean",
+          "example": true
+        },
+        "maxX": {
+          "type": "integer",
+          "example": 20
+        },
+        "maxY": {
+          "type": "integer",
+          "example": 100
+        },
+        "xRound": {
+          "type": "integer",
+          "example": 0
+        },
+        "yRound": {
+          "type": "integer",
+          "example": 2
+        },
+        "label": {
+          "type": "string",
+          "example": "Error Probability"
+        },
+        "xLabel": {
+          "type": "string",
+          "example": "xLabel"
+        }
+      }
+    },
+    "Graph_point": {
+      "type": "object",
+      "properties": {
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        }
+      }
+    }
+  },
+  "externalDocs": {
+    "description": "",
+    "url": "http://a.b"
+  }
+}

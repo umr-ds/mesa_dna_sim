@@ -30,6 +30,7 @@ To use Lets-Encrypt with Cloudflare-DNA you can set:
 
       # CF_Account_ID: XxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
       # CF_Token: XxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
+      # CF_HOSTNAME: example.your-server.com
 
 After setting all environment variables you can start MESA by running:
 

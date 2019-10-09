@@ -81,10 +81,6 @@
                         </div>
                     </div>
                 </div>
-                <!--<span>
-                X-Values &lt; 0 will be mapped to the first Y-Value and X-Values &gt; than the maximum X-Value will
-                be mapped to the last Y-Value</span>-->
-                <!--<div class="column is-full"></div>-->
                 <div class="column is-full has-no-padding-left">
                     <div class="columns is-multiline has-no-margin-left">
                         <div class="column is-full is-pulled-left is-full-touch">
@@ -191,16 +187,11 @@
                             <div class="field">
                                 <div class="control">
                                     <label class="form-group has-float-label">
-                                        <!--<p class="control has-icons-left">-->
                                         <textarea class="textarea"
                                                   rows="3" id="sequence" name="sequence"
                                                   placeholder="AAACCAGT"
                                                   required></textarea>
-                                        <!--<span class="icon is-right">
-                                        <i class="fas fa-dna"></i>
-                                            </span>-->
                                         <span>Sequence to Analyse</span>
-                                        <!--</p>-->
                                     </label>
                                 </div>
                             </div>
@@ -298,16 +289,6 @@
                                         <div class="select is-fullwidth is-2 select is-primary is-rounded">
                                             <label for="gc-dropdown" aria-label="GC-Method"></label><select
                                                 class="button-fill" id="gc-dropdown">
-                                            <!--{% for chart in gc_charts %}
-
-                                <option data-id="{{ chart.id }}" data-type="gc"
-                                        data-validated="{{ chart.validated }}"
-                                        data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
-                            {% endfor %}
-                            <option data-id="-1" data-type="gc"
-                                    data-validated="false" data-isowner="false">New Graph
-                            </option>-->
                                         </select>
                                         </div>
                                     </div>
@@ -392,16 +373,6 @@
                                             <label for="homopolymer-dropdown"
                                                    aria-label="Homopolymer-Method"></label><select
                                                 class="button-fill" id="homopolymer-dropdown">
-                                            <!--{% for chart in homopolymer_charts %}
-
-                                <option data-id="{{ chart.id }}" data-type="homopolymer"
-                                        data-validated="{{ chart.validated }}"
-                                        data-isowner="{{ chart.user_id == user_id }}"
-                                        data-jsonblob='{{ chart.jsonblob | tojson }}'>{{ chart.name }}</option>
-                            {% endfor %}
-                            <option data-id="-1" data-type="homopolymer"
-                                    data-validated="false" data-isowner="false">New Graph
-                            </option>-->
                                         </select>
                                         </div>
                                     </div>
@@ -427,60 +398,6 @@
                 </div>
                 <div class="column is-full is-full-touch">
                     <div class="columns is-gapless" id="advancedcontainer">
-                        <!--<div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top has-padding-bottom-40"
-                             style="margin-top: 1.5rem">
-                            <p style="text-align:left;">Calculated Error Prob.</p>
-                            <label data-balloon="Use Calculated Error Probabilities"
-                                   data-balloon-pos="right" style="float: left">
-                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
-                                       id="calcprobs"
-                                       class="switch is-rounded is-large button-fill no-outline" name="cprobs"
-                                       onclick="if ($(this).is(':checked')) {
-                                    let seq  = $('#seqmeth');
-                                    let synth = $('#synthmeth');
-                                    seq.data('selected', $('#seqmeth option:selected').val());
-                                    synth.data('selected', $('#synthmeth option:selected').val());
-                                    seq.val(0).prop('disabled', true);
-                                    synth.val(0).prop('disabled', true);
-                                } else if ($(this).not(':checked')){
-                                    let seq  = $('#seqmeth');
-                                    let synth = $('#synthmeth');
-                                    seq.val(0).prop('disabled', false);
-                                    synth.val(0).prop('disabled', false);
-                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
-                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
-                                }"/>
-                                <label for="calcprobs" style="float:left" class="no-outline"></label>
-                            </label>
-
-                            <p style="text-align:left;">Advanced Error-Simulation Settings</p>
-                            <label data-balloon="Use Advanced Error Simulation Settings"
-                                   data-balloon-pos="right" style="float: left">
-                                <input type="checkbox" aria-label="Use Calculated Error Probabilities"
-                                       id="adv_exec"
-                                       class="switch is-rounded is-large button-fill no-outline"
-                                       onclick="let seq  = $('#classic_seqmeth');
-                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
-                                    let adv_exec = $('#adv_err_settings');
-                                    if ($(this).is(':checked')) {
-                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
-                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
-                                    seq.val(0).prop('disabled', true);
-                                    synth.val(0).prop('disabled', true);
-                                    classic.hide();
-                                    adv_exec.show();
-                                    initListsDnD();
-                                } else if ($(this).not(':checked')){
-                                    seq.val(0).prop('disabled', false);
-                                    synth.val(0).prop('disabled', false);
-                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
-                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
-                                    classic.show();
-                                    adv_exec.hide();
-                                }"/>
-                                <label for="adv_exec" style="float:left" class="no-outline"></label>
-                            </label>
-                        </div>-->
                         <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top "
                              style="margin-top: 1.0rem">
                             <div class="columns is-multiline">
@@ -517,9 +434,6 @@
                             <div class="columns is-multiline">
                                 <div id="classic_synth" class="column is-full">
                                     <div class="select is-fullwidth is-primary is-rounded">
-                                        <!-- values 1-10 correspond to the error_correction id in the database -->
-                                        <!-- I either have to change the database entries for 0, 11, 12 and 13 -->
-                                        <!-- or intercept these values before the database request.  -->
                                         <label class="form-group has-float-label" aria-label="Synthesis Method">
                                             <select class="select" id="classic_synthmeth">
                                                 <optgroup label="None">
@@ -550,21 +464,13 @@
                                     </div>
                                 </div>
                                 <div class="column is-two-fifths is-full-mobile">
-                                    <!--<div class="column ">-->
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
                                                 <input class="input is-rounded" type=number rows="1" id="cycles"
                                                        value="30" min="1" max="50" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
                                                 <span>PCR Cycles</span>
-                                                <!--</p>-->
                                             </label>
-
-                                            <!--</div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -585,20 +491,13 @@
                                     </div>
                                 </div>
                                 <div class="column is-two-fifths is-full-mobile">
-                                    <!--<div class="column ">-->
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
-                                                <!--<p class="control has-icons-left">-->
                                                 <input class="input is-rounded" type=number rows="1" id="months"
                                                        value="24" min="1" step="1"/>
-                                                <!--<span class="icon is-right">
-                                                <i class="fas fa-dna"></i>
-                                                    </span>-->
                                                 <span>Months of storage to be simulated</span>
-                                                <!--</p>-->
                                             </label>
-                                            <!--</div>-->
                                         </div>
                                     </div>
                                 </div>
@@ -827,8 +726,8 @@
                 </div>
             </div>
             <div>
-                <input class="input" type="email" name="emailadd" id="emailadd" placeholder="Email"
-                       style="display:none;">
+                <label for="emailadd"></label><input class="input" type="email" name="emailadd" id="emailadd" placeholder="Email"
+                                                     style="display:none;">
             </div>
         </form>
     </div>
@@ -870,39 +769,7 @@
                 </div>
             </div>
         </div>
-
-        <!--<div class="column is-rounded">
-            <button class="button is-rounded" id="show_results"
-                    onclick="show_results();return false">
-                Expand results
-            </button>
-        </div>
-        <div class="box" id="subseqbox">
-            <h3 class="subtitle has-text-black"> Subsequences: </h3>
-            <div class="text_lettering" id="subsequences"></div>
-        </div>
-        <div class="box" id="gcbox">
-            <h3 class="subtitle has-text-black"> GC-Content: </h3>
-            <div class="text_lettering" id="gccontent"></div>
-        </div>
-        <div class="box" id="kmerbox">
-            <h3 class="subtitle has-text-black"> Kmer: </h3>
-            <div class="text_lettering" id="kmer"></div>
-        </div>
-        <div class="box" id="hopobox">
-            <h3 class="subtitle has-text-black"> Homopolymers: </h3>
-            <div class="text_lettering" id="homopolymer"></div>
-        </div>-->
-
         <h2 class="subtitle"> Result of the Error Simulation: </h2>
-        <!--<div class="box">
-            <h3 class="subtitle has-text-black"> Sequence with only Synthesis errors: </h3>
-            <ul class="text_lettering" id="synth_seq" style="overflow-x: auto;"></ul>
-        </div>
-        <div class="box">
-            <h3 class="subtitle has-text-black"> Sequence with only Sequencing errors: </h3>
-            <ul class="text_lettering" id="seq_seq" style="overflow-x: auto;"></ul>
-        </div>-->
         <div class="box">
             <h3 class="subtitle has-text-black"> Fully modified Sequence: </h3>
             <ul class="full_modified_text_lettering" id="mod_seq" style="overflow-x: auto;"></ul>
@@ -963,18 +830,6 @@
                 worry, the results will be send to your E-Mail.</h3>
         </div>
     </div>
-
-    <!--
-    <script>
-        $(function () {
-            $("#overall").hover(function (e) {
-                $(this).find('.overall_char5').css('font-weight', "bold");
-            }, function (e) {
-                $(this).find('.overall_char5').css('font-weight', "normal");
-            });
-        })
-    </script>
-    -->
     <!--{{ apikey }}-->
 
 {% endblock %}
@@ -1031,8 +886,8 @@
             chart.dblclick(function (e) {
                 //getting value by pressing on dataset
                 curr_chart.data.datasets.forEach((dataset) => {
-                    for (var scaleName in curr_chart.scales) {
-                        var scale = curr_chart.scales[scaleName];
+                    for (let scaleName in curr_chart.scales) {
+                        let scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {
                             valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
                         } else {
@@ -1051,8 +906,8 @@
             });
             chart.click(function (e) {
                 curr_chart.data.datasets.forEach((dataset) => {
-                    for (var scaleName in curr_chart.scales) {
-                        var scale = curr_chart.scales[scaleName];
+                    for (let scaleName in curr_chart.scales) {
+                        let scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {
                             valueX = Math.max(Math.min(round(scale.getValueForPixel(event.offsetX), xRoundingFactor), maximumX), 0);
                         } else {
