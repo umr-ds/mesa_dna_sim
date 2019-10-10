@@ -21,7 +21,7 @@ import redis
 from flask import jsonify, request, Blueprint, current_app, copy_current_request_context, make_response
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
-from api.apikey import require_apikey
+from api.apikey import require_apikey, query_apikey, owner_for_key
 from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, StorageErrorRates, Apikey, User
 from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
@@ -365,7 +365,7 @@ def do_all_wrapper():
         if r_res is not None:
             return jsonify(json.loads(r_res))
         elif 'sequence' not in r_method:
-            return jsonify({"did_succeed": False})
+            return jsonify({"did_succeed": False}), 404
     # TODO estimate time needed
     send_via_mail = r_method.get('send_mail')
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
@@ -429,13 +429,13 @@ def do_all(r_method):
     if type(sequences) == str:
         sequences = [sequences]
     # calculating all the different error probabilities and adding them to res
+    pool = ThreadPool(processes=6)
     for sequence in sequences:
         basefilename = uuid.uuid4().hex
-        pool = ThreadPool(processes=1)
+
         async_res = None
         if do_max_expect:
             async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
-        pool.close()
         if enabled_undesired_seqs:
             try:
                 undesired_sequences = {}
@@ -554,15 +554,18 @@ def do_all(r_method):
 
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
+        owner_id = owner_for_key(r_method['key'])
         r_method.pop('key')  # drop key from stored fields
         try:
             r_method.pop('email')
         except:
             pass
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000)
+            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000,
+                          user=owner_id)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
+    pool.close()
     return jsonify(res_all)
 
 

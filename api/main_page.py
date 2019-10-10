@@ -1,8 +1,10 @@
+import datetime
 import re
 import time
 
-from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
+from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory
 from sqlalchemy import desc, or_, and_, asc
+
 from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
 from api.apikey import require_apikey
@@ -12,6 +14,7 @@ from database.models import User, Apikey, UndesiredSubsequences, ErrorProbabilit
 from usersettings.delete import removeUser
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
+from api.RedisStorage import get_keys, get_expiration_time, set_expiration_time, read_from_redis, read_all_from_redis
 
 main_page = Blueprint("main_page", __name__, template_folder="templates")
 
@@ -100,6 +103,9 @@ def manage_users():
 # @require_logged_in
 @require_admin
 def adminpage():
+    today = time.time()
+    prev_results = [(str(x).split("USER_")[1][:-1], int(read_all_from_redis(x)[0]),
+                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*')]
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -145,7 +151,7 @@ def adminpage():
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
                            storage_errors=storage_id_out, pcr_errors=pcr_id_out,
                            graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
-                           host=request.url_root, users=users), 200
+                           host=request.url_root, users=users, prev_results=prev_results), 200
 
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -903,6 +909,11 @@ def delete_synth(mode):
         return jsonify({'did_succeed': False, 'deleted_id': synth_id})
 
 
+@main_page.route('/swagger.json')
+def send_js():
+    return send_from_directory('', 'swagger.json')
+
+
 def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
     result = re.sub(regex, "", input)
     return result
@@ -911,3 +922,36 @@ def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
 def get_admin_mails():
     admins = User.query.filter_by(is_admin=True).all()
     return [x.mail for x in admins]
+
+
+@require_admin
+@main_page.route('/remove_result', methods=['POST'])
+def remove_uuid():
+    """
+    Deletion of undesired subsequences in the Simulation Settings.
+    :return:
+    """
+    r_method = request.json
+    uuid = r_method.get('uuid')
+    delete_all = r_method.get('delete_all')
+    user_id = session.get('user_id')
+    do_delete = False
+    try:
+        if uuid is None:
+            raise Exception()
+        do_delete = bool(r_method.get('do_delete'))
+    except:
+        return jsonify({'did_succeed': False, 'uuid': uuid}), 400
+    user = User.query.filter_by(user_id=user_id).first()
+    if user.is_admin and delete_all and do_delete:
+        [set_expiration_time(x, 0) for x in get_keys('*')]
+        return jsonify({'did_succeed': True, 'uuid': uuid})
+
+    uuuid_user = read_from_redis('USER_' + uuid)
+    if do_delete and uuuid_user is not None and (user.user_id == int(uuuid_user) or user.is_admin):
+        # delete
+        set_expiration_time(uuid, 0)
+        set_expiration_time('USER_' + uuid, 0)
+        return jsonify({'did_succeed': True, 'uuid': uuid})
+    else:
+        return jsonify({'did_succeed': False, 'uuid': uuid}), 400

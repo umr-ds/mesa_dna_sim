@@ -732,6 +732,9 @@ function queryServer(uuid) {
         ,
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+            if (errorThrown === "NOT FOUND")
+                errorThrown ="No result found for given UUID - The result might have expired or has been removed.";
+            showWarn(errorThrown, 'warning',404);
             submit_seq_btn.removeClass('is-loading');
         }
     });
@@ -854,6 +857,11 @@ function updateSynthDropdown(host, apikey, type, post_success_callback) {
         fail: function (data) {
             console.log(data)
             //TODO show error message on screen
+        },
+        error: function (jqXHR, textStatus, errorThrown) {
+            console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
+            showWarn(errorThrown, 'warning',400);
+            submit_seq_btn.removeClass('is-loading');
         }
     });
 }
@@ -1254,4 +1262,37 @@ function showWarn(text, level, warn_id) {
 function hideWarn(warnId) {
     let elem = $('#' + warnId);
     elem.fadeOut(300, function() { $(this).remove(); })
+}
+
+function deleteResult(result_uuid, callback, delete_all) {
+    if (delete_all === undefined)
+        delete_all = false;
+    if (callback === undefined)
+        callback = function f() {
+        };
+    $.post({
+        url: host + "remove_result",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            do_delete: true,
+            uuid: result_uuid,
+            delete_all: delete_all
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        },
+        success: function (data) {
+            $('#delete-res_' + result_uuid).removeClass('is-loading');
+            if (data['did_succeed'] === true)
+                callback();
+        },
+        fail: function (data) {
+            $('#delete-res_' + result_uuid).removeClass('is-loading');
+            console.log(data)
+        }
+    });
 }

@@ -17,6 +17,15 @@ def query_apikey(key_):
         return False  # str(e)
 
 
+def owner_for_key(key_):
+    try:
+        apikey = Apikey.query.filter_by(apikey=key_).first()
+        return apikey.owner_id
+    except Exception as e:
+        print(e)
+        return False  # str(e)
+
+
 def require_apikey(view_function):
     @wraps(view_function)
     def decorated_function(*args, **kwargs):
