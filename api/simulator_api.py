@@ -492,8 +492,10 @@ def do_all(r_method):
             if "Storage/PCR" not in err_simulation_order:
                 err_simulation_order["Storage/PCR"] = []
             if "Storage" in err_simulation_order:
+                err_simulation_order["Storage"][0]['Process'] = 'storage'
                 err_simulation_order['Storage/PCR'].append(err_simulation_order["Storage"][0])
             if "PCR" in err_simulation_order:
+                err_simulation_order["PCR"][0]['Process'] = 'pcr'
                 err_simulation_order['Storage/PCR'].append(err_simulation_order["PCR"][0])
 
             for meth in err_simulation_order['Storage/PCR']:
@@ -503,8 +505,8 @@ def do_all(r_method):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process="pcr", seed=seed, conf=meth['conf'],
-                                  cycles=inner_cycles) + 1) % 4294967296  # TODO rename 'process="..."'
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['Process'], seed=seed, conf=meth['conf'],
+                                  cycles=inner_cycles) + 1) % 4294967296
 
             # pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
             # storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
