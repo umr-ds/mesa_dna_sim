@@ -1,7 +1,7 @@
 import time
 
 import bcrypt
-from flask import Blueprint, render_template, redirect, request, session, flash, url_for
+from flask import Blueprint, render_template, redirect, request, session, flash, url_for, current_app
 
 from api.mail import send_mail
 from database.db import db
@@ -56,7 +56,10 @@ def register():
             send_mail(None, [user.email],
                       "Use this link to confirm your E-Mail: " + request.host + "/confirm/" +
                       generate_confirmation_token(user.email))
-            flash("Signup complete, please confirm your E-Mail", "info")
+            if current_app.config['MAIL_ENABLED']:
+                flash("Signup complete, please confirm your E-Mail", "info")
+            else:
+                flash("Account created. E-Mail verification disabled, please contact the administrator to activate your account!", "info")
             return redirect(url_for("main_page.main_index"))
     else:
         return render_template('signup.html')

@@ -708,7 +708,7 @@
 
 
             <div class="columns has-no-padding-top">
-                <div class="column is-1">
+                <div class="column is-1" id="email_container">
                     <p style="font-size:12px;">Send E-Mail</p>
                     <label data-balloon="{% if user_id == None %}Type in an email address to use this feature{% else %}Send Result via E-Mail{% endif %}"
                            data-balloon-pos="right">
@@ -726,7 +726,8 @@
                 </div>
             </div>
             <div>
-                <label for="emailadd"></label><input class="input" type="email" name="emailadd" id="emailadd" placeholder="Email"
+                <label for="emailadd"></label><input class="input" type="email" name="emailadd" id="emailadd"
+                                                     placeholder="Email"
                                                      style="display:none;">
             </div>
         </form>
@@ -959,5 +960,9 @@
         initListsDnD();
         adv_exec.hide();
         //initListsDnD();
+        {% if not mail_enabled %}
+            $('#email_container').hide();
+            showWarn("Support for E-Mail disabled &ndash; you wont be able to receive any E-Mails! If you are logged in you will see all finished simulations in your profile.", "warning", "500");
+        {% endif %}
     </script>
 {% endblock %}

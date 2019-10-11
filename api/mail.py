@@ -16,6 +16,8 @@ def send_mail(sender, recipients, text, subject="Confirmation Link for MOSLA-DNA
     :param text:
     :return:
     """
+    if not current_app.config['MAIL_ENABLED']:
+        return
     if sender is None:
         sender = current_app.config.get("MAIL_SENDER_ALIAS")
     with current_app.app_context():
@@ -24,4 +26,7 @@ def send_mail(sender, recipients, text, subject="Confirmation Link for MOSLA-DNA
             if attachment_name is None:
                 attachment_name = "mosla.fastq"
             msg.attach(filename=attachment_name, content_type="text/plain", data=attachment_txt)
-        mail.send(msg)
+        try:
+            mail.send(msg)
+        except Exception as ex:
+            print(ex)

@@ -429,7 +429,7 @@ def do_all(r_method):
     if type(sequences) == str:
         sequences = [sequences]
     # calculating all the different error probabilities and adding them to res
-    pool = ThreadPool(processes=6)
+    pool = ThreadPool(processes=1)
     for sequence in sequences:
         basefilename = uuid.uuid4().hex
 

@@ -42,11 +42,11 @@ class User(db.Model):
     ###############################################
 
     def get_password_reset_token(self):
-        return self.get_token(current_app.config['SECRET_EMAIL_VALIDATION_KEY'])
+        return self.get_token(current_app.config['SECRET_PASSWORD_RESET_VALIDATION_KEY'])
 
     @staticmethod
     def verify_password_reset_token(token, expiration=1800):
-        return User.verify_token(token, current_app.config['SECRET_EMAIL_VALIDATION_KEY'], expiration=expiration)
+        return User.verify_token(token, current_app.config['SECRET_PASSWORD_RESET_VALIDATION_KEY'], expiration=expiration)
 
     def get_account_deletion_token(self):
         return self.get_token(current_app.config['SECRET_ACCOUNT_DELETION_VALIDATION_KEY'])

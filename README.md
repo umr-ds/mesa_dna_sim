@@ -13,10 +13,13 @@ If you plan to use MESA you should change all SECRETS to random and secure strin
     
       SECRET_KEY:                             <!!!!!!!!!!!!!!!!!!!!!!!!!!>
       SECRET_VALIDATION_SALT:                 <!!!!!!!!!!!!!!!!!!!!!!!!!!>
-      SECRET_EMAIL_VALIDATION_KEY:            <!!!!!!!!!!!!!!!!!!!!!!!!!!>
+      SECRET_PASSWORD_RESET_VALIDATION_KEY:   <!!!!!!!!!!!!!!!!!!!!!!!!!!>
       SECRET_ACCOUNT_DELETION_VALIDATION_KEY: <!!!!!!!!!!!!!!!!!!!!!!!!!!>
-Additionally you have to set all mail-settings:
 
+Additionally you have to set all mail-settings:
+If you do not want to use E-Mail you can set MAIL_ENABLED to 'False', in this case an Administrator has to validate newly registered users - Password reset wont (forgotten password) and changing the E-Mail Address for a user can only be performed by an Administrator
+      
+      MAIL_ENABLED: 'True'
       MAIL_SERVER: <smtp.your-server.com>
       MAIL_PORT: <465>
       MAIL_SENDER_ALIAS: <mosla.dnasim@your-server.com>

@@ -2,7 +2,8 @@ import datetime
 import re
 import time
 
-from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory
+from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory, \
+    current_app
 from sqlalchemy import desc, or_, and_, asc
 
 from api.mail import send_mail
@@ -240,7 +241,7 @@ def query_sequence():
                            usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
                            gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
                            homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
-                                               homopolymer_charts])
+                                               homopolymer_charts], mail_enabled=current_app.config['MAIL_ENABLED'])
 
 
 @main_page.route("/settings", methods=['GET', 'POST'])
