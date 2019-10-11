@@ -104,7 +104,7 @@ def manage_users():
 @require_admin
 def adminpage():
     today = time.time()
-    prev_results = [(str(x).split("USER_")[1][:-1], int(read_all_from_redis(x)[0]),
+    prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
                      time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*')]
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
@@ -165,6 +165,9 @@ def profile():
     """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
+    today = time.time()
+    prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
+                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*_' + str(user_id))]
     if request.method == "POST":
         if "new_email" in request.form:
             new_email = request.form["new_email"]
@@ -193,7 +196,7 @@ def profile():
                     return render_template('profile.html')
     if user_id and user:
         keys = Apikey.query.filter_by(owner_id=user_id).all()
-        return render_template('profile.html', apikeys=keys, current_email=user.email)
+        return render_template('profile.html', apikeys=keys, current_email=user.email, prev_results=prev_results)
     return render_template('profile.html')
 
 
@@ -935,7 +938,6 @@ def remove_uuid():
     uuid = r_method.get('uuid')
     delete_all = r_method.get('delete_all')
     user_id = session.get('user_id')
-    do_delete = False
     try:
         if uuid is None:
             raise Exception()
@@ -946,12 +948,17 @@ def remove_uuid():
     if user.is_admin and delete_all and do_delete:
         [set_expiration_time(x, 0) for x in get_keys('*')]
         return jsonify({'did_succeed': True, 'uuid': uuid})
+    elif delete_all and do_delete:
+        keys = get_keys('USER_*-*_' + str(user.user_id))
+        keys = keys + [str(x).split("_")[1] for x in keys]
+        [set_expiration_time(x, 0) for x in keys]
+        return jsonify({'did_succeed': True, 'uuid': uuid})
 
-    uuuid_user = read_from_redis('USER_' + uuid)
+    uuuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
     if do_delete and uuuid_user is not None and (user.user_id == int(uuuid_user) or user.is_admin):
         # delete
         set_expiration_time(uuid, 0)
-        set_expiration_time('USER_' + uuid, 0)
+        set_expiration_time('USER_' + uuid + "_" + str(user_id), 0)
         return jsonify({'did_succeed': True, 'uuid': uuid})
     else:
         return jsonify({'did_succeed': False, 'uuid': uuid}), 400

@@ -1,6 +1,9 @@
 # MESA - MOSLA Error Simulator
 ##### A flexible DNA Error Detection and Simulation Framework
 
+## Tips:
+Visit http://rna.urmc.rochester.edu/RNAstructure.html to get the latest version of RNAstructure.tgz !
+
 ## Usage:
  
 The integrated docker-compose.yml file is all you need to get started!

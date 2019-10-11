@@ -5,7 +5,7 @@ def save_to_redis(key, content, expiration_secs, user=None):
     p = redis.pipeline()
     p.set(key, content, expiration_secs)
     if user is not None:
-        p.set("USER_"+key, user, expiration_secs)
+        p.set("USER_"+key+"_"+str(user), user, expiration_secs)
     p.execute()
 
 
