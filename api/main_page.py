@@ -4,6 +4,7 @@ import time
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory, \
     current_app
+from flask_cors import cross_origin
 from sqlalchemy import desc, or_, and_, asc
 
 from api.mail import send_mail
@@ -914,6 +915,7 @@ def delete_synth(mode):
 
 
 @main_page.route('/swagger.json')
+@cross_origin()
 def send_js():
     return send_from_directory('', 'swagger.json')
 

@@ -18,8 +18,9 @@ docker-compose down
 # remove existing data from database
 if [[ "$1" == "--clear-db" || "$1" == "-c" ]];
 then
-    sudo rm -rf /srv/docker/postgresql
     echo "!! REMOVING EXISTING DB !!"
+    sudo rm -rf /srv/docker/postgresql
+    sudo rm -rf /srv/docker/redis
 fi
 
 # if things wont work as intended try uncommenting the next line:
