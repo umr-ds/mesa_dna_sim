@@ -350,53 +350,34 @@ function handleDragOver(evt) {
 
 function loadSendData(dta) {
     $("#sequence").val(dta['sequence']);
-    //let adv_err = $('#adv_err_settings');
+
+    /* Select dropdown-positions for gc/kmer/homopolymer probabilities and fill window_sizes*/
     $('#kmer_window_size').val(dta['kmer_windowsize']);
     $('#gc_window_size').val(dta['gc_windowsize']);
-
-    // find dropdown-pos to select...
-    /* GC */
     let gc_selection = $('#gc-dropdown option').filter(function () {
         return $(this).html() === dta['gc_name'];
     });
-    if (gc_selection.length > 0) {
-        gc_selection.prop('selected', true)
-    } else {
-        let opt = new Option(dta['gc_name'] + " (CUSTOM)", dta['gc_name'], undefined, true);
-        //opt.data('jsonblob',dta['gc_error_prob']);
-        $('#gc-dropdown').append(opt);
-        //opt.prop('selected', true);
-        $('#gc-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
-    }
-    /* KMER */
     let kmer_selection = $('#kmer-dropdown option').filter(function () {
         return $(this).html() === dta['kmer_name'];
     });
-    if (kmer_selection.length > 0) {
-        kmer_selection.prop('selected', true)
-    } else {
-        let opt = new Option(dta['kmer_name'] + " (CUSTOM)", dta['kmer_name'], undefined, true);
-        //opt.data('jsonblob',dta['kmer_error_prob']);
-        $('#kmer-dropdown').append(opt);
-        //opt.prop('selected', true);
-        $('#kmer-dropdown option:selected').data('jsonblob', dta['kmer_error_prob']);
-    }
-    /* Homopolymer */
     let homopolymer_selection = $('#homopolymer-dropdown option').filter(function () {
         return $(this).html() === dta['homopolymer_name'];
     });
-    if (homopolymer_selection.length > 0) {
-        homopolymer_selection.prop('selected', true)
-    } else {
-        let opt = new Option(dta['homopolymer_name'] + " (CUSTOM)", dta['homopolymer_name'], undefined, true);
-        //opt.data('jsonblob',dta['homopolymer_error_prob']);
-        $('#homopolymer-dropdown').append(opt);
-        //opt.prop('selected', true);
-        $('#homopolymer-dropdown option:selected').data('jsonblob', dta['homopolymer_error_prob']);
-    }
+    [['gc', gc_selection], ['kmer', kmer_selection], ['homopolymer', homopolymer_selection]].forEach(function (method) {
+        if (method[1].length > 0) {
+            method[1].prop('selected', true)
+        } else {
+            let opt = new Option(dta[meth[0]+'_name'] + " (CUSTOM)", dta[method[0]+'_name'], undefined, true);
+            $('#gc-dropdown').append(opt);
+            $('#'+method[0]+'-dropdown').append(opt);
+            $('#'+method[0]+'-dropdown option:selected').data('jsonblob', dta[method[0]+'_error_prob']);
+        }
+    });
 
+    /* Select or fill error methods (Sequencing, Synthesis, Storage, PCR) */
     let err_sim_order = dta['err_simulation_order'];
-    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Synthesis'].length > 1 || (err_sim_order['Storage/PCR'] && err_sim_order['Storage/PCR'].length > 0)){
+    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Synthesis'].length > 1 || (!err_sim_order['Storage'] && !err_sim_order['PCR'] && err_sim_order['Storage/PCR'])){
+        /* Fill the advanced menu */
         document.getElementById("adv_exec").checked = true;
         $('#adv_err_settings').show();
         $('#classic_err_settings').hide();
@@ -429,7 +410,7 @@ function loadSendData(dta) {
                 }
                 if (method[1] === 'Storage/PCR'){
                     let name = $(sel).text();
-                    $(sel).text(name + " (" + err_meth['cycles'] + " month(s))");
+                    $(sel).text(name + " (" + err_meth['cycles'] + " repeat(s))");
                     $(sel).data('multiplier', err_meth['cycles']);
                 }
             });
@@ -437,6 +418,7 @@ function loadSendData(dta) {
         initListsDnD();
     }
     else {
+        /* Fill the dropdowns */
         document.getElementById("adv_exec").checked = false;
         $('#adv_err_settings').hide();
         $('#classic_err_settings').show();
@@ -476,7 +458,10 @@ function loadSendData(dta) {
             }
         });
     }
-    $("#used_seed").text(dta['seed']);
+
+    /* Fill other fields */
+    $("#seed").val(dta['random_seed']);
+    $("#used_seed").text(dta['random_seed']);
     $('#calcprobs').prop("checked", dta['use_error_probs']);
     $('#limitedChars').prop("checked", dta['acgt_only']);
     $('#do_max_expect').prop("checked", dta['do_max_expect']);

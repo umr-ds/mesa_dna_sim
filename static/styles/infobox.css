@@ -423,8 +423,8 @@ br {
 
 .tooltip[data-position = "lower"] {
     position: absolute;
-    right: 4px;
-    top: 470px;
+    right: -15px;
+    top: 3px;
 }
 
 /* Tooltip text */

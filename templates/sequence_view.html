@@ -208,6 +208,17 @@
                     <div class="spoiler">
                         <h3>Changes here wont be saved in your profile!</h3>
                         <br/>
+                        <div class="columns">
+                            <div class="column">
+                                <label>
+                                    <input type="checkbox" aria-label="Enable all motifs" id="enable_all" checked=""
+                                           class="switch is-rounded button-fill is-large no-outline is-pulled-left"
+                                           name="enable_all" onclick="let en = 'enabled'; $('[id^=en]').each(function (e, elem) {
+                                            $(elem).prop('checked', $('#enable_all').prop('checked'));});">
+                                    <label for="enable_all" class="no-outline is-pulled-left">All</label>
+                                </label>
+                            </div>
+                        </div>
                         <div style="text-align: left">Enabled:</div>
                         <div id="subseq-container">
                             {% for subsequence in usubsequence %}
@@ -552,7 +563,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="adv_err_settings" class="column" style="display: none">
+                        <div id="adv_err_settings" class="column" style="display: none; position: relative">
                             <div class="columns is-multiline">
                                 <div id="adv_synth" class="column is-full-mobile is-half">
                                     <label for="synthmeth"><p>Synthesis Methods</p></label>
@@ -623,11 +634,11 @@
                                 <div id="adv_exec_trash" class="column is-full">
                                     <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
                                 </div>
-                                <div class="tooltip" data-position="lower">?
-                                    <span class="tooltiptext">Use Enter to add the selected method to the execution order
-                                    and Del to delete the selected method from it. On some browsers drag&drop also works.</span>
-                                </div>
                             </div>
+                            <div class="tooltip" data-position="lower">?
+                            <span class="tooltiptext">Use Enter to add the selected method to the execution order
+                                    and Del to delete the selected method from it. On some browsers drag&drop also works.</span>
+                        </div>
                         </div>
                     </div>
                     <div class="columns is-gapless is-centered" id="informationcontainer">
