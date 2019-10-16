@@ -14,6 +14,7 @@
         <link rel="apple-touch-icon-precomposed" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
         <meta name="msapplication-TileImage" content="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
         {% if config['DEBUG'] or config['TESTING'] %}
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/gh-fork-ribbon.css') }}" />
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
             <link rel="stylesheet" type="text/css"
@@ -96,6 +97,7 @@
     </div>
     <footer class="footer" style="border-top: 3px solid #ad9843;">
         {% block footer %}
+            <a class="github-fork-ribbon left-bottom bottom" href="https://github.com/umr-ds/dna_sim" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
             <div class="content has-text-centered">
                 <div class="content is-small is-text" style="color: black">© 2019 MOSLA</div>
                 <div class="columns is-centered no-margin-bottom">

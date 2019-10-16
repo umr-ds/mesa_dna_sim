@@ -466,3 +466,10 @@ br {
 .text_lettering, .full_modified_text_lettering {
     background-color: #f5f5f5;
 }
+
+.bottom {
+  position: absolute !important;
+  bottom: unset !important;
+  right: unset !important;
+  margin-top: -29px;
+}

@@ -420,8 +420,8 @@ def do_all(r_method):
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
     use_error_probs = r_method.get('use_error_probs')
-    seed = r_method.get('random_seed')
-    seed = np.uint32(np.float(seed) % 4294967296) if seed else None
+    org_seed = r_method.get('random_seed')
+    seed = np.uint32(np.float(org_seed) % 4294967296) if org_seed else None
     do_max_expect = bool(r_method.get('do_max_expect', False))
     temp = float(r_method.get('temperature', 310.15))
     as_html = r_method.get('asHTML', False)
@@ -542,7 +542,7 @@ def do_all(r_method):
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed),
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(int(org_seed)),
                            'maxexpectid': basefilename, 'dot_seq': "<pre>" + plain_dot + "</pre>"},
                    'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
