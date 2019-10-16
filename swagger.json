@@ -21,12 +21,13 @@
       "description": "API Description",
       "externalDocs": {
         "description": "Find out more",
-        "url": "http://a.b"
+        "url": "https://github.com/umr-ds/dna_sim"
       }
     }
   ],
   "schemes": [
-    "http"
+    "http",
+    "https"
   ],
   "paths": {
     "/api/homopolymer": {

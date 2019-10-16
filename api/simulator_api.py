@@ -421,6 +421,8 @@ def do_all(r_method):
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
     use_error_probs = r_method.get('use_error_probs')
     org_seed = r_method.get('random_seed')
+    if org_seed == "":
+        org_seed = np.random.randint(0, 4294967295)
     seed = np.uint32(np.float(org_seed) % 4294967296) if org_seed else None
     do_max_expect = bool(r_method.get('do_max_expect', False))
     temp = float(r_method.get('temperature', 310.15))
@@ -542,7 +544,7 @@ def do_all(r_method):
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(int(org_seed)),
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': org_seed,
                            'maxexpectid': basefilename, 'dot_seq': "<pre>" + plain_dot + "</pre>"},
                    'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:

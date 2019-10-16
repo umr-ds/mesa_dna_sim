@@ -339,7 +339,6 @@ br {
     padding-right: 0 !important;
 }
 
-
 .has-no-padding-bottom {
     padding-bottom: 0 !important;
 }
@@ -427,40 +426,45 @@ br {
     top: 3px;
 }
 
+.tabs.is-boxed li.is-active a {
+    background-color: #fff;
+    border-color: green !important;
+    border-bottom-color: transparent !important;
+}
 /* Tooltip text */
 .tooltip .tooltiptext {
-  visibility: hidden;
-  width: 120px;
-  background-color: #555;
-  color: #fff;
-  text-align: center;
-  padding: 5px 0;
-  border-radius: 6px;
+    visibility: hidden;
+    width: 120px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    padding: 5px 0;
+    border-radius: 6px;
 
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  left: 50%;
-  margin-left: -60px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    left: 50%;
+    margin-left: -60px;
 
-  opacity: 0;
-  transition: opacity 0.3s;
+    opacity: 0;
+    transition: opacity 0.3s;
 }
 
 .tooltip .tooltiptext::after {
-  content: "";
-  position: absolute;
-  top: 100%;
-  left: 50%;
-  margin-left: -5px;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #555 transparent transparent transparent;
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
 }
 
 .tooltip:hover .tooltiptext {
-  visibility: visible;
-  opacity: 1;
+    visibility: visible;
+    opacity: 1;
 }
 
 .text_lettering, .full_modified_text_lettering {
@@ -468,10 +472,10 @@ br {
 }
 
 .bottom {
-  position: absolute !important;
-  bottom: unset !important;
-  right: unset !important;
-  margin-top: -29px;
+    position: absolute !important;
+    bottom: unset !important;
+    right: unset !important;
+    margin-top: -29px;
 }
 
 /* Tabs */
@@ -509,7 +513,7 @@ br {
     border-bottom-color: transparent;
 }
 
-.tabs.is-boxed ul{
+.tabs.is-boxed ul li{
     border-bottom-color: #7a1219 !important;
     border-bottom: solid;
 }

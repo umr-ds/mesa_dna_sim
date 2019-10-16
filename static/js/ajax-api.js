@@ -367,7 +367,7 @@ function loadSendData(dta) {
         if (method[1].length > 0) {
             method[1].prop('selected', true)
         } else {
-            let opt = new Option(dta[meth[0]+'_name'] + " (CUSTOM)", dta[method[0]+'_name'], undefined, true);
+            let opt = new Option(dta[method[0]+'_name'] + " (CUSTOM)", dta[method[0]+'_name'], undefined, true);
             $('#gc-dropdown').append(opt);
             $('#'+method[0]+'-dropdown').append(opt);
             $('#'+method[0]+'-dropdown option:selected').data('jsonblob', dta[method[0]+'_error_prob']);

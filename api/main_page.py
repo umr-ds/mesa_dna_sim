@@ -9,7 +9,7 @@ from sqlalchemy import desc, or_, and_, asc
 
 from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
-from api.apikey import require_apikey
+from api.apikey import require_apikey, create_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
     MethodCategories, SequencingErrorRates, PcrErrorRates, StorageErrorRates
@@ -97,6 +97,9 @@ def manage_users():
             user.is_admin = is_admin
             db.session.add(user)
             db.session.commit()
+            keys = Apikey.query.filter_by(owner_id=user.user_id).all()
+            if len(keys) == 0 and user.validated:
+                create_apikey(user.user_id)
             return jsonify({'did_succeed': True})
         return jsonify({'did_succeed': False})
 
