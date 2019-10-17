@@ -36,7 +36,7 @@ from api.main_page import sanitize_input
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
 
-@simulator_api.errorhandler(Exception)
+#@simulator_api.errorhandler(Exception)
 def handle_error(ex):
     code = 500
 
@@ -422,7 +422,7 @@ def do_all(r_method):
     use_error_probs = r_method.get('use_error_probs')
     org_seed = r_method.get('random_seed')
     if org_seed == "":
-        org_seed = np.random.randint(0, 4294967295)
+        org_seed = int(np.random.randint(0, 4294967295, dtype=np.uint32))
     seed = np.uint32(np.float(org_seed) % 4294967296) if org_seed else None
     do_max_expect = bool(r_method.get('do_max_expect', False))
     temp = float(r_method.get('temperature', 310.15))
