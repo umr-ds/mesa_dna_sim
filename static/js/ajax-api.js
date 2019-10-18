@@ -1,6 +1,7 @@
 let apikey = "";
 let host = "";
 let user_id = "";
+let sorts = [];
 
 function setApikey(hst, key) {
     apikey = key;
@@ -797,14 +798,14 @@ function updateSynthDropdown(host, apikey, type, post_success_callback) {
             // make content draggable
             [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
                 elem.children().each(function (x) {
-                    var asd = Sortable.create(elem.children()[x], {
+                    sorts.push(Sortable.create(elem.children()[x], {
                         group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
                         onEnd: function (evt) {
                             if (evt.to === trash) {
                                 evt.to.children[evt.newIndex].remove();
                             }
                         }
-                    });
+                    }));
                 });
             });
 
@@ -1136,20 +1137,28 @@ function calc_dH(seq) {
 
 
 function initListsDnD() {
+    for (let x in sorts) {
+        console.log(sorts);
+        sorts[x].destroy();
+    }
+    sorts = [];
     let trash = $('#trash')[0];
     let ssort;
     let trash_svg = false;
-    /*let source = $('#synthmeth')[0];
-    let sortable = Sortable.create(source, {
-        group: {name: 'a', pull: 'clone', put: false}, sort: true, onEnd: function (evt) {
-            if (evt.to === trash) {
-                evt.to.children[evt.newIndex].remove();
+
+    $('#seqmeth1').children().each(function (elem) {
+        sorts.push(Sortable.create($('#seqmeth1').children()[elem], {
+            group: {name: 'a', pull: true, put: true}, sort: true, animation: 100, scroll: false,
+            onEnd: function (evt) {
+                if (evt.to === trash) {
+                    evt.to.children[evt.newIndex].remove();
+                }
             }
-        }
-    }); */
-    let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
+        }));
+    });
+    /*let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
         group: {name: 'a', pull: true, put: true}, sort: true,
-        onStart: function (/**Event*/evt) {
+        onStart: function (/**Event* /evt) {
             if (!trash_svg) {
                 ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
                 trash_svg = true;
@@ -1161,24 +1170,9 @@ function initListsDnD() {
             }
         }
     });
-    /*let storage_sortable = Sortable.create(document.getElementById('storage_sortable'), {
-            group: {name: 'a', pull: true, put: true}, sort: true,
-            onStart: function (/**Event/evt) {
-                if (!trash_svg) {
-                    trash = document.getElementById('trash');
-                    ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                    trash_svg = true;
-                }
-            },
-            onEnd: function (evt) {
-                if (evt.to === trash) {
-                    evt.to.children[evt.newIndex].remove();
-                }
-            }
-        });*/
     let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
         group: {name: 'a', pull: true, put: true}, sort: true,
-        onStart: function (/**Event*/evt) {
+        onStart: function (/**Event* /evt) {
             if (!trash_svg) {
                 ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
                 trash_svg = true;
@@ -1192,7 +1186,7 @@ function initListsDnD() {
     });
     let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
         group: {name: 'a', pull: true, put: true}, sort: true,
-        onStart: function (/**Event*/evt) {
+        onStart: function (/**Event* /evt) {
             if (!trash_svg) {
                 ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
                 trash_svg = true;
@@ -1203,28 +1197,21 @@ function initListsDnD() {
                 evt.to.children[evt.newIndex].remove();
             }
         }
-    });
+    });*/
 
-    $('#seqmeth').children().each(function (x) {
-        var asd = Sortable.create($('#seqmeth').children()[x], {
-            group: {name: 'a', pull: true, put: true}, sort: false,
-            onEnd: function (evt) {
-                if (evt.to === trash) {
-                    evt.to.children[evt.newIndex].remove();
+    [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
+        elem.children().each(function (x) {
+            sorts.push(Sortable.create(elem.children()[x], {
+                group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,scroll: false,
+                onEnd: function (evt) {
+                    if (evt.to === trash) {
+                        evt.to.children[evt.newIndex].remove();
+                    }
                 }
-            }
+            }));
         });
     });
-    $('#synthmeth').children().each(function (x) {
-        var asd = Sortable.create($('#synthmeth').children()[x], {
-            group: {name: 'a', pull: true, put: true}, sort: false,
-            onEnd: function (evt) {
-                if (evt.to === trash) {
-                    evt.to.children[evt.newIndex].remove();
-                }
-            }
-        });
-    });
+    sorts.push(Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true}));
 }
 
 function showWarn(text, level, warn_id) {

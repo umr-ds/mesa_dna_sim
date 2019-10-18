@@ -23,6 +23,8 @@ main_page = Blueprint("main_page", __name__, template_folder="templates")
 
 @main_page.route("/")
 def main_index():
+    if check_existing_users():
+        return redirect(url_for("main_page.setup"))
     return render_template('index.html'), 200
 
 
@@ -45,7 +47,7 @@ def home():
 def check_existing_users():
     # TODO maybe use different way to find out if we are in setup mode or not.
     users = User.query.all()
-    return len(users) == 1 and users[0].id == 0
+    return len(users) == 1 and users[0].user_id == 0
 
 
 @main_page.route("/setup", methods=["GET", "POST"])
@@ -63,6 +65,7 @@ def setup():
             db.session.commit()
             session['user_id'] = new_admin.user_id
             flash("Admin-Account created. Enjoy the Software.")
+            return redirect(url_for("main_page.main_index"))
     else:
         return redirect(url_for("main_page.main_index"))
 
