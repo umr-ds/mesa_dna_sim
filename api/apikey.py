@@ -31,7 +31,7 @@ def require_apikey(view_function):
     def decorated_function(*args, **kwargs):
         # todo dynamically check based on saved API-keys + ratelimit
         if (request.args.get('key') and query_apikey(request.args.get('key'))) or (
-                request.json and request.json.get('key')) or (
+                request.json and request.json.get('key') and query_apikey(request.json.get('key'))) or (
                 request.form and request.form.get('key') and query_apikey(request.form.get('key'))) or (
                 request.headers.get('key') and query_apikey(request.headers.get('key'))):
             return view_function(*args, **kwargs)

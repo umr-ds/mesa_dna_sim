@@ -45,3 +45,8 @@ After setting all environment variables you can start MESA by running:
 if you changed code you can simply run the following command to rebuild all containers and (with -c) reset your database
 
     $ .\forceRebuildAll.sh (-c)
+
+## Security considerations
+Even though the Postgres and Redis-Services are only accessible trough a docker-internal network, changing the default-login  and password (redis and postgres [both user 'postgres' and 'dna_sim' !]) might be required. 
+
+**Please keep this in mind if you plan to deploy this software as a (public) Service!**

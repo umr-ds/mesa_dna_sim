@@ -234,7 +234,11 @@ def query_sequence():
         apikey = Apikey.query.filter_by(owner_id=0).first().apikey
     else:
         user_id = int(user_id)
-        apikey = Apikey.query.filter_by(owner_id=user_id).first().apikey
+        apikey = Apikey.query.filter_by(owner_id=user_id).first()
+        if apikey is not None:
+            apikey = apikey.apikey
+        else:
+            apikey = "NO APIKEY ACTIVE!"
     undesired_sub_seq = UndesiredSubsequences.query.filter(
         or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
         asc(UndesiredSubsequences.id)).all()
