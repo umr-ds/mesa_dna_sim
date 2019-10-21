@@ -36,7 +36,7 @@ from api.main_page import sanitize_input
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
 
-@simulator_api.errorhandler(Exception)
+#@simulator_api.errorhandler(Exception)
 def handle_error(ex):
     code = 500
 
@@ -585,11 +585,14 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
     """
     for entry in data:
         data_tmp = data.get(entry)
-        if type(data_tmp) == list:
+        if type(data_tmp) == list and entry == 'sequence':
+            for x in data_tmp:
+                data.update({entry: sanitize_input(x.upper(), bases)})
+        elif type(data_tmp) == list:
             for x in data_tmp:
                 sanitize_json(x, max_y=max_y, max_x=max_x)
         elif type(data_tmp) == dict:
-            if entry == "gc_error_prob" or entry == "homopolymer_error_prob" or entry == "kmer_error_prob" or entry == 'error_prob':
+            if entry == "gc_error_prob" or entry == "homopolymer_error_prob" or entry == "kmer_error_prob":
                 sanitize_json(data_tmp, max_y=data_tmp.get('maxY', 100.0), max_x=data_tmp.get('maxX', 100.0))
                 max_x = max_y = 100.0
             elif entry == "err_data":

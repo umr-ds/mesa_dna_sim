@@ -154,291 +154,295 @@
         </div>
     </div>
     <h3 class="title">Administration Settings</h3>
-    <hr/>
-    <br/>
-    <p class="has-text-weight-bold">Undesired Motifs:</p>
-    <div class="box is-centered">
-        <div class="control" id="existing_subseqs">
-            {% for subsequence in usubsequence %}
-                <div class="control has-padding-03" id="subseq_{{ subsequence.id }}">
-                    <table>
-                        <tr>
-                            <td style="width:53%"><label class="form-group has-float-label">
-                                <p class="control has-icons-right">
-                                    <input style="width:100%" class="input is-rounded" type="text"
-                                           name="sequence"
-                                           placeholder="" size="50" value="{{ subsequence.sequence }}"
-                                           required>
-                                    <span class="icon is-right">
-                                                    <i class="fas fa-dna"></i>
-                                                </span>
-                                </p>
-                                <span>Sequence</span></label></td>
-                            <td style="width:15%"><label class="form-group has-float-label">
-                                <p class="form-group has-float-label">
-                                <p class="control has-icons-right">
-                                    <input style="width:100%" class="input is-rounded" type="number"
-                                           name="error_prob"
-                                           placeholder="" size="30"
-                                           value="{{ subsequence.error_prob * 100 }}"
-                                           required min="0.0"
-                                           max="100.0" step="0.01">
+    <div class="tabs is-centered is-boxed is-fullwidth has-no-margin-bottom" id="tabs">
+        <ul>
+            <li class="is-active" data-tab="sub"><a>Undesired motifs</a></li>
+            <li data-tab="syn"><a>Synthesis</a></li>
+            <li data-tab="seq"><a>Sequencing</a></li>
+            <li data-tab="pcr"><a>PCR</a></li>
+            <li data-tab="sto"><a>Storage</a></li>
+            <li data-tab="gck"><a>Graphs</a></li>
+            <li data-tab="use"><a>Users</a></li>
+            <li data-tab="pre"><a>Previous Results</a></li>
+        </ul>
+    </div>
+    <div id="tab-content">
+        <div class="box is-centered is-active" data-content="sub">
+            <div class="control" id="existing_subseqs">
+                {% for subsequence in usubsequence %}
+                    <div class="control has-padding-03" id="subseq_{{ subsequence.id }}">
+                        <table>
+                            <tr>
+                                <td style="width:53%"><label class="form-group has-float-label">
+                                    <p class="control has-icons-right">
+                                        <input style="width:100%" class="input is-rounded" type="text"
+                                               name="sequence"
+                                               placeholder="" size="50" value="{{ subsequence.sequence }}"
+                                               required>
+                                        <span class="icon is-right">
+                                                        <i class="fas fa-dna"></i>
+                                                    </span>
+                                    </p>
+                                    <span>Sequence</span></label></td>
+                                <td style="width:15%"><label class="form-group has-float-label">
+                                    <p class="form-group has-float-label">
+                                    <p class="control has-icons-right">
+                                        <input style="width:100%" class="input is-rounded" type="number"
+                                               name="error_prob"
+                                               placeholder="" size="30"
+                                               value="{{ subsequence.error_prob * 100 }}"
+                                               required min="0.0"
+                                               max="100.0" step="0.01">
 
-                                    <span class="icon is-right">
-                                                    <i class="fas fa-percentage"></i>
-                                                </span>
-                                </p>
-                                <span style="white-space: nowrap;">Error Probability</span>
-                            </label>
-                            </td>
-                            <td style="width:15%"><label class="form-group has-float-label">
-                                <input style="width:100%" class="input is-rounded"
-                                       type="text" name="description" placeholder="Description"
-                                       size="20"
-                                        {% if subsequence.description != None %}
-                                       value="{{ subsequence.description }}"
-                                        {% endif %}
-                                       required><span>Description</span></label></td>
-                            <td style="width:5%">
-                                <button class="button"
-                                        data-balloon="{% if subsequence.validated %}Already validated - update to remove validation!{% elif subsequence.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
-                                        data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
-                                        {% if subsequence.validated %}disabled{% endif %}
-                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }});let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('
-                                                {% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func, true);return false;">
-                                    Publish
-                                </button>
-                            </td>
-                            <td style="width:5%">
-                                <button class="button"
-                                        data-balloon="Updating will remove the Validation!"
-                                        data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
-                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }});$('#validate_subseq_{{ subsequence.id }}').prop('disabled', '');$('#validate_subseq_{{ subsequence.id }}').attr('data-balloon','Request validation').prop('disabled',''); return false;">
-                                    Update
-                                </button>
-                            </td>
-                            <td style="width:5%">
-                                <button class="button" id="delete_subseq_{{ subsequence.id }}"
-                                        data-balloon="Created at: "
-                                        data-balloon-pos="up"
-                                        onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
-                                    Delete
-                                </button>
-                            </td>
-                        </tr>
-                    </table>
-                </div>
-            {% endfor %}
+                                        <span class="icon is-right">
+                                                        <i class="fas fa-percentage"></i>
+                                                    </span>
+                                    </p>
+                                    <span style="white-space: nowrap;">Error Probability</span>
+                                </label>
+                                </td>
+                                <td style="width:15%"><label class="form-group has-float-label">
+                                    <input style="width:100%" class="input is-rounded"
+                                           type="text" name="description" placeholder="Description"
+                                           size="20"
+                                            {% if subsequence.description != None %}
+                                           value="{{ subsequence.description }}"
+                                            {% endif %}
+                                           required><span>Description</span></label></td>
+                                <td style="width:5%">
+                                    <button class="button"
+                                            data-balloon="{% if subsequence.validated %}Already validated - update to remove validation!{% elif subsequence.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
+                                            data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
+                                            {% if subsequence.validated %}disabled{% endif %}
+                                            onclick="updateSeq('{{ host }}',{{ subsequence.id }});let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func, true);return false;">
+                                        Publish
+                                    </button>
+                                </td>
+                                <td style="width:5%">
+                                    <button class="button"
+                                            data-balloon="Updating will remove the Validation!"
+                                            data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
+                                            onclick="updateSeq('{{ host }}',{{ subsequence.id }});$('#validate_subseq_{{ subsequence.id }}').prop('disabled', '');$('#validate_subseq_{{ subsequence.id }}').attr('data-balloon','Request validation').prop('disabled',''); return false;">
+                                        Update
+                                    </button>
+                                </td>
+                                <td style="width:5%">
+                                    <button class="button" id="delete_subseq_{{ subsequence.id }}"
+                                            data-balloon="Created at: "
+                                            data-balloon-pos="up"
+                                            onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                {% endfor %}
+            </div>
         </div>
-    </div>
-    <p class="has-text-weight-bold">Synthesis-Errors:</p>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="synth_errors">
-                        {% for error_id in synthesis_errors %}
-                            {% with e_obj=synthesis_errors[error_id], mode='synth', is_admin=True %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
+        <div class="box is-large" data-content="syn" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="synth_errors">
+                            {% for error_id in synthesis_errors %}
+                                {% with e_obj=synthesis_errors[error_id], mode='synth', is_admin=True %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <p class="has-text-weight-bold">Sequencing-Errors:</p>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="seq_errors">
-                        {% for error_id in sequencing_errors %}
-                            {% with e_obj=sequencing_errors[error_id], mode='seq', is_admin=True %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
+            </form>
+        </div>
+        <div class="box is-large" data-content="seq" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="seq_errors">
+                            {% for error_id in sequencing_errors %}
+                                {% with e_obj=sequencing_errors[error_id], mode='seq', is_admin=True %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <p class="has-text-weight-bold">PCR-Errors:</p>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="pcr_errors">
-                        {% for error_id in pcr_errors %}
-                            {% with e_obj=pcr_errors[error_id], mode='pcr', is_admin=True %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
+            </form>
+        </div>
+        <div class="box is-large" data-content="pcr" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="pcr_errors">
+                            {% for error_id in pcr_errors %}
+                                {% with e_obj=pcr_errors[error_id], mode='pcr', is_admin=True %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <p class="has-text-weight-bold">Storage-Errors:</p>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="storage_errors">
-                        {% for error_id in storage_errors %}
-                            {% with e_obj=storage_errors[error_id], mode='storage', is_admin=True %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
+            </form>
+        </div>
+        <div class="box is-large" data-content="sto" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="storage_errors">
+                            {% for error_id in storage_errors %}
+                                {% with e_obj=storage_errors[error_id], mode='storage', is_admin=True %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <p class="has-text-weight-bold">GC/K-mer/Homopolymer-Error Prob.:</p>
-    <div class="box is-large">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="gc_errors">
-                        {% for g_error in graph_errors %}
-                            <div class="column is-full" id="g_error_{{ g_error.id }}">
-                                <div class="columns" id="g_error_row_{{ g_error.id }}">
-                                    <div class="column is-one-sixt is-full-mobile">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded" type="text"
-                                                   id="g_error_type_{{ g_error.id }}" name="description" disabled
-                                                   placeholder="Type" value="{{ g_error.type | upper }}">
-                                            <span style="white-space: nowrap;">Type</span>
-                                        </label>
-                                    </div>
-                                    <div class="column is-4 is-full-mobile">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded" type="text"
-                                                   id="g_error_title_{{ g_error.id }}" name="description" readonly
-                                                   placeholder="No Title" value="{{ g_error.name | escape }}">
-                                            <span style="white-space: nowrap;">Title</span>
-                                        </label>
-                                    </div>
-                                    <div class="column is-full-mobile">
-                                        <button class="button button-fill"
-                                                data-balloon="{% if g_error.validated %}Already validated - update to remove validation!{% elif g_error.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
-                                                data-balloon-pos="up" id="publish_gerr_{{ g_error.id }}"
-                                                {% if g_error.validated %}disabled{% endif %}
-                                                onclick="let callback_func = function (desc) { validateGraphError('{{ host }}', {{ g_error.id }}, true, desc) };showValidationOverlay('
-                                                        {% if g_error.validation_desc != None %}{{ g_error.validation_desc }}{% endif %}', callback_func, true);return false;">
-                                            Publish
-                                        </button>
-                                    </div>
-                                    <div class="column is-full-mobile showOverlayBtn">
-                                        <input class="button is-block button-fill" type="button"
-                                               id="showOvrly_gerr_{{ g_error.id }}"
-                                               name="showOvrly_gerr_{{ g_error.id }}"
-                                               data-jsonblob='{{ g_error.jsonblob | tojson }}'
-                                               data-type='{{ g_error.type | tojson }}'
-                                               data-validated='{{ g_error.validated | tojson }}'
-                                               data-name='{{ g_error.name }}'
-                                               data-awaits_validation='{{ g_error.awaits_validation }}'
-                                               onclick='deserializeDataAndLoadDraw($(this).data("jsonblob"),$(this).data("type"));
-                                                       showOverlay($(this).data("validated"), true,{{ g_error.id }},
-                                                       $(this).data("name"), $(this).data("type"), $(this).data("awaits_validation"));
-                                                       return false' value="Show / Change Graph"
-                                               style="height: 36px; width: 240px;"/>
-                                    </div>
-                                    <div class="column is-full-mobile">
-                                        <input class="button is-block button-fill" type="button"
-                                               id="delete-chart_{{ g_error.id }}"
-                                               name="delete-chart_{{ g_error.id }}"
-                                               onclick="deleteChartId('{{ host }}', '{{ apikey }}', {{ g_error.id }});
-                                                       $('#g_error_row_{{ g_error.id }}').remove();return false;"
-                                               data-balloon="Delete current Error-Probability Graph"
-                                               data-balloon-pos="up" value="Delete"/>
+            </form>
+        </div>
+        <div class="box is-large" data-content="gck">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="gc_errors">
+                            {% for g_error in graph_errors %}
+                                <div class="column is-full" id="g_error_{{ g_error.id }}">
+                                    <div class="columns" id="g_error_row_{{ g_error.id }}">
+                                        <div class="column is-one-sixt is-full-mobile">
+                                            <label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                                       id="g_error_type_{{ g_error.id }}" name="description" disabled
+                                                       placeholder="Type" value="{{ g_error.type | upper }}">
+                                                <span style="white-space: nowrap;">Type</span>
+                                            </label>
+                                        </div>
+                                        <div class="column is-4 is-full-mobile">
+                                            <label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                                       id="g_error_title_{{ g_error.id }}" name="description" readonly
+                                                       placeholder="No Title" value="{{ g_error.name | escape }}">
+                                                <span style="white-space: nowrap;">Title</span>
+                                            </label>
+                                        </div>
+                                        <div class="column is-full-mobile">
+                                            <button class="button button-fill"
+                                                    data-balloon="{% if g_error.validated %}Already validated - update to remove validation!{% elif g_error.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
+                                                    data-balloon-pos="up" id="publish_gerr_{{ g_error.id }}"
+                                                    {% if g_error.validated %}disabled{% endif %}
+                                                    onclick="let callback_func = function (desc) { validateGraphError('{{ host }}', {{ g_error.id }}, true, desc) };showValidationOverlay('{% if g_error.validation_desc != None %}{{ g_error.validation_desc }}{% endif %}', callback_func, true);return false;">
+                                                Publish
+                                            </button>
+                                        </div>
+                                        <div class="column is-full-mobile showOverlayBtn">
+                                            <input class="button is-block button-fill" type="button"
+                                                   id="showOvrly_gerr_{{ g_error.id }}"
+                                                   name="showOvrly_gerr_{{ g_error.id }}"
+                                                   data-jsonblob='{{ g_error.jsonblob | tojson }}'
+                                                   data-type='{{ g_error.type | tojson }}'
+                                                   data-validated='{{ g_error.validated | tojson }}'
+                                                   data-name='{{ g_error.name }}'
+                                                   data-awaits_validation='{{ g_error.awaits_validation }}'
+                                                   onclick='deserializeDataAndLoadDraw($(this).data("jsonblob"),$(this).data("type"));
+                                                           showOverlay($(this).data("validated"), true,{{ g_error.id }},
+                                                           $(this).data("name"), $(this).data("type"), $(this).data("awaits_validation"));
+                                                           return false' value="Show / Change Graph"
+                                                   style="height: 36px; width: 240px;"/>
+                                        </div>
+                                        <div class="column is-full-mobile">
+                                            <input class="button is-block button-fill" type="button"
+                                                   id="delete-chart_{{ g_error.id }}"
+                                                   name="delete-chart_{{ g_error.id }}"
+                                                   onclick="deleteChartId('{{ host }}', '{{ apikey }}', {{ g_error.id }});
+                                                           $('#g_error_row_{{ g_error.id }}').remove();return false;"
+                                                   data-balloon="Delete current Error-Probability Graph"
+                                                   data-balloon-pos="up" value="Delete"/>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
-    </div>
-    <p class="has-text-weight-bold">Users:</p>
-    <div class="box is-large">
-        <form method="POST" action="{{ url_for('main_page.manage_users') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="users_list">
-                        {% for user in users %}
-                            <div class="column is-full" id="user_{{ user.user_id }}">
-                                <div class="columns" id="user_g_{{ user.user_id }}">
-                                    <div class="column is-one-sixt is-full-mobile">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded" type="text"
-                                                   id="user_id_{{ user.user_id }}" name="description" disabled
-                                                   placeholder="ID" value="{{ user.user_id }}">
-                                            <span style="white-space: nowrap;">ID</span>
-                                        </label>
-                                    </div>
-                                    <div class="column is-4 is-full-mobile">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded" type="email"
-                                                   id="user_email_{{ user.user_id }}" name="email"
+            </form>
+        </div>
+        <div class="box is-large" data-content="use">
+            <form method="POST" action="{{ url_for('main_page.manage_users') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="users_list">
+                            {% for user in users %}
+                                <div class="column is-full" id="user_{{ user.user_id }}">
+                                    <div class="columns" id="user_g_{{ user.user_id }}">
+                                        <div class="column is-one-sixt is-full-mobile">
+                                            <label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded" type="text"
+                                                       id="user_id_{{ user.user_id }}" name="description" disabled
+                                                       placeholder="ID" value="{{ user.user_id }}">
+                                                <span style="white-space: nowrap;">ID</span>
+                                            </label>
+                                        </div>
+                                        <div class="column is-4 is-full-mobile">
+                                            <label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded" type="email"
+                                                       id="user_email_{{ user.user_id }}" name="email"
+                                                       {% if user.user_id == 0 %}disabled{% endif %}
+                                                       placeholder="No E-Mail" value="{{ user.email | escape }}">
+                                                <span style="white-space: nowrap;">E-Mail</span>
+                                            </label>
+                                        </div>
+                                        <div class="column is-full-mobile">
+                                            <label for="validated_{{ user.user_id }}">Validated: </label><input
+                                                type="checkbox" {% if user.validated %}checked{% endif %}
+                                                {% if user.user_id == 0 %}disabled{% endif %}
+                                                name="validated_{{ user.user_id }}" id="validated_{{ user.user_id }}">
+                                        </div>
+                                        <div class="column is-full-mobile">
+                                            <label for="isadmin_{{ user.user_id }}">Admin: </label>
+                                            <input type="checkbox" {% if user.is_admin %}checked{% endif %}
                                                    {% if user.user_id == 0 %}disabled{% endif %}
-                                                   placeholder="No E-Mail" value="{{ user.email | escape }}">
-                                            <span style="white-space: nowrap;">E-Mail</span>
-                                        </label>
-                                    </div>
-                                    <div class="column is-full-mobile">
-                                        <label for="validated_{{ user.user_id }}">Validated: </label><input
-                                            type="checkbox" {% if user.validated %}checked{% endif %}
-                                            {% if user.user_id == 0 %}disabled{% endif %}
-                                            name="validated_{{ user.user_id }}" id="validated_{{ user.user_id }}">
-                                    </div>
-                                    <div class="column is-full-mobile">
-                                        <label for="isadmin_{{ user.user_id }}">Admin: </label>
-                                        <input type="checkbox" {% if user.is_admin %}checked{% endif %}
-                                               {% if user.user_id == 0 %}disabled{% endif %}
-                                               name="isadmin_{{ user.user_id }}" id="isadmin_{{ user.user_id }}">
-                                    </div>
-                                    <div class="column is-full-mobile is-">
-                                        <input class="button is-block button-fill" type="button"
-                                               id="update-user_{{ user.user_id }}"
-                                               name="update-user_{{ user.user_id }}"
-                                               {% if user.user_id == 0 %}disabled{% endif %}
-                                               onclick="$(this).addClass('is-loading');
-                                                       updateUserId('{{ host }}', {{ user.user_id }});return false;"
-                                               data-balloon="Update User"
-                                               data-balloon-pos="up" value="Update"/>
-                                    </div>
-                                    <div class="column is-full-mobile">
-                                        <input class="button is-block button-fill" type="button"
-                                               id="delete-user_{{ user.user_id }}"
-                                               name="delete-user_{{ user.user_id }}"
-                                               {% if user.user_id == 0 %}disabled{% endif %}
-                                               onclick="let callback = function f() {$('#user_{{ user.user_id }}').remove()};
-                                                       $(this).addClass('is-loading');
-                                                       deleteUserId('{{ host }}', {{ user.user_id }}, callback);return false;"
-                                               data-balloon="Delete this User"
-                                               data-balloon-pos="up" value="Delete"/>
+                                                   name="isadmin_{{ user.user_id }}" id="isadmin_{{ user.user_id }}">
+                                        </div>
+                                        <div class="column is-full-mobile is-">
+                                            <input class="button is-block button-fill" type="button"
+                                                   id="update-user_{{ user.user_id }}"
+                                                   name="update-user_{{ user.user_id }}"
+                                                   {% if user.user_id == 0 %}disabled{% endif %}
+                                                   onclick="$(this).addClass('is-loading');
+                                                           updateUserId('{{ host }}', {{ user.user_id }});return false;"
+                                                   data-balloon="Update User"
+                                                   data-balloon-pos="up" value="Update"/>
+                                        </div>
+                                        <div class="column is-full-mobile">
+                                            <input class="button is-block button-fill" type="button"
+                                                   id="delete-user_{{ user.user_id }}"
+                                                   name="delete-user_{{ user.user_id }}"
+                                                   {% if user.user_id == 0 %}disabled{% endif %}
+                                                   onclick="let callback = function f() {$('#user_{{ user.user_id }}').remove()};
+                                                           $(this).addClass('is-loading');
+                                                           deleteUserId('{{ host }}', {{ user.user_id }}, callback);return false;"
+                                                   data-balloon="Delete this User"
+                                                   data-balloon-pos="up" value="Delete"/>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
-        </form>
+            </form>
+        </div>
+        <div class="box is-large" data-content="pre">
+        {% with p_res = p_res, is_admin=True %}
+            {% include "history.html" %}
+        {% endwith %}
     </div>
-    <p class="has-text-weight-bold">Previous Results:</p>
-    {% with p_res = p_res, is_admin=True %}
-        {% include "history.html" %}
-    {% endwith %}
+    </div>
 {% endblock %}
 
 {% block javascript %}
@@ -458,6 +462,15 @@
     <script>
         jQuery(document).ready(function () {
             setApikey("{{ host }}", "{{ apikey }}");
+            $('#tabs li').on('click', function () {
+                var tab = $(this).data('tab');
+
+                $('#tabs li').removeClass('is-active');
+                $(this).addClass('is-active');
+
+                $('#tab-content div').removeClass('is-active');
+                $('div[data-content="' + tab + '"]').addClass('is-active');
+            });
 
             $(document).keyup(function (e) {
                 if (e.keyCode === 27) {
