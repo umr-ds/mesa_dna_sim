@@ -408,6 +408,7 @@ function loadSendData(dta) {
                     sel = $(method[0] + ' option:selected');
                     sel.data('err_attributes', err_meth['conf']['err_attributes']);
                     sel.data('err_data', err_meth['conf']['err_data']);
+                    sel.data('type', err_meth['conf']['type'])
                 }
                 if (method[1] === 'Storage/PCR'){
                     let name = $(sel).text();
@@ -449,6 +450,7 @@ function loadSendData(dta) {
                     let sel = $(method[0] + ' option:selected');
                     sel.data('err_attributes', err_sim_order[method[1]]['conf']['err_attributes']);
                     sel.data('err_data', err_sim_order[method[1]][0]['conf']['err_data']);
+                    sel.data('type', err_sim_order[method[1]][0]['conf']['type'])
                 }
                 if (method[1] === 'PCR') {
                     $('#cycles').val(err_sim_order[method[1]][0]['cycles'])
@@ -509,7 +511,8 @@ function collectSendData(space) {
                     cycles: jmeth.data('multiplier'),
                     conf: {
                         err_data: jmeth.data('err_data'),
-                        err_attributes: jmeth.data('err_attributes')
+                        err_attributes: jmeth.data('err_attributes'),
+                        type: jmeth.data('type')
                     }
                 });
             });
@@ -536,7 +539,8 @@ function collectSendData(space) {
                 cycles: cycles,
                 conf: {
                     err_data: meth[0].data('err_data'),
-                    err_attributes: meth[0].data('err_attributes')
+                    err_attributes: meth[0].data('err_attributes'),
+                    type: meth[0].data('type')
                 }
             }];
         })
@@ -790,7 +794,7 @@ function updateSynthDropdown(host, apikey, type, post_success_callback) {
                     $.each(elem, function (inner_id) {
                         let id = elem[inner_id]['id'];
                         let id_name = "" + name + "_" + id;
-                        optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
+                        optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']).data('type', elem[inner_id]['type']));
                     });
                 })
             });

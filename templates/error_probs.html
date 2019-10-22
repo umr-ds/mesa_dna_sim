@@ -4,7 +4,7 @@
         <div class="column is-full has-no-padding-left has-no-padding-top">
             <div class="columns has-no-margin-left">
                 <div class="column has-no-padding-left has-no-padding-bottom has-no-padding-top
-                    {% if e_obj.id == "new" %}{% else %}is-three-fifths-fullhd is-half{% endif %}">
+                    {% if e_obj.id == "new" %}{% else %}{% if is_admin %}is-two-fifths-fullhd is-two-fifths {% else %}is-three-fifths-fullhd is-half{% endif %}{% endif %}">
                     <label class="form-group has-float-label">
                         <input style="width:100%" class="input is-rounded" id="{{ mode }}_description_{{ e_obj.id }}"
                                type="text" name="description" placeholder="Description"
@@ -14,7 +14,17 @@
                                 {% endif %}
                                required><span>Description</span></label>
                 </div>
-
+                {% if is_admin %}
+                    <div class="select is-rounded column has-no-padding-left has-no-padding-bottom has-no-padding-top is-one-sixt-fullhd is-one-sixt">
+                            <select id="{{ mode }}_type_{{ e_obj.id }}"
+                                    type="text" name="Type"
+                                    required>
+                                {% for type in types %}
+                                <option value="{{ type.id }}" {% if e_obj.method_id == type.id %}selected{% endif %}>{{ type.method }}</option>
+                                {% endfor %}
+                            </select>
+                    </div>
+                {% endif %}
                 {% if e_obj.id == "new" %}
                     <div class="column has-no-padding-top" style="flex: none;width: fit-content">
                         <button class="button"

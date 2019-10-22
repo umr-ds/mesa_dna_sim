@@ -480,7 +480,8 @@ function sendCustomError(host, method, id) {
         err_attributes: {deletion: deletion, insertion: insertion, mismatch: mismatch},
         err_data: err_data,
         name: synth_name,
-        id: id
+        id: id,
+        type: $('#' + method + '_type_' + id).val()
     };
 
     /* Send to the Server */

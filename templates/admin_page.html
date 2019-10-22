@@ -247,7 +247,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="synth_errors">
                             {% for error_id in synthesis_errors %}
-                                {% with e_obj=synthesis_errors[error_id], mode='synth', is_admin=True %}
+                                {% with e_obj=synthesis_errors[error_id], mode='synth', is_admin=True, types=types %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -263,7 +263,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="seq_errors">
                             {% for error_id in sequencing_errors %}
-                                {% with e_obj=sequencing_errors[error_id], mode='seq', is_admin=True %}
+                                {% with e_obj=sequencing_errors[error_id], mode='seq', is_admin=True, types=types %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -279,7 +279,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="pcr_errors">
                             {% for error_id in pcr_errors %}
-                                {% with e_obj=pcr_errors[error_id], mode='pcr', is_admin=True %}
+                                {% with e_obj=pcr_errors[error_id], mode='pcr', is_admin=True, types=types %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -295,7 +295,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="storage_errors">
                             {% for error_id in storage_errors %}
-                                {% with e_obj=storage_errors[error_id], mode='storage', is_admin=True %}
+                                {% with e_obj=storage_errors[error_id], mode='storage', is_admin=True, types=types %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}

@@ -156,10 +156,13 @@ def adminpage():
 
     users = User.query.order_by(
         asc(User.user_id)).all()
+
+    types = MethodCategories.query.order_by(asc(MethodCategories.method)).all()
+
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
                            storage_errors=storage_id_out, pcr_errors=pcr_id_out,
                            graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
-                           host=request.url_root, users=users, prev_results=prev_results), 200
+                           host=request.url_root, users=users, prev_results=prev_results, types=types), 200
 
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -679,6 +682,8 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
             x['method'] = methods
         x['id'] = int(x['id'])
         x['validated'] = bool(x['validated'])
+        # x['type'] = error_model.__tablename__.split("_")[0]
+        x['type'] = error_model.__name__.split("Error")[0].lower()
         db_result[meth_str].append(x)
     return db_result
 
@@ -873,13 +878,18 @@ def update_synth_error_probs(mode):
             name = sanitize_input(data_conf['name'])
             copy = bool(request.json.get('copy'))
             id = int(data_conf['id'])
+            m_id = 0
+            try:
+                m_id = int(data_conf['type'])
+            except:
+                m_id = 0
             if user.is_admin:
                 curr_synth = choose.query.filter_by(id=id).first()
             else:
                 curr_synth = choose.query.filter_by(user_id=user_id, id=id).first()
 
             if curr_synth is None or copy:
-                curr_synth = choose(method_id=0, user_id=user_id, validated=False, name=name,
+                curr_synth = choose(method_id=m_id, user_id=user_id, validated=False, name=name,
                                     err_data=err_data, err_attributes=err_attributes)
                 db.session.add(curr_synth)
             else:
@@ -887,6 +897,7 @@ def update_synth_error_probs(mode):
                 curr_synth.name = name
                 curr_synth.err_data = err_data
                 curr_synth.err_attributes = err_attributes
+                curr_synth.method_id = m_id
             db.session.commit()
             return jsonify({'did_succeed': True})
         except Exception as x:
