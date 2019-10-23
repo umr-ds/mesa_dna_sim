@@ -174,7 +174,7 @@
                 </div>
                 <div class="column is-full">
                     <div class="columns">
-                        <div class="column is-1">
+                        <div class="column is-1 is-hidden">
                             <p style="font-size:12px;">ACGT only</p>
                             <label data-balloon="Limit Alphabet"
                                    data-balloon-pos="right">
@@ -183,7 +183,7 @@
                                 <label for="limitedChars" class="no-outline"></label>
                             </label>
                         </div>
-                        <div class="column">
+                        <div class="column has-no-padding-bottom">
                             <div class="field">
                                 <div class="control">
                                     <label class="form-group has-float-label">
@@ -284,10 +284,10 @@
                     </div>
                 </div>
                 <div class="column is-full is-full-touch">
-                    <div class="columns is-multiline is-gapless">
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-2 is-full-mobile is-pulled-left">
+                    <div class="columns is-multiline has-no-padding-bottom">
+                        <div class="column is-full has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-2 is-full-mobile is-pulled-left has-no-padding-right">
                                     <label class="form-group has-float-label">
                                         <input class="input is-rounded" type="number" id="gc_window_size"
                                                placeholder=""
@@ -317,9 +317,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-2 is-full-mobile is-pulled-left">
+                        <div class="column is-full has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-2 is-full-mobile is-pulled-left has-no-padding-right">
                                     <label class="form-group has-float-label">
                                         <input class="input is-rounded" type="number" id="kmer_window_size"
                                                placeholder=""
@@ -349,9 +349,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-2">
+                        <div class="column is-full has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-2 has-no-padding-right">
                                     <p style="font-size:12px">Calculated Error Prob.</p>
                                     <label data-balloon="Use Calculated Error Probabilities" data-balloon-pos="left">
                                         <input type="checkbox" aria-label="Use Calculated Error Probabilities"
@@ -444,7 +444,7 @@
                         </div>
                         <div id="classic_err_settings" class="column">
                             <div class="columns is-multiline">
-                                <div id="classic_synth" class="column is-full">
+                                <div id="classic_synth" class="column is-full has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <label class="form-group has-float-label" aria-label="Synthesis Method">
                                             <select class="select" id="classic_synthmeth">
@@ -475,7 +475,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="column is-two-fifths is-full-mobile">
+                                <div class="column is-two-fifths is-full-mobile has-no-padding-bottom has-no-padding-right">
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
@@ -486,7 +486,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="column is-three-fifths is-full-mobile">
+                                <div class="column is-three-fifths is-full-mobile has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -502,7 +502,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="column is-two-fifths is-full-mobile">
+                                <div class="column is-two-fifths is-full-mobile has-no-padding-bottom has-no-padding-right">
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
@@ -513,7 +513,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="column is-three-fifths is-full-mobile">
+                                <div class="column is-three-fifths is-full-mobile has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -531,7 +531,7 @@
                                     </div>
                                 </div>
 
-                                <div id="classic_seq" class="column is-full">
+                                <div id="classic_seq" class="column is-full has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
