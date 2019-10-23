@@ -622,14 +622,12 @@ def get_error_prob_charts():
 
 
 @main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
-# @require_logged_in
 def get_synth_error_probs():
     """
     Gets synthesis error probabilities.
     :return:
     """
     user_id = session.get('user_id')
-    user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
         req = request.json
     else:
@@ -644,8 +642,6 @@ def get_synth_error_probs():
              'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods),
              'pcr': get_error_probs_dict(PcrErrorRates, user_id, flat, methods),
              'storage': get_error_probs_dict(StorageErrorRates, user_id, flat, methods), 'methods': methods})
-        # else:
-        #    return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
 
@@ -674,123 +670,14 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
             x['name'] = "None"
         x['is_owner'] = int(x['user_id']) == user_id
         if not flat:
-            # x.pop('correction_id')
             x.pop('user_id')
         else:
             x['method'] = methods
         x['id'] = int(x['id'])
         x['validated'] = bool(x['validated'])
-        # x['type'] = error_model.__tablename__.split("_")[0]
         x['type'] = error_model.__name__.split("Error")[0].lower()
         db_result[meth_str].append(x)
     return db_result
-
-
-"""
-@main_page.route("/api/add_seq_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def add_seq_error_probs():
-    "
-    Adds sequencing error probabilities.
-    :return:
-    "
-    try:
-        user_id = session.get('user_id')
-        user = User.query.filter_by(user_id=user_id).first()
-        synth_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
-        if user_id and user and synth_conf is not None:
-            # synth_conf = json.loads(synth_data)
-            err_data = floatify(synth_conf['err_data'])
-            err_attributes = floatify(synth_conf['err_attributes'])
-            name = sanitize_input(synth_conf['name'])
-            new_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                           err_data=err_data, err_attributes=err_attributes)
-            db.session.add(new_seq)
-            db.session.commit()
-            res = {'did_succeed': True, 'id': new_seq.id}
-
-            if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_seq.as_dict(), host=request.url_root,
-                                                 mode='seq')
-            else:
-                res['content'] = new_seq.as_dict()
-            return jsonify(res)
-        return jsonify({'did_succeed': False})
-    except Exception as x:
-        return jsonify({'did_succeed': False})
-
-
-@main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def add_synth_error_probs():
-    "
-    Adds synthesis error probabilities.
-    :return:
-    "
-    try:
-        user_id = session.get('user_id')
-        user = User.query.filter_by(user_id=user_id).first()
-        synth_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
-        if user_id and user and synth_conf is not None:
-            # synth_conf = json.loads(synth_data)
-            err_data = floatify(synth_conf['err_data'])
-            err_attributes = floatify(synth_conf['err_attributes'])
-            name = sanitize_input(synth_conf['name'])
-
-            new_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                            err_data=err_data, err_attributes=err_attributes)
-
-            db.session.add(new_synth)
-            db.session.commit()
-            res = {'did_succeed': True, 'id': new_synth.id}
-
-            if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_synth.as_dict(), host=request.url_root,
-                                                 mode='synth')
-            else:
-                res['content'] = new_synth.as_dict()
-            return jsonify(res)
-        return jsonify({'did_succeed': False})
-    except Exception as x:
-        return jsonify({'did_succeed': False})
-
-
-@main_page.route("/api/add_pcr_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def add_pcr_error_probs():
-    ""
-    Adds synthesis error probabilities.
-    :return:
-    ""
-    try:
-        user_id = session.get('user_id')
-        user = User.query.filter_by(user_id=user_id).first()
-        pcr_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
-        if user_id and user and pcr_conf is not None:
-            err_data = floatify(pcr_conf['err_data'])
-            err_attributes = floatify(pcr_conf['err_attributes'])
-            name = sanitize_input(pcr_conf['name'])
-
-            new_pcr = PcrErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                    err_data=err_data, err_attributes=err_attributes)
-
-            db.session.add(new_pcr)
-            db.session.commit()
-            res = {'did_succeed': True, 'id': new_pcr.id}
-
-            if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_pcr.as_dict(), host=request.url_root,
-                                                 mode='pcr')
-            else:
-                res['content'] = new_pcr.as_dict()
-            return jsonify(res)
-        return jsonify({'did_succeed': False})
-    except Exception as x:
-        return jsonify({'did_succeed': False})
-"""
 
 
 @main_page.route("/api/add_<mode>_error_probs", methods=['GET', 'POST'])

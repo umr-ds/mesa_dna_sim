@@ -33,13 +33,7 @@
                         </button>
                     </div>
                 {% else %}
-                    <!--<div class="column"><label class="checkbox">Validated: <input
-                        type="checkbox" id="synth_validated_{{ e_obj.id }}"
-                        value="{{ e_obj.id }}"
-                        disabled
-                        {% if e_obj.validated %} checked {% endif %}/></label></div>-->
                     <div class="columns has-no-margin-top has-no-margin-left has-no-margin-right button-fill">
-                        <!--, is_admin=True-->
                         <div class="column has-no-padding-bottom button-fill has-no-padding-top">
                             <button class="button button-fill"
                                     data-balloon="{% if e_obj.validated %}Already validated - update to remove validation!{% elif e_obj.awaits_validation %}{% if is_admin %}Validate and publish{% else %}Awaiting validation, you can still update.{% endif %}{% else %}Request validation{% endif %}"
@@ -73,7 +67,6 @@
         <div class="column is-full {% if e_obj.id != "new" %}spoiler{% else %}has-no-padding-left{% endif %} ">
             <div class="has-no-padding-left has-margin-bottom-12 has-overflow-unset has-no-padding-top has-no-padding-bottom control columns is-multiline {{ mode }}-editor-{{ e_obj.id }}"
                  style="margin-right: 20px; margin-left: -17px">
-                <!--<div class="column is-full"></div>-->
                 <div class="column is-half has-no-padding-left">
                     <div class="columns is-full is-multiline has-no-margin-left"
                          id="left-column-{{ mode }}_{{ e_obj.id }}">

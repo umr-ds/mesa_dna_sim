@@ -403,17 +403,6 @@ def do_all(r_method):
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
-    # seq_meth = r_method.get('sequence_method')
-    # seq_meth_conf = r_method.get('sequence_method_conf')
-    # synth_meth = r_method.get('synthesis_method')
-    # synth_meth_conf = r_method.get('synthesis_method_conf')
-    # pcr_meth = r_method.get('pcr_method')
-    # cycles = r_method.get('pcr_cycles')
-    # pcr_meth_conf = r_method.get('pcr_method_conf')
-    # storage_meth = r_method.get('storage_method')
-    # months = r_method.get('storage_months')
-    # storage_meth_conf = r_method.get('storage_method_conf')
-
     err_simulation_order = r_method.get('err_simulation_order')
 
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
@@ -507,9 +496,6 @@ def do_all(r_method):
                     inner_cycles = 1
                 seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed, conf=meth['conf'],
                                   cycles=inner_cycles) + 1) % 4294967296
-
-            # pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
-            # storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:

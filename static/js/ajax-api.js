@@ -248,12 +248,12 @@ function set_listener(){
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
 function download(text, name, type) {
-    var file = new Blob([text], {type: type});
-    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    let file = new Blob([text], {type: type});
+    let isIE = /*@cc_on!@*/false || !!document.documentMode;
     if (isIE) {
         window.navigator.msSaveOrOpenBlob(file, name);
     } else {
-        var a = document.createElement('a');
+        let a = document.createElement('a');
         a.href = URL.createObjectURL(file);
         a.download = name;
         document.body.appendChild(a);
@@ -263,12 +263,12 @@ function download(text, name, type) {
 }
 
 function downloadImg(id, type) {
-    var file = host + "api/getIMG?id=" + id + "&type=" + type;
-    var isIE = /*@cc_on!@*/false || !!document.documentMode;
+    let file = host + "api/getIMG?id=" + id + "&type=" + type;
+    let isIE = /*@cc_on!@*/false || !!document.documentMode;
     if (isIE) {
         window.navigator.msSaveOrOpenBlob(file, name);
     } else {
-        var a = document.createElement('a');
+        let a = document.createElement('a');
         a.href = file;
         a.download = name;
         document.body.appendChild(a);
@@ -417,7 +417,7 @@ function loadSendData(dta) {
                     sel = $(method[0] + ' option:selected');
                     sel.data('err_attributes', err_meth['conf']['err_attributes']);
                     sel.data('err_data', err_meth['conf']['err_data']);
-                    sel.data('type', err_meth['conf']['type'])
+                    sel.data('type', err_meth['conf']['type']);
                     $(method[2]).append(sel.clone(true).unbind())
                 }
                 if (err_meth['conf']['type'] === 'storage'){
@@ -558,9 +558,11 @@ function collectSendData(space) {
     }
 
     let email = "";
-    if (user_id === "" && $('#send_email').is(':checked')) {
-        if ($("#emailadd").val()) {
-            email = $("#emailadd").val();
+    let send_email = $('#send_email').is(':checked');
+    if (user_id === "" && send_email) {
+        let email_add = $("#emailadd").val();
+        if (email_add) {
+            email = email_add;
         } else {
             alert("Please enter your email or deactivate send by mail!");
             return
@@ -585,7 +587,7 @@ function collectSendData(space) {
         random_seed: $('#seed').val(),
         do_max_expect: $('#do_max_expect').is(":checked"),
         temperature: $('#temperature').val(),
-        send_mail: $('#send_email').is(":checked"),
+        send_mail: send_email,
         email: email,
         asHTML: true
     }, undefined, space);
@@ -617,17 +619,6 @@ function queryServer(uuid) {
     if (jseq.data("sequence_list")) {
         fasta = true;
     }
-    /*for (let i = 0; i <= overall.text().length; i++) {
-        let curr_char = $(".overall_char" + (i + 1));
-        curr_char.data('errorprob', 0.0);
-    }*/
-
-    //var endpoints = ['gccontent', 'homopolymers'];
-
-    //for (var mode in endpoints) {
-
-
-    //endpoints.keys().forEach(function (mode) {
 
     let endpoints = {
         "gccontent": gccontent,
@@ -769,22 +760,13 @@ var getColorForPercentage = function (pct) {
     // or output as hex if preferred
 };
 
-/*function copyToClipboard(element) {
-    var $temp = $("<input>");
-    $("body").append($temp);
-    $temp.val($(element).text()).select();
-    document.execCommand("copy");
-    $temp.remove();
-}*/
-
-
-function updateSynthDropdown(host, apikey, type, post_success_callback) {
+function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
     $.post({
-        url: host + "api/get_error_probs",
+        url: host_uri + "api/get_error_probs",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
-            key: apikey,
+            key: api_key,
             type: type
         }),
         async: true,
@@ -811,6 +793,7 @@ function updateSynthDropdown(host, apikey, type, post_success_callback) {
             });
 
             // make content draggable
+            let trash = $('#trash')[0];
             [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
                 elem.children().each(function (x) {
                     sorts.push(Sortable.create(elem.children()[x], {
@@ -824,33 +807,6 @@ function updateSynthDropdown(host, apikey, type, post_success_callback) {
                 });
             });
 
-            /**let sele = $('#classic_pcrmeth');
-            sele.empty(); // remove old options
-            $.each(data['pcr'], function (name) {
-                let elem = data['pcr'][name];
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
-                optgroup.appendTo(sele);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
-                });
-            });
-
-            let e = $('#classic_storagemeth');
-            e.empty(); // remove old options
-            $.each(data['storage'], function (name) {
-                let elem = data['storage'][name];
-                console.log(elem);
-                console.log(data['storage']);
-                let optgroup = $("<optgroup label='" + name + "'></optgroup>");
-                optgroup.appendTo(e);
-                $.each(elem, function (inner_id) {
-                    let id = elem[inner_id]['id'];
-                    let id_name = "" + name + "_" + id;
-                    optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']));
-                });
-            });*/
             initListsDnD();
             if (post_success_callback !== undefined)
                 post_success_callback(data);
@@ -950,7 +906,7 @@ function count_all(sel_seq) {
 }
 
 
-function updateUserId(host, u_id, callback) {
+function updateUserId(host_uri, u_id, callback) {
     if (callback === undefined)
         callback = function f() {
         };
@@ -958,7 +914,7 @@ function updateUserId(host, u_id, callback) {
     let validated = $('#validated_' + u_id).is(":checked");
     let is_admin = $('#isadmin_' + u_id).is(":checked");
     $.post({
-        url: host + "manage_users",
+        url: host_uri + "manage_users",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
@@ -987,17 +943,17 @@ function updateUserId(host, u_id, callback) {
     });
 }
 
-function deleteUserId(host, user_id, callback) {
+function deleteUserId(host_uri, u_id, callback) {
     if (callback === undefined)
         callback = function f() {
         };
     $.post({
-        url: host + "manage_users",
+        url: host_uri + "manage_users",
         dataType: 'json',
         contentType: 'application/json;charset=UTF-8',
         data: JSON.stringify({
             do_delete: true,
-            user_id: user_id
+            user_id: u_id
         }),
         async: true,
         beforeSend: function (xhr) {
@@ -1006,12 +962,12 @@ function deleteUserId(host, user_id, callback) {
             }
         },
         success: function (data) {
-            $('#delete-user_' + user_id).removeClass('is-loading');
+            $('#delete-user_' + u_id).removeClass('is-loading');
             if (data['did_succeed'] === true)
                 callback();
         },
         fail: function (data) {
-            $('#delete-user_' + user_id).removeClass('is-loading');
+            $('#delete-user_' + u_id).removeClass('is-loading');
             console.log(data)
             //TODO show error message on screen
         }
@@ -1132,7 +1088,7 @@ function calc_dS(seq, is_self_comp) {
         tmp_dS += dS[seq.substr(i, 2)];
     }
     let last = seq[seq.length - 1];
-    tmp_dS += last == 'A' || last == 'T' ? init_AT_dS : init_GC_dS;
+    tmp_dS += last === 'A' || last === 'T' ? init_AT_dS : init_GC_dS;
     if (is_self_comp) {
         tmp_dS += sym_dS;
     }
@@ -1146,7 +1102,7 @@ function calc_dH(seq) {
         tmp_dH += dH[seq.substr(i, 2)];
     }
     let last = seq[seq.length - 1];
-    tmp_dH += last == 'A' || last == 'T' ? init_AT_dH : init_GC_dH;
+    tmp_dH += last === 'A' || last === 'T' ? init_AT_dH : init_GC_dH;
     return tmp_dH;
 }
 
@@ -1157,8 +1113,6 @@ function initListsDnD() {
     }
     sorts = [];
     let trash = $('#trash')[0];
-    let ssort;
-    let trash_svg = false;
 
     $('#seqmeth1').children().each(function (elem) {
         sorts.push(Sortable.create($('#seqmeth1').children()[elem], {
@@ -1170,48 +1124,6 @@ function initListsDnD() {
             }
         }));
     });
-    /*let synthesis_sortable = Sortable.create($('#synthesis_sortable')[0], {
-        group: {name: 'a', pull: true, put: true}, sort: true,
-        onStart: function (/**Event* /evt) {
-            if (!trash_svg) {
-                ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                trash_svg = true;
-            }
-        },
-        onEnd: function (evt) {
-            if (evt.to === trash) {
-                evt.to.children[evt.newIndex].remove();
-            }
-        }
-    });
-    let pcr_sortable = Sortable.create($('#pcr_sortable')[0], {
-        group: {name: 'a', pull: true, put: true}, sort: true,
-        onStart: function (/**Event* /evt) {
-            if (!trash_svg) {
-                ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                trash_svg = true;
-            }
-        },
-        onEnd: function (evt) {
-            if (evt.to === trash) {
-                evt.to.children[evt.newIndex].remove();
-            }
-        }
-    });
-    let sequencing_sortable = Sortable.create($('#sequencing_sortable')[0], {
-        group: {name: 'a', pull: true, put: true}, sort: true,
-        onStart: function (/**Event* /evt) {
-            if (!trash_svg) {
-                ssort = Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true});
-                trash_svg = true;
-            }
-        },
-        onEnd: function (evt) {
-            if (evt.to === trash) {
-                evt.to.children[evt.newIndex].remove();
-            }
-        }
-    });*/
 
     [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
         elem.children().each(function (x) {

@@ -80,20 +80,6 @@ input[id^="spoiler"]:checked + label + .spoiler {
     -moz-osx-font-smoothing: grayscale
 }
 
-/*
-.info:before {
-    content:"f05a";
-}
-.success:before {
-    content:'f00c';
-}
-.warning:before {
-    content:'f071';
-}
-.error:before {
-    content:'f057';
-}
-*/
 .info {
     color: #00529B;
     background-color: #BDE5F8;
@@ -150,56 +136,6 @@ input[id^="spoiler"]:checked + label + .spoiler {
     font-size: .8em;
 }
 
-
-/*
-Sequence coloring:
-
-.text_lettering {
-    width: 80%;
-}
-has-float-label
-.text_lettering ul {
-    width: 50px;
-    border: 2px solid white;
-    border-left: none;
-    border-right: none;
-    padding: 2px;
-    box-shadow: 0px -10px 0px rgba(0, 0, 0, 0.08) inset, 0px 12px 0px rgba(0, 0, 0, 0.2) inset, 0px 0px 5px rgba(0, 0, 0, 0.2);
-    list-style: none;
-    text-align: center;
-    color: white;
-    opacity: 0.8;
-}
-
-.text_lettering ul:hover {
-    opacity: 1;
-}
-
-.text_lettering ul:first-child {
-    border-left: 2px solid white;
-}
-
-.text_lettering ul:last-child {
-    border-right: 2px solid white;
-}
-*/
-
-/* Tooltip:
-[data-tooltip] {
-    cursor: default;
-    font: normal 1em sans-serif;
-}
-
-[data-tooltip]:hover:after {
-    display: inline-block;
-    content: attr(data-tooltip);
-    white-space: pre-wrap;
-    color: #0081ff;
-    background-color: OldLace;
-    padding: 1em;
-}
-*/
-
 #sequence {
     text-transform: uppercase;
     width: 100%;
@@ -241,10 +177,6 @@ br {
 .no-margin-bottom {
     margin-bottom: 0 !important;
 }
-
-/*input.is-grayable:read-only {
-    background-color: #F1F1F1;
-}*/
 
 [readonly].is-grayable {
     background-color: #F1F1F1;
@@ -557,12 +489,6 @@ br {
     background-color: var(--primary-box-bg-color);
     color: var(--primary-color) !important;
 }
-/*a {
-  color: #e39777;
-}
-img {
-    filter: grayscale(30%) !important;
-}*/
 
 select, .textarea, .input {
     background-color: var(--spoiler-bg-color) !important;
@@ -603,7 +529,6 @@ pre {
 
 .hero.is-light a.navbar-item:hover, .hero.is-light a.navbar-item.is-active, .hero.is-light .navbar-link:hover, .hero.is-light .navbar-link.is-active {
     background-color: var(--bg-hover-active) !important;
-    /*color: #363636;*/
 }
 
 input[id^="spoiler"] ~ .spoiler {
