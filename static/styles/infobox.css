@@ -492,6 +492,7 @@ br {
     border-top-color: #7a1219 !important;
     border-right-color: #7a1219 !important;
     border-left-color: #7a1219 !important;
+    border-width: 1px !important;
     background-color: #baa861 !important;
     color: black !important;
 }
@@ -501,6 +502,7 @@ br {
     border-top-color: #7a1219 !important;
     border-right-color: #7a1219 !important;
     border-left-color: #7a1219 !important;
+    border-width: 1px !important;
     background-color: #baa861 !important;
     color: black !important;
 }
@@ -516,6 +518,7 @@ br {
 .tabs.is-boxed ul li{
     border-bottom-color: #7a1219 !important;
     border-bottom: solid;
+    border-bottom-width: 1px;
 }
 
 :root {

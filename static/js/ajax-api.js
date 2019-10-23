@@ -377,26 +377,35 @@ function loadSendData(dta) {
 
     /* Select or fill error methods (Sequencing, Synthesis, Storage, PCR) */
     let err_sim_order = dta['err_simulation_order'];
-    if(err_sim_order['Sequencing'].length > 1 || err_sim_order['Synthesis'].length > 1 || (!err_sim_order['Storage'] && !err_sim_order['PCR'] && err_sim_order['Storage/PCR'])){
+    let err_sim_lists = {'Synthesis': [], 'Sequencing': [], 'Storage': [], 'PCR': []};
+    err_sim_lists['Synthesis'] = err_sim_order['Synthesis'];
+    err_sim_lists['Sequencing'] = err_sim_order['Sequencing'];
+    err_sim_order['Storage/PCR'].forEach(function (entry) {
+       if(entry['conf']['type'] === 'storage'){
+           err_sim_lists['Storage'].push(entry);
+       }
+       else if(entry['conf']['type'] === 'pcr'){
+           err_sim_lists['PCR'].push(entry);
+       }
+    });
+    if(err_sim_lists['Sequencing'].length > 1 || err_sim_lists['Synthesis'].length > 1 || err_sim_lists['Storage'].length > 1 || err_sim_lists['PCR'] > 1){
         /* Fill the advanced menu */
         document.getElementById("adv_exec").checked = true;
         $('#adv_err_settings').show();
         $('#classic_err_settings').hide();
-        let meths = [['#synthesis_sortable', 'Synthesis'], ['#pcr_sortable', 'Storage/PCR'], ['#sequencing_sortable', 'Sequencing']];
-        let lists = ['#synthmeth', '#pcrmeth', '#seqmeth', '#storagemeth'];
+        let meths = [['#synthesis_sortable', 'Synthesis', '#synthmeth'], ['#pcr_sortable', 'Storage', '#storagemeth'], ['#pcr_sortable', 'PCR', '#pcrmeth'], ['#sequencing_sortable', 'Sequencing', '#seqmeth']];
+        $('#synthesis_sortable').children().remove();
+        $('#pcr_sortable').children().remove();
+        $('#sequencing_sortable').children().remove();
         meths.forEach(function (method) {
-            $(method[0]).children().remove();
-            let tmp = err_sim_order[method[1]];
+            let tmp = err_sim_lists[method[1]];
             tmp.forEach(function (err_meth) {
                 let meth_selection;
-                for (let i = 0; i < lists.length; i++) {
-                    let tmp_selection = $(lists[i] + ' option').filter(function () {
-                        return $(this)[0]['value'] === err_meth['id'];
-                    });
-                    if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
-                        meth_selection = tmp_selection;
-                        break;
-                    }
+                let tmp_selection = $(method[2] + ' option').filter(function () {
+                    return $(this)[0]['value'] === err_meth['id'];
+                });
+                if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
+                    meth_selection = tmp_selection;
                 }
                 let sel;
                 if (meth_selection !== undefined) {
@@ -409,10 +418,16 @@ function loadSendData(dta) {
                     sel.data('err_attributes', err_meth['conf']['err_attributes']);
                     sel.data('err_data', err_meth['conf']['err_data']);
                     sel.data('type', err_meth['conf']['type'])
+                    $(method[2]).append(sel.clone(true).unbind())
                 }
-                if (method[1] === 'Storage/PCR'){
+                if (err_meth['conf']['type'] === 'storage'){
                     let name = $(sel).text();
-                    $(sel).text(name + " (" + err_meth['cycles'] + " repeat(s))");
+                    $(sel).text(name + " (" + err_meth['cycles'] + " month(s))");
+                    $(sel).data('multiplier', err_meth['cycles']);
+                }
+                else if (err_meth['conf']['type'] === 'pcr'){
+                    let name = $(sel).text();
+                    $(sel).text(name + " (" + err_meth['cycles'] + " cycle(s))");
                     $(sel).data('multiplier', err_meth['cycles']);
                 }
             });
@@ -425,38 +440,34 @@ function loadSendData(dta) {
         $('#adv_err_settings').hide();
         $('#classic_err_settings').show();
         let meths = [['#classic_synthmeth', 'Synthesis'], ['#classic_seqmeth', 'Sequencing'], ['#classic_pcrmeth', 'PCR'], ['#classic_storagemeth', 'Storage']];
-        if(!err_sim_order['Storage'] && !err_sim_order['PCR']){
-            err_sim_order['Storage'] = [];
-            err_sim_order['PCR'] = [];
-        }
         meths.forEach(function (method) {
             $(method[0]).val(0).prop('disabled', dta['use_error_probs']);
-            if(err_sim_order[method[1]].length === 0){
+            if(err_sim_lists[method[1]].length === 0){
                 let meth_selection = $(method[0] + ' option').filter(function () {
                     return $(this).text() === 'None';
                 });
                 meth_selection.prop('selected', true);
             }
             else {
-                let meth_id = err_sim_order[method[1]][0]['id'];
+                let meth_id = err_sim_lists[method[1]][0]['id'];
                 let meth_selection = $(method[0] + ' option').filter(function () {
                     return $(this).val() === meth_id;
                 });
                 if (meth_selection.length > 0) {
                     meth_selection.prop('selected', true);
                 } else {
-                    let opt = new Option(err_sim_order[method[1]][0]['name'] + "(CUSTOM)", err_sim_order[method[1]]['name'], undefined, true);
+                    let opt = new Option(err_sim_lists[method[1]][0]['name'] + "(CUSTOM)", err_sim_lists[method[1]]['name'], undefined, true);
                     $(method[0]).append(opt);
                     let sel = $(method[0] + ' option:selected');
-                    sel.data('err_attributes', err_sim_order[method[1]]['conf']['err_attributes']);
-                    sel.data('err_data', err_sim_order[method[1]][0]['conf']['err_data']);
-                    sel.data('type', err_sim_order[method[1]][0]['conf']['type'])
+                    sel.data('err_attributes', err_sim_lists[method[1]][0]['conf']['err_attributes']);
+                    sel.data('err_data', err_sim_lists[method[1]][0]['conf']['err_data']);
+                    sel.data('type', err_sim_lists[method[1]][0]['conf']['type']);
                 }
                 if (method[1] === 'PCR') {
-                    $('#cycles').val(err_sim_order[method[1]][0]['cycles'])
+                    $('#cycles').val(err_sim_lists[method[1]][0]['cycles'])
                 }
                 if (method[1] === 'Storage') {
-                    $('#months').val(err_sim_order[method[1]][0]['cycles'])
+                    $('#months').val(err_sim_lists[method[1]][0]['cycles'])
                 }
             }
         });
