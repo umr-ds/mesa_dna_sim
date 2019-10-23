@@ -609,3 +609,7 @@ pre {
 input[id^="spoiler"] ~ .spoiler {
     color: var(--primary-color) !important;
 }
+
+.hero.is-light .subtitle, .hero.is-light .navbar-item, .hero.is-light .navbar-link {
+    color: var(--primary-color) !important;
+}
