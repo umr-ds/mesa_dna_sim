@@ -587,6 +587,9 @@
         },
         "err_attributes": {
           "$ref": "#/definitions/Error_attributes"
+        },
+        "type": {
+          "type": "string"
         }
       }
     },
