@@ -518,3 +518,91 @@ br {
     border-bottom: solid;
 }
 
+:root {
+    --primary-bg-color: #f5f5f5;
+    --primary-color: #757763;
+    --primary-box-bg-color: #ffffff;
+    --bg-hover-active: #e8e8e8;
+    --overlay-bg-color: rgba(255, 255, 255, 1.0);
+    --tooltip-bg-color: initial;
+    --spoiler-bg-color: initial;
+    --pre-color: initial;
+}
+
+
+[data-theme="dark"] {
+    --primary-bg-color: #555555;
+    --primary-box-bg-color: #595959;
+    --primary-color: #c3c3c3;
+    --bg-hover-active: #777777;
+    --overlay-bg-color: #bbbbbb;
+    --tooltip-bg-color: #191919;
+    --spoiler-bg-color: #676767;
+    --pre-color: #191919;
+}
+
+#overlay-content {
+    background-color: var(--overlay-bg-color) !important;
+}
+
+.hero-head, .hero-body, .footer {
+    background-color: var(--primary-bg-color);
+    color: var(--primary-color) !important;
+}
+
+.box {
+    background-color: var(--primary-box-bg-color);
+    color: var(--primary-color) !important;
+}
+/*a {
+  color: #e39777;
+}
+img {
+    filter: grayscale(30%) !important;
+}*/
+
+select, .textarea, .input {
+    background-color: var(--spoiler-bg-color) !important;
+    color: var(--primary-color) !important;
+}
+
+.select select::placeholder, .textarea::placeholder, .input::placeholder {
+        color: var(--primary-color) !important;
+}
+
+.has-float-label label::after, .has-float-label > span::after {
+    background-color: var(--primary-bg-color) !important;
+}
+
+.is-divider-vertical[data-content]::after, .is-divider[data-content]::after {
+    background-color: var(--primary-box-bg-color) !important;
+}
+
+.tooltip .tooltiptext {
+    background-color: var(--tooltip-bg-color) !important;
+}
+
+.spoiler {
+    background-color: var(--spoiler-bg-color) !important;
+}
+
+.text_lettering, .full_modified_text_lettering {
+    background-color: var(--spoiler-bg-color) !important;
+}
+
+.noUi-handle {
+    background-color: var(--tooltip-bg-color) !important;
+}
+
+pre {
+        color: var(--pre-color) !important;
+}
+
+.hero.is-light a.navbar-item:hover, .hero.is-light a.navbar-item.is-active, .hero.is-light .navbar-link:hover, .hero.is-light .navbar-link.is-active {
+    background-color: var(--bg-hover-active) !important;
+    /*color: #363636;*/
+}
+
+input[id^="spoiler"] ~ .spoiler {
+    color: var(--primary-color) !important;
+}

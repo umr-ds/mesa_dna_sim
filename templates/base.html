@@ -159,6 +159,20 @@
                 $(".navbar-menu").toggleClass("is-active");
             });
         });
+        if(matchMedia('(prefers-color-scheme: dark)').matches) {
+         document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        /*const toggleSwitch = document.querySelector('.theme-switch');
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+        toggleSwitch.addEventListener('change', switchTheme, false);*/
     </script>
 
 {% endblock javascript %}
