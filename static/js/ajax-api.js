@@ -1142,7 +1142,6 @@ function calc_dH(seq) {
 
 function initListsDnD() {
     for (let x in sorts) {
-        console.log(sorts);
         sorts[x].destroy();
     }
     sorts = [];

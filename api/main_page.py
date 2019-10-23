@@ -365,7 +365,6 @@ def add_subsequences():
 def request_validation_g_error():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
-    # TODO add validation description!
     e_id = request.json.get('id')
     validation_desc = request.json.get('validation_desc')
     if user_id and user and e_id is not None:
@@ -404,7 +403,6 @@ def request_validation_c_error():
     user = User.query.filter_by(user_id=user_id).first()
     error_method = request.json.get('method')
     validation_desc = request.json.get('validation_desc')
-    # TODO add validation description!
     try:
         q_class = \
             {'synth': SynthesisErrorRates, 'seq': SequencingErrorRates, 'pcr': PcrErrorRates,

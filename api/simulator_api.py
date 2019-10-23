@@ -506,7 +506,7 @@ def do_all(r_method):
                 except:
                     inner_cycles = 1
                 seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed, conf=meth['conf'],
-                                  cycles=inner_cycles) + 1) % 4294967296  # TODO rename 'process="..."'
+                                  cycles=inner_cycles) + 1) % 4294967296
 
             # pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
             # storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
