@@ -720,7 +720,7 @@
 
 
             <div class="columns has-no-padding-top">
-                <div class="column is-1" id="email_container">
+                <div class="column is-1 has-no-padding-bottom" id="email_container">
                     <p style="font-size:12px;">Send E-Mail</p>
                     <label data-balloon="{% if user_id == None %}Type in an email address to use this feature{% else %}Send Result via E-Mail{% endif %}"
                            data-balloon-pos="right">
@@ -731,8 +731,8 @@
                         <!-- {% if user_id == None %}disabled{% endif %} -->
                     </label>
                 </div>
-                <div class="column button-fill">
-                    <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
+                <div class="column button-fill has-no-padding-bottom">
+                    <button class="button is-block is-info-deactivated is-large is-fullwidth"
                             id="submit_seq_btn">Submit
                     </button>
                 </div>
