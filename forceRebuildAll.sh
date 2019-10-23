@@ -11,14 +11,13 @@ then
     exit 0
 fi
 
-docker-compose down
 ./buildBulma.sh
-
 
 # remove existing data from database
 if [[ "$1" == "--clear-db" || "$1" == "-c" || "$2" == "--clear-db" || "$2" == "-c" ]];
 then
     echo "!! REMOVING EXISTING DB !!"
+    docker-compose down
     sudo rm -rf /srv/docker/postgresql
     sudo rm -rf /srv/docker/redis
 fi
