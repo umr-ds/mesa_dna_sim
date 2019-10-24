@@ -77,7 +77,7 @@ def do_login():
 
         email = request.form["email"]
         password = request.form["password"]
-
+        remember = request.form["remember"] if "remember" in request.form else ""
         user = User.query.filter_by(email=email).first()
         if not user or not check_password(password, user.password):
             # user does not exist in our database OR
@@ -92,6 +92,8 @@ def do_login():
 
         # Note we don't *return* the response immediately
         session['user_id'] = user.user_id
+        if remember == "on":
+            session.permanent = True
         response = redirect(url_for("main_page.main_index"))
         # response.set_cookie('YourSessionCookie', user.user_id)
         return response
