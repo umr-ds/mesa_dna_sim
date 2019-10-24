@@ -296,7 +296,7 @@ function handleFileChange(evt) {
             return false;
         }
         reader.onload = () => {
-            try {
+          //  try {
                 let text = reader.result;
                 if (text.startsWith(">")) {
                     if (user_id === "") {
@@ -321,9 +321,9 @@ function handleFileChange(evt) {
                 } else {
                     loadSendData(JSON5.parse(text))
                 }
-            } catch (e) {
-                jseq.val(reader.result.toUpperCase());
-            }
+           // } catch (e) {
+                //jseq.val(reader.result.toUpperCase());
+           // }
         }
     } else {
         log('The File APIs are not fully supported in this browser.');
@@ -535,11 +535,11 @@ function collectSendData(space) {
         synth_meth = $("#classic_synthmeth option:selected");
         storage_meth = $("#classic_storagemeth option:selected");
         pcr_meth = $("#classic_pcrmeth option:selected");
-        [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage'], [pcr_meth, 'PCR']].forEach(function (meth) {
+        [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage/PCR'], [pcr_meth, 'Storage/PCR']].forEach(function (meth) {
             let cycles;
-            if (meth[1] === 'Storage') {
+            if (meth[0] === 'storage_meth') {
                 cycles = $('#months').val()
-            } else if (meth[1] === 'PCR') {
+            } else if (meth[0] === 'pcr_meth') {
                 cycles = $('#cycles').val()
             } else {
                 cycles = 1;
