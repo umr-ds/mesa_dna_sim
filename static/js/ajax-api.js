@@ -701,7 +701,6 @@ function queryServer(uuid) {
                             $('.maxExpect').show();
                             $(".downloadIMG").attr("disabled", false);
                         }
-
                 }
                 makeHoverGroups();
                 res.css('display', 'initial');
@@ -716,6 +715,9 @@ function queryServer(uuid) {
                 resultsbymail.css('display', 'initial');
             }
             submit_seq_btn.removeClass('is-loading');
+            if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
+                jseq.val("");
+            }
         },
         fail: function (data) {
             console.log(data);
