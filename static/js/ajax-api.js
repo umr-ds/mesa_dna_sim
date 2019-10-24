@@ -181,8 +181,11 @@ $(document).ready(function () {
         if (seq.val().length >= 4000) {
             do_max_expect.prop("checked", false);
             do_max_expect.prop("disabled", true);
+            $('#limit_1').hide();
+            $('#limit_2').show();
         } else {
             do_max_expect.prop("disabled", false);
+            $('#limit_2').hide();
         }
         $('#temperature').prop('disabled', !do_max_expect.is(':checked'));
         if (seq.val().length >= 1000) {
@@ -191,10 +194,14 @@ $(document).ready(function () {
             if (user_id === "") {
                 add_mail.show();
             }
+            if(seq.val().length < 4000){
+                $('#limit_1').show();
+            }
         } else {
             send_mail.attr("disabled", false);
             add_mail.hide();
             add_mail.val("");
+            $('#limit_1').hide();
         }
     });
     let submit_seq = $("#submit_sequence");
