@@ -638,7 +638,7 @@
                             </div>
                             <div class="tooltip" data-position="lower">?
                             <span class="tooltiptext">Use Enter to add the selected method to the execution order
-                                    and Del to delete the selected method from it. On some browsers drag&drop also works.</span>
+                                    and Del to delete the selected method from it. On some browsers drag&amp;drop also works.</span>
                         </div>
                         </div>
                     </div>
@@ -897,7 +897,7 @@
             let chart = $('#myChart');
             chart.dblclick(function (e) {
                 //getting value by pressing on dataset
-                curr_chart.data.datasets.forEach((dataset) => {
+                curr_chart.data.datasets.forEach(function (dataset) {
                     for (let scaleName in curr_chart.scales) {
                         let scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {
@@ -906,7 +906,7 @@
                             valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
                         }
                     }
-                    curr_chart.data.datasets.forEach((dataset) => {
+                    curr_chart.data.datasets.forEach(function (dataset) {
                         dataset.data.push({x: valueX, y: valueY});
                     });
                     dataset.data.sort(function (a, b) {
@@ -917,7 +917,7 @@
                 curr_chart.update();
             });
             chart.click(function (e) {
-                curr_chart.data.datasets.forEach((dataset) => {
+                curr_chart.data.datasets.forEach(function (dataset) {
                     for (let scaleName in curr_chart.scales) {
                         let scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {

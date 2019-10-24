@@ -485,7 +485,7 @@
             let chart = $('#myChart');
             chart.dblclick(function (e) {
                 //getting value by pressing on dataset
-                curr_chart.data.datasets.forEach((dataset) => {
+                curr_chart.data.datasets.forEach(function (dataset) {
                     for (var scaleName in curr_chart.scales) {
                         var scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {
@@ -494,7 +494,7 @@
                             valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
                         }
                     }
-                    curr_chart.data.datasets.forEach((dataset) => {
+                    curr_chart.data.datasets.forEach(function (dataset) {
                         dataset.data.push({x: valueX, y: valueY});
                     });
                     dataset.data.sort(function (a, b) {
@@ -506,7 +506,7 @@
                 curr_chart.update();
             });
             chart.click(function (e) {
-                curr_chart.data.datasets.forEach((dataset) => {
+                curr_chart.data.datasets.forEach(function (dataset) {
                     for (var scaleName in curr_chart.scales) {
                         var scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {

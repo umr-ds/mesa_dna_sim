@@ -299,7 +299,7 @@ function handleFileChange(evt) {
         } catch (e) {
             return false;
         }
-        reader.onload = () => {
+        reader.onload = function () {
             try {
                 let text = reader.result;
                 if (text.startsWith(">")) {
@@ -709,7 +709,7 @@ function queryServer(uuid) {
                         }
                 }
                 makeHoverGroups();
-                res.css('display', 'initial');
+                res.css('display', '');
                 $('html, body').animate({scrollTop: res.offset().top}, 500);
             }
 
@@ -846,7 +846,7 @@ function set_mod_seq_inf(sel_seq) {
     let sel_pos = getSelectionCharacterOffsetWithin(document.getElementById("mod_seq"));
     let sel_gc_con = get_gc_con(sel_seq);
     let sel_tm = calc_tm(sel_seq);
-    if (Number.isNaN(sel_gc_con)){
+    if (isNaN(sel_gc_con)){
         sel_gc_con = 0;
     }
     if (sel_tm === -1) {

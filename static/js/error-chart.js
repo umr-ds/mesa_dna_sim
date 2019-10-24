@@ -121,7 +121,7 @@ function serializeData() {
 
 function toogleCubicInterpolation() {
     useCubicInterpolation = !useCubicInterpolation;
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         if (useCubicInterpolation) {
             dataset['cubicInterpolationMode'] = 'monotone';
             dataset['lineTension'] = 1.0;
@@ -140,7 +140,7 @@ function toogleCubicInterpolation() {
 }
 
 function removePoint(x_val) {
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         var found = dataset.data.findIndex(function (element) {
             return element.x === Number(x_val);
         });
@@ -158,7 +158,7 @@ function removePoint(x_val) {
 
 function findDuplicateX() {
     let duplicates = new Set();
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         let unique = new Set();
         for (let tmp = 0; tmp < dataset.data.length; tmp++) {
             const currElem = dataset.data[tmp].x;
@@ -193,7 +193,7 @@ function toogleDragX() {
 function addPoint(x_val, y_val) {
     x_val = round(Number(x_val), xRoundingFactor); // we might want to enforce using Math.min(maximumX, ...)
     y_val = Math.min(round(Number(y_val), yRoundingFactor), maximumY);
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         var found = dataset.data.findIndex(function (element) {
             return element.x === Number(x_val);
         });
@@ -211,7 +211,7 @@ function setYValueBeforeX(lim, value) {
      * sets the value to "value" for all data-points in x-range [0..lim)
      */
     value = Math.max(Math.min(round(Number(value), yRoundingFactor), maximumY), 0);
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         for (let v in dataset.data) {
             if (dataset.data[v].x < lim) {
                 dataset.data[v].y = value;
@@ -226,7 +226,7 @@ function setYValueAfterX(lim, value) {
      * sets the value to "value" for all data-points in x-range (lim..end]
      */
     value = Math.max(Math.min(round(Number(value), yRoundingFactor), maximumY), 0);
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         for (let v in dataset.data) {
             if (dataset.data[v].x > lim) {
                 dataset.data[v].y = value;
@@ -393,7 +393,7 @@ function drawGraph() {
 }
 
 function sortData() {
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         dataset.data.sort(function (a, b) {
             return a.x - b.x;
         });
