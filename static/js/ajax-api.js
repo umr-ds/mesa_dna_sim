@@ -318,6 +318,8 @@ function handleFileChange(evt) {
                     } else if (sequences.length > 1) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
+                        document.getElementById("do_max_expect").checked = false;
+                        showWarn("FASTA file loaded. Max. Expect is unchecked now and the results will be send to your E-Mail", "warning", 1);
                         jseq.data("sequence_list", sequences);
                         jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
                         //queryServer(undefined);
@@ -539,11 +541,11 @@ function collectSendData(space) {
         synth_meth = $("#classic_synthmeth option:selected");
         storage_meth = $("#classic_storagemeth option:selected");
         pcr_meth = $("#classic_pcrmeth option:selected");
-        [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage'], [pcr_meth, 'PCR']].forEach(function (meth) {
+        [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage/PCR'], [pcr_meth, 'Storage/PCR']].forEach(function (meth) {
             let cycles;
-            if (meth[1] === 'Storage') {
+            if (meth[0] === 'storage_meth') {
                 cycles = $('#months').val()
-            } else if (meth[1] === 'PCR') {
+            } else if (meth[0] === 'pcr_meth') {
                 cycles = $('#cycles').val()
             } else {
                 cycles = 1;
@@ -705,7 +707,6 @@ function queryServer(uuid) {
                             $('.maxExpect').show();
                             $(".downloadIMG").attr("disabled", false);
                         }
-
                 }
                 makeHoverGroups();
                 res.css('display', 'initial');
@@ -720,6 +721,9 @@ function queryServer(uuid) {
                 resultsbymail.css('display', 'initial');
             }
             submit_seq_btn.removeClass('is-loading');
+            if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
+                jseq.val("");
+            }
         },
         fail: function (data) {
             console.log(data);
