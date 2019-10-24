@@ -296,7 +296,7 @@ function handleFileChange(evt) {
             return false;
         }
         reader.onload = () => {
-          //  try {
+            try {
                 let text = reader.result;
                 if (text.startsWith(">")) {
                     if (user_id === "") {
@@ -314,6 +314,8 @@ function handleFileChange(evt) {
                     } else if (sequences.length > 1) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
+                        document.getElementById("do_max_expect").checked = false;
+                        showWarn("FASTA file loaded. Max. Expect is unchecked now and the results will be send to your E-Mail", "warning", 1);
                         jseq.data("sequence_list", sequences);
                         jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
                         //queryServer(undefined);
@@ -321,9 +323,9 @@ function handleFileChange(evt) {
                 } else {
                     loadSendData(JSON5.parse(text))
                 }
-           // } catch (e) {
-                //jseq.val(reader.result.toUpperCase());
-           // }
+            } catch (e) {
+                jseq.val(reader.result.toUpperCase());
+            }
         }
     } else {
         log('The File APIs are not fully supported in this browser.');
