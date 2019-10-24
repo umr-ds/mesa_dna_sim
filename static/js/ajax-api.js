@@ -211,7 +211,11 @@ function set_listener(){
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
                 let data = $(elem).val();
+                let data_len = data.length;
+                let pos = $(elem)[0].selectionStart;
                 $(elem).val(data.replace(/[^ACGT]/gi, "").toUpperCase());
+                $(elem)[0].selectionStart = pos + ($(elem).val().length - data_len);
+                $(elem)[0].selectionEnd = pos + ($(elem).val().length - data_len);
             });
         });
     });
