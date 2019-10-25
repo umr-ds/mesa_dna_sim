@@ -469,8 +469,9 @@ br {
 
 [data-theme="dark"] {
     --primary-bg-color: #555555;
-    --primary-box-bg-color: #595959;
+    --footer-bg-color: #393939;
     --primary-color: #c3c3c3;
+    --primary-box-bg-color: #595959;
     --primary-color-placeholder: #9c9c9c;
     --bg-hover-active: #777777;
     --overlay-bg-color: #bbbbbb;
@@ -549,4 +550,8 @@ input[id^="spoiler"] ~ .spoiler {
 
 ul {
     background-color: var(--primary-bg-color) !important;
+}
+
+td, th {
+    padding: 5px;
 }

@@ -29,4 +29,5 @@ def send_mail(sender, recipients, text, subject="Confirmation Link for MOSLA-DNA
         try:
             mail.send(msg)
         except Exception as ex:
+            print("FLASK-MAIL EXCEPTION:")
             print(ex)
