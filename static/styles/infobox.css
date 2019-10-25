@@ -1,4 +1,4 @@
-.info, .success, .warning, .danger {
+.info, .success, .warning, .danger, .limit_char {
     padding: 10px;
     margin: 10px 0;
     text-align: center;
@@ -63,7 +63,7 @@ input[id^="spoiler"]:checked + label + .spoiler {
 }
 
 
-.info:before, .success:before, .warning:before, .danger:before {
+.info:before, .success:before, .warning:before, .danger:before, .limit_char:before {
     font-style: normal;
     font-weight: 400;
     speak: none;
@@ -98,6 +98,11 @@ input[id^="spoiler"]:checked + label + .spoiler {
 .danger {
     color: #D8000C;
     background-color: #FFD2D2;
+}
+
+.limit_char{
+    color: #040609;
+    background-color: #ffaf24;
 }
 
 
