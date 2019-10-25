@@ -29,6 +29,9 @@
         {% else %}
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
         {% endif %}
+        {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/ie.css') }}>
+        {%  endif %}
     {% endblock %}
 </head>
 
@@ -78,6 +81,9 @@
             </div>
         </nav>
     </div>
+    {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
+        <div class="warning">You are using an outdated Browser! This might decrease the performance and affect general usability.</div>
+    {% endif %}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul>
@@ -135,7 +141,7 @@
         <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
     {% endif %}
     <script type="text/javascript">
-        // TODO put crappyIE code in extra file
+    {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
         function isCrappyIE() {
             var ua = window.navigator.userAgent;
             var crappyIE = false;
@@ -199,20 +205,16 @@
                 }
             });
         }
-
+        {% endif %}
         $(document).ready(function () {
             $(".navbar-burger").click(function () {
                 $(".navbar-burger").toggleClass("is-active");
                 $(".navbar-menu").toggleClass("is-active");
             });
-            if (isCrappyIE()) {
-                $('#fork-me-ribbon').hide();
-            }
         });
         if(matchMedia('(prefers-color-scheme: dark)').matches) {
          document.documentElement.setAttribute('data-theme', 'dark');
         }
-
         /*const toggleSwitch = document.querySelector('.theme-switch');
 
         function switchTheme(e) {
@@ -224,7 +226,6 @@
             }
         }
         toggleSwitch.addEventListener('change', switchTheme, false);*/
-
     </script>
 
 {% endblock javascript %}

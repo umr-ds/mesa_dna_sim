@@ -455,6 +455,7 @@ br {
 
 [data-theme="light"], :root {
     --primary-bg-color: #f5f5f5;
+    --footer-bg-color: #fff;
     --primary-color: #757763;
     --primary-color-placeholder: rgba(54,54,54,.3);
     --primary-box-bg-color: #ffffff;
@@ -482,8 +483,13 @@ br {
     background-color: var(--overlay-bg-color) !important;
 }
 
-.hero-head, .hero-body, .footer {
+.hero-head, .hero-body {
     background-color: var(--primary-bg-color);
+    color: var(--primary-color) !important;
+}
+
+.footer {
+    background-color: var(--footer-bg-color) !important;
     color: var(--primary-color) !important;
 }
 

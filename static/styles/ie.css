@@ -1,0 +1,17 @@
+.hero.is-halfheight .hero-body, .hero.is-fullheight .hero-body, .hero.is-fullheight-with-navbar .hero-body {
+    display: block
+}
+
+.github-fork-ribbon.left-bottom, .github-fork-ribbon.right-bottom {
+    bottom: auto;
+}
+
+.hero-body {
+    flex: 1 1 auto;
+    min-height: 73.45vh;
+}
+
+.hero.is-light.is-fullheight {
+    height: 100%;
+    min-height: 100%;
+}
