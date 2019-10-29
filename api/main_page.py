@@ -1,23 +1,30 @@
+import datetime
 import re
 import time
 
-from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify
+from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory, \
+    current_app
+from flask_cors import cross_origin
 from sqlalchemy import desc, or_, and_, asc
+
 from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
-from api.apikey import require_apikey
+from api.apikey import require_apikey, create_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
     MethodCategories, SequencingErrorRates, PcrErrorRates, StorageErrorRates
 from usersettings.delete import removeUser
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
+from api.RedisStorage import get_keys, get_expiration_time, set_expiration_time, read_from_redis, read_all_from_redis
 
 main_page = Blueprint("main_page", __name__, template_folder="templates")
 
 
 @main_page.route("/")
 def main_index():
+    if check_existing_users():
+        return redirect(url_for("main_page.setup"))
     return render_template('index.html'), 200
 
 
@@ -40,7 +47,7 @@ def home():
 def check_existing_users():
     # TODO maybe use different way to find out if we are in setup mode or not.
     users = User.query.all()
-    return len(users) == 1 and users[0].id == 0
+    return len(users) == 1 and users[0].user_id == 0
 
 
 @main_page.route("/setup", methods=["GET", "POST"])
@@ -58,6 +65,7 @@ def setup():
             db.session.commit()
             session['user_id'] = new_admin.user_id
             flash("Admin-Account created. Enjoy the Software.")
+            return redirect(url_for("main_page.main_index"))
     else:
         return redirect(url_for("main_page.main_index"))
 
@@ -92,6 +100,9 @@ def manage_users():
             user.is_admin = is_admin
             db.session.add(user)
             db.session.commit()
+            keys = Apikey.query.filter_by(owner_id=user.user_id).all()
+            if len(keys) == 0 and user.validated:
+                create_apikey(user.user_id)
             return jsonify({'did_succeed': True})
         return jsonify({'did_succeed': False})
 
@@ -100,6 +111,9 @@ def manage_users():
 # @require_logged_in
 @require_admin
 def adminpage():
+    today = time.time()
+    prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
+                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*')]
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -142,10 +156,13 @@ def adminpage():
 
     users = User.query.order_by(
         asc(User.user_id)).all()
+
+    types = MethodCategories.query.order_by(asc(MethodCategories.method)).all()
+
     return render_template('admin_page.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
                            storage_errors=storage_id_out, pcr_errors=pcr_id_out,
                            graph_errors=graph_errors, usubsequence=undesired_sub_seq, default_eobj=default_eobj,
-                           host=request.url_root, users=users), 200
+                           host=request.url_root, users=users, prev_results=prev_results, types=types), 200
 
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -159,6 +176,9 @@ def profile():
     """
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
+    today = time.time()
+    prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
+                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*_' + str(user_id))]
     if request.method == "POST":
         if "new_email" in request.form:
             new_email = request.form["new_email"]
@@ -187,7 +207,7 @@ def profile():
                     return render_template('profile.html')
     if user_id and user:
         keys = Apikey.query.filter_by(owner_id=user_id).all()
-        return render_template('profile.html', apikeys=keys, current_email=user.email)
+        return render_template('profile.html', apikeys=keys, current_email=user.email, prev_results=prev_results)
     return render_template('profile.html')
 
 
@@ -217,7 +237,11 @@ def query_sequence():
         apikey = Apikey.query.filter_by(owner_id=0).first().apikey
     else:
         user_id = int(user_id)
-        apikey = Apikey.query.filter_by(owner_id=user_id).first().apikey
+        apikey = Apikey.query.filter_by(owner_id=user_id).first()
+        if apikey is not None:
+            apikey = apikey.apikey
+        else:
+            apikey = "NO APIKEY ACTIVE!"
     undesired_sub_seq = UndesiredSubsequences.query.filter(
         or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -231,7 +255,7 @@ def query_sequence():
                            usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
                            gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
                            homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
-                                               homopolymer_charts])
+                                               homopolymer_charts], mail_enabled=current_app.config['MAIL_ENABLED'])
 
 
 @main_page.route("/settings", methods=['GET', 'POST'])
@@ -341,7 +365,6 @@ def add_subsequences():
 def request_validation_g_error():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
-    # TODO add validation description!
     e_id = request.json.get('id')
     validation_desc = request.json.get('validation_desc')
     if user_id and user and e_id is not None:
@@ -380,7 +403,6 @@ def request_validation_c_error():
     user = User.query.filter_by(user_id=user_id).first()
     error_method = request.json.get('method')
     validation_desc = request.json.get('validation_desc')
-    # TODO add validation description!
     try:
         q_class = \
             {'synth': SynthesisErrorRates, 'seq': SequencingErrorRates, 'pcr': PcrErrorRates,
@@ -600,14 +622,12 @@ def get_error_prob_charts():
 
 
 @main_page.route("/api/get_error_probs", methods=['GET', 'POST'])
-# @require_logged_in
 def get_synth_error_probs():
     """
     Gets synthesis error probabilities.
     :return:
     """
     user_id = session.get('user_id')
-    user = User.query.filter_by(user_id=user_id).first()
     if request.method == "POST":
         req = request.json
     else:
@@ -622,8 +642,6 @@ def get_synth_error_probs():
              'seq': get_error_probs_dict(SequencingErrorRates, user_id, flat, methods),
              'pcr': get_error_probs_dict(PcrErrorRates, user_id, flat, methods),
              'storage': get_error_probs_dict(StorageErrorRates, user_id, flat, methods), 'methods': methods})
-        # else:
-        #    return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
 
@@ -652,121 +670,14 @@ def get_error_probs_dict(error_model, user_id, flat, methods):
             x['name'] = "None"
         x['is_owner'] = int(x['user_id']) == user_id
         if not flat:
-            # x.pop('correction_id')
             x.pop('user_id')
         else:
             x['method'] = methods
         x['id'] = int(x['id'])
         x['validated'] = bool(x['validated'])
+        x['type'] = error_model.__name__.split("Error")[0].lower()
         db_result[meth_str].append(x)
     return db_result
-
-
-"""
-@main_page.route("/api/add_seq_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def add_seq_error_probs():
-    "
-    Adds sequencing error probabilities.
-    :return:
-    "
-    try:
-        user_id = session.get('user_id')
-        user = User.query.filter_by(user_id=user_id).first()
-        synth_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
-        if user_id and user and synth_conf is not None:
-            # synth_conf = json.loads(synth_data)
-            err_data = floatify(synth_conf['err_data'])
-            err_attributes = floatify(synth_conf['err_attributes'])
-            name = sanitize_input(synth_conf['name'])
-            new_seq = SequencingErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                           err_data=err_data, err_attributes=err_attributes)
-            db.session.add(new_seq)
-            db.session.commit()
-            res = {'did_succeed': True, 'id': new_seq.id}
-
-            if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_seq.as_dict(), host=request.url_root,
-                                                 mode='seq')
-            else:
-                res['content'] = new_seq.as_dict()
-            return jsonify(res)
-        return jsonify({'did_succeed': False})
-    except Exception as x:
-        return jsonify({'did_succeed': False})
-
-
-@main_page.route("/api/add_synth_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def add_synth_error_probs():
-    "
-    Adds synthesis error probabilities.
-    :return:
-    "
-    try:
-        user_id = session.get('user_id')
-        user = User.query.filter_by(user_id=user_id).first()
-        synth_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
-        if user_id and user and synth_conf is not None:
-            # synth_conf = json.loads(synth_data)
-            err_data = floatify(synth_conf['err_data'])
-            err_attributes = floatify(synth_conf['err_attributes'])
-            name = sanitize_input(synth_conf['name'])
-
-            new_synth = SynthesisErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                            err_data=err_data, err_attributes=err_attributes)
-
-            db.session.add(new_synth)
-            db.session.commit()
-            res = {'did_succeed': True, 'id': new_synth.id}
-
-            if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_synth.as_dict(), host=request.url_root,
-                                                 mode='synth')
-            else:
-                res['content'] = new_synth.as_dict()
-            return jsonify(res)
-        return jsonify({'did_succeed': False})
-    except Exception as x:
-        return jsonify({'did_succeed': False})
-
-
-@main_page.route("/api/add_pcr_error_probs", methods=['GET', 'POST'])
-@require_logged_in
-def add_pcr_error_probs():
-    ""
-    Adds synthesis error probabilities.
-    :return:
-    ""
-    try:
-        user_id = session.get('user_id')
-        user = User.query.filter_by(user_id=user_id).first()
-        pcr_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
-        if user_id and user and pcr_conf is not None:
-            err_data = floatify(pcr_conf['err_data'])
-            err_attributes = floatify(pcr_conf['err_attributes'])
-            name = sanitize_input(pcr_conf['name'])
-
-            new_pcr = PcrErrorRates(method_id=0, user_id=user_id, validated=False, name=name,
-                                    err_data=err_data, err_attributes=err_attributes)
-
-            db.session.add(new_pcr)
-            db.session.commit()
-            res = {'did_succeed': True, 'id': new_pcr.id}
-
-            if asHTML is not None and asHTML:
-                res['content'] = render_template('error_probs.html', e_obj=new_pcr.as_dict(), host=request.url_root,
-                                                 mode='pcr')
-            else:
-                res['content'] = new_pcr.as_dict()
-            return jsonify(res)
-        return jsonify({'did_succeed': False})
-    except Exception as x:
-        return jsonify({'did_succeed': False})
-"""
 
 
 @main_page.route("/api/add_<mode>_error_probs", methods=['GET', 'POST'])
@@ -852,13 +763,18 @@ def update_synth_error_probs(mode):
             name = sanitize_input(data_conf['name'])
             copy = bool(request.json.get('copy'))
             id = int(data_conf['id'])
+            m_id = 0
+            try:
+                m_id = int(data_conf['type'])
+            except:
+                m_id = 0
             if user.is_admin:
                 curr_synth = choose.query.filter_by(id=id).first()
             else:
                 curr_synth = choose.query.filter_by(user_id=user_id, id=id).first()
 
             if curr_synth is None or copy:
-                curr_synth = choose(method_id=0, user_id=user_id, validated=False, name=name,
+                curr_synth = choose(method_id=m_id, user_id=user_id, validated=False, name=name,
                                     err_data=err_data, err_attributes=err_attributes)
                 db.session.add(curr_synth)
             else:
@@ -866,6 +782,7 @@ def update_synth_error_probs(mode):
                 curr_synth.name = name
                 curr_synth.err_data = err_data
                 curr_synth.err_attributes = err_attributes
+                curr_synth.method_id = m_id
             db.session.commit()
             return jsonify({'did_succeed': True})
         except Exception as x:
@@ -903,6 +820,12 @@ def delete_synth(mode):
         return jsonify({'did_succeed': False, 'deleted_id': synth_id})
 
 
+@main_page.route('/swagger.json')
+@cross_origin()
+def send_js():
+    return send_from_directory('', 'swagger.json')
+
+
 def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
     result = re.sub(regex, "", input)
     return result
@@ -911,3 +834,40 @@ def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
 def get_admin_mails():
     admins = User.query.filter_by(is_admin=True).all()
     return [x.mail for x in admins]
+
+
+@require_admin
+@main_page.route('/remove_result', methods=['POST'])
+def remove_uuid():
+    """
+    Deletion of undesired subsequences in the Simulation Settings.
+    :return:
+    """
+    r_method = request.json
+    uuid = r_method.get('uuid')
+    delete_all = r_method.get('delete_all')
+    user_id = session.get('user_id')
+    try:
+        if uuid is None:
+            raise Exception()
+        do_delete = bool(r_method.get('do_delete'))
+    except:
+        return jsonify({'did_succeed': False, 'uuid': uuid}), 400
+    user = User.query.filter_by(user_id=user_id).first()
+    if user.is_admin and delete_all and do_delete:
+        [set_expiration_time(x, 0) for x in get_keys('*')]
+        return jsonify({'did_succeed': True, 'uuid': uuid})
+    elif delete_all and do_delete:
+        keys = get_keys('USER_*-*_' + str(user.user_id))
+        keys = keys + [str(x).split("_")[1] for x in keys]
+        [set_expiration_time(x, 0) for x in keys]
+        return jsonify({'did_succeed': True, 'uuid': uuid})
+
+    uuuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
+    if do_delete and uuuid_user is not None and (user.user_id == int(uuuid_user) or user.is_admin):
+        # delete
+        set_expiration_time(uuid, 0)
+        set_expiration_time('USER_' + uuid + "_" + str(user_id), 0)
+        return jsonify({'did_succeed': True, 'uuid': uuid})
+    else:
+        return jsonify({'did_succeed': False, 'uuid': uuid}), 400

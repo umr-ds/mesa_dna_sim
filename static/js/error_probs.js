@@ -480,7 +480,8 @@ function sendCustomError(host, method, id) {
         err_attributes: {deletion: deletion, insertion: insertion, mismatch: mismatch},
         err_data: err_data,
         name: synth_name,
-        id: id
+        id: id,
+        type: $('#' + method + '_type_' + id).val()
     };
 
     /* Send to the Server */
@@ -756,7 +757,6 @@ function initACGTSlider(method, elem) {
 
 
 function initMismatchSlider(method, elem) {
-    let etype = elem.getAttribute('data-etype');
     let mID = elem.getAttribute('data-mid'); // e.g. 19_0, 19_1, ...
     let mode = elem.getAttribute('data-mode'); // e.g. seq, synth...
     let dataVals = JSON.parse(elem.getAttribute('data-vals')); //json dict
@@ -794,12 +794,12 @@ function initMismatchSlider(method, elem) {
     });
 
     elem.noUiSlider.on('update', function (values, handle) {
-        let sze = values.length;
+        let len = values.length;
         $('#' + method + '_error_mismatched_seq_prob_' + mID + '_0')[0].value = round(values[0] - 0, 4);
-        for (let x = 1; x < sze; x++) {
+        for (let x = 1; x < len; x++) {
             $('#' + method + '_error_mismatched_seq_prob_' + mID + '_' + x)[0].value = round(values[x] - values[x - 1], 4);
         }
-        $('#' + method + '_error_mismatched_seq_prob_' + mID + '_' + sze)[0].value = round(100 - values[sze - 1], 4);
+        $('#' + method + '_error_mismatched_seq_prob_' + mID + '_' + len)[0].value = round(100 - values[len - 1], 4);
     });
 
     let sze = elem.noUiSlider.get();

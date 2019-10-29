@@ -14,6 +14,7 @@
         <link rel="apple-touch-icon-precomposed" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
         <meta name="msapplication-TileImage" content="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}"/>
         {% if config['DEBUG'] or config['TESTING'] %}
+            <link rel="stylesheet" href="{{ url_for('static',filename='styles/gh-fork-ribbon.css') }}" />
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/bulma.min.css') }}>
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/infobox.css') }}>
             <link rel="stylesheet" type="text/css"
@@ -28,6 +29,9 @@
         {% else %}
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
         {% endif %}
+        {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/ie.css') }}>
+        {%  endif %}
     {% endblock %}
 </head>
 
@@ -77,6 +81,9 @@
             </div>
         </nav>
     </div>
+    {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
+        <div class="warning">You are using an outdated Browser! This might decrease the performance and affect general usability.</div>
+    {% endif %}
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <ul>
@@ -86,6 +93,12 @@
             </ul>
         {% endif %}
     {% endwith %}
+    <ul>
+        <div class="limit_char" style="display:none" id="limit_1">The sequence is longer than 1.000 bases. Max. Expect is unchecked now and your results will be send to your E-Mail.</div>
+    </ul>
+    <ul>
+        <div class="limit_char" style="display:none" id="limit_2">The sequence is longer than 4.000 bases. Max. Expect is disabled now and your results will be send to your E-Mail. </div>
+    </ul>
     <div class="hero-body" id="main-body">
         <div class="container has-text-centered">
             <div class="container has-text-centered" id="error-container">
@@ -94,48 +107,31 @@
             {% endblock %}
         </div>
     </div>
-    <footer class="footer" style="border-top: 3px solid #ad9843;">
+    <footer class="footer" style="border-top: 3px solid #ad9843; padding-bottom: 9px;">
         {% block footer %}
+            <a class="github-fork-ribbon left-bottom bottom" id="fork-me-ribbon" href="https://github.com/umr-ds/dna_sim" data-ribbon="Fork me on GitHub" title="Fork me on GitHub">Fork me on GitHub</a>
             <div class="content has-text-centered">
                 <div class="content is-small is-text" style="color: black">© 2019 MOSLA</div>
                 <div class="columns is-centered no-margin-bottom">
-                    <!--<div class="column content is-centered is-2 no-margin-bottom">
-                        <figure class="is-centered">
-                            <a href="http://www.mosla.de/"
-                               aria-label="MOSLA" style="font-weight:bold;">
-                                <img style="height: 60px" src="{{ url_for('static',filename='img/logo_mosla_rgb.png') }}"
-                                     alt="mosla.de"/>
-                            </a>
-                        </figure>
-                    </div>-->
                     <div class="column content is-centered is-3 no-margin-bottom">
                         <figure class="is-centered">
-                            <!--<a href="https://uni-marburg.de"
-                               aria-label="Uni Marburg" style="font-weight:bold;">-->
                             <img style="height: 60px; min-width:174px"
                                  src="{{ url_for('static',filename='img/umr.png') }}"
                                  alt="uni-marburg.de"/>
-                            <!--</a>-->
                         </figure>
                     </div>
                     <div class="column content is-centered is-3 no-margin-bottom">
                         <figure class="is-centered">
-                            <!--<a href="https://uni-giessen.de"
-                               aria-label="Uni Giessen" style="font-weight:bold;">-->
                             <img style="height: 60px; min-width:166px"
                                  src="{{ url_for('static',filename='img/jlu.png') }}"
                                  alt="uni-marburg.de"/>
-                            <!--</a>-->
                         </figure>
                     </div>
                     <div class="column content is-centered is-3 no-margin-bottom">
                         <figure class="is-centered">
-                            <!--<a href="http://www.proloewe.de/"
-                               aria-label="LOEWE" style="font-weight:bold;">-->
                             <img style="height: 60px; min-width:147px"
                                  src="{{ url_for('static',filename='img/loewe.png') }}"
                                  alt="proloewe.de; min-width:145px"/>
-                            <!--</a>-->
                         </figure>
                     </div>
                 </div>
@@ -151,12 +147,91 @@
         <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
     {% endif %}
     <script type="text/javascript">
+    {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
+        function isCrappyIE() {
+            var ua = window.navigator.userAgent;
+            var crappyIE = false;
+            var msie = ua.indexOf('MSIE ');
+            if (msie > 0) {// IE 10 or older => return version number
+                crappyIE = true;
+            }
+            var trident = ua.indexOf('Trident/');
+            if (trident > 0) {// IE 11 => return version number
+                crappyIE = true;
+            }
+            return crappyIE;
+        }
+        if (!String.prototype.startsWith) {
+            String.prototype.startsWith = function (searchString, position) {
+                position = position || 0;
+                return this.substr(position, searchString.length) === searchString;
+            };
+        }
+        if (!Array.prototype.fill) {
+            Object.defineProperty(Array.prototype, 'fill', {
+                value: function (value) {
+
+                    // Steps 1-2.
+                    if (this == null) {
+                        throw new TypeError('this is null or not defined');
+                    }
+
+                    var O = Object(this);
+
+                    // Steps 3-5.
+                    var len = O.length >>> 0;
+
+                    // Steps 6-7.
+                    var start = arguments[1];
+                    var relativeStart = start >> 0;
+
+                    // Step 8.
+                    var k = relativeStart < 0 ?
+                        Math.max(len + relativeStart, 0) :
+                        Math.min(relativeStart, len);
+
+                    // Steps 9-10.
+                    var end = arguments[2];
+                    var relativeEnd = end === undefined ?
+                        len : end >> 0;
+
+                    // Step 11.
+                    var final = relativeEnd < 0 ?
+                        Math.max(len + relativeEnd, 0) :
+                        Math.min(relativeEnd, len);
+
+                    // Step 12.
+                    while (k < final) {
+                        O[k] = value;
+                        k++;
+                    }
+
+                    // Step 13.
+                    return O;
+                }
+            });
+        }
+        {% endif %}
         $(document).ready(function () {
             $(".navbar-burger").click(function () {
                 $(".navbar-burger").toggleClass("is-active");
                 $(".navbar-menu").toggleClass("is-active");
             });
         });
+        if(matchMedia('(prefers-color-scheme: dark)').matches) {
+         document.documentElement.setAttribute('data-theme', 'dark');
+        }
+        /*const toggleSwitch = document.querySelector('.theme-switch');
+
+        function switchTheme(e) {
+            if (e.target.checked) {
+                document.documentElement.setAttribute('data-theme', 'dark');
+            }
+            else {
+                document.documentElement.setAttribute('data-theme', 'light');
+            }
+        }
+        toggleSwitch.addEventListener('change', switchTheme, false);*/
     </script>
 
 {% endblock javascript %}

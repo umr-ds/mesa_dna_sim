@@ -6,7 +6,7 @@ COPY . /dna_sim
 WORKDIR /dna_sim
 
 RUN apt-get update -y \
- && apt-get install --no-install-recommends -y nginx build-essential wget cron swig ghostscript \
+ && apt-get install --no-install-recommends -y nginx build-essential wget cron swig ghostscript libssl-dev libffi-dev python-dev \
  && pip3 install -r requirements.txt --no-cache-dir \
  && wget -O -  https://get.acme.sh | sh \
  && mv nginx.conf /etc/nginx \
@@ -19,7 +19,7 @@ RUN tar -xvf RNAstructureSource.tgz \
  && make all && make python_setup \
  && cd .. \
  && rm RNA*.tgz \
- && apt-get purge -y --auto-remove swig build-essential
+ && apt-get purge -y --auto-remove swig build-essential libssl-dev libffi-dev python-dev
 
 
 # COPY nginx.conf /etc/nginx

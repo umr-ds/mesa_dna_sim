@@ -11,18 +11,19 @@
     "canvas2svg": "^1.0.16",
     "chart.js": "^2.8.0",
     "chartjs-plugin-dragdata": "^0.3.1",
+    "github-fork-ribbon-css": "^0.2.3",
     "jquery": "^3.4.1",
-    "json5": "^2.1.0",
+    "json5": "^2.1.1",
     "letteringjs": "^0.7.0",
-    "nouislider": "^14.0.1",
-    "sortablejs": "^1.10.0",
+    "nouislider": "^14.0.3",
+    "sortablejs": "^1.10.1",
     "uglify-es": "^3.3.9",
     "uglifycss": "0.0.29"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.9.0",
-    "webpack": "^4.19.1",
-    "webpack-cli": "^3.1.0"
+    "@fortawesome/fontawesome-free": "^5.11.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.3.9"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

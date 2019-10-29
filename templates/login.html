@@ -9,7 +9,7 @@
             <form method="POST" action="/login">
                 <div class="field">
                     <div class="control has-icons-left">
-                        <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
+                        <input class="input is-large" type="email" name="email" placeholder="Your Email" required autofocus="">
                         <span class="icon is-small is-left">
                             <i class="fas fa-envelope"></i>
                         </span>
@@ -18,7 +18,7 @@
 
                 <div class="field">
                     <div class="control has-icons-left">
-                        <input class="input is-large" type="password" name="password" placeholder="Your Password">
+                        <input class="input is-large" type="password" name="password" placeholder="Your Password" required>
                         <span class="icon is-small is-left">
                             <i class="fas fa-lock"></i>
                         </span>
@@ -26,7 +26,7 @@
                 </div>
                 <div class="field">
                     <label class="checkbox">
-                        <input type="checkbox">
+                        <input type="checkbox" name="remember">
                         Remember me
                     </label>
                 </div>

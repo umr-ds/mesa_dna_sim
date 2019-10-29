@@ -3,6 +3,9 @@ npm install
 sass --no-source-map node_modules/bulma/sass/mosla.scss:static/styles/bulma.min.css --style compressed
 #sass --no-source-map node_modules/bulma-switch/dist/css/bulma-switch.sass:static/styles/bulma-switch.min.css --style compressed
 
+sed -i -e 's/background-color: #a00/background-color: #7a1219/g' node_modules/github-fork-ribbon-css/gh-fork-ribbon.css
+cp node_modules/github-fork-ribbon-css/gh-fork-ribbon.css static/styles/gh-fork-ribbon.css
+
 cp node_modules/bulma-divider/dist/css/bulma-divider.min.css static/styles/bulma-divider.min.css
 
 cp node_modules/chart.js/dist/Chart.min.js static/js/Chart.min.js
@@ -28,4 +31,4 @@ cd static/js
 
 uglifyjs -c --output all.min.js -- jquery.min.js jquery.lettering.js Chart.min.js chartjs-plugin-dragData.min.js fontawesome.min.js error-chart.js autoscroll.js ajax-api.js index.min.js nouislider.min.js Sortable.min.js error_probs.js
 cd ../styles
-uglifycss --output all.min.css bulma.min.css infobox.css bootstrap-float-label.min.css balloon.min.css Chart.min.css overlay.css nouislider.css bulma-divider.min.css #fontawesome.min.js #bulma-switch.min.css
+uglifycss --output all.min.css bulma.min.css infobox.css bootstrap-float-label.min.css balloon.min.css Chart.min.css gh-fork-ribbon.css overlay.css nouislider.css bulma-divider.min.css #fontawesome.min.js #bulma-switch.min.css

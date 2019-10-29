@@ -7,235 +7,238 @@
     {% include "validation_overlay.html" %}
 
     <h3 class="title">Simulation Settings</h3>
-
-    <hr/>
-    <br/>
-
-    <div>Your custom undesired Subsequences:</div>
-
-    <div class="box is-large">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control" id="existing_subseqs">
-                        {% for subsequence in usubsequence %}
-                            <div class="control has-padding-03" id="subseq_{{ subsequence.id }}">
-                                <table>
-                                    <tr>
-                                        <td style="width:53%"><label class="form-group has-float-label">
-                                            <p class="control has-icons-right">
-                                                <input style="width:100%" class="input is-rounded" type="text"
-                                                       name="sequence"
-                                                       placeholder="" size="50" value="{{ subsequence.sequence }}"
-                                                       required>
-                                                <span class="icon is-right">
-                                                    <i class="fas fa-dna"></i>
-                                                </span>
-                                            </p>
-                                            <span>Sequence</span></label></td>
-                                        <td style="width:15%"><label class="form-group has-float-label">
-                                            <p class="form-group has-float-label">
-                                            <p class="control has-icons-right">
-                                                <input style="width:100%" class="input is-rounded" type="number"
-                                                       name="error_prob"
-                                                       placeholder="" size="30"
-                                                       value="{{ subsequence.error_prob * 100 }}"
-                                                       required min="0.0"
-                                                       max="100.0" step="0.01">
-
-                                                <span class="icon is-right">
-                                                    <i class="fas fa-percentage"></i>
-                                                </span>
-                                            </p>
-                                            <span style="white-space: nowrap;">Error Probability</span>
-                                        </label>
-                                        </td>
-                                        <td style="width:15%"><label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded"
-                                                   type="text" name="description" placeholder="Description"
-                                                   size="20"
-                                                    {% if subsequence.description != None %}
-                                                   value="{{ subsequence.description }}"
-                                                    {% endif %}
-                                                   required><span>Description</span></label></td>
-                                        <td style="width:5%">
-                                            <button class="button"
-                                                data-balloon="{% if subsequence.validated %}Already validated!{% elif subsequence.awaits_validation %}Awaiting validation, you can still update.{% else %}Request validation{% endif %}"
-                                                data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
-                                                {% if subsequence.validated or subsequence.awaits_validation %}disabled{% endif %}
-                                                onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func); return false;">Publish</button>
-                                        </td>
-                                        <td style="width:5%">
-                                            <button class="button"
-                                                    data-balloon="Updating will remove the Validation!"
-                                                    data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
-                                                    onclick="updateSeq('{{ host }}',{{ subsequence.id }}); return false;">
-                                                Update
-                                            </button>
-                                        </td>
-                                        <td style="width:5%">
-                                            <button class="button" id="delete_subseq_{{ subsequence.id }}"
-                                                    data-balloon="Created at: "
-                                                    data-balloon-pos="up"
-                                                    onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                </table>
-                            </div>
-
-                        {% endfor %}
-                    </div>
-                    <div class="control" id="add_subseq">
-                        <table>
-                            <tr>
-                                <td style="width:55%"><label class="form-group has-float-label">
-                                    <p class="control has-icons-right">
-                                        <input class="input is-rounded" type="text" id="addsequence" name="sequence"
-                                               placeholder="Undesired Subsequence" size="58" value=""
-                                               required>
-                                        <span class="icon is-right">
-                                            <i class="fas fa-dna"></i>
-                                        </span>
-                                    </p><span>Sequence</span></label></td>
-                                <td style="width:15%"><label class="form-group has-float-label">
-                                    <p class="form-group has-float-label">
-                                    <p class="control has-icons-right">
-                                        <input class="input is-rounded" type="number" id="errorprob"
-                                               name="error_prob" placeholder="50,0" size="30" value="" required
-                                               min="0.0" max="100.0" step="0.01">
-                                        <span class="icon is-right">
-                                            <i class="fas fa-percentage"></i>
-                                        </span>
-                                    </p>
-                                    <span style="white-space: nowrap;">Error Probability</span>
-                                </label>
-                                </td>
-                                <td style="width:29%"><label class="form-group has-float-label">
-                                    <input class="input is-rounded" type="text" id="description" name="description"
-                                           placeholder="Description" size="31" value=""
-                                           required><span>Description</span></label>
-                                </td>
-                                <br/>
-                                <td style="width:1%">
-                                    <button class="button" id="add_new_subseq" onclick="addSubSeq('{{ host }}'); return false">Add</button>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </form>
+    <div class="tabs is-centered is-boxed is-fullwidth has-no-margin-bottom" id="tabs">
+        <ul>
+            <li class="is-active" data-tab="sub"><a>Undesired motifs</a></li>
+            <li data-tab="syn"><a>Synthesis</a></li>
+            <li data-tab="seq"><a>Sequencing</a></li>
+            <li data-tab="pcr"><a>PCR</a></li>
+            <li data-tab="sto"><a>Storage</a></li>
+        </ul>
     </div>
-    <div>Your custom Synthesis-Errors:</div>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="synth_errors">
-                        {% for error_id in synthesis_errors %}
-                            {% with e_obj=synthesis_errors[error_id], mode='synth' %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
-                 id="new_synthesis_errors">
-                <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                {% with e_obj=default_eobj, mode='synth' %}
-                    {% include "error_probs.html" %}
-                {% endwith %}
-            </div>
-            <div class="field">
-            </div>
-        </form>
-    </div>
-    <div>Your custom Sequencing-Errors:</div>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="seq_errors">
-                        {% for error_id in sequencing_errors %}
-                            {% with e_obj=sequencing_errors[error_id], mode='seq' %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
-                 style="padding-top: 40px;"
-                 id="new_sequencing_errors">
-                <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                {% with e_obj=default_eobj, mode='seq' %}
-                    {% include "error_probs.html" %}
-                {% endwith %}
-            </div>
-            <div class="field">
-            </div>
-        </form>
-    </div>
+    <div id="tab-content">
+        <div class="box is-large is-active" data-content="sub">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control" id="existing_subseqs">
+                            {% for subsequence in usubsequence %}
+                                <div class="control has-padding-03" id="subseq_{{ subsequence.id }}">
+                                    <table>
+                                        <tr>
+                                            <td style="width:53%"><label class="form-group has-float-label">
+                                                <p class="control has-icons-right">
+                                                    <input style="width:100%" class="input is-rounded" type="text"
+                                                           name="sequence"
+                                                           placeholder="" size="50" value="{{ subsequence.sequence }}"
+                                                           required>
+                                                    <span class="icon is-right">
+                                                        <i class="fas fa-dna"></i>
+                                                    </span>
+                                                </p>
+                                                <span>Sequence</span></label></td>
+                                            <td style="width:15%"><label class="form-group has-float-label">
+                                                <p class="form-group has-float-label">
+                                                <p class="control has-icons-right">
+                                                    <input style="width:100%" class="input is-rounded" type="number"
+                                                           name="error_prob"
+                                                           placeholder="" size="30"
+                                                           value="{{ subsequence.error_prob * 100 }}"
+                                                           required min="0.0"
+                                                           max="100.0" step="0.01">
 
-    <div>Your custom PCR-Errors:</div>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="pcr_errors">
-                        {% for error_id in pcr_errors %}
-                            {% with e_obj=pcr_errors[error_id], mode='pcr' %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
-                    </div>
-                </div>
-            </div>
-            <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
-                 style="padding-top: 40px;"
-                 id="new_pcr_errors">
-                <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                {% with e_obj=default_eobj, mode='pcr' %}
-                    {% include "error_probs.html" %}
-                {% endwith %}
-            </div>
-            <div class="field">
-            </div>
-        </form>
-    </div>
+                                                    <span class="icon is-right">
+                                                        <i class="fas fa-percentage"></i>
+                                                    </span>
+                                                </p>
+                                                <span style="white-space: nowrap;">Error Probability</span>
+                                            </label>
+                                            </td>
+                                            <td style="width:15%"><label class="form-group has-float-label">
+                                                <input style="width:100%" class="input is-rounded"
+                                                       type="text" name="description" placeholder="Description"
+                                                       size="20"
+                                                        {% if subsequence.description != None %}
+                                                       value="{{ subsequence.description }}"
+                                                        {% endif %}
+                                                       required><span>Description</span></label></td>
+                                            <td style="width:5%">
+                                                <button class="button"
+                                                        data-balloon="{% if subsequence.validated %}Already validated!{% elif subsequence.awaits_validation %}Awaiting validation, you can still update.{% else %}Request validation{% endif %}"
+                                                        data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
+                                                        {% if subsequence.validated or subsequence.awaits_validation %}disabled{% endif %}
+                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func); return false;">
+                                                    Publish
+                                                </button>
+                                            </td>
+                                            <td style="width:5%">
+                                                <button class="button"
+                                                        data-balloon="Updating will remove the Validation!"
+                                                        data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
+                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); return false;">
+                                                    Update
+                                                </button>
+                                            </td>
+                                            <td style="width:5%">
+                                                <button class="button" id="delete_subseq_{{ subsequence.id }}"
+                                                        data-balloon="Created at: "
+                                                        data-balloon-pos="up"
+                                                        onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
+                                                    Delete
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    </table>
+                                </div>
 
-    <div>Your custom Storage-Errors:</div>
-    <div class="box is-large" style="padding-top: 35px; padding-bottom: 5px">
-        <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
-            <div class="field">
-                <div class="control">
-                    <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
-                         id="storage_errors">
-                        {% for error_id in storage_errors %}
-                            {% with e_obj=storage_errors[error_id], mode='storage' %}
-                                {% include "error_probs.html" %}
-                            {% endwith %}
-                        {% endfor %}
+                            {% endfor %}
+                        </div>
+                        <div class="control" id="add_subseq">
+                            <table>
+                                <tr>
+                                    <td style="width:55%"><label class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input class="input is-rounded" type="text" id="addsequence" name="sequence"
+                                                   placeholder="Undesired Subsequence" size="58" value=""
+                                                   required>
+                                            <span class="icon is-right">
+                                                <i class="fas fa-dna"></i>
+                                            </span>
+                                        </p><span>Sequence</span></label></td>
+                                    <td style="width:15%"><label class="form-group has-float-label">
+                                        <p class="form-group has-float-label">
+                                        <p class="control has-icons-right">
+                                            <input class="input is-rounded" type="number" id="errorprob"
+                                                   name="error_prob" placeholder="50,0" size="30" value="" required
+                                                   min="0.0" max="100.0" step="0.01">
+                                            <span class="icon is-right">
+                                                <i class="fas fa-percentage"></i>
+                                            </span>
+                                        </p>
+                                        <span style="white-space: nowrap;">Error Probability</span>
+                                    </label>
+                                    </td>
+                                    <td style="width:29%"><label class="form-group has-float-label">
+                                        <input class="input is-rounded" type="text" id="description" name="description"
+                                               placeholder="Description" size="31" value=""
+                                               required><span>Description</span></label>
+                                    </td>
+                                    <br/>
+                                    <td style="width:1%">
+                                        <button class="button" id="add_new_subseq"
+                                                onclick="addSubSeq('{{ host }}'); return false">Add
+                                        </button>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
-                 style="padding-top: 40px;"
-                 id="new_storage_errors">
-                <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                {% with e_obj=default_eobj, mode='storage' %}
-                    {% include "error_probs.html" %}
-                {% endwith %}
-            </div>
-            <div class="field">
-            </div>
-        </form>
+            </form>
+        </div>
+        <div class="box is-large" data-content="syn" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="synth_errors">
+                            {% for error_id in synthesis_errors %}
+                                {% with e_obj=synthesis_errors[error_id], mode='synth' %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
+                     id="new_synthesis_errors">
+                    <div class="subtitle has-text-centered button-fill">Add new Rule</div>
+                    {% with e_obj=default_eobj, mode='synth' %}
+                        {% include "error_probs.html" %}
+                    {% endwith %}
+                </div>
+                <div class="field">
+                </div>
+            </form>
+        </div>
+        <div class="box is-large" data-content="seq" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="seq_errors">
+                            {% for error_id in sequencing_errors %}
+                                {% with e_obj=sequencing_errors[error_id], mode='seq' %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
+                     style="padding-top: 40px;"
+                     id="new_sequencing_errors">
+                    <div class="subtitle has-text-centered button-fill">Add new Rule</div>
+                    {% with e_obj=default_eobj, mode='seq' %}
+                        {% include "error_probs.html" %}
+                    {% endwith %}
+                </div>
+                <div class="field">
+                </div>
+            </form>
+        </div>
+        <div class="box is-large" data-content="pcr" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="pcr_errors">
+                            {% for error_id in pcr_errors %}
+                                {% with e_obj=pcr_errors[error_id], mode='pcr' %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
+                     style="padding-top: 40px;"
+                     id="new_pcr_errors">
+                    <div class="subtitle has-text-centered button-fill">Add new Rule</div>
+                    {% with e_obj=default_eobj, mode='pcr' %}
+                        {% include "error_probs.html" %}
+                    {% endwith %}
+                </div>
+                <div class="field">
+                </div>
+            </form>
+        </div>
+        <div class="box is-large" data-content="sto" style="padding-top: 35px; padding-bottom: 5px">
+            <form method="POST" action="{{ url_for('main_page.undesired_subsequences') }}">
+                <div class="field">
+                    <div class="control">
+                        <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
+                             id="storage_errors">
+                            {% for error_id in storage_errors %}
+                                {% with e_obj=storage_errors[error_id], mode='storage' %}
+                                    {% include "error_probs.html" %}
+                                {% endwith %}
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+                <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
+                     style="padding-top: 40px;"
+                     id="new_storage_errors">
+                    <div class="subtitle has-text-centered button-fill">Add new Rule</div>
+                    {% with e_obj=default_eobj, mode='storage' %}
+                        {% include "error_probs.html" %}
+                    {% endwith %}
+                </div>
+                <div class="field">
+                </div>
+            </form>
+        </div>
     </div>
 {% endblock %}
 
@@ -249,6 +252,17 @@
     {% endif %}
     <script>
 
+        $(document).ready(function () {
+            $('#tabs li').on('click', function () {
+                var tab = $(this).data('tab');
+
+                $('#tabs li').removeClass('is-active');
+                $(this).addClass('is-active');
+
+                $('#tab-content div').removeClass('is-active');
+                $('div[data-content="' + tab + '"]').addClass('is-active');
+            });
+        });
 
         $('[id^="delete_subseq_"]').each(function () {
             $(this).click(function (event) {

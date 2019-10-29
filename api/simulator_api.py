@@ -21,7 +21,7 @@ import redis
 from flask import jsonify, request, Blueprint, current_app, copy_current_request_context, make_response
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
-from api.apikey import require_apikey
+from api.apikey import require_apikey, query_apikey, owner_for_key
 from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, StorageErrorRates, Apikey, User
 from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
@@ -36,7 +36,7 @@ from api.main_page import sanitize_input
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
 
-@simulator_api.errorhandler(Exception)
+#@simulator_api.errorhandler(Exception)
 def handle_error(ex):
     code = 500
 
@@ -365,7 +365,7 @@ def do_all_wrapper():
         if r_res is not None:
             return jsonify(json.loads(r_res))
         elif 'sequence' not in r_method:
-            return jsonify({"did_succeed": False})
+            return jsonify({"did_succeed": False}), 404
     # TODO estimate time needed
     send_via_mail = r_method.get('send_mail')
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
@@ -403,25 +403,16 @@ def do_all(r_method):
     kmer_window = r_method.get('kmer_windowsize')
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
-    # seq_meth = r_method.get('sequence_method')
-    # seq_meth_conf = r_method.get('sequence_method_conf')
-    # synth_meth = r_method.get('synthesis_method')
-    # synth_meth_conf = r_method.get('synthesis_method_conf')
-    # pcr_meth = r_method.get('pcr_method')
-    # cycles = r_method.get('pcr_cycles')
-    # pcr_meth_conf = r_method.get('pcr_method_conf')
-    # storage_meth = r_method.get('storage_method')
-    # months = r_method.get('storage_months')
-    # storage_meth_conf = r_method.get('storage_method_conf')
-
     err_simulation_order = r_method.get('err_simulation_order')
 
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
     use_error_probs = r_method.get('use_error_probs')
-    seed = r_method.get('random_seed')
-    seed = np.uint32(np.float(seed) % 4294967296) if seed else None
+    org_seed = r_method.get('random_seed')
+    if org_seed == "":
+        org_seed = int(np.random.randint(0, 4294967295, dtype=np.uint32))
+    seed = np.uint32(np.float(org_seed) % 4294967296) if org_seed else None
     do_max_expect = bool(r_method.get('do_max_expect', False))
     temp = float(r_method.get('temperature', 310.15))
     as_html = r_method.get('asHTML', False)
@@ -429,13 +420,13 @@ def do_all(r_method):
     if type(sequences) == str:
         sequences = [sequences]
     # calculating all the different error probabilities and adding them to res
+    pool = ThreadPool(processes=1)
     for sequence in sequences:
         basefilename = uuid.uuid4().hex
-        pool = ThreadPool(processes=1)
+
         async_res = None
         if do_max_expect:
             async_res = pool.apply_async(threaded_create_max_expect, (sequence, basefilename, temp))
-        pool.close()
         if enabled_undesired_seqs:
             try:
                 undesired_sequences = {}
@@ -505,11 +496,8 @@ def do_all(r_method):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['Process'], seed=seed, conf=meth['conf'],
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed, conf=meth['conf'],
                                   cycles=inner_cycles) + 1) % 4294967296
-
-            # pcr_error(g.graph.nodes[0]['seq'], g, pcr_meth, process="pcr", seed=seed, conf=pcr_meth_conf, cycles=cycles)
-            # storage_error(g.graph.nodes[0]['seq'], g, storage_meth, process="storage", seed=seed, conf=storage_meth_conf, months=months)
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:
@@ -544,7 +532,7 @@ def do_all(r_method):
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': str(seed),
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': org_seed,
                            'maxexpectid': basefilename, 'dot_seq': "<pre>" + plain_dot + "</pre>"},
                    'uuid': uuid_str, 'sequence': sequence}
         elif not as_html:
@@ -556,15 +544,18 @@ def do_all(r_method):
 
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
+        owner_id = owner_for_key(r_method['key'])
         r_method.pop('key')  # drop key from stored fields
         try:
             r_method.pop('email')
         except:
             pass
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000)
+            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000,
+                          user=owner_id)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
+    pool.close()
     return jsonify(res_all)
 
 
@@ -582,11 +573,14 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
     """
     for entry in data:
         data_tmp = data.get(entry)
-        if type(data_tmp) == list:
+        if type(data_tmp) == list and entry == 'sequence':
+            for x in data_tmp:
+                data.update({entry: sanitize_input(x.upper(), bases)})
+        elif type(data_tmp) == list:
             for x in data_tmp:
                 sanitize_json(x, max_y=max_y, max_x=max_x)
         elif type(data_tmp) == dict:
-            if entry == "gc_error_prob" or entry == "homopolymer_error_prob" or entry == "kmer_error_prob" or entry == 'error_prob':
+            if entry == "gc_error_prob" or entry == "homopolymer_error_prob" or entry == "kmer_error_prob":
                 sanitize_json(data_tmp, max_y=data_tmp.get('maxY', 100.0), max_x=data_tmp.get('maxX', 100.0))
                 max_x = max_y = 100.0
             elif entry == "err_data":

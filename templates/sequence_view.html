@@ -7,7 +7,7 @@
 
     <div class="control" id="overlay">
         <div class="box container is-fluid is-fluid-mobile overlay-all">
-            <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
+            <a href="javascript:void(0)" class="delete is-large is-pulled-right" onclick="closeOverlay()">&times;</a>
             <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
                  id="overlay-content">
                 <canvas id="myChart"></canvas>
@@ -174,7 +174,7 @@
                 </div>
                 <div class="column is-full">
                     <div class="columns">
-                        <div class="column is-1">
+                        <div class="column is-1 is-hidden">
                             <p style="font-size:12px;">ACGT only</p>
                             <label data-balloon="Limit Alphabet"
                                    data-balloon-pos="right">
@@ -183,7 +183,7 @@
                                 <label for="limitedChars" class="no-outline"></label>
                             </label>
                         </div>
-                        <div class="column">
+                        <div class="column has-no-padding-bottom">
                             <div class="field">
                                 <div class="control">
                                     <label class="form-group has-float-label">
@@ -208,6 +208,17 @@
                     <div class="spoiler">
                         <h3>Changes here wont be saved in your profile!</h3>
                         <br/>
+                        <div class="columns">
+                            <div class="column">
+                                <label>
+                                    <input type="checkbox" aria-label="Enable all motifs" id="enable_all" checked=""
+                                           class="switch is-rounded button-fill is-large no-outline is-pulled-left"
+                                           name="enable_all" onclick="let en = 'enabled'; $('[id^=en]').each(function (e, elem) {
+                                            $(elem).prop('checked', $('#enable_all').prop('checked'));});">
+                                    <label for="enable_all" class="no-outline is-pulled-left">All</label>
+                                </label>
+                            </div>
+                        </div>
                         <div style="text-align: left">Enabled:</div>
                         <div id="subseq-container">
                             {% for subsequence in usubsequence %}
@@ -273,10 +284,10 @@
                     </div>
                 </div>
                 <div class="column is-full is-full-touch">
-                    <div class="columns is-multiline is-gapless">
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-2 is-full-mobile is-pulled-left">
+                    <div class="columns is-multiline has-no-padding-bottom">
+                        <div class="column is-full has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-2 is-full-mobile is-pulled-left has-no-padding-right">
                                     <label class="form-group has-float-label">
                                         <input class="input is-rounded" type="number" id="gc_window_size"
                                                placeholder=""
@@ -306,9 +317,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-2 is-full-mobile is-pulled-left">
+                        <div class="column is-full has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-2 is-full-mobile is-pulled-left has-no-padding-right">
                                     <label class="form-group has-float-label">
                                         <input class="input is-rounded" type="number" id="kmer_window_size"
                                                placeholder=""
@@ -338,9 +349,9 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="column is-full">
-                            <div class="columns is-gapless">
-                                <div class="column is-2">
+                        <div class="column is-full has-no-padding-bottom">
+                            <div class="columns">
+                                <div class="column is-2 has-no-padding-right">
                                     <p style="font-size:12px">Calculated Error Prob.</p>
                                     <label data-balloon="Use Calculated Error Probabilities" data-balloon-pos="left">
                                         <input type="checkbox" aria-label="Use Calculated Error Probabilities"
@@ -395,9 +406,10 @@
                 </div>
                 <div class="column is-full has-no-padding-top has-no-padding-bottom">
                     <div class="is-divider" data-content="Error Simulation"></div>
+
                 </div>
                 <div class="column is-full is-full-touch">
-                    <div class="columns is-gapless" id="advancedcontainer">
+                    <div class="columns is-gapless" id="advancedcontainer" style="margin-bottom: 0;">
                         <div class="column is-2 is-full-mobile has-no-padding-right has-no-padding-top "
                              style="margin-top: 1.0rem">
                             <div class="columns is-multiline">
@@ -432,7 +444,7 @@
                         </div>
                         <div id="classic_err_settings" class="column">
                             <div class="columns is-multiline">
-                                <div id="classic_synth" class="column is-full">
+                                <div id="classic_synth" class="column is-full has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <label class="form-group has-float-label" aria-label="Synthesis Method">
                                             <select class="select" id="classic_synthmeth">
@@ -463,7 +475,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="column is-two-fifths is-full-mobile">
+                                <div class="column is-two-fifths is-full-mobile has-no-padding-bottom has-no-padding-right">
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
@@ -474,7 +486,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="column is-three-fifths is-full-mobile">
+                                <div class="column is-three-fifths is-full-mobile has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -490,7 +502,7 @@
                                         </label>
                                     </div>
                                 </div>
-                                <div class="column is-two-fifths is-full-mobile">
+                                <div class="column is-two-fifths is-full-mobile has-no-padding-bottom has-no-padding-right">
                                     <div class="field">
                                         <div class="control">
                                             <label class="form-group has-float-label">
@@ -501,7 +513,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="column is-three-fifths is-full-mobile">
+                                <div class="column is-three-fifths is-full-mobile has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -519,7 +531,7 @@
                                     </div>
                                 </div>
 
-                                <div id="classic_seq" class="column is-full">
+                                <div id="classic_seq" class="column is-full has-no-padding-bottom">
                                     <div class="select is-fullwidth is-primary is-rounded">
                                         <!-- values 1-7 correspond to the submethod id in the database -->
                                         <!-- I either have to change the database entries for 0, 8 and 9 -->
@@ -552,7 +564,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div id="adv_err_settings" class="column" style="display: none">
+                        <div id="adv_err_settings" class="column" style="display: none; position: relative">
                             <div class="columns is-multiline">
                                 <div id="adv_synth" class="column is-full-mobile is-half">
                                     <label for="synthmeth"><p>Synthesis Methods</p></label>
@@ -623,11 +635,11 @@
                                 <div id="adv_exec_trash" class="column is-full">
                                     <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>
                                 </div>
-                                <div class="tooltip" data-position="lower">?
-                                    <span class="tooltiptext">Use Enter to add the selected method to the execution order
-                                    and Del to delete the selected method from it. On some browsers drag&drop also works.</span>
-                                </div>
                             </div>
+                            <div class="tooltip" data-position="lower">?
+                            <span class="tooltiptext">Use Enter to add the selected method to the execution order
+                                    and Del to delete the selected method from it. On some browsers drag&amp;drop also works.</span>
+                        </div>
                         </div>
                     </div>
                     <div class="columns is-gapless is-centered" id="informationcontainer">
@@ -708,7 +720,7 @@
 
 
             <div class="columns has-no-padding-top">
-                <div class="column is-1">
+                <div class="column is-1 has-no-padding-bottom" id="email_container">
                     <p style="font-size:12px;">Send E-Mail</p>
                     <label data-balloon="{% if user_id == None %}Type in an email address to use this feature{% else %}Send Result via E-Mail{% endif %}"
                            data-balloon-pos="right">
@@ -719,14 +731,15 @@
                         <!-- {% if user_id == None %}disabled{% endif %} -->
                     </label>
                 </div>
-                <div class="column button-fill">
-                    <button class="button is-block is-info-deactivated is-large is-fullwidth has-margin-top-20"
+                <div class="column button-fill has-no-padding-bottom">
+                    <button class="button is-block is-info-deactivated is-large is-fullwidth"
                             id="submit_seq_btn">Submit
                     </button>
                 </div>
             </div>
             <div>
-                <label for="emailadd"></label><input class="input" type="email" name="emailadd" id="emailadd" placeholder="Email"
+                <label for="emailadd"></label><input class="input" type="email" name="emailadd" id="emailadd"
+                                                     placeholder="Email"
                                                      style="display:none;">
             </div>
         </form>
@@ -830,7 +843,6 @@
                 worry, the results will be send to your E-Mail.</h3>
         </div>
     </div>
-    <!--{{ apikey }}-->
 
 {% endblock %}
 
@@ -845,7 +857,6 @@
         <script src={{ url_for('static',filename='js/autoscroll.js') }}></script>
         <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
         <script src={{ url_for('static',filename='js/index.min.js') }}></script>
-        <script src="https://cdn.jsdelivr.net/npm/jquery-sortablejs@latest/jquery-sortable.js"></script>
     {% endif %}
 
     <script>
@@ -885,7 +896,7 @@
             let chart = $('#myChart');
             chart.dblclick(function (e) {
                 //getting value by pressing on dataset
-                curr_chart.data.datasets.forEach((dataset) => {
+                curr_chart.data.datasets.forEach(function (dataset) {
                     for (let scaleName in curr_chart.scales) {
                         let scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {
@@ -894,7 +905,7 @@
                             valueY = Math.max(Math.min(round(scale.getValueForPixel(event.offsetY), yRoundingFactor), maximumY), 0);
                         }
                     }
-                    curr_chart.data.datasets.forEach((dataset) => {
+                    curr_chart.data.datasets.forEach(function (dataset) {
                         dataset.data.push({x: valueX, y: valueY});
                     });
                     dataset.data.sort(function (a, b) {
@@ -905,7 +916,7 @@
                 curr_chart.update();
             });
             chart.click(function (e) {
-                curr_chart.data.datasets.forEach((dataset) => {
+                curr_chart.data.datasets.forEach(function (dataset) {
                     for (let scaleName in curr_chart.scales) {
                         let scale = curr_chart.scales[scaleName];
                         if (scale.isHorizontal()) {
@@ -959,5 +970,9 @@
         initListsDnD();
         adv_exec.hide();
         //initListsDnD();
+        {% if not mail_enabled %}
+            $('#email_container').hide();
+            showWarn("Support for E-Mail disabled &ndash; you wont be able to receive any E-Mails! If you are logged in you will see all finished simulations in your profile.", "warning", "500");
+        {% endif %}
     </script>
 {% endblock %}

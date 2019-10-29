@@ -3,109 +3,116 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="column is-6 is-offset-3">
+    <div class="column is-full ">
         <h3 class="title">Profile</h3>
-        <hr/>
-        <br/>
-
-        <div>Your API-Key(s):</div>
-        <input type="checkbox" id="spoiler1"/>
-        <label style="white-space: nowrap;" for="spoiler1">Show API-Key(s)</label>
-        <div class="spoiler">
-            {% for apikey in apikeys %}
-                <div>
-                    <span style="white-space: nowrap;">{{ apikey.apikey }}</span>
+        <div class="tabs is-centered is-boxed is-fullwidth has-no-margin-bottom" id="tabs">
+            <ul>
+                <li class="is-active" data-tab="his"><a>History</a></li>
+                <li data-tab="acc"><a>Account-Management</a></li>
+                <li data-tab="api"><a>API-Key</a></li>
+            </ul>
+        </div>
+        <div id="tab-content">
+            <div class="box is-large is-active" data-content="his">
+                <p class="has-text-weight-bold">Previous Results:</p>
+                {% with p_res = p_res, is_admin=False %}
+                    {% include "history.html" %}
+                {% endwith %}
+            </div>
+            <div class="box is-large" data-content="acc">
+                <div>Change Email:</div>
+                <div class="box">
+                    <form method="POST" action="{{ url_for('main_page.profile') }}">
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <input class="input button-fill is-rounded" type="email" name="current_email"
+                                           disabled
+                                           value="{{ current_email }}"
+                                           autofocus=""><span>Current E-mail</span> </label>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <input class="input button-fill is-rounded" type="email" name="new_email"
+                                           placeholder="New E-Mail" required>
+                                    <span>New E-mail</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="button is-fullwidth">Change E-Mail</button>
+                    </form>
                 </div>
-            {% endfor %}
-        </div>
-
-        <br/>
-        <hr/>
-        <br/>
-
-        <input type="checkbox" id="spoiler2"/>
-        <label style="white-space: nowrap;" for="spoiler2">Change E-Mail</label>
-        <div class="spoiler">
-            <div class="box">
-                <form method="POST" action="{{ url_for('main_page.profile') }}">
-                    <div class="field">
-                        <div class="control">
-                            <label class="form-group has-float-label">
-                                <input class="input is-large button-fill is-rounded" type="email" name="current_email"
-                                       disabled
-                                       value="{{ current_email }}"
-                                       autofocus=""><span>Current E-mail</span> </label>
+                <div>Change Password:</div>
+                <div class="box">
+                    <form method="POST" action="{{ url_for('main_page.profile') }}">
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <input class="input button-fill is-rounded" type="password" name="old_password"
+                                           placeholder="Old Password"
+                                           autofocus="" required><span>Old Password</span>
+                                </label>
+                            </div>
                         </div>
-                    </div>
-
-                    <div class="field">
-                        <div class="control">
-                            <label class="form-group has-float-label">
-                                <input class="input is-large button-fill is-rounded" type="email" name="new_email"
-                                       placeholder="New E-Mail" required>
-                                <span>New E-mail</span>
-                            </label>
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <input class="input button-fill is-rounded" type="password" name="new_password"
+                                           id="new_password"
+                                           placeholder="New Password" required><span>New Password</span>
+                                </label>
+                            </div>
                         </div>
+                        <div class="field">
+                            <div class="control">
+                                <label class="form-group has-float-label">
+                                    <input class="input button-fill is-rounded" type="password"
+                                           name="new_password2" id="new_password2"
+                                           placeholder="Repeat new Password" required><span>Repeat new Password</span>
+                                </label>
+                            </div>
+                        </div>
+                        <button class="button is-block is-fullwidth" id="submit">Change Password</button>
+                    </form>
+                </div>
+                <hr/>
+                <span style="white-space: nowrap;"><span class="red"><a href="{{ url_for('delete.do_delete') }}">
+                Delete
+                </a></span> your account. THIS CAN NOT BE UNDONE.
+                </span>
+            </div>
+            <div class="box is-large" data-content="api">
+                {% for apikey in apikeys %}
+                    <div class="text_lettering">
+                        <span style="white-space: nowrap;">{{ apikey.apikey }}</span>
                     </div>
-                    <button class="button is-large is-fullwidth">Change E-Mail</button>
-                </form>
+                {% endfor %}
             </div>
         </div>
-        <br/>
-        <hr/>
-        <br/>
-
-        <input type="checkbox" id="spoiler3"/>
-        <label style="white-space: nowrap;" for="spoiler3">Change Password</label>
-        <div class="spoiler">
-            <div class="box">
-                <form method="POST" action="{{ url_for('main_page.profile') }}">
-                    <div class="field">
-                        <div class="control">
-                            <label class="form-group has-float-label">
-                                <input class="input is-large button-fill is-rounded" type="password" name="old_password"
-                                       placeholder="Old Password"
-                                       autofocus="" required><span>Old Password</span>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="field">
-                        <div class="control">
-                            <label class="form-group has-float-label">
-                                <input class="input is-large button-fill is-rounded" type="password" name="new_password"
-                                       id="new_password"
-                                       placeholder="New Password" required><span>New Password</span>
-                            </label>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <div class="control">
-                            <label class="form-group has-float-label">
-                                <input class="input is-large button-fill is-rounded" type="password"
-                                       name="new_password2" id="new_password2"
-                                       placeholder="Repeat new Password" required><span>Repeat new Password</span>
-                            </label>
-                        </div>
-                    </div>
-                    <button class="button is-block is-large is-fullwidth" id="submit">Change Password</button>
-                </form>
-            </div>
-        </div>
-        <br/>
-        <hr/>
-        <br/>
-
-        <span style="white-space: nowrap;"><span class="red"><a href="{{ url_for('delete.do_delete') }}">
-            Delete
-        </a></span> your account. THIS CAN NOT BE UNDONE.
-        </span>
     </div>
 {% endblock %}
 
 {% block javascript %}
     {{ super() }}
+    {% if config['DEBUG'] or config['TESTING'] %}
+        <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
+    {% endif %}
     <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#tabs li').on('click', function () {
+                var tab = $(this).data('tab');
+
+                $('#tabs li').removeClass('is-active');
+                $(this).addClass('is-active');
+
+                $('#tab-content div').removeClass('is-active');
+                $('div[data-content="' + tab + '"]').addClass('is-active');
+            });
+        });
+
         window.onload = function () {
             document.getElementById("new_password").onkeyup = validatePassword;
             document.getElementById("new_password2").onkeyup = validatePassword;

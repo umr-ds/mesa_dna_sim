@@ -6,9 +6,7 @@ let onColor = '#50ee0a';
 let dragXcol = offColor;
 let interpolcol = onColor;
 let xLabelString = 'Homopolymer length';
-
 let default_graph_name = "Default Graph"; //"New Graph";
-
 let xRoundingFactor = 0;
 let yRoundingFactor = 2;
 let maximumY = 100;
@@ -87,9 +85,7 @@ function loadAndDrawData(data, useInterpolation, label, xRoundF, yRoundF, maxX, 
 }
 
 /**
- * dropdown_select.data('jsonblob'),
- dropdown_select.data('type'), dropdown_select.data('validated'),
- dropdown_select.data(id), dropdown_select.text()
+ *
  * @param serial_data
  * @param type
  */
@@ -125,7 +121,7 @@ function serializeData() {
 
 function toogleCubicInterpolation() {
     useCubicInterpolation = !useCubicInterpolation;
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         if (useCubicInterpolation) {
             dataset['cubicInterpolationMode'] = 'monotone';
             dataset['lineTension'] = 1.0;
@@ -144,7 +140,7 @@ function toogleCubicInterpolation() {
 }
 
 function removePoint(x_val) {
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         var found = dataset.data.findIndex(function (element) {
             return element.x === Number(x_val);
         });
@@ -162,7 +158,7 @@ function removePoint(x_val) {
 
 function findDuplicateX() {
     let duplicates = new Set();
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         let unique = new Set();
         for (let tmp = 0; tmp < dataset.data.length; tmp++) {
             const currElem = dataset.data[tmp].x;
@@ -197,7 +193,7 @@ function toogleDragX() {
 function addPoint(x_val, y_val) {
     x_val = round(Number(x_val), xRoundingFactor); // we might want to enforce using Math.min(maximumX, ...)
     y_val = Math.min(round(Number(y_val), yRoundingFactor), maximumY);
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         var found = dataset.data.findIndex(function (element) {
             return element.x === Number(x_val);
         });
@@ -215,7 +211,7 @@ function setYValueBeforeX(lim, value) {
      * sets the value to "value" for all data-points in x-range [0..lim)
      */
     value = Math.max(Math.min(round(Number(value), yRoundingFactor), maximumY), 0);
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         for (let v in dataset.data) {
             if (dataset.data[v].x < lim) {
                 dataset.data[v].y = value;
@@ -230,7 +226,7 @@ function setYValueAfterX(lim, value) {
      * sets the value to "value" for all data-points in x-range (lim..end]
      */
     value = Math.max(Math.min(round(Number(value), yRoundingFactor), maximumY), 0);
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         for (let v in dataset.data) {
             if (dataset.data[v].x > lim) {
                 dataset.data[v].y = value;
@@ -315,7 +311,7 @@ function drawGraph() {
                         beginAtZero: true,
                         suggestedMax: maximumX,
 
-                        callback: function (value, index, values) {
+                        callback: function (value, callback_index, values) {
                             return parseFloat(value).toFixed(xRoundingFactor);
                         },
                         autoSkip: false
@@ -335,7 +331,7 @@ function drawGraph() {
                     ticks: {
                         beginAtZero: true,
                         max: maximumY,
-                        callback: function (value, index, values) {
+                        callback: function (value, callback_index, values) {
                             return parseFloat(value).toFixed(2);
                         },
                         autoSkip: true
@@ -344,56 +340,47 @@ function drawGraph() {
                 }
                 ]
             },
-            onDragStart: function (e, datasetIndex, index, value) {
+            onDragStart: function (e, in_datasetIndex, in_index, value) {
                 element = curr_chart.getElementAtEvent(e)[0];
                 scale = element['_yScale'].id;
-                datasetIndex = element['_datasetIndex'];
-                index = element['_index'];
-                org_pos = curr_chart.data.datasets[datasetIndex].data[index];
+                in_datasetIndex = element['_datasetIndex'];
+                in_index = element['_index'];
+                org_pos = curr_chart.data.datasets[in_datasetIndex].data[in_index];
 
             },
-            onDrag: function (e, datasetIndex, index, value) {
+            onDrag: function (e, in_datasetIndex, in_index, value) {
                 for (var scaleName in curr_chart.scales) {
-                    let scale = curr_chart.scales[scaleName];
-                    if (scale.isHorizontal()) {
-                        var valueX = round(scale.getValueForPixel(e.offsetX), xRoundingFactor);
+                    let drag_scale = curr_chart.scales[scaleName];
+                    if (drag_scale.isHorizontal()) {
+                        var valueX = round(drag_scale.getValueForPixel(e.offsetX), xRoundingFactor);
                         if (!toogleDragXaxis)
                             valueX = org_pos.x;
                     } else {
-                        var valueY = round(scale.getValueForPixel(e.offsetY), yRoundingFactor);
+                        var valueY = round(drag_scale.getValueForPixel(e.offsetY), yRoundingFactor);
                     }
                 }
                 if (toogleDragXaxis) {
-                    var found = curr_chart.data.datasets[datasetIndex].data.findIndex(function (element) {
+                    var found = curr_chart.data.datasets[in_datasetIndex].data.findIndex(function (element) {
                         return element.x === Number(valueX);
                     });
                     if (found < 0) {
-                        curr_chart.data.datasets[datasetIndex].data[index] = {x: valueX, y: valueY};
+                        curr_chart.data.datasets[in_datasetIndex].data[in_index] = {x: valueX, y: valueY};
 
                     } else {
-                        curr_chart.data.datasets[datasetIndex].data[index] = org_pos;
-                        curr_chart.data.datasets[datasetIndex].data[found] = {x: valueX, y: valueY}; //update
+                        curr_chart.data.datasets[in_datasetIndex].data[in_index] = org_pos;
+                        curr_chart.data.datasets[in_datasetIndex].data[found] = {x: valueX, y: valueY};
                     }
-                    //console.log(curr_chart.data.datasets[datasetIndex].data[index]);
                 } else {
-                    curr_chart.data.datasets[datasetIndex].data[index] = {x: valueX, y: valueY};
+                    curr_chart.data.datasets[in_datasetIndex].data[in_index] = {x: valueX, y: valueY};
                 }
                 sortData();
-                /*for (var elem = 0; elem < curr_chart.data.datasets[datasetIndex].data.length - 1; elem++) {
-                    if (curr_chart.data.datasets[datasetIndex].data[elem].x < valueX && curr_chart.data.datasets[datasetIndex].data[elem + 1] >= valueX) {
-                        element['_index'] = elem + 1
-                    }
-                }*/
             }
             ,
-            onDragEnd: function (e, datasetIndex, index, value) {
-                //console.log(datasetIndex, index, value);
-                const curr_dta = curr_chart.data.datasets[datasetIndex].data[index];
-                curr_chart.data.datasets[datasetIndex].data[index] = {
+            onDragEnd: function (e, drag_end_datasetIndex, drag_end_index, value) {
+                const curr_dta = curr_chart.data.datasets[drag_end_datasetIndex].data[drag_end_index];
+                curr_chart.data.datasets[drag_end_datasetIndex].data[drag_end_index] = {
                     x: round(curr_dta.x, xRoundingFactor), y: round(curr_dta.y, yRoundingFactor)
                 };
-                //console.log(curr_chart.data.datasets[datasetIndex].data[index]);
-                //updateData(e);
                 sortData();
                 removeDuplicatesX();
             }
@@ -406,7 +393,7 @@ function drawGraph() {
 }
 
 function sortData() {
-    curr_chart.data.datasets.forEach((dataset) => {
+    curr_chart.data.datasets.forEach(function (dataset) {
         dataset.data.sort(function (a, b) {
             return a.x - b.x;
         });
@@ -510,14 +497,14 @@ function showOverlay(validated, editable, id, text, type, awaits_validation) {
 }
 
 function exists(selector, searchterm) {
-    let exists = false;
+    let result = false;
     $(selector).each(function () {
-        if (this.value == searchterm) {
-            exists = true;
+        if (this.value === searchterm) {
+            result = true;
             return false;
         }
     });
-    return exists
+    return result
 }
 
 function saveChart(host, apikey, create_copy, update_dropdown) {
