@@ -45,7 +45,7 @@
                             <button class="button button-fill"
                                     data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
                                     data-balloon-pos="up" id="update_{{ mode }}_{{ e_obj.id }}"
-                                    onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">Update</button>
+                                    onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">&nbsp;<i class="fas fa-save">&nbsp;</i></button>
                         </div>
                         <div class="column has-no-padding-bottom has-no-padding-top button-fill">
                             <label style="white-space: nowrap;" for="spoiler-{{ mode }}-{{ e_obj.id }}"

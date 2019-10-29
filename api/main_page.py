@@ -113,7 +113,7 @@ def manage_users():
 def adminpage():
     today = time.time()
     prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*')]
+                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*')[0:50]]
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -165,6 +165,28 @@ def adminpage():
                            host=request.url_root, users=users, prev_results=prev_results, types=types), 200
 
 
+@main_page.route('/history', methods=['GET'])
+@require_logged_in
+def history():
+    user_id = session.get('user_id')
+    user = User.query.filter_by(user_id=user_id).first()
+    is_admin = user.is_admin
+    amount = min(50, int(request.args.get('amount', 50)))
+    offset = int(request.args.get('offset', 0))
+    all = bool('all' in request.args)
+
+    tmp = get_keys('USER_*-*_' + str(user_id))
+    if offset > len(tmp):
+        offset = len(tmp) - amount
+    if offset+amount > len(tmp):
+        amount = len(tmp)-offset
+    if all:
+        offset = 0
+        amount = len(tmp)
+    prev_results = [(str(x).split("_")[1], (int(str(x).split("_")[2][:-1]) if is_admin else None),
+                     time.ctime(time.time() + (get_expiration_time(x) / 1000))) for x in tmp[offset:offset+amount]]
+    return jsonify(prev_results)
+
 @main_page.route('/profile', methods=["GET", "POST"])
 # @require_apikey
 # @ratelimit(limit=300, per=60 * 15)
@@ -178,7 +200,7 @@ def profile():
     user = User.query.filter_by(user_id=user_id).first()
     today = time.time()
     prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*_' + str(user_id))]
+                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*_' + str(user_id))[0:50]]
     if request.method == "POST":
         if "new_email" in request.form:
             new_email = request.form["new_email"]
@@ -260,7 +282,7 @@ def query_sequence():
 
 @main_page.route("/settings", methods=['GET', 'POST'])
 @require_logged_in
-def undesired_subsequences():
+def undesired_motifs():
     """
     Configuration of the undesired subsequences in the Simulation Settings.
     :return:
@@ -303,7 +325,7 @@ def undesired_subsequences():
         for x in storage_out:
             storage_id_out[int(x['id'])] = x
 
-        return render_template('undesired_subsequences.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
+        return render_template('undesired_motifs.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
                                pcr_errors=pcr_id_out, storage_errors=storage_id_out,
                                usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.url_root)
     else:

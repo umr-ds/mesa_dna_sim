@@ -466,7 +466,8 @@ br {
     --primary-box-bg-color: #ffffff;
     --bg-hover-active: #e8e8e8;
     --overlay-bg-color: rgba(255, 255, 255, 1.0);
-    --tooltip-bg-color: initial;
+    --tooltip-bg-color: #555;
+    --slider-bg-color: rgb(255, 255, 255);
     --spoiler-bg-color: initial;
     --pre-color: initial;
 }
@@ -482,6 +483,7 @@ br {
     --overlay-bg-color: #bbbbbb;
     --tooltip-bg-color: #191919;
     --spoiler-bg-color: #676767;
+    --slider-bg-color: #191919;
     --pre-color: #191919;
 }
 
@@ -534,7 +536,7 @@ select, .textarea, .input {
 }
 
 .noUi-handle {
-    background-color: var(--tooltip-bg-color) !important;
+    background-color: var(--slider-bg-color) !important;
 }
 
 pre {
