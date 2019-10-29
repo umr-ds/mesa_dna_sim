@@ -45,11 +45,20 @@
                     </div>
                     <div class="column is-full is-full-mobile has-no-padding-left has-no-padding-right">
                         <input class="button is-block button-fill" type="button"
+                               id="next_history_btn"
+                               name="next_history_btn"
+                               onclick="$(this).addClass('is-loading');getNextHistory();return false;"
+                               data-balloon="Load more results"
+                               data-balloon-pos="up" value="Load more"/>
+                    </div>
+                    <div class="is-divider"></div>
+                    <div class="column is-full is-full-mobile has-no-padding-left has-no-padding-right">
+                        <input class="button is-block button-fill" type="button"
                                id="delete-res_0"
                                name="delete-res_0"
                                onclick="deleteResult(0, undefined, true);$('#uuid_res').empty();return false;"
-                               data-balloon="Delete Result"
-                               data-balloon-pos="up" value="Delete All"/>
+                               data-balloon="Delete ALL your results (not only the once shown)"
+                               data-balloon-pos="up" value="Delete all"/>
                     </div>
                 </div>
             </div>

@@ -2,10 +2,12 @@ let apikey = "";
 let host = "";
 let user_id = "";
 let sorts = [];
+let current_history_offset = 0;
 
 function setApikey(hst, key) {
     apikey = key;
     host = hst;
+    current_history_offset = 0;
 }
 
 function setUser(id) {
@@ -1202,6 +1204,61 @@ function deleteResult(result_uuid, callback, delete_all) {
             $('#delete-res_' + result_uuid).removeClass('is-loading');
             if (data['did_succeed'] === true)
                 callback();
+        },
+        fail: function (data) {
+            $('#delete-res_' + result_uuid).removeClass('is-loading');
+            console.log(data)
+        }
+    });
+}
+
+function getNextHistory() {
+        $.get({
+        url: host + "history?offset=" + current_history_offset,
+        contentType: 'application/json;charset=UTF-8',
+        async: true,
+        success: function (data) {
+            $('#next_history_btn').removeClass('is-loading');
+            for (let i in data) {
+                let curr_elem = "<div class=\"column is-full\" id=\"prev_res_" + data[i][0] + "\">\n" +
+                    "                                <div class=\"columns is-full\">\n" +
+                    "                                    <div class=\"column is-one-third is-full-mobile\">\n" +
+                    "                                        <a href=\"" + host + "?uuid=" + data[i][0] + "\">data[i][0]</a>\n" +
+                    "                                    </div>\n" +
+                    "                                    <div class=\"column is-two-sixt is-full-mobile\">\n" +
+                    "                                        <label class=\"form-group has-float-label\">\n" +
+                    "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
+                    "                                                   id=\"timeout_" + data[i][0] + "\" name=\"description\" disabled=\"\"\n" +
+                    "                                                   placeholder=\"Time-till-expiration\"\n" +
+                    "                                                   value=\"" + data[i][2] + "\">\n" +
+                    "                                            <span style=\"white-space: nowrap;\">Valid until</span>\n" +
+                    "                                        </label>\n" +
+                    "                                    </div>\n";
+                if (data[i][1] === null) {
+                    curr_elem += "                                    <div class=\"column is-one-sixt is-full-mobile\">\n" +
+                        "                                        <label class=\"form-group has-float-label\">\n" +
+                        "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
+                        "                                                   id=\"user_id_{{ p_res[0] }}\" name=\"description\" disabled=\"\"\n" +
+                        "                                                   placeholder=\"Owner ID\"\n" +
+                        "                                                   value=\"" + data[i][1] + "\">\n" +
+                        "                                            <span style=\"white-space: nowrap;\">Owner ID</span>\n" +
+                        "                                        </label>\n" +
+                        "                                    </div>\n";
+                }
+                curr_elem += "                                    <div class=\"column is-one-sixt is-full-mobile\">\n" +
+                    "                                        <input class=\"button is-block button-fill\" type=\"button\"\n" +
+                    "                                               id=\"delete-res_{{ p_res[0] }}\"\n" +
+                    "                                               name=\"delete-res_{{ p_res[0] }}\"\n" +
+                    "                                               onclick=\"deleteResult('" + data[i][0] + "');\n" +
+                    "                                                       $('#prev_res_" + data[i][0] + "').remove();return false;\"\n" +
+                    "                                               data-balloon=\"Delete Result\"\n" +
+                    "                                               data-balloon-pos=\"up\" value=\"Delete\"/>\n" +
+                    "                                    </div>\n" +
+                    "                                </div>\n" +
+                    "                            </div>";
+                $('#uuid_res').append(curr_elem)
+            }
+
         },
         fail: function (data) {
             $('#delete-res_' + result_uuid).removeClass('is-loading');

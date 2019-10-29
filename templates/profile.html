@@ -103,6 +103,7 @@
 
         $(document).ready(function () {
             $('#tabs li').on('click', function () {
+                current_history_offset = 0;
                 var tab = $(this).data('tab');
 
                 $('#tabs li').removeClass('is-active');
