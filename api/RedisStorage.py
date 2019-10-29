@@ -18,6 +18,7 @@ def read_all_from_redis(key):
         p.get(key)
     return p.execute()
 
+
 def read_from_redis(key):
     return read_all_from_redis(key)[0]
 

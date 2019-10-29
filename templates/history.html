@@ -15,7 +15,7 @@
                                             <input style="width:100%" class="input is-rounded" type="text"
                                                    id="timeout_{{ p_res[0] }}" name="description" disabled=""
                                                    placeholder="Time-till-expiration"
-                                                   value="{{ p_res[2] }}">
+                                                   value="{{ p_res[2] | to_ctime }}">
                                             <span style="white-space: nowrap;">Valid until</span>
                                         </label>
                                     </div>
@@ -47,7 +47,7 @@
                         <input class="button is-block button-fill" type="button"
                                id="next_history_btn"
                                name="next_history_btn"
-                               onclick="$(this).addClass('is-loading');getNextHistory();return false;"
+                               onclick="$(this).addClass('is-loading');getNextHistory({{ is_admin | lower }});return false;"
                                data-balloon="Load more results"
                                data-balloon-pos="up" value="Load more"/>
                     </div>

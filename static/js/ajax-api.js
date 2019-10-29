@@ -1212,14 +1212,22 @@ function deleteResult(result_uuid, callback, delete_all) {
     });
 }
 
-function getNextHistory() {
+function getNextHistory(showId) {
+        if (showId === undefined)
+            showId = false;
+        current_history_offset += 50;
+        let next_btn = $('#next_history_btn');
         $.get({
         url: host + "history?offset=" + current_history_offset,
         contentType: 'application/json;charset=UTF-8',
         async: true,
         success: function (data) {
-            $('#next_history_btn').removeClass('is-loading');
+            next_btn.removeClass('is-loading');
+            if (data.length < 50) {
+                next_btn.addClass('disabled').prop('disabled', 'disabled');
+            }
             for (let i in data) {
+                var date = new Date(parseFloat(data[i][2]));
                 let curr_elem = "<div class=\"column is-full\" id=\"prev_res_" + data[i][0] + "\">\n" +
                     "                                <div class=\"columns is-full\">\n" +
                     "                                    <div class=\"column is-one-third is-full-mobile\">\n" +
@@ -1230,11 +1238,11 @@ function getNextHistory() {
                     "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
                     "                                                   id=\"timeout_" + data[i][0] + "\" name=\"description\" disabled=\"\"\n" +
                     "                                                   placeholder=\"Time-till-expiration\"\n" +
-                    "                                                   value=\"" + data[i][2] + "\">\n" +
+                    "                                                   value=\"" + date.customFormat('#DDD# #MMM# #DD# #hhh#:#mm#:#ss# #YYYY#') + "\">\n" +
                     "                                            <span style=\"white-space: nowrap;\">Valid until</span>\n" +
                     "                                        </label>\n" +
                     "                                    </div>\n";
-                if (data[i][1] !== null) {
+                if (data[i][1] !== null && showId) {
                     curr_elem += "                                    <div class=\"column is-one-sixt is-full-mobile\">\n" +
                         "                                        <label class=\"form-group has-float-label\">\n" +
                         "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
