@@ -52,13 +52,10 @@
                                data-balloon-pos="up" value="Load more"/>
                     </div>
                     <div class="is-divider"></div>
-                    <div class="column is-full is-full-mobile has-no-padding-left has-no-padding-right">
-                        <input class="button is-block button-fill" type="button"
-                               id="delete-res_0"
-                               name="delete-res_0"
-                               onclick="deleteResult(0, undefined, true);$('#uuid_res').empty();return false;"
-                               data-balloon="Delete ALL your results (not only the once shown)"
-                               data-balloon-pos="up" value="Delete all"/>
+                    <div class="column has-text-centered is-full is-full-mobile has-no-padding-left has-no-padding-right">
+                        <a href="#" id="delete-res_0"
+                           onclick="deleteResult(0, undefined, true);$('#uuid_res').empty();return false;">Delete ALL
+                            your results</a> (including results not loaded in the list above!)
                     </div>
                 </div>
             </div>
