@@ -202,10 +202,11 @@
                     <div class="is-divider" data-content="Error Detection"></div>
                 </div>
                 <div class="column is-full">
-                    <input type="checkbox" id="spoiler1"/>
+                    <button class="button is-rounded has-margin-bottom-12" onclick="$('#motif_spoiler').toggle();$(this).toggleClass('is-light');return false">Manage Undesired Motifs</button>
+                    <!--<input type="checkbox" id="spoiler1"/>
                     <label class="button button-fill" style="white-space: nowrap; display:unset" for="spoiler1">Manage
-                        Undesired Motifs</label>
-                    <div class="spoiler">
+                        Undesired Motifs</label>-->
+                    <div class="box" id="motif_spoiler" style="display: none">
                         <h3>Changes here wont be saved in your profile!</h3>
                         <br/>
                         <div class="columns">

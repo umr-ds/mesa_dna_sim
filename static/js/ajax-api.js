@@ -799,11 +799,11 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
                 el.empty();
                 $.each(data[method[0]], function (name) {
                     let elem = data[method[0]][name];
-                    let optgroup = $("<optgroup id='"+ method[0] + "_" + name + "' label='" + name + "'></optgroup>");
+                    let optgroup = $("<optgroup id='"+ method + "_" + name.replace(" ","_") + "' label='" + name + "'></optgroup>");
                     optgroup.appendTo(el);
                     $.each(elem, function (inner_id) {
                         let id = elem[inner_id]['id'];
-                        let id_name = "" + name + "_" + id;
+                        let id_name = "" + method + "_" + name.replace(" ","_") + "_" + id;
                         optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']).data('type', elem[inner_id]['type']));
                     });
                 })
