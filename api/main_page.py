@@ -177,7 +177,7 @@ def history():
 
     tmp = get_keys('USER_*-*_' + str(user_id))
     if offset > len(tmp):
-        offset = len(tmp) - amount
+        return jsonify([])
     if offset+amount > len(tmp):
         amount = len(tmp)-offset
     if all:

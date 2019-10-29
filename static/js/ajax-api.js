@@ -1223,7 +1223,7 @@ function getNextHistory() {
                 let curr_elem = "<div class=\"column is-full\" id=\"prev_res_" + data[i][0] + "\">\n" +
                     "                                <div class=\"columns is-full\">\n" +
                     "                                    <div class=\"column is-one-third is-full-mobile\">\n" +
-                    "                                        <a href=\"" + host + "?uuid=" + data[i][0] + "\">data[i][0]</a>\n" +
+                    "                                        <a href=\"" + host + "?uuid=" + data[i][0] + "\">" + data[i][0] + "</a>\n" +
                     "                                    </div>\n" +
                     "                                    <div class=\"column is-two-sixt is-full-mobile\">\n" +
                     "                                        <label class=\"form-group has-float-label\">\n" +
@@ -1234,7 +1234,7 @@ function getNextHistory() {
                     "                                            <span style=\"white-space: nowrap;\">Valid until</span>\n" +
                     "                                        </label>\n" +
                     "                                    </div>\n";
-                if (data[i][1] === null) {
+                if (data[i][1] !== null) {
                     curr_elem += "                                    <div class=\"column is-one-sixt is-full-mobile\">\n" +
                         "                                        <label class=\"form-group has-float-label\">\n" +
                         "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
