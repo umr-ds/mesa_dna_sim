@@ -143,6 +143,7 @@
 {% block javascript %}
     {% if config['DEBUG'] or config['TESTING'] %}
         <script src={{ url_for('static',filename='js/jquery.min.js') }}></script>
+        <script src={{ url_for('static',filename='js/dateconverter.js') }}></script>
     {% else %}
         <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
     {% endif %}

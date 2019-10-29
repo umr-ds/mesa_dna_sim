@@ -410,7 +410,6 @@ br {
 
 .bottom {
     position: absolute !important;
-    bottom: unset !important;
     right: unset !important;
     margin-top: -29px;
 }
@@ -499,6 +498,7 @@ br {
 .footer {
     background-color: var(--footer-bg-color) !important;
     color: var(--primary-color) !important;
+    position: relative;
 }
 
 .box {

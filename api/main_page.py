@@ -1,10 +1,12 @@
 import datetime
+import math
 import re
 import time
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory, \
     current_app
 from flask_cors import cross_origin
+from jinja2 import evalcontextfilter
 from sqlalchemy import desc, or_, and_, asc
 
 from api.mail import send_mail
@@ -111,9 +113,9 @@ def manage_users():
 # @require_logged_in
 @require_admin
 def adminpage():
-    today = time.time()
-    prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*')[0:50]]
+    today = math.floor(time.time())
+    prev_results = sorted([(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
+                     today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')], key=lambda x: x[2], reverse=True)[0:50]
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -177,14 +179,14 @@ def history():
 
     tmp = get_keys('USER_*-*_' + str(user_id))
     if offset > len(tmp):
-        offset = len(tmp) - amount
+        return jsonify([])
     if offset+amount > len(tmp):
         amount = len(tmp)-offset
     if all:
         offset = 0
         amount = len(tmp)
-    prev_results = [(str(x).split("_")[1], (int(str(x).split("_")[2][:-1]) if is_admin else None),
-                     time.ctime(time.time() + (get_expiration_time(x) / 1000))) for x in tmp[offset:offset+amount]]
+    prev_results = sorted([(str(x).split("_")[1], (int(str(x).split("_")[2][:-1]) if is_admin else None),
+                     time.time() * 1000 + get_expiration_time(x)) for x in tmp], key=lambda x: x[2], reverse=True)[offset:offset+amount]
     return jsonify(prev_results)
 
 @main_page.route('/profile', methods=["GET", "POST"])
@@ -199,8 +201,9 @@ def profile():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     today = time.time()
-    prev_results = [(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                     time.ctime(today + (get_expiration_time(x) / 1000))) for x in get_keys('USER_*-*_' + str(user_id))[0:50]]
+    prev_results = sorted([(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
+                            today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*_' + str(user_id))],
+                          key=lambda x: x[2], reverse=True)[0:50]
     if request.method == "POST":
         if "new_email" in request.form:
             new_email = request.form["new_email"]
@@ -512,6 +515,13 @@ def utility_processor():
 
     return dict(is_user_admin=is_user_admin)
 
+@main_page.app_template_filter()
+@evalcontextfilter
+def to_ctime(eval_ctx, ms_time):
+    try:
+        return time.ctime(ms_time / 1000)
+    except:
+        return "NaN"
 
 @main_page.route("/api/update_subsequence", methods=['POST'])
 @require_logged_in
