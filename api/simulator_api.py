@@ -823,10 +823,10 @@ def htmlify(input, sequence, modification=False, description=False):
                 # in which they occured (sequencing, synthesis etc.) for the purpose of coloring, there
                 # is therefore no need for additive errorprobs.
                 error_prob[pos] = error["errorprob"]
-            elif description:
-                desc[pos] = error['description']
             else:
                 error_prob[pos] += error["errorprob"]
+            if description:
+                desc[pos] = error['description']
 
     res = []
     buildup = ""
@@ -914,8 +914,8 @@ def build_html(res_list, reducesets=True):
                     res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
                            "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 elif lineage == "":
-                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + "Description: " + str(descript) + \
-                           "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
+                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + ", Description: " + str(descript) + \
+                           "\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"
