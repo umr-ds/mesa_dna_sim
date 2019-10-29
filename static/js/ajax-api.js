@@ -1238,7 +1238,7 @@ function getNextHistory(showId) {
                     "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
                     "                                                   id=\"timeout_" + data[i][0] + "\" name=\"description\" disabled=\"\"\n" +
                     "                                                   placeholder=\"Time-till-expiration\"\n" +
-                    "                                                   value=\"" + date.customFormat('#DDD# #MMM# #DD# #hhh#:#mm#:#ss# #YYYY#') + "\">\n" +
+                    "                                                   value=\"" + date.customFormat('#DDD# #MMM# #DD# #hhhh#:#mm#:#ss# #YYYY#') + "\">\n" +
                     "                                            <span style=\"white-space: nowrap;\">Valid until</span>\n" +
                     "                                        </label>\n" +
                     "                                    </div>\n";
