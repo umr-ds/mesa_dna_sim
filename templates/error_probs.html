@@ -15,7 +15,7 @@
                                     {% endif %}
                                    required><span>Description</span></label>
                     </div>
-                    <div class="column has-no-padding-left has-no-padding-top has-no-padding-bottom has-no-padding-right">
+                    <div class="column has-no-padding-left has-no-padding-top has-no-padding-bottom {% if not is_admin %}has-no-padding-right{% endif %}">
                             <div class="field columns is-full is-multiline">
                                 <div class="column is-full"
                                      id="{{ mode }}_error_raw_{{ e_obj.id }}">
