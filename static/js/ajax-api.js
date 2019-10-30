@@ -417,7 +417,13 @@ function loadSendData(dta) {
             tmp.forEach(function (err_meth) {
                 let meth_selection;
                 let tmp_selection = $(method[2] + ' option').filter(function () {
-                    return $(this)[0]['value'] === err_meth['id'];
+                    if($(this)[0]['value'] === err_meth['id']){
+                        return true;
+                    }
+                    if($(this).data('tmp_id') != undefined){
+                        return $(this).data('tmp_id') === err_meth['id'];
+                    }
+                    return false;
                 });
                 if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
                     meth_selection = tmp_selection;
@@ -433,6 +439,7 @@ function loadSendData(dta) {
                     sel.data('err_attributes', err_meth['conf']['err_attributes']);
                     sel.data('err_data', err_meth['conf']['err_data']);
                     sel.data('type', err_meth['conf']['type']);
+                    sel.data('tmp_id', err_meth['id']);
                     $(method[2]).append(sel.clone(true).unbind())
                 }
                 if (err_meth['conf']['type'] === 'storage'){
