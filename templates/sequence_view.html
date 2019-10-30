@@ -561,35 +561,31 @@
                             <div class="columns is-multiline">
                                 <div id="adv_synth" class="column is-full-mobile is-half">
                                     <label for="synthmeth"><p>Synthesis Methods</p></label>
-                                    <select class="select is-multiple is-rounded" id="synthmeth" size="7"
-                                            style="width: 100%">
-                                        <optgroup id="nonee" label="None">
+                                    <div class="sort_container" id="synthmeth">
+                                        <optgroup class="sort_group" id="nonee" label="None">
                                         </optgroup>
-                                    </select>
+                                    </div>
                                 </div>
                                 <div id="adv_seq" class="column is-full-mobile is-half">
                                     <label for="seqmeth"><p>Sequencing Methods</p></label>
-                                    <select class="select is-multiple is-rounded" id="seqmeth" size="7"
-                                            style="width: 100%">
-                                        <optgroup id="nonee" label="None">
+                                    <div class="sort_container" id="seqmeth">
+                                        <optgroup class="sort_group" id="nonee" label="None">
                                         </optgroup>
-                                    </select>
+                                    </div>
                                 </div>
                                 <div id="adv_storage" class="column is-full-mobile is-half">
                                     <label for="storagemeth"><p>Storage Methods</p></label>
-                                    <select class="select is-multiple is-rounded" id="storagemeth" size="7"
-                                            style="width: 100%">
-                                        <optgroup id="nonee" label="None">
+                                    <div class="sort_container" id="storagemeth">
+                                        <optgroup class="sort_group" id="nonee" label="None">
                                         </optgroup>
-                                    </select>
+                                    </div>
                                 </div>
                                 <div id="adv_pcr" class="column is-full-mobile is-half">
                                     <label for="pcrmeth"><p>PCR Methods</p></label>
-                                    <select class="select is-multiple is-rounded" id="pcrmeth" size="7"
-                                            style="width: 100%">
-                                        <optgroup id="nonee" label="None">
+                                    <div class="sort_container" id="pcrmeth">
+                                        <optgroup class="sort_group" id="nonee" label="None">
                                         </optgroup>
-                                    </select>
+                                    </div>
                                 </div>
                                 <div class="column is-full-mobile is-half">
                                     <div class="field">
@@ -615,15 +611,14 @@
                                 </div>
                                 <div id="adv_exec" class="column is-full-mobile is-full">
                                     <label for="seqmeth1"><p>Execution Order</p></label>
-                                    <select class="select is-multiple is-rounded" id="seqmeth1" size="7"
-                                            style="width: 100%">
-                                        <optgroup id="synthesis_sortable" label="Synthesis">
+                                    <div class="sort_container" id="seqmeth1">
+                                        <optgroup class="sort_group" id="synthesis_sortable" label="Synthesis">
                                         </optgroup>
-                                        <optgroup id="pcr_sortable" label="Storage/PCR">
+                                        <optgroup class="sort_group" id="pcr_sortable" label="Storage/PCR">
                                         </optgroup>
-                                        <optgroup id="sequencing_sortable" label="Sequencing">
+                                        <optgroup class="sort_group" id="sequencing_sortable" label="Sequencing">
                                         </optgroup>
-                                    </select>
+                                    </div>
                                 </div>
                                 <div id="adv_exec_trash" class="column is-full">
                                     <i class="title fas fa-trash" id="trash" aria-hidden="true"></i>

@@ -474,6 +474,7 @@ br {
     --slider-bg-color: rgb(255, 255, 255);
     --spoiler-bg-color: initial;
     --pre-color: initial;
+    --sort-opt-bg-color: lightgrey;
 }
 
 
@@ -489,6 +490,7 @@ br {
     --spoiler-bg-color: #676767;
     --slider-bg-color: #191919;
     --pre-color: #191919;
+    --sort-opt-bg-color: grey;
 }
 
 #overlay-content {
@@ -566,4 +568,23 @@ ul {
 
 td, th {
     padding: 5px;
+}
+
+.sort_container {
+    width: 100%;
+    height: 200px;
+    overflow: auto;
+    text-align: left;
+    border: solid lightgrey;
+}
+
+.sort_option {
+    padding-left: 15px;
+    border-top: thin solid grey;
+    border-bottom: thin solid grey;
+}
+
+.sort_option:hover {
+    background-color: var(--sort-opt-bg-color);
+    cursor: pointer;
 }
