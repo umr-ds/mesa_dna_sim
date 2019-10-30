@@ -328,6 +328,7 @@ function addMismatch(method, obj_id) {
     noPossibleMismatches.val(2);
     if (noPossibleMismatches_val > 1)
         initMismatchSlider(method, $("#mismatch-" + method + "-slider-" + obj_id)[0])
+    set_listener();
 }
 
 function clearNewRuleContainer(method) {
@@ -383,6 +384,10 @@ function validateCustomError(host, method, id, desc) {
 }
 
 function sendCustomError(host, method, id) {
+    /* Check for required values */
+    if (!$('#' + method + '_description_' + id).val()){
+        return false;
+    }
     /* Collect all Input-Values*/
     const deletion_A_elem = $('#' + method + '_error_deletion_A_' + id);
     const deletion_A = deletion_A_elem.val() / 100.0;
@@ -428,6 +433,7 @@ function sendCustomError(host, method, id) {
     let org_seq = "";
     let noOfMismatches = 2;
     let doExit = false;
+    let empy_mismatch = false;
     let positional_mismatch = false;
     let position_range = undefined;
     $('#' + method + '_mismatch_container_' + id).children().each(function (idx, itm) {
@@ -448,10 +454,16 @@ function sendCustomError(host, method, id) {
                 doExit = true;
                 return false;
             }
+            if (!tmp || !org_seq){
+                empy_mismatch = true;
+            }
             innerMismatch[tmp] = parseFloat($(itm).find(num)[0].value) / 100;
         }
         mismatch[org_seq] = innerMismatch;
     });
+    if (empy_mismatch){
+        return false;
+    }
     if (doExit === true)
         return false;
     if (mismatch !== {}) {
@@ -459,7 +471,6 @@ function sendCustomError(host, method, id) {
         if (positional_mismatch === true)
             mismatch['position_range'] = position_range;
     }
-
     const err_data_deletion_elem = $('#' + method + '_error_raw_rate_deletion_' + id);
     const err_data_deletion = err_data_deletion_elem.val() / 100.0;
     const err_data_insertion_elem = $('#' + method + '_error_raw_rate_insertion_' + id);
