@@ -521,10 +521,6 @@ function collectSendData(space) {
     let seq_meth, synth_meth, storage_meth, pcr_meth;
     let exec_res = {};
     if(adv_meth.prop("checked")){
-        /*seq_meth = $("#seqmeth option:selected");
-        synth_meth = $("#synthmeth option:selected");
-        storage_meth = $("#storagemeth option:selected");
-        pcr_meth = $("#pcrmeth option:selected");*/
         /* collect all error simulation elements in correct execution order */
         let exec_order = $('#seqmeth1').children();
         exec_order.each(function (id, o_group) {
@@ -546,20 +542,23 @@ function collectSendData(space) {
         });
     }
     else{
+        exec_res['Sequencing'] = [];
+        exec_res['Synthesis'] = [];
+        exec_res['Storage/PCR'] = [];
         seq_meth = $("#classic_seqmeth option:selected");
         synth_meth = $("#classic_synthmeth option:selected");
         storage_meth = $("#classic_storagemeth option:selected");
         pcr_meth = $("#classic_pcrmeth option:selected");
         [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage/PCR'], [pcr_meth, 'Storage/PCR']].forEach(function (meth) {
             let cycles;
-            if (meth[0] === 'storage_meth') {
+            if (meth[0].data('type') === 'storage') {
                 cycles = $('#months').val()
-            } else if (meth[0] === 'pcr_meth') {
+            } else if (meth[0].data('type') === 'pcr') {
                 cycles = $('#cycles').val()
             } else {
                 cycles = 1;
             }
-            exec_res[meth[1]] = [{
+            exec_res[meth[1]].push({
                 name: meth[0].text(),
                 id: meth[0].val(),
                 cycles: cycles,
@@ -568,7 +567,7 @@ function collectSendData(space) {
                     err_attributes: meth[0].data('err_attributes'),
                     type: meth[0].data('type')
                 }
-            }];
+            });
         })
     }
 
