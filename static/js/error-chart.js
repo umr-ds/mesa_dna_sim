@@ -540,13 +540,11 @@ function saveChart(host, apikey, create_copy, update_dropdown) {
                 }
                 showOverlay(data["validated"], true, data["id"], data["name"], data["type"], data["awaits_validation"])
             } else {
-                console.log(data)
-                //TODO show error
+                showWarn(data,'warning', 446)
             }
         },
         fail: function (data) {
-            console.log(data)
-            //TODO show error message on screen
+            showWarn(data,'warning', 447)
         }
     });
 }
@@ -567,18 +565,14 @@ function deleteChartId(host, apikey, id) {
             }
         },
         success: function (data) {
-            if (data["did_succeed"] === true) {
-                console.log(data)
-            } else {
-                console.log(data);
+            if (data["did_succeed"] === false) {
+                showWarn(data,'warning', 448);
                 return false;
-                //TODO show error
             }
         },
         fail: function (data) {
-            console.log(data);
+            showWarn(data,'warning', 449);
             return false;
-            //TODO show error message on screen
         }
     });
 }
@@ -607,13 +601,11 @@ function deleteChart(host, apikey) {
                 deserializeDataAndLoadDraw(undefined, chart_name.data('type'));
                 showOverlay(true, false, -1, default_graph_name, chart_name.data('type'), false);
             } else {
-                console.log(data)
-                //TODO show error
+                showWarn(data,'warning', 450);
             }
         },
         fail: function (data) {
-            console.log(data)
-            //TODO show error message on screen
+            showWarn(data,'warning', 451);
         }
     });
 }
@@ -651,8 +643,7 @@ function updateDropdown(host, apikey, type, callback) {
             callback()
         },
         fail: function (data) {
-            console.log(data)
-            //TODO show error message on screen
+            showWarn(data,'warning', 452);
         }
     });
 }

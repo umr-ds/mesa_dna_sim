@@ -257,7 +257,7 @@ class SequencingError:
         except ValueError:
             return None # self._no_pattern_mismatch()
 
-        if type(pattern[chosen_ele[1]]) == dict:  # TODO check: chosen_ele[1] in pattern and
+        if type(pattern[chosen_ele[1]]) == dict:
             final_ele = np.random.choice(list(pattern[chosen_ele[1]].keys()),
                                          p=list(pattern[chosen_ele[1]].values()))
         else:

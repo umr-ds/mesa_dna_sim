@@ -829,8 +829,7 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
                 post_success_callback(data);
         },
         fail: function (data) {
-            console.log(data)
-            //TODO show error message on screen
+            showWarn(data, 'warning', 444);
         },
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
@@ -954,8 +953,7 @@ function updateUserId(host_uri, u_id, callback) {
         },
         fail: function (data) {
             $('#update-user_' + u_id).removeClass('is-loading');
-            console.log(data)
-            //TODO show error message on screen
+            showWarn(data, 'warning', u_id);
         }
     });
 }
@@ -985,8 +983,7 @@ function deleteUserId(host_uri, u_id, callback) {
         },
         fail: function (data) {
             $('#delete-user_' + u_id).removeClass('is-loading');
-            console.log(data)
-            //TODO show error message on screen
+            showWarn(data, 'warning', u_id);
         }
     });
 }

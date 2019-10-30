@@ -290,8 +290,7 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
     if basefilename is None:
         basefilename = uuid.uuid4().hex
     aaa = p.PartitionFunction(basefilename + '.pfs')
-    # TODO correctly handle non-zero error code - e.g. if no structures got created!
-    # TODO same for failed partition function
+    # TODO correctly handle non-zero error code or failed partition function
     if aaa != 0:
         print(p.GetErrorMessage(aaa))
         exit(aaa)

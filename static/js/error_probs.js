@@ -37,10 +37,10 @@ function addSubSeq(host) {
                     "</td>" +
                     "<td style=\"width:5%\"><button class=\"button\" data-balloon=\"Updating will remove the Validation!\"\n" +
                     "data-balloon-pos=\"up\" id=\"update_subseq_" + data.id + "\"\n" +
-                    "onclick=\"updateSeq('" + host + "', " + data.id + "); return false;\"> Update<\/button>" +
+                    "onclick=\"updateSeq('" + host + "', " + data.id + "); return false;\"> &nbsp;<i class=\"fas fa-save\"></i>&nbsp; <\/button>" +
                     "<\/td>" +
                     "<td style=\"width:5%\">\n" +
-                    "<button class=\"button\" id=\"delete_subseq_" + data.id + "\" data-balloon=\"Delete this Subsequence created at: " + dattime + "\"" +
+                    "<button class=\"button button-fill\" id=\"delete_subseq_" + data.id + "\" data-balloon=\"Delete this Subsequence created at: " + dattime + "\"" +
                     "data-balloon-pos=\"up\" onclick=\"deleteSeq('" + host + "', " + data.id + "); return false;\">Delete\n" +
                     "</button>\n" +
                     "</td>\n" +
@@ -59,7 +59,7 @@ function addSubSeq(host) {
         },
         fail: function (data) {
             console.log("Error while adding new Sequence");
-            //$('#text_lettering').text(data);
+            showWarn(data, 'warning', 442)
         }
     });
 }
@@ -86,10 +86,13 @@ function updateSeq(host, id) {
         dataType: 'json',
         success: function (data) {
             console.log("Update successful for id=" + data.id.toString());
+            $('#update_subseq_' + data.id.toString()).children(0).toggleClass('fa-save').toggleClass('fa-check').delay(2000).queue(function () {
+                $('#update_subseq_' + data.id.toString()).children(0).toggleClass('fa-check').toggleClass('fa-save')
+            })
         },
         fail: function (data) {
             console.log("Update failed for id=" + data.id.toString());
-            //$('#text_lettering').text(data);
+            showWarn(data, 'warning', 441)
         }
     });
 }
@@ -346,7 +349,7 @@ function deleteMismatch(method, obj_id) {
 }
 
 function validateCustomError(host, method, id, desc) {
-    let btn = $('#validate_'+ method + '_' + id);
+    let btn = $('#validate_' + method + '_' + id);
     $.post({
         url: host + "api/validate_custom_error",
         contentType: 'application/json;charset=UTF-8',
@@ -504,7 +507,13 @@ function sendCustomError(host, method, id) {
         },
         success: function (data) {
             if (data.did_succeed) {
-                //TODO visualize Success (e.g. hide spoiler?!)
+                let n_id = id;
+                if (id === 'new') {
+                    n_id = data.id;
+                }
+                $('#update_' + method + '_' + n_id.toString()).children(0).toggleClass('fa-save').toggleClass('fa-check').delay(2000).queue(function () {
+                $('#update_' + method + '_' + n_id.toString()).children(0).toggleClass('fa-check').toggleClass('fa-save')
+                });
                 if (id === "new") {
                     result['validated'] = false;
                     result['isOwner'] = true;
@@ -588,7 +597,7 @@ function initErrorSliders(method, elem) {
             err_data = synth_errors[eid].err_data;
         } else if (method === "pcr") {
             err_data = pcr_errors[eid].err_data;
-        }else {
+        } else {
             err_data = storage_errors[eid].err_data;
         }
     }
@@ -643,7 +652,7 @@ function initSlider(method, elem) {
             position = seq_errors[eid].err_attributes[etype].position;
         } else if (method === "synth") {
             position = synth_errors[eid].err_attributes[etype].position;
-        } else if (method ==="pcr") {
+        } else if (method === "pcr") {
             position = pcr_errors[eid].err_attributes[etype].position;
         } else {
             position = storage_errors[eid].err_attributes[etype].position;
