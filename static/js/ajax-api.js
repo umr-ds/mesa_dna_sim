@@ -216,7 +216,7 @@ $(document).ready(function () {
 });
 
 function set_listener(){
-    $('[name="sequence"]').each(function (e, elem) {
+    $('[name="sequence"], [name = "Original DNA-Sequence"], [name^="mismatch_changed"]').each(function (e, elem) {
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
                 let data = $(elem).val();
@@ -228,7 +228,7 @@ function set_listener(){
             });
         });
     });
-    $('[name="error_prob"], [name="raw_error_rate"]').each(function (e, elem) {
+    $("[name='error_prob'], [name='raw_error_rate']").each(function (e, elem) {
         $(elem).on("change", function (f) {
             let data = $(elem).val();
             $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
