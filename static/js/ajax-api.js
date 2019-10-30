@@ -238,7 +238,7 @@ function set_listener(){
        let data = $(this).val();
        $(this).val(Math.max(0.0, data));
     });
-    let methods = [['#synthmeth', '#synthesis_sortable'], ['#seqmeth', '#sequencing_sortable'], ['#storagemeth', '#pcr_sortable'], ['#pcrmeth', '#pcr_sortable']];
+    /*let methods = [['#synthmeth', '#synthesis_sortable'], ['#seqmeth', '#sequencing_sortable'], ['#storagemeth', '#pcr_sortable'], ['#pcrmeth', '#pcr_sortable']];
     methods.forEach(function (meth) {
         $(meth[0]).bind('dbclick, keyup', function (e) {
             if(e.which === 13 || e.type === 'dbclick'){
@@ -258,7 +258,7 @@ function set_listener(){
                 }
             }
         });
-    });
+    });*/
 }
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
@@ -817,7 +817,11 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
                     $.each(elem, function (inner_id) {
                         let id = elem[inner_id]['id'];
                         let id_name = "" + method + "_" + name.replace(" ","_") + "_" + id;
-                        optgroup.append($("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']).data('type', elem[inner_id]['type']));
+                        let option = $("<option></option>").attr('value', id).attr('id', id_name).text(elem[inner_id]['name']).data('err_attributes', elem[inner_id]['err_attributes']).data('err_data', elem[inner_id]['err_data']).data('type', elem[inner_id]['type']);
+                        if(!method[1].includes("classic")){
+                            option.addClass('sort_option');
+                        }
+                        optgroup.append(option);
                     });
                 })
             });
@@ -831,6 +835,14 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
                         onEnd: function (evt) {
                             if (evt.to === trash) {
                                 evt.to.children[evt.newIndex].remove();
+                            }
+                            if (evt.source === $('#pcrmeth')){
+                                let name = $(evt.clone).val()
+                                $(evt.clone).val(name+" ("+ $('#cyc')+" cycle(s))");
+                            }
+                            if (evt.source === $('#storagemeth')){
+                                let name = $(evt.clone).val()
+                                $(evt.clone).val(name+" ("+ $('#mon') +" month(s))");
                             }
                         }
                     }));
@@ -1159,6 +1171,18 @@ function initListsDnD() {
                 onEnd: function (evt) {
                     if (evt.to === trash) {
                         evt.to.children[evt.newIndex].remove();
+                    }
+                },
+                onClone: function(evt){
+                    if (evt.from.parentElement.id === 'pcrmeth'){
+                        let name = $(evt.item).text();
+                        let cycles = $('#cyc').val();
+                        $(evt.item).text(""+name+" ("+ cycles +" cycle(s))").data('multiplier', cycles);
+                    }
+                    if (evt.from.parentElement.id === 'storagemeth'){
+                        let name = $(evt.item).text();
+                        let months = $('#mon').val();
+                        $(evt.item).text(""+name+" ("+ months +" month(s))").data('multiplier', months);
                     }
                 }
             }));
