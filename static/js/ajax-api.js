@@ -328,7 +328,7 @@ function handleFileChange(evt) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
                         document.getElementById("do_max_expect").checked = false;
-                        showWarn("FASTA file loaded. Max. Expect is unchecked now and the results will be send to your E-Mail", "warning", 1);
+                        $('#fasta_inf').show();
                         jseq.data("sequence_list", sequences);
                         jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
                         //queryServer(undefined);
@@ -738,6 +738,9 @@ function queryServer(uuid) {
             submit_seq_btn.removeClass('is-loading');
             if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
                 jseq.val("");
+                document.getElementById("send_email").checked = false;
+                document.getElementById("send_email").disabled = false;
+                $('#fasta_inf').hide();
             }
         },
         fail: function (data) {
