@@ -410,51 +410,53 @@ function loadSendData(dta) {
         document.getElementById("adv_exec").checked = true;
         $('#adv_err_settings').show();
         $('#classic_err_settings').hide();
-        let meths = [['#synthesis_sortable', 'Synthesis', '#synthmeth'], ['#pcr_sortable', 'Storage', '#storagemeth'], ['#pcr_sortable', 'PCR', '#pcrmeth'], ['#sequencing_sortable', 'Sequencing', '#seqmeth']];
+        let meths = {'synthesis': ['#synthesis_sortable', 'Synthesis', '#synthmeth'],
+                    'storage': ['#pcr_sortable', 'Storage', '#storagemeth'],
+                    'pcr': ['#pcr_sortable', 'PCR', '#pcrmeth'],
+                    'sequencing': ['#sequencing_sortable', 'Sequencing', '#seqmeth']};
         $('#synthesis_sortable').children().remove();
         $('#pcr_sortable').children().remove();
         $('#sequencing_sortable').children().remove();
-        meths.forEach(function (method) {
-            let tmp = err_sim_lists[method[1]];
-            tmp.forEach(function (err_meth) {
-                let meth_selection;
-                let tmp_selection = $(method[2] + ' option').filter(function () {
-                    if($(this)[0]['value'] === err_meth['id']){
-                        return true;
-                    }
-                    if($(this).data('tmp_id') != undefined){
-                        return $(this).data('tmp_id') === err_meth['id'];
-                    }
-                    return false;
-                });
-                if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
-                    meth_selection = tmp_selection;
+        let tmp = err_sim_order['Synthesis'].concat(err_sim_order['Storage/PCR']).concat(err_sim_order['Sequencing']);
+        tmp.forEach(function (err_meth) {
+            let method = meths[err_meth['conf']['type']];
+            let meth_selection;
+            let tmp_selection = $(method[2] + ' option').filter(function () {
+                if($(this)[0]['value'] === err_meth['id']){
+                    return true;
                 }
-                let sel;
-                if (meth_selection !== undefined) {
-                    sel = $(meth_selection).clone(true).unbind();
-                    $(method[0]).append(sel);
-                } else {
-                    let opt = new Option(err_meth['name'] + " (CUSTOM)", err_meth['name'], undefined, true);
-                    $(method[0]).append(opt);
-                    sel = $(method[0] + ' option:selected');
-                    sel.data('err_attributes', err_meth['conf']['err_attributes']);
-                    sel.data('err_data', err_meth['conf']['err_data']);
-                    sel.data('type', err_meth['conf']['type']);
-                    sel.data('tmp_id', err_meth['id']);
-                    $(method[2]).append(sel.clone(true).unbind())
+                if($(this).data('tmp_id') != undefined){
+                    return $(this).data('tmp_id') === err_meth['id'];
                 }
-                if (err_meth['conf']['type'] === 'storage'){
-                    let name = $(sel).text();
-                    $(sel).text(name + " (" + err_meth['cycles'] + " month(s))");
-                    $(sel).data('multiplier', err_meth['cycles']);
-                }
-                else if (err_meth['conf']['type'] === 'pcr'){
-                    let name = $(sel).text();
-                    $(sel).text(name + " (" + err_meth['cycles'] + " cycle(s))");
-                    $(sel).data('multiplier', err_meth['cycles']);
-                }
+                return false;
             });
+            if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
+                meth_selection = tmp_selection;
+            }
+            let sel;
+            if (meth_selection !== undefined) {
+                sel = $(meth_selection).clone(true).unbind();
+                $(method[0]).append(sel);
+            } else {
+                let opt = new Option(err_meth['name'] + " (CUSTOM)", err_meth['name'], undefined, true);
+                $(method[0]).append(opt);
+                sel = $(method[0] + ' option:selected');
+                sel.data('err_attributes', err_meth['conf']['err_attributes']);
+                sel.data('err_data', err_meth['conf']['err_data']);
+                sel.data('type', err_meth['conf']['type']);
+                sel.data('tmp_id', err_meth['id']);
+                $(method[2]).append(sel.clone(true).unbind())
+            }
+            if (err_meth['conf']['type'] === 'storage'){
+                let name = $(sel).text();
+                $(sel).text(name + " (" + err_meth['cycles'] + " month(s))");
+                $(sel).data('multiplier', err_meth['cycles']);
+            }
+            else if (err_meth['conf']['type'] === 'pcr'){
+                let name = $(sel).text();
+                $(sel).text(name + " (" + err_meth['cycles'] + " cycle(s))");
+                $(sel).data('multiplier', err_meth['cycles']);
+            }
         });
         initListsDnD();
     }

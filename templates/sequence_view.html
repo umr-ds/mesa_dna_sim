@@ -419,22 +419,14 @@
                                     <label data-balloon="Use Advanced Error Simulation Settings"
                                            data-balloon-pos="right">
                                         <input type="checkbox" aria-label="Use Advanced Error Simulation Settings"
-                                               id="adv_exec" class="switch is-rounded button-fill no-outline" onclick="let seq  = $('#classic_seqmeth');
-                                    let synth = $('#classic_synthmeth');let classic = $('#classic_err_settings');
+                                               id="adv_exec" class="switch is-rounded button-fill no-outline" onclick="
+                                    let classic = $('#classic_err_settings');
                                     let adv_exec = $('#adv_err_settings');
                                     if ($(this).is(':checked')) {
-                                    seq.data('selected', $('#classic_seqmeth option:selected').val());
-                                    synth.data('selected', $('#classic_synthmeth option:selected').val());
-                                    seq.val(0).prop('disabled', true);
-                                    synth.val(0).prop('disabled', true);
                                     classic.hide();
                                     adv_exec.show();
                                     initListsDnD();
                                 } else if ($(this).not(':checked')){
-                                    seq.val(0).prop('disabled', false);
-                                    synth.val(0).prop('disabled', false);
-                                    seq.find('option[value='+ seq.data('selected') + ']').prop('selected', true);
-                                    synth.find('option[value='+ synth.data('selected') + ']').prop('selected', true);
                                     classic.show();
                                     adv_exec.hide();
                                 }">
