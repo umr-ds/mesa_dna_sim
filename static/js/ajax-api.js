@@ -229,12 +229,14 @@ function set_listener(){
         });
     });
     $('[name="error_prob"], [name="raw_error_rate"]').each(function (e, elem) {
-        $(elem).on("paste klick change keyup", function (f) {
-            setTimeout(function(g){
-                let data = $(elem).val();
-                $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
-            });
+        $(elem).on("change", function (f) {
+            let data = $(elem).val();
+            $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
         });
+    });
+    $('#temperature').on("change", function (f) {
+       let data = $(this).val();
+       $(this).val(Math.max(0.0, data));
     });
     let methods = [['#synthmeth', '#synthesis_sortable'], ['#seqmeth', '#sequencing_sortable'], ['#storagemeth', '#pcr_sortable'], ['#pcrmeth', '#pcr_sortable']];
     methods.forEach(function (meth) {
