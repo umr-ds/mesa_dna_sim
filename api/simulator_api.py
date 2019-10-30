@@ -431,13 +431,13 @@ def do_all(r_method):
                 undesired_sequences = {}
                 for useq in enabled_undesired_seqs:
                     if useq['enabled']:
-                        undesired_sequences[useq['sequence']] = float(useq['error_prob']) / 100.0
+                        undesired_sequences[useq['sequence']] = [float(useq['error_prob']) / 100.0, useq['description']]
                 res = undesired_subsequences(sequence, undesired_sequences)
             except:
                 res = undesired_subsequences(sequence)
         else:
             res = undesired_subsequences(sequence)
-        usubseq_html = htmlify(res, sequence)
+        usubseq_html = htmlify(res, sequence, description=True)
         if kmer_window:
             try:
                 kmer_res = kmer_counting(sequence, int(kmer_window), error_function=kmer_error_prob_func)
@@ -482,8 +482,10 @@ def do_all(r_method):
             if "Storage/PCR" not in err_simulation_order:
                 err_simulation_order["Storage/PCR"] = []
             if "Storage" in err_simulation_order:
+                err_simulation_order["Storage"][0]['Process'] = 'storage'
                 err_simulation_order['Storage/PCR'].append(err_simulation_order["Storage"][0])
             if "PCR" in err_simulation_order:
+                err_simulation_order["PCR"][0]['Process'] = 'pcr'
                 err_simulation_order['Storage/PCR'].append(err_simulation_order["PCR"][0])
 
             for meth in err_simulation_order['Storage/PCR']:
@@ -493,7 +495,7 @@ def do_all(r_method):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed, conf=meth['conf'],
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['Process'], seed=seed, conf=meth['conf'],
                                   cycles=inner_cycles) + 1) % 4294967296
 
             # Sequencing:
@@ -788,7 +790,7 @@ def fastq_errors(input, sequence, sanger=True, modified=False):
     return res
 
 
-def htmlify(input, sequence, modification=False):
+def htmlify(input, sequence, modification=False, description=False):
     """
     All the calculations are done on the server to speed them up. Since the results are required to be in the html
     format to display them on the website, this methods htmlifies them. The html code contains information about the
@@ -802,6 +804,7 @@ def htmlify(input, sequence, modification=False):
     resmapping = {}  # map of length | sequence | with keys [0 .. |sequence|] and value = set(error[kmer])
     error_prob = {}
     err_lin = {}
+    desc = {}
     # reduce the span-classes list in case we wont underline / highlight the error classes anyway:
     reducesets = len(input) > 800
     for error in input:
@@ -821,10 +824,13 @@ def htmlify(input, sequence, modification=False):
                 error_prob[pos] = error["errorprob"]
             else:
                 error_prob[pos] += error["errorprob"]
+            if description:
+                desc[pos] = error['description']
 
     res = []
     buildup = ""
     lineage = ""
+    descript = ""
     buildup_errorprob = -1.0
     buildup_resmap = []
 
@@ -845,14 +851,18 @@ def htmlify(input, sequence, modification=False):
                 buildup = sequence[seq_pos]
                 if modification:
                     lineage = err_lin[seq_pos]
+                elif description:
+                    descript = desc[seq_pos]
                 buildup_errorprob = curr_err_prob
                 buildup_resmap = resmapping[seq_pos]
             else:
                 # current base has a different error prob / error class than previous base, finish previous group
-                res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
+                res.append((buildup_resmap, buildup_errorprob, buildup, lineage, descript))
                 # and initialize current group with current base error classes
                 if modification:
                     lineage = err_lin[seq_pos]
+                elif description:
+                    descript = desc[seq_pos]
                 buildup = sequence[seq_pos]
                 buildup_errorprob = curr_err_prob
                 buildup_resmap = resmapping[seq_pos]
@@ -860,18 +870,19 @@ def htmlify(input, sequence, modification=False):
             # current base does not have any error probability
             if buildup != "":
                 # if previous base / group is still in our tmp group, write it out
-                res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
+                res.append((buildup_resmap, buildup_errorprob, buildup, lineage, descript))
                 # and reset tmp group
                 buildup = ""
                 lineage = ""
+                descript = ""
                 buildup_errorprob = -1.0
                 buildup_resmap = []
             # no need to write current base to tmp since it does not belong to any error group
-            res.append(({}, 0.0, sequence[seq_pos], lineage))
+            res.append(({}, 0.0, sequence[seq_pos], lineage, descript))
             # res += str(sequence[seq_pos])
     # after the last base: if our tmp is still filled, write it out
     if buildup != "":
-        res.append((buildup_resmap, buildup_errorprob, buildup, lineage))
+        res.append((buildup_resmap, buildup_errorprob, buildup, lineage, descript))
     return build_html(res, reducesets)
 
 
@@ -886,7 +897,7 @@ def build_html(res_list, reducesets=True):
     res = ""
     cname_id = 0
     for elem in res_list:
-        resmap, error_prob, seq, lineage = elem
+        resmap, error_prob, seq, lineage, descript = elem
         if not lineage:
             error_prob = min(100.0, error_prob)
         if seq != "":
@@ -898,9 +909,12 @@ def build_html(res_list, reducesets=True):
                     cname_id += 1
                 else:
                     cname = " g_".join([str(x) for x in resmap])
-                if lineage == "":
+                if lineage == "" and descript == "":
                     res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
                            "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
+                elif lineage == "":
+                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + ", Description: " + str(descript) + \
+                           "\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
                            "\"style=\"background-color: " + colorize(error_prob) + ";\">" + str(seq) + "</span>"

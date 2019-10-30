@@ -28,9 +28,10 @@ def undesired_subsequences(sequence, dict_of_subsequences=None):
     i = 0
     for m in re.finditer(regextext, sequence, overlapped=True):
         res.append({'startpos': m.start(), 'endpos': m.start() + len(m.group(0)) - 1,
-                    'errorprob': dict_of_subsequences[m.group(0)],
+                    'errorprob': dict_of_subsequences[m.group(0)][0],
                     'identifier': "subsequences_" + str(i),
-                    'undesired_sequence': m.group(0)})
+                    'undesired_sequence': m.group(0),
+                    'description': dict_of_subsequences[m.group(0)][1]})
         i += 1
     return res
 
