@@ -1,4 +1,4 @@
-from flask import Blueprint, session, redirect, url_for, flash
+from flask import Blueprint, session, redirect, url_for, flash, make_response
 
 from usersettings.login import require_logged_in
 
@@ -17,4 +17,7 @@ def do_logout():
         flash('You have successfully logged out', 'success')
     else:
         flash('You are already logged out', 'warning')
-    return redirect(url_for('main_page.main_index'))
+
+    response = make_response(redirect(url_for('main_page.main_index')))
+    response.set_cookie('darkmode', 'false', 0)
+    return response

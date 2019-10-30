@@ -736,7 +736,6 @@ function queryServer(uuid) {
             let element = document.getElementById('mod_seq');
             set_mod_seq_inf(element.innerText);
             if (data['result_by_mail'] === true) {
-                //TODO show info that the result will be send via mail
                 resultsbymail.css('display', 'initial');
             }
             submit_seq_btn.removeClass('is-loading');

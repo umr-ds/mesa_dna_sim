@@ -47,7 +47,6 @@ def home():
 
 
 def check_existing_users():
-    # TODO maybe use different way to find out if we are in setup mode or not.
     users = User.query.all()
     return len(users) == 1 and users[0].user_id == 0
 

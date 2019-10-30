@@ -453,7 +453,6 @@ function closeOverlay() {
         "opacity": "0",
         "display": "none",
     }).show().animate({opacity: 0}, 100).hide()*/
-    //todo save values to the corresponding array
     overlay.fadeOut(175, "linear");
     //overlay.css("display", "none");
 }

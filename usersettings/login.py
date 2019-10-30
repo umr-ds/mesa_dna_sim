@@ -16,7 +16,7 @@ def require_admin(function_to_protect):
             user = User.query.filter_by(user_id=user_id).first()
             if user:
                 if not user.validated:
-                    flash("Account has to be validated first", 'danger')  # TODO Resend Mail?
+                    flash("Account has to be validated first", 'danger')
                     session.pop("user_id", None)
                     return redirect(url_for('login.do_login'))
                 # Success!

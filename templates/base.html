@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">-->
-<html lang="en">
+<html lang="en" {% if 'darkmode' in request.cookies and request.cookies['darkmode'] == "true" %}data-theme="dark"{% endif %}>
 <head>
     <title>{% block title %}MOSLA DNA Simulator{% endblock %}</title>
     {% block head %}
@@ -147,6 +147,7 @@
     {% if config['DEBUG'] or config['TESTING'] %}
         <script src={{ url_for('static',filename='js/jquery.min.js') }}></script>
         <script src={{ url_for('static',filename='js/dateconverter.js') }}></script>
+        <script src={{ url_for('static',filename='js/cookies.js') }}></script>
     {% else %}
         <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
     {% endif %}
@@ -222,7 +223,10 @@
                 $(".navbar-menu").toggleClass("is-active");
             });
         });
-        if(matchMedia('(prefers-color-scheme: dark)').matches) {
+        {% if not session['user_id'] %}
+        eraseCookie('darkmode');
+        {% endif %}
+        if ((matchMedia('(prefers-color-scheme: dark)').matches || getCookie('darkmode') === "true") && (getCookie('darkmode') !== "false")) {
          document.documentElement.setAttribute('data-theme', 'dark');
         }
         /*const toggleSwitch = document.querySelector('.theme-switch');

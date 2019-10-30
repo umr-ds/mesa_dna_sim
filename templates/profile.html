@@ -77,6 +77,19 @@
                         <button class="button is-block is-fullwidth" id="submit">Change Password</button>
                     </form>
                 </div>
+                <div>Darkmode:</div>
+                <div class="box">
+                    <button id="darkmode_on" class="button"
+                            {% if 'darkmode' in request.cookies and  request.cookies['darkmode'] == "true" %}disabled{% endif %}
+                            onclick="setCookie('darkmode', true, 32);document.documentElement.setAttribute('data-theme', 'dark');$('#darkmode_off').prop('disabled', '');$(this).prop('disabled','disabled')">
+                        Dark Mode
+                    </button>
+                    <button id="darkmode_off" class="button"
+                            {% if 'darkmode' not in request.cookies or request.cookies['darkmode'] != "true" %}disabled{% endif %}
+                            onclick="setCookie('darkmode', false, 32);document.documentElement.setAttribute('data-theme', 'light');$('#darkmode_on').prop('disabled', '');$(this).prop('disabled','disabled')">
+                        Light Mode
+                    </button>
+                </div>
                 <hr/>
                 <span style="white-space: nowrap;"><span class="red"><a href="{{ url_for('delete.do_delete') }}">
                 Delete
