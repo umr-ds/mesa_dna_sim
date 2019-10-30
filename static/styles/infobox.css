@@ -1,4 +1,4 @@
-.info, .success, .warning, .danger, .limit_char {
+.info, .success, .warning, .danger, .limit_char, .fasta {
     padding: 10px;
     margin: 10px 0;
     text-align: center;
@@ -63,7 +63,7 @@ input[id^="spoiler"]:checked + label + .spoiler {
 }
 
 
-.info:before, .success:before, .warning:before, .danger:before, .limit_char:before {
+.info:before, .success:before, .warning:before, .danger:before, .limit_char:before, .fasta:before {
     font-style: normal;
     font-weight: 400;
     speak: none;
@@ -103,6 +103,11 @@ input[id^="spoiler"]:checked + label + .spoiler {
 .limit_char{
     color: #040609;
     background-color: #ffaf24;
+}
+
+.fasta{
+    color: #040609;
+    background-color: #4D7A97;
 }
 
 

@@ -9,7 +9,7 @@
                         <label class="form-group has-float-label">
                             <input style="width:100%" class="input is-rounded" id="{{ mode }}_description_{{ e_obj.id }}"
                                    type="text" name="description" placeholder="Description"
-                                   size="20"
+                                   size="20" autocomplete="off"
                                     {% if e_obj.name != None and e_obj.id != "new" %}
                                    value="{{ e_obj.name }}"
                                     {% endif %}

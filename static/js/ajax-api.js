@@ -216,7 +216,7 @@ $(document).ready(function () {
 });
 
 function set_listener(){
-    $('[name="sequence"]').each(function (e, elem) {
+    $('[name="sequence"], [name = "Original DNA-Sequence"], [name^="mismatch_changed"]').each(function (e, elem) {
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
                 let data = $(elem).val();
@@ -228,13 +228,15 @@ function set_listener(){
             });
         });
     });
-    $('[name="error_prob"], [name="raw_error_rate"]').each(function (e, elem) {
-        $(elem).on("paste klick change keyup", function (f) {
-            setTimeout(function(g){
-                let data = $(elem).val();
-                $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
-            });
+    $("[name='error_prob'], [name='raw_error_rate']").each(function (e, elem) {
+        $(elem).on("change", function (f) {
+            let data = $(elem).val();
+            $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
         });
+    });
+    $('#temperature').on("change", function (f) {
+       let data = $(this).val();
+       $(this).val(Math.max(0.0, data));
     });
     let methods = [['#synthmeth', '#synthesis_sortable'], ['#seqmeth', '#sequencing_sortable'], ['#storagemeth', '#pcr_sortable'], ['#pcrmeth', '#pcr_sortable']];
     methods.forEach(function (meth) {
@@ -328,7 +330,7 @@ function handleFileChange(evt) {
                         document.getElementById("send_email").checked = true;
                         document.getElementById("send_email").disabled = true;
                         document.getElementById("do_max_expect").checked = false;
-                        showWarn("FASTA file loaded. Max. Expect is unchecked now and the results will be send to your E-Mail", "warning", 1);
+                        $('#fasta_inf').show();
                         jseq.data("sequence_list", sequences);
                         jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
                         //queryServer(undefined);
@@ -417,7 +419,13 @@ function loadSendData(dta) {
             tmp.forEach(function (err_meth) {
                 let meth_selection;
                 let tmp_selection = $(method[2] + ' option').filter(function () {
-                    return $(this)[0]['value'] === err_meth['id'];
+                    if($(this)[0]['value'] === err_meth['id']){
+                        return true;
+                    }
+                    if($(this).data('tmp_id') != undefined){
+                        return $(this).data('tmp_id') === err_meth['id'];
+                    }
+                    return false;
                 });
                 if (JSON.stringify($(tmp_selection).data('err_data')) === JSON.stringify(err_meth['conf']['err_data']) && JSON.stringify($(tmp_selection).data('err_attributes')) === JSON.stringify(err_meth['conf']['err_attributes'])) {
                     meth_selection = tmp_selection;
@@ -433,6 +441,7 @@ function loadSendData(dta) {
                     sel.data('err_attributes', err_meth['conf']['err_attributes']);
                     sel.data('err_data', err_meth['conf']['err_data']);
                     sel.data('type', err_meth['conf']['type']);
+                    sel.data('tmp_id', err_meth['id']);
                     $(method[2]).append(sel.clone(true).unbind())
                 }
                 if (err_meth['conf']['type'] === 'storage'){
@@ -521,10 +530,6 @@ function collectSendData(space) {
     let seq_meth, synth_meth, storage_meth, pcr_meth;
     let exec_res = {};
     if(adv_meth.prop("checked")){
-        /*seq_meth = $("#seqmeth option:selected");
-        synth_meth = $("#synthmeth option:selected");
-        storage_meth = $("#storagemeth option:selected");
-        pcr_meth = $("#pcrmeth option:selected");*/
         /* collect all error simulation elements in correct execution order */
         let exec_order = $('#seqmeth1').children();
         exec_order.each(function (id, o_group) {
@@ -546,20 +551,23 @@ function collectSendData(space) {
         });
     }
     else{
+        exec_res['Sequencing'] = [];
+        exec_res['Synthesis'] = [];
+        exec_res['Storage/PCR'] = [];
         seq_meth = $("#classic_seqmeth option:selected");
         synth_meth = $("#classic_synthmeth option:selected");
         storage_meth = $("#classic_storagemeth option:selected");
         pcr_meth = $("#classic_pcrmeth option:selected");
         [[seq_meth, 'Sequencing'], [synth_meth, 'Synthesis'], [storage_meth, 'Storage/PCR'], [pcr_meth, 'Storage/PCR']].forEach(function (meth) {
             let cycles;
-            if (meth[0] === 'storage_meth') {
+            if (meth[0].data('type') === 'storage') {
                 cycles = $('#months').val()
-            } else if (meth[0] === 'pcr_meth') {
+            } else if (meth[0].data('type') === 'pcr') {
                 cycles = $('#cycles').val()
             } else {
                 cycles = 1;
             }
-            exec_res[meth[1]] = [{
+            exec_res[meth[1]].push({
                 name: meth[0].text(),
                 id: meth[0].val(),
                 cycles: cycles,
@@ -568,7 +576,7 @@ function collectSendData(space) {
                     err_attributes: meth[0].data('err_attributes'),
                     type: meth[0].data('type')
                 }
-            }];
+            });
         })
     }
 
@@ -732,6 +740,9 @@ function queryServer(uuid) {
             submit_seq_btn.removeClass('is-loading');
             if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
                 jseq.val("");
+                document.getElementById("send_email").checked = false;
+                document.getElementById("send_email").disabled = false;
+                $('#fasta_inf').hide();
             }
         },
         fail: function (data) {

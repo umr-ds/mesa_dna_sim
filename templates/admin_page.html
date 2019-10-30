@@ -4,7 +4,7 @@
     {% include "validation_overlay.html" %}
     <div class="control" id="overlay">
         <div class="box container is-fluid is-fluid-mobile overlay-all">
-            <a href="javascript:void(0)" class="roundclosebtn" onclick="closeOverlay()">&times;</a>
+            <a href="javascript:void(0)" class="delete is-large is-pulled-right" onclick="closeOverlay()">&times;</a>
             <div class="box overlay-content has-margin-bottom-12 has-no-padding-bottom has-no-margin-bottom"
                  id="overlay-content">
                 <canvas id="myChart"></canvas>
@@ -241,7 +241,7 @@
             </div>
         </div>
         <div class="box is-large" data-content="syn" style="padding-top: 35px; padding-bottom: 5px">
-            <form method="POST" action="{{ url_for('main_page.undesired_motifs') }}">
+            <form method="POST" autocomplete="off" action="{{ url_for('main_page.undesired_motifs') }}">
                 <div class="field">
                     <div class="control">
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
@@ -257,7 +257,7 @@
             </form>
         </div>
         <div class="box is-large" data-content="seq" style="padding-top: 35px; padding-bottom: 5px">
-            <form method="POST" action="{{ url_for('main_page.undesired_motifs') }}">
+            <form method="POST" autocomplete="off" action="{{ url_for('main_page.undesired_motifs') }}">
                 <div class="field">
                     <div class="control">
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
@@ -273,7 +273,7 @@
             </form>
         </div>
         <div class="box is-large" data-content="pcr" style="padding-top: 35px; padding-bottom: 5px">
-            <form method="POST" action="{{ url_for('main_page.undesired_motifs') }}">
+            <form method="POST" autocomplete="off" action="{{ url_for('main_page.undesired_motifs') }}">
                 <div class="field">
                     <div class="control">
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
@@ -289,7 +289,7 @@
             </form>
         </div>
         <div class="box is-large" data-content="sto" style="padding-top: 35px; padding-bottom: 5px">
-            <form method="POST" action="{{ url_for('main_page.undesired_motifs') }}">
+            <form method="POST" autocomplete="off" action="{{ url_for('main_page.undesired_motifs') }}">
                 <div class="field">
                     <div class="control">
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
@@ -305,7 +305,7 @@
             </form>
         </div>
         <div class="box is-large" data-content="gck">
-            <form method="POST" action="{{ url_for('main_page.undesired_motifs') }}">
+            <form method="POST" autocomplete="off" action="{{ url_for('main_page.undesired_motifs') }}">
                 <div class="field">
                     <div class="control">
                         <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
@@ -371,7 +371,7 @@
             </form>
         </div>
         <div class="box is-large" data-content="use">
-            <form method="POST" action="{{ url_for('main_page.manage_users') }}">
+            <form method="POST" autocomplete="off" action="{{ url_for('main_page.manage_users') }}">
                 <div class="field">
                     <div class="control">
                         <div class="columns is-full is-multiline has-no-margin-left has-no-margin-top"
