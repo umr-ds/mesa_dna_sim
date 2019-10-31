@@ -38,7 +38,7 @@
                                 </div>
                                 {% if e_obj.id == "new" and mode == "storage" %}
                                 <div class="control">
-                                    <label data-balloon="..." data-balloon-pos="left">
+                                    <label data-balloon="Calculate the depurination rate for in-solution-stored dna sequences." data-balloon-pos="left">
                                         <input class="button is-block button-fill is-rounded" type="button"
                                                id="invitro_{{ mode }}_{{ e_obj.id }}"
                                                onclick="let callback=function (res) { $('#{{ mode }}_error_raw_rate_{{ e_obj.id }}').val(res); };showInVitroOverlay(callback); return false;"
