@@ -124,10 +124,10 @@ function toogleCubicInterpolation() {
     curr_chart.data.datasets.forEach(function (dataset) {
         if (useCubicInterpolation) {
             dataset['cubicInterpolationMode'] = 'monotone';
-            dataset['lineTension'] = 1.0;
+            dataset['lineTension'] = 0.000001;
         } else {
-            dataset['cubicInterpolationMode'] = 'default';
-            dataset['lineTension'] = 0.0;
+            dataset['cubicInterpolationMode'] = undefined;
+            dataset['lineTension'] = 0.000001;
         }
     });
     curr_chart.update();

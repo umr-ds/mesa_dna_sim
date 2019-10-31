@@ -695,6 +695,7 @@ function queryServer(uuid) {
             resultsbymail.css('display', 'none');
         },
         success: function (data) {
+            submit_seq_btn.removeClass('is-loading');
             if (sequence !== "" && sequence in data)
                 data = data[sequence];
             let recv_uuid = data['uuid'];
@@ -738,7 +739,6 @@ function queryServer(uuid) {
             if (data['result_by_mail'] === true) {
                 resultsbymail.css('display', 'initial');
             }
-            submit_seq_btn.removeClass('is-loading');
             if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
                 jseq.val("");
                 document.getElementById("send_email").checked = false;

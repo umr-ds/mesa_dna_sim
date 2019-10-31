@@ -115,8 +115,7 @@
                                                         data-balloon="{% if subsequence.validated %}Already validated!{% elif subsequence.awaits_validation %}Awaiting validation, you can still update.{% else %}Request validation{% endif %}"
                                                         data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
                                                         {% if subsequence.validated or subsequence.awaits_validation %}disabled{% endif %}
-                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('
-                                                                {% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func); return false;">
+                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc|e }}{% endif %}', callback_func); return false;">
                                                     Publish
                                                 </button>
                                             </td>

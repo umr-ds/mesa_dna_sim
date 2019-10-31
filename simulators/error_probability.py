@@ -1,6 +1,6 @@
 import json
 import numpy as np
-from scipy.interpolate import interp1d, PchipInterpolator
+from scipy.interpolate import interp1d, PchipInterpolator, pchip, CubicSpline, CubicHermiteSpline,CubicSpline
 
 """
 Json-Input should look like this:
@@ -55,6 +55,8 @@ def create_error_prob_function(error_prob_dict):
     y_list = np.asarray([round(elem["y"], y_round) for elem in data], dtype=np.float32)
     if use_interpolation:
         f = PchipInterpolator(x_list, y_list)  # "Real" Cubic interpolation: interp1d(x_list, y_list, kind='cubic')
+        #f = CubicSpline(x_list, y_list)
+        #f = interp1d(x_list, y_list, kind='cubic')
     else:
         f = interp1d(x_list, y_list)
 

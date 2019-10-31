@@ -51,7 +51,7 @@ def windowed_gc_content(sequence, window_size=15, error_function=default_error_f
     j = 0
     for i in range(no_windows):
         basecount = dict()
-        window_sequence = sequence[i * window_size:min((i + 1) * window_size - 1, length)]
+        window_sequence = sequence[i * window_size:min((i + 1) * window_size, length)]
         curr_length = len(window_sequence)
         for char_pos in range(curr_length):
             if window_sequence[char_pos] in basecount:
