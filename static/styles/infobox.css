@@ -588,3 +588,7 @@ td, th {
     background-color: var(--sort-opt-bg-color);
     cursor: pointer;
 }
+
+#inner_invitrooverlay > div > div > .has-float-label > span::after {
+    top: 40% !important;
+}

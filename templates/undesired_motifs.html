@@ -7,6 +7,53 @@
     {% include "validation_overlay.html" %}
 
     <h3 class="title">Simulation Settings</h3>
+    <div class="control" id="invitrooverlay">
+        <div class="box container is-fluid is-fluid-mobile overlay-all" id="inner_invitrooverlay">
+            <a href="javascript:void(0)" class="delete is-large is-pulled-right"
+               onclick="closeInVitroOverlay()">&times;</a>
+
+            <br/>
+
+            <div class="overlay-managebox columns is-multiline is-centered has-no-margin-top has-no-padding-top"
+                 id="overlay-managebox">
+                <div class="column is-full has-no-padding-left has-no-padding-bottom has-no-padding-top has-text-centered">
+                    <p>The following calculation is based on &quot;<em>Non-Enzymatic Depurination of NucleicAcids: Factors and Mechanisms</em>&quot; ( <a href="https://doi.org/10.1371/journal.pone.0115950">https://doi.org/10.1371/journal.pone.0115950</a>)</p>
+
+                    With T &equals; absolute Temperature &lpar; &deg;K &rpar; and k &equals; the Depurination Rate per Base and per Second:
+                    <p>pH &lt; 2.5, lg(k) &equals; 14.6 &minus; 0.707 &times; pH &minus; 5.63 &times;  10<sup>3</sup> / T<br/>
+                        pH &ge; 2.5, lg(k) &equals; 16.5 &minus; 0.982 &times; pH &minus; 5.85 &times; 10<sup>3</sup> / T</p>
+                </div>
+                <div class="column is-full has-no-padding-top has-no-padding-bottom">
+                    <div class="is-divider" data-content="Calculation"></div>
+                </div>
+                <div class="column is-half is-full-mobile has-no-padding-left has-no-padding-bottom has-no-padding-top">
+                    <label class="form-group has-float-label">
+                        <input style="width:100%" class="input is-rounded" id="in_vitro_ph"
+                               type="number" name="in_vitro_ph" placeholder="pH" step="0.01"
+                               min="0.00" max="14.00" value="7.0" required><span>pH-Value</span></label>
+                </div>
+                <div class="column is-half is-full-mobile has-no-padding-left has-no-padding-bottom has-no-padding-top">
+                    <label class="form-group has-float-label">
+                        <input style="width:100%" class="input is-rounded" id="in_vitro_temp"
+                               type="number" name="in_vitro_temp" placeholder="Kelvin" step="0.01"
+                               min="0.00" value="293" required><span>Kelvin</span></label>
+                </div>
+                <div class="column has-no-padding-left">
+                    <label class="form-group has-float-label">
+                        <p class="control has-icons-right">
+                        <input style="width:100%" class="input is-rounded" id="in_vitro_result"
+                               type="number" name="in_vitro_result" placeholder="Resulting Erro Rate" step="0.01"
+                               min="0.00" value="0.0120238485140381" required
+                               readonly><span class="icon is-right"><i class="fas fa-percentage"></i></span></p><span>Depurination Rate</span></label>
+
+                </div>
+                <div class="column is-1 has-no-padding-left" style="padding-top: 1.1rem;padding-right: 0px;">/ Base / Month</div>
+                <div class="column is-full has-no-padding-left">
+                    <button class="button button-fill" id="in_vitro_set_rate">Set Error Rate</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="tabs is-centered is-boxed is-fullwidth has-no-margin-bottom" id="tabs">
         <ul>
             <li class="is-active" data-tab="sub"><a>Undesired motifs</a></li>
@@ -67,7 +114,8 @@
                                                         data-balloon="{% if subsequence.validated %}Already validated!{% elif subsequence.awaits_validation %}Awaiting validation, you can still update.{% else %}Request validation{% endif %}"
                                                         data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
                                                         {% if subsequence.validated or subsequence.awaits_validation %}disabled{% endif %}
-                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func); return false;">
+                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('
+                                                                {% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func); return false;">
                                                     Publish
                                                 </button>
                                             </td>
@@ -251,7 +299,17 @@
         <script src={{ url_for('static',filename='js/error-chart.js') }}></script>
     {% endif %}
     <script>
-
+        let bdy = $("body");
+        bdy.click(function (event) {
+            if (!$(event.target).closest("#inner_invitrooverlay,#invitro_storage_new").length) {
+                closeInVitroOverlay();
+            }
+        });
+        bdy.click(function (event) {
+            if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
+                $("#validation_overlay").hide();
+            }
+        });
         $(document).ready(function () {
             $('#tabs li').on('click', function () {
                 var tab = $(this).data('tab');
@@ -261,6 +319,15 @@
 
                 $('#tab-content div').removeClass('is-active');
                 $('div[data-content="' + tab + '"]').addClass('is-active');
+            });
+
+            let iV_pH = $('#in_vitro_ph');
+            let iV_Temp = $('#in_vitro_temp');
+            iV_pH.bind("propertychange change click keyup input paste", function () {
+                $('#in_vitro_result').val(calculateInVitroErrorRate(iV_pH, iV_Temp))
+            });
+            iV_Temp.bind("propertychange change click keyup input paste",function () {
+                $('#in_vitro_result').val(calculateInVitroErrorRate(iV_pH, iV_Temp))
             });
         });
 
@@ -277,21 +344,10 @@
             });
         });
 
-
-        /*$('#add_new_subseq').click(function (event) {
-            event.preventDefault();
-            addSubSeq('{{ host }}')
-        });*/
-
-        $("body").click(function (event) {
-            if (!$(event.target).closest("#inner_validation_overlay,.button").length) {
-                $("#validation_overlay").hide();
-            }
-        });
-
         $(document).keyup(function (e) {
-            if (e.keyCode === 27 && $("#validation_overlay").is(':visible')) {
+            if (e.keyCode === 27 && ($("#validation_overlay").is(':visible') || $("#invitrooverlay").is(':visible'))) {
                 closeValidationOverlay();
+                closeInVitroOverlay();
             }
         });
 

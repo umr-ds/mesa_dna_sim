@@ -1307,3 +1307,26 @@ function getNextHistory(showId) {
         }
     });
 }
+
+function closeInVitroOverlay() {
+    $('#invitrooverlay').fadeOut(175, "linear");
+}
+
+function showInVitroOverlay(callback) {
+    $('#invitrooverlay').fadeIn(175, "linear");
+    $('#in_vitro_set_rate').removeAttr('onclick').off().on('click', function () {
+        if (callback !== undefined)
+            callback($('#in_vitro_result').val());
+        closeInVitroOverlay()
+    });
+}
+
+function calculateInVitroErrorRate(iV_pH, iV_Temp) {
+    let pH = iV_pH.val();
+    let temp = iV_Temp.val();
+    if (pH < 2.5) {
+        return Math.pow(10,14.6 - 0.707 * pH - (5.63 * Math.pow(10,3)) / temp) * 100 * 2629746;
+    } else {
+        return Math.pow(10, 16.5 - 0.982 * pH - (5.85 * Math.pow(10,3)) / temp) * 100 * 2629746;
+    }
+}
