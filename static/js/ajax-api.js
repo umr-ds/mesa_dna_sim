@@ -219,7 +219,7 @@ function set_listener(){
     $('[name="sequence"], [name = "Original DNA-Sequence"], [name^="mismatch_changed"]').each(function (e, elem) {
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
-                if((f.which == 65 || f.which == 17) && f.type == "keyup"){
+                if((f.which == 65 || f.which == 17 || f.which == 67) && f.type == "keyup"){
                     return;
                 }
                 let data = $(elem).val();
@@ -730,10 +730,13 @@ function queryServer(uuid) {
                 res.css('display', '');
                 $('html, body').animate({scrollTop: res.offset().top}, 500);
             }
-
-
             let element = document.getElementById('mod_seq');
-            set_mod_seq_inf(element.innerText);
+            try{
+                set_mod_seq_inf(element.innerText);
+            }
+            catch (e) {
+
+            }
             if (data['result_by_mail'] === true) {
                 resultsbymail.css('display', 'initial');
             }
