@@ -219,6 +219,9 @@ function set_listener(){
     $('[name="sequence"], [name = "Original DNA-Sequence"], [name^="mismatch_changed"]').each(function (e, elem) {
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
+                if((f.which == 65 || f.which == 17) && f.type == "keyup"){
+                    return;
+                }
                 let data = $(elem).val();
                 let data_len = data.length;
                 let pos = $(elem)[0].selectionStart;
@@ -238,27 +241,22 @@ function set_listener(){
        let data = $(this).val();
        $(this).val(Math.max(0.0, data));
     });
-    /*let methods = [['#synthmeth', '#synthesis_sortable'], ['#seqmeth', '#sequencing_sortable'], ['#storagemeth', '#pcr_sortable'], ['#pcrmeth', '#pcr_sortable']];
-    methods.forEach(function (meth) {
-        $(meth[0]).bind('dbclick, keyup', function (e) {
-            if(e.which === 13 || e.type === 'dbclick'){
-                let clone = $(meth[0]+' :selected').clone(true).unbind();
-                $(meth[1]).append(clone);
-                if(meth[0] === '#storagemeth') {
-                    let name = $(clone).text();
-                    let mon = $('#mon').val();
-                    $(clone).text(name + " (" + mon + " month(s))");
-                    $(clone).data('multiplier', mon)
-                }
-                else if(meth[0] === '#pcrmeth'){
-                    let name = $(clone).text();
-                    let mon = $('#cyc').val();
-                    $(clone).text(name + " (" + mon + " cycle(s))");
-                    $(clone).data('multiplier', mon)
-                }
-            }
-        });
-    });*/
+    $('#gc_window_size, #kmer_window_size').on("change", function (f) {
+        let data = $(this).val();
+        $(this).val(Math.max(2, data));
+    });
+    $('#months, #mon').on("change", function (f) {
+        let data = $(this).val();
+        $(this).val(Math.max(0, data));
+    });
+    $('#cycles, #cyc').on("change", function (f) {
+        let data = $(this).val();
+        $(this).val(Math.max(0, Math.min(data, 100)));
+    })
+    $('#seed').on("change", function (f) {
+        let data = $(this).val();
+        $(this).val(Math.max(0, data));
+    })
 }
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
