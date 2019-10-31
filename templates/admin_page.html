@@ -214,7 +214,7 @@
                                             data-balloon="{% if subsequence.validated %}Already validated - update to remove validation!{% elif subsequence.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
                                             data-balloon-pos="up" id="validate_subseq_{{ subsequence.id }}"
                                             {% if subsequence.validated %}disabled{% endif %}
-                                            onclick="updateSeq('{{ host }}',{{ subsequence.id }});let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc }}{% endif %}', callback_func, true);return false;">
+                                            onclick="updateSeq('{{ host }}',{{ subsequence.id }});let callback_func = function (desc) { validateSeq('{{ host }}', {{ subsequence.id }}, desc) };showValidationOverlay('{% if subsequence.validation_desc != None %}{{ subsequence.validation_desc | e | replace("\n", "\\n") | replace("\r", "") }}{% endif %}', callback_func, true);return false;">
                                         Publish
                                     </button>
                                 </td>
@@ -334,7 +334,7 @@
                                                     data-balloon="{% if g_error.validated %}Already validated - update to remove validation!{% elif g_error.awaits_validation %}Validate and publish{% else %}Request validation{% endif %}"
                                                     data-balloon-pos="up" id="publish_gerr_{{ g_error.id }}"
                                                     {% if g_error.validated %}disabled{% endif %}
-                                                    onclick="let callback_func = function (desc) { validateGraphError('{{ host }}', {{ g_error.id }}, true, desc) };showValidationOverlay('{% if g_error.validation_desc != None %}{{ g_error.validation_desc }}{% endif %}', callback_func, true);return false;">
+                                                    onclick="let callback_func = function (desc) { validateGraphError('{{ host }}', {{ g_error.id }}, true, desc) };showValidationOverlay('{% if g_error.validation_desc != None %}{{ g_error.validation_desc|e | replace("\n", "\\n") | replace("\r", "")  }}{% endif %}', callback_func, true);return false;">
                                                 Publish
                                             </button>
                                         </div>

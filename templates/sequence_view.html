@@ -170,7 +170,7 @@
         <form id="submit_sequence" class="is-fluid is-fluid-mobile">
             <div class="is-block-touch columns is-multiline has-no-padding-bottom has-no-margin-bottom">
                 <div class="tooltip" data-position="upper">?
-                    <span class="tooltiptext">You can upload your Sequnce, FASTA-files or configuration by dragging them in here!</span>
+                    <span class="tooltiptext">You can upload your Sequence, FASTA-files or configuration by dragging them in here!</span>
                 </div>
                 <div class="column is-full">
                     <div class="columns">
@@ -209,7 +209,7 @@
                     <div class="box" id="motif_spoiler" style="display: none">
                         <h3>Changes here wont be saved in your profile!</h3>
                         <br/>
-                        <div class="columns">
+                        <div class="columns" style="margin-top: -2.75rem;">
                             <div class="column">
                                 <label>
                                     <input type="checkbox" aria-label="Enable all motifs" id="enable_all" checked=""
@@ -293,7 +293,7 @@
                                         <input class="input is-rounded" type="number" id="gc_window_size"
                                                placeholder=""
                                                size="4"
-                                               value="15"
+                                               value="50"
                                                required min="2" step="1"><span>GC Window</span></label>
                                 </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
@@ -325,7 +325,7 @@
                                         <input class="input is-rounded" type="number" id="kmer_window_size"
                                                placeholder=""
                                                size="4"
-                                               value="15"
+                                               value="10"
                                                required min="2" step="1"><span>Kmer Window</span></label>
                                 </div>
                                 <div class="column is-full-mobile is-expanded field has-addons has-addons-centered">
@@ -625,8 +625,8 @@
                                 </div>
                             </div>
                             <div class="tooltip" data-position="lower">?
-                            <span class="tooltiptext">Use Enter to add the selected method to the execution order
-                                    and Del to delete the selected method from it. On some browsers drag&amp;drop also works.</span>
+                            <span class="tooltiptext">Use drag&drop to add the selected method to the execution order
+                                    and drag methods to the trashcan to delete them from the execution order.</span>
                         </div>
                         </div>
                     </div>

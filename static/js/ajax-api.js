@@ -693,6 +693,7 @@ function queryServer(uuid) {
             resultsbymail.css('display', 'none');
         },
         success: function (data) {
+            submit_seq_btn.removeClass('is-loading');
             if (sequence !== "" && sequence in data)
                 data = data[sequence];
             let recv_uuid = data['uuid'];
@@ -739,7 +740,6 @@ function queryServer(uuid) {
             if (data['result_by_mail'] === true) {
                 resultsbymail.css('display', 'initial');
             }
-            submit_seq_btn.removeClass('is-loading');
             if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
                 jseq.val("");
                 document.getElementById("send_email").checked = false;
@@ -1172,17 +1172,15 @@ function initListsDnD() {
                     if (evt.to === trash) {
                         evt.to.children[evt.newIndex].remove();
                     }
-                },
-                onClone: function(evt){
-                    if (evt.from.parentElement.id === 'pcrmeth'){
+                    if (evt.from.parentElement.id === 'pcrmeth' && evt.to != evt.from) {
                         let name = $(evt.item).text();
                         let cycles = $('#cyc').val();
-                        $(evt.item).text(""+name+" ("+ cycles +" cycle(s))").data('multiplier', cycles);
+                        $(evt.item).text("" + name + " (" + cycles + " cycle(s))").data('multiplier', cycles);
                     }
-                    if (evt.from.parentElement.id === 'storagemeth'){
+                    if (evt.from.parentElement.id === 'storagemeth' && evt.to != evt.from) {
                         let name = $(evt.item).text();
                         let months = $('#mon').val();
-                        $(evt.item).text(""+name+" ("+ months +" month(s))").data('multiplier', months);
+                        $(evt.item).text("" + name + " (" + months + " month(s))").data('multiplier', months);
                     }
                 }
             }));

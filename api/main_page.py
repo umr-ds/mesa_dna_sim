@@ -64,8 +64,9 @@ def setup():
                              validated=True, is_admin=True)
             db.session.add(new_admin)
             db.session.commit()
+            create_apikey(new_admin.user_id)
             session['user_id'] = new_admin.user_id
-            flash("Admin-Account created. Enjoy the Software.")
+            flash("Admin-Account created. Enjoy the Software.", 'info')
             return redirect(url_for("main_page.main_index"))
     else:
         return redirect(url_for("main_page.main_index"))
