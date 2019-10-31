@@ -1171,17 +1171,15 @@ function initListsDnD() {
                     if (evt.to === trash) {
                         evt.to.children[evt.newIndex].remove();
                     }
-                },
-                onClone: function(evt){
-                    if (evt.from.parentElement.id === 'pcrmeth'){
+                    if (evt.from.parentElement.id === 'pcrmeth' && evt.to != evt.from) {
                         let name = $(evt.item).text();
                         let cycles = $('#cyc').val();
-                        $(evt.item).text(""+name+" ("+ cycles +" cycle(s))").data('multiplier', cycles);
+                        $(evt.item).text("" + name + " (" + cycles + " cycle(s))").data('multiplier', cycles);
                     }
-                    if (evt.from.parentElement.id === 'storagemeth'){
+                    if (evt.from.parentElement.id === 'storagemeth' && evt.to != evt.from) {
                         let name = $(evt.item).text();
                         let months = $('#mon').val();
-                        $(evt.item).text(""+name+" ("+ months +" month(s))").data('multiplier', months);
+                        $(evt.item).text("" + name + " (" + months + " month(s))").data('multiplier', months);
                     }
                 }
             }));
