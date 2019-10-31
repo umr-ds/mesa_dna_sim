@@ -16,14 +16,15 @@
                                    required><span>Description</span></label>
                     </div>
                     <div class="column has-no-padding-left has-no-padding-top has-no-padding-bottom {% if not is_admin %}has-no-padding-right{% endif %}">
-                            <div class="field columns is-full is-multiline">
-                                <div class="column is-full"
-                                     id="{{ mode }}_error_raw_{{ e_obj.id }}">
+                        <div class="field columns is-full is-multiline">
+                            <div class="column is-full-mobile is-expanded field {% if e_obj.id == "new" and mode == "storage" %}has-addons has-addons-centered{% endif %}">
+                                <div class="control is-expanded">
                                     <label class="form-group has-float-label">
                                         <p class="control has-icons-right">
                                             <input style="width:100%" class="input is-rounded"
                                                    id="{{ mode }}_error_raw_rate_{{ e_obj.id }}"
-                                                   type="number" name="raw_error_rate" placeholder="Raw Rate" step="0.01"
+                                                   type="number" name="raw_error_rate" placeholder="Raw Rate"
+                                                   step="0.01"
                                                    min="0.00" max="100.00"
 
                                                    value="{% if e_obj.id == "new" %}1.25{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
@@ -35,8 +36,19 @@
                                         <span style="white-space: nowrap;">Raw Error Rate</span>
                                     </label>
                                 </div>
+                                {% if e_obj.id == "new" and mode == "storage" %}
+                                <div class="control">
+                                    <label data-balloon="..." data-balloon-pos="left">
+                                        <input class="button is-block button-fill is-rounded" type="button"
+                                               id="invitro_{{ mode }}_{{ e_obj.id }}"
+                                               onclick="let callback=function (res) { $('#{{ mode }}_error_raw_rate_{{ e_obj.id }}').val(res); };showInVitroOverlay(callback); return false;"
+                                               value="Calculate in-vitro rate">
+                                    </label>
+                                </div>
+                                {% endif %}
                             </div>
                         </div>
+                    </div>
                 </div>
                     {% if is_admin %}
                         <div class="select is-rounded column has-no-padding-left has-no-padding-bottom has-no-padding-top is-one-sixt-fullhd is-one-sixt">
@@ -49,13 +61,7 @@
                                 </select>
                         </div>
                     {% endif %}
-                    {% if e_obj.id == "new" %}
-                        <div class="column has-no-padding-top" style="flex: none;width: fit-content">
-                            <button class="button"
-                                    id="invitro_{{ mode }}_{{ e_obj.id }}"
-                                    onclick="let callback=function (res) { $('#{{ mode }}_error_raw_rate_{{ e_obj.id }}').val(res); };showInVitroOverlay(callback); return false;">Calculate in-vitro rate
-                            </button>
-                        </div>
+                    {% if e_obj.id == "new" and mode == "storage"%}
                         <div class="column has-no-padding-top" style="flex: none;width: fit-content">
                             <button class="button"
                                     id="update_{{ mode }}_{{ e_obj.id }}"
