@@ -172,6 +172,11 @@
                 return this.substr(position, searchString.length) === searchString;
             };
         }
+        if (!String.prototype.includes) {//To check browser supports or not
+            String.prototype.includes = function (str) {//If not supported, then define the method
+                return this.indexOf(str) !== -1;
+            }
+        }
         if (!Array.prototype.fill) {
             Object.defineProperty(Array.prototype, 'fill', {
                 value: function (value) {

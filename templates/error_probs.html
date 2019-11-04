@@ -24,10 +24,10 @@
                                             <input style="width:100%" class="input is-rounded"
                                                    id="{{ mode }}_error_raw_rate_{{ e_obj.id }}"
                                                    type="number" name="raw_error_rate" placeholder="Raw Rate"
-                                                   step="0.01"
+                                                   step="0.001"
                                                    min="0.00" max="100.00"
 
-                                                   value="{% if e_obj.id == "new" %}1.25{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ err_val|float|round(6, 'common') }}{% endif %}"
+                                                   value="{% if e_obj.id == "new" %}1.25{% else %}{% set err_val = e_obj.err_data.raw_rate * 100 %}{{ "%.15f"|format(err_val|float) }}{% endif %}"
                                                    required>
                                             <span class="icon is-right">
                                 <i class="fas fa-percentage"></i>
@@ -75,13 +75,13 @@
                                         data-balloon="{% if e_obj.validated %}Already validated - update to remove validation!{% elif e_obj.awaits_validation %}{% if is_admin %}Validate and publish{% else %}Awaiting validation, you can still update.{% endif %}{% else %}Request validation{% endif %}"
                                         data-balloon-pos="up" id="validate_{{ mode }}_{{ e_obj.id }}"
                                         {% if e_obj.validated or (not is_admin and e_obj.awaits_validation) %}disabled{% endif %}
-                                        onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});let callback_func = function (desc) { validateCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }}, desc);{% if is_admin %}$('#validate_{{ mode }}_{{ e_obj.id }}').attr('data-balloon','Already validated - update to remove validation!');{% endif %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled', true)};showValidationOverlay('{% if e_obj.validation_desc != None %}{{ e_obj.validation_desc|e | replace("\n", "\\n") | replace("\r", "")  }}{% endif %}', callback_func); return false;">Publish</button>
+                                        onclick="sendCustomError('{{ host }}','{{ mode }}', '{{ e_obj.id }}');let callback_func = function (desc) { validateCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }}, desc);{% if is_admin %}$('#validate_{{ mode }}_{{ e_obj.id }}').attr('data-balloon','Already validated - update to remove validation!');{% endif %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled', true)};showValidationOverlay('{% if e_obj.validation_desc != None %}{{ e_obj.validation_desc|e | replace("\n", "\\n") | replace("\r", "")  }}{% endif %}', callback_func); return false;">Publish</button>
                             </div>
                             <div class="column has-no-padding-bottom button-fill has-no-padding-top">
                                 <button class="button button-fill"
                                         data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
                                         data-balloon-pos="up" id="update_{{ mode }}_{{ e_obj.id }}"
-                                        onclick="sendCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }});{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">&nbsp;<i class="fas fa-save"></i>&nbsp;</button>
+                                        onclick="sendCustomError('{{ host }}','{{ mode }}', '{{ e_obj.id }}');{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">&nbsp;<i class="fas fa-save"></i>&nbsp;</button>
                             </div>
                             <div class="column has-no-padding-bottom has-no-padding-top button-fill">
                                 <label style="white-space: nowrap;" for="spoiler-{{ mode }}-{{ e_obj.id }}"

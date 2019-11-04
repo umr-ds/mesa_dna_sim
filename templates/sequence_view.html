@@ -212,7 +212,7 @@
                         <div class="columns" style="margin-top: -2.75rem;">
                             <div class="column">
                                 <label>
-                                    <input type="checkbox" aria-label="Enable all motifs" id="enable_all" checked=""
+                                    <input type="checkbox" aria-label="Enable all motifs" id="enable_all"
                                            class="switch is-rounded button-fill is-large no-outline is-pulled-left"
                                            name="enable_all" onclick="let en = 'enabled'; $('[id^=en]').each(function (e, elem) {
                                             $(elem).prop('checked', $('#enable_all').prop('checked'));});">
@@ -230,7 +230,7 @@
                                                        class="switch is-large is-rounded button-fill no-outline"
                                                        id="enabled_{{ subsequence.id }}" name="switchRoundedDefault"
                                                        aria-label="Enable Rule"
-                                                       value="{{ subsequence.id }}" checked/>
+                                                       value="{{ subsequence.id }}"/>
                                                 <label class="no-outline" for="enabled_{{ subsequence.id }}"></label>
                                             </td>
                                             <td style="width:50%"><label class="form-group has-float-label">
@@ -625,7 +625,7 @@
                                 </div>
                             </div>
                             <div class="tooltip" data-position="lower">?
-                            <span class="tooltiptext">Use drag&drop to add the selected method to the execution order
+                            <span class="tooltiptext">Use drag&amp;drop to add the selected method to the execution order
                                     and drag methods to the trashcan to delete them from the execution order.</span>
                         </div>
                         </div>

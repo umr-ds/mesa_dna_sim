@@ -367,7 +367,7 @@ def add_subsequences():
     user = User.query.filter_by(user_id=user_id).first()
     sequence = sanitize_input(request.form.get('sequence'))
     error_prob = max(0.0, min(1.0, float(request.form.get('error_prob'))))
-    description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
+    description = sanitize_input(request.form.get('description'))
     if user_id and user and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -472,7 +472,7 @@ def apply_validation_subseq():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     sequence_id = request.form.get('sequence_id')
-    validation_desc = sanitize_input(request.form.get('validation_desc'), r'[^a-zA-Z0-9() ]')
+    validation_desc = sanitize_input(request.form.get('validation_desc'))
     if user_id and user and sequence_id is not None:
         try:
             if user.is_admin:
@@ -535,7 +535,7 @@ def update_subsequences():
     sequence_id = request.form.get('sequence_id')
     sequence = sanitize_input(request.form.get('sequence'))
     error_prob = request.form.get('error_prob')
-    description = sanitize_input(request.form.get('description'), r'[^a-zA-Z0-9() ]')
+    description = sanitize_input(request.form.get('description'))
     if user_id and user and sequence_id is not None and sequence is not None and sequence != "" and error_prob is not None:
         try:
             error_prob = float(error_prob)
@@ -858,7 +858,7 @@ def send_js():
     return send_from_directory('', 'swagger.json')
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z0-9() ]'):
+def sanitize_input(input, regex=r'[^a-zA-Z0-9():/\\.,\-&?#= ]'):
     result = re.sub(regex, "", input)
     return result
 
