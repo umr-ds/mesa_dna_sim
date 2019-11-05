@@ -647,8 +647,11 @@ def get_error_prob_charts():
             charts = ErrorProbability.query.filter(
                 and_(ErrorProbability.validated, ErrorProbability.type == typ)).order_by(
                 asc(ErrorProbability.id)).all()
+        tmp_id = user_id
+        if user_id is None:
+            tmp_id = -1
         return jsonify(
-            {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(user_id)) for x in charts]})
+            {'did_succeed': True, 'charts': [ErrorProbability.serialize(x, int(tmp_id)) for x in charts]})
     except Exception as x:
         return jsonify({'did_succeed': False})
 

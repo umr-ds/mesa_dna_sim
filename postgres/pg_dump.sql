@@ -21,14 +21,22 @@ ALTER ROLE postgres WITH SUPERUSER INHERIT CREATEROLE CREATEDB LOGIN REPLICATION
 
 
 
+--
+-- Databases
+--
+
+--
+-- Database "template1" dump
+--
+
 \connect template1
 
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.3
--- Dumped by pg_dump version 11.3
+-- Dumped from database version 12.0
+-- Dumped by pg_dump version 12.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -46,11 +54,15 @@ SET row_security = off;
 --
 
 --
+-- Database "dna_sim" dump
+--
+
+--
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.3
--- Dumped by pg_dump version 11.3
+-- Dumped from database version 12.0
+-- Dumped by pg_dump version 12.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
@@ -87,7 +99,7 @@ SET row_security = off;
 
 SET default_tablespace = '';
 
-SET default_with_oids = false;
+SET default_table_access_method = heap;
 
 --
 -- Name: Apikey; Type: TABLE; Schema: public; Owner: dna_sim
@@ -630,7 +642,7 @@ COPY public.err_rates (id, method_id, submethod_id, err_data) FROM stdin;
 COPY public.error_probability (id, type, jsonblob, user_id, validated, created, name, awaits_validation, validation_desc) FROM stdin;
 23	gc	{"data": [{"x": 0, "y": 100}, {"x": 40, "y": 0}, {"x": 60.17, "y": 0}, {"x": 100, "y": 100}], "maxX": 100, "maxY": 100, "label": "Error Probability", "xLabel": "GC-Percentage", "xRound": 2, "yRound": 2, "interpolation": true}	0	t	1559745908	Soft Bandpass	f	\N
 19	homopolymer	{"data": [{"x": 0, "y": 0}, {"x": 2, "y": 0}, {"x": 4, "y": 0}, {"x": 5, "y": 0}, {"x": 6, "y": 0}, {"x": 7, "y": 0}, {"x": 8, "y": 100}, {"x": 20, "y": 100}], "maxX": 20, "maxY": 100, "label": "Error Probability", "xLabel": "Homopolymer length", "xRound": 0, "yRound": 2, "interpolation": true}	0	t	1559565822	0-to-7	f	\N
-37	kmer	{"data": [{"x": 0, "y": 0}, {"x": 3, "y": 0}, {"x": 10, "y": 100}, {"x": 40, "y": 100}, {"x": 60, "y": 100}, {"x": 100, "y": 100}], "maxX": 20, "maxY": 100, "label": "Error Probability", "xLabel": "Kmer repeats", "xRound": 0, "yRound": 2, "interpolation": true}	16	t	1572608400	0to3	f	\N
+37	kmer	{"data": [{"x": 0, "y": 0}, {"x": 3, "y": 0}, {"x": 10, "y": 100}, {"x": 40, "y": 100}, {"x": 60, "y": 100}, {"x": 100, "y": 100}], "maxX": 20, "maxY": 100, "label": "Error Probability", "xLabel": "Kmer repeats", "xRound": 0, "yRound": 2, "interpolation": true}	0	t	1572608400	0to3	f	\N
 \.
 
 
@@ -649,6 +661,7 @@ COPY public.meth_categories (id, method) FROM stdin;
 7	Eukaryotes
 8	Prokaryotes
 9	Polymerases
+10	In-vitro
 \.
 
 
@@ -706,14 +719,14 @@ COPY public.storage (id, err_data, user_id, validated, err_attributes, name, awa
 1	{"deletion": 0.06, "insertion": 0.06, "mismatch": 0.88, "raw_rate": 0.000000000069}	0	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0, "random": 1}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0, "random": 1}}, "mismatch": {"pattern": {}}}	H sapiens	f	Nachman MW, Crowell SL. Estimate of the mutation rate per nucleotide in humans. Genetics. 2000 Sep156(1):297-304 and Evolution of the Insertion-Deletion Mutation Rate\nAcross the Tree of Life	7
 2	{"deletion": 0.025, "insertion": 0.025, "mismatch": 0.95, "raw_rate": 0.0000000044}	0	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0, "random": 1}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0, "random": 1}}, "mismatch": {"pattern": {}}}	M musculus	f	Drake JW, Charlesworth B, Charlesworth D, Crow JF. Rates of spontaneous mutation. Genetics. 1998 Apr148(4):1667-86. And Evolution of the Insertion-Deletion Mutation Rate\nAcross the Tree of Life	7
 8	{"deletion": 0.3333, "insertion": 0.3333, "mismatch": 0.33340000000000003, "raw_rate": 0.0}	0	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	None	f	\N	6
-10	{"deletion": 0.0, "insertion": 0.0, "mismatch": 1.0, "raw_rate": 0.005}	16	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {"A": {"T": 0.3333, "G": 0.33340000000000003, "C": 0.3333}, "T": {"A": 0.3333, "G": 0.33340000000000003, "C": 0.3333}, "C": {"G": 0.3333, "T": 0.33340000000000003, "A": 0.3333}, "G": {"A": 0.3333, "T": 0.33340000000000003, "C": 0.3333}}}}	White Gaussian Noise with an error probability of 05 percent	f	\N	0
-15	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 9e-08}	16	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 7 and 253K (invitro)	f	\N	0
-12	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 1e-08}	16	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 8 and 253K	f	\N	0
-11	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 1.283e-05}	16	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 8 and 293K (invitro)	f	\N	0
-9	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 0.005}	16	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Erasure Channel with an error probability of 05 percent	f	\N	0
-14	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 0}	16	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 7 and 193K (invitro)	f	\N	0
-13	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 0}	16	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 8 and 193K (invitro)	f	\N	0
-16	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 0.0001231}	16	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 7 and 293K (invitro)	f	\N	0
+16	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 0.0001231}	0	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 7 and 293.15K	f	\N	10
+12	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 1e-08}	0	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 8 and 253.15K	f	\N	10
+9	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 0.005}	0	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Erasure Channel with an error probability of 05 percent	f	\N	10
+14	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 5.736e-15}	0	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 7 and 193.15K	f	\N	10
+10	{"deletion": 0.0, "insertion": 0.0, "mismatch": 1.0, "raw_rate": 0.005}	0	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {"A": {"T": 0.3333, "G": 0.33340000000000003, "C": 0.3333}, "T": {"A": 0.3333, "G": 0.33340000000000003, "C": 0.3333}, "C": {"G": 0.3333, "T": 0.33340000000000003, "A": 0.3333}, "G": {"A": 0.3333, "T": 0.33340000000000003, "C": 0.3333}}}}	White Gaussian Noise with an error probability of 05 percent	f	\N	10
+13	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 5.98e-16}	0	t	{"deletion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 8 and 193.15K	f	\N	10
+11	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 1.283e-05}	0	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 8 and 293.15K	f	\N	10
+15	{"deletion": 1, "insertion": 0, "mismatch": 0, "raw_rate": 9e-08}	0	t	{"deletion": {"pattern": {"A": 0.5, "C": 0.0, "G": 0.5, "T": 0.0}, "position": {"homopolymer": 0.0, "random": 1.0}}, "insertion": {"pattern": {"A": 0.25, "C": 0.25, "G": 0.25, "T": 0.25}, "position": {"homopolymer": 0.5, "random": 0.5}}, "mismatch": {"pattern": {}}}	Depurination at pH 7 and 253.15K	f	\N	10
 \.
 
 
@@ -739,52 +752,64 @@ COPY public.synth_err_rates (id, method_id, err_data, user_id, validated, err_at
 --
 
 COPY public.undesiredsubsequences (id, sequence, error_prob, created, validated, owner_id, description, awaits_validation, validation_desc) FROM stdin;
-57	TATAAA	1	1572601880	t	16	Eukaryotic promotor recognition motif httpsdoiorg10101600222836(90)902239	f	\N
-80	GGATACTT	1	1572603504	t	16	Lox site spacer lox3 httpsdoiorg10118614712164773	f	\N
-58	TTGACA	1	1572601974	t	16	Prokaryotic promoter recognition motif httpsdoiorg101016jjmb201101018	f	\N
-59	TGTATAATG	1	1572602092	t	16	Prokaryotic promoter recognition motif httpsdoiorg101016jjmb201101018	f	\N
-60	GCCACCATGG	1	1572602249	t	16	Eukaryotic ribosomal binding site httpsdoiorg10101600222836(87)904189	f	\N
-61	ACCACCATGG	1	1572602275	t	16	Eukaryotic ribosomal binding site httpsdoiorg10101600222836(87)904189	f	\N
-62	AATAAA	1	1572602545	t	16	Eukaryotic polyadenylation signal httpsdoiorg10101600928674(87)902923	f	\N
-63	TTGTGTGTTG	1	1572602565	t	16	Eukaryotic polyadenylation signal httpsdoiorg10101600928674(87)902923	f	\N
-65	ATAACTTCGTATAGCATACATTATACGAACGGTA	1	1572602735	t	16	loxR httpsdoiorg101016jjbiotec201606033	f	\N
-81	TACTATAC	1	1572603524	t	16	Lox site spacer lox4 httpsdoiorg10118614712164773	f	\N
-68	TACCGTTCGTATATGGTATTATATACGAAGTTAT	1	1572603087	t	16	lox1R httpsdoiorg101016jjbiotec201606033	f	\N
-67	TACCGTTCGTATAGCATACATTATACGAACGGTA	1	1572603059	t	16	loxLR httpsdoiorg101016jjbiotec201606033	f	\N
-82	CTATAGCC	1	1572603541	t	16	Lox site spacer lox5 httpsdoiorg10118614712164773	f	\N
-66	TACCGTTCGTATAGCATACATTATACGAAGTTAT	1	1572602757	t	16	loxL httpsdoiorg101016jjbiotec201606033	f	\N
-69	TACCGTTCGTATATTCTATCTTATACGAAGTTAT	1	1572603112	t	16	lox2R httpsdoiorg101016jjbiotec201606033	f	\N
-70	TACCGTTCGTATAGGATACTTTATACGAAGTTAT	1	1572603134	t	16	lox3R httpsdoiorg101016jjbiotec201606033	f	\N
-71	TACCGTTCGTATATACTATACTATACGAAGTTAT	1	1572603157	t	16	lox4R httpsdoiorg101016jjbiotec201606033	f	\N
-72	TACCGTTCGTATACTATAGCCTATACGAAGTTAT	1	1572603185	t	16	lox5R httpsdoiorg101016jjbiotec201606033	f	\N
-73	ATAACTTCGTATATGGTATTATATACGAACGGTA	1	1572603211	t	16	Lox1L httpsdoiorg101016jjbiotec201606033	f	\N
-74	ATAACTTCGTATAGTATACCTTATACGAAGTTAT	1	1572603228	t	16	loxN httpsdoiorg101016jjbiotec201606033	f	\N
-75	ATAACTTCGTATAGTATACATTATACGAAGTTAT	1	1572603245	t	16	loxP 511 httpsdoiorg101016jjbiotec201606033	f	\N
-76	ATAACTTCGTATAGTACACATTATACGAAGTTAT	1	1572603261	t	16	lox 5171 httpsdoiorg101016jjbiotec201606033	f	\N
-77	GCATACAT	1	1572603300	t	16	Lox site spacer loxP WT	f	\N
-78	TGGTATTA	1	1572603458	t	16	Lox site spacer lox1 httpsdoiorg10118614712164773	f	\N
-79	TTCTATCT	1	1572603481	t	16	Lox site spacer lox2 httpsdoiorg10118614712164773	f	\N
-83	AGGTATGC	1	1572603634	t	16	Lox site spacer lox6 httpsdoiorg101007978981103874733	f	\N
-84	TTGTATGG	1	1572603651	t	16	Lox site spacer lox7 httpsdoiorg101007978981103874733	f	\N
-85	GGATAGTA	1	1572603671	t	16	Lox site spacer lox8 httpsdoiorg101007978981103874733	f	\N
-86	GTGTATTT	1	1572603691	t	16	Lox site spacer lox9 httpsdoiorg101007978981103874733	f	\N
-87	GGTTACGG	1	1572607663	t	16	Lox site spacer lox10 httpsdoiorg101007978981103874733	f	\N
-88	TTTTAGGT	1	1572607694	t	16	Lox site spacer lox11 httpsdoiorg101007978981103874733	f	\N
-89	GTATACCT	1	1572607736	t	16	Lox site spacer loxN httpsdoiorg101038nature06293	f	\N
-90	GTACACAT	1	1572607788	t	16	Lox site spacer loxP 5171 httpsdoiorg101007978981103874733	f	\N
-91	GAAGAC	1	1572607808	t	16	BbsI	f	\N
-92	GGTCTC	1	1572607824	t	16	BsaI	f	\N
-93	CGTCTC	1	1572607837	t	16	BsmBI	f	\N
-94	GCTCTTC	1	1572607848	t	16	BspQI	f	\N
-95	GCGATG	1	1572607862	t	16	BtgZI	f	\N
-96	CGTCTC	1	1572607874	t	16	Esp3I	f	\N
-97	GCTCTTC	1	1572607886	t	16	SapI	f	\N
-98	CTCGTAGACTGCGTACCA	1	1572607899	t	16	Adapter F httpsdoiorg10118617464811832	f	\N
-99	GACGATGAGTCCTGAGTA	1	1572607910	t	16	Adapter R httpsdoiorg10118617464811832	f	\N
-100	GGTTCCACGTAAGCTTCC	1	1572607980	t	16	H1 (HindIII) httpsdoiorg101016jjbiotec200308005	f	\N
-101	GCGATTACCCTGTACACC	1	1572608007	t	16	B4 (BsrGI) httpsdoiorg101016jjbiotec200308005	f	\N
-102	GCCAGTACATCAATTGCC	1	1572608027	t	16	M3 (MfeI) httpsdoiorg101016jjbiotec200308005	f	\N
-64	ATAACTTCGTATAGCATACATTATACGAAGTTAT	1	1572602607	f	16	loxP httpsdoiorg101016jjbiotec201606033	f	\N
+95	GCGATG	1	1572607862	t	0	BtgZI	f	\N
+94	GCTCTTC	1	1572607848	t	0	BspQI	f	\N
+93	CGTCTC	1	1572607837	t	0	BsmBI	f	\N
+92	GGTCTC	1	1572607824	t	0	BsaI	f	\N
+91	GAAGAC	1	1572607808	t	0	BbsI	f	\N
+97	GCTCTTC	1	1572607886	t	0	SapI	f	\N
+96	CGTCTC	1	1572607874	t	0	Esp3I	f	\N
+111	ATGGCAAGCATATTACATACGATATGCTTCAATA	1	1572948596	t	0	reversed - loxR https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+112	TATTGAAGCATATTACATACGATATGCTTGCCAT	1	1572948633	t	0	reversed - loxL https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+76	ATAACTTCGTATAGTACACATTATACGAAGTTAT	1	1572603261	t	0	lox 5171 https://doi.org/10.1007/978-981-10-3874-733	f	\N
+77	GCATACAT	1	1572603300	t	0	Lox site spacer loxP WT https://doi.org/10.1007/978-981-10-3874-733	f	\N
+57	TATAAA	1	1572601880	t	0	Eukaryotic promotor recognition motif https://doi.org/10.1016/0022-2836(90)90223-9	f	\N
+90	GTACACAT	1	1572607788	t	0	Lox site spacer loxP 5171 https://doi.org/10.1007/978-981-10-3874-733	f	\N
+89	GTATACCT	1	1572607736	t	0	Lox site spacer loxN https://doi.org/10.1038/nature06293	f	\N
+88	TTTTAGGT	1	1572607694	t	0	Lox site spacer lox11 https://doi.org/10.1186/1471-2164-7-73	f	\N
+87	GGTTACGG	1	1572607663	t	0	Lox site spacer lox10 https://doi.org/10.1186/1471-2164-7-73	f	\N
+86	GTGTATTT	1	1572603691	t	0	Lox site spacer lox9 https://doi.org/10.1186/1471-2164-7-73	f	\N
+85	GGATAGTA	1	1572603671	t	0	Lox site spacer lox8 https://doi.org/10.1186/1471-2164-7-73	f	\N
+84	TTGTATGG	1	1572603651	t	0	Lox site spacer lox7 https://doi.org/10.1186/1471-2164-7-73	f	\N
+83	AGGTATGC	1	1572603634	t	0	Lox site spacer lox6 https://doi.org/10.1007/978-981-10-3874-733	f	\N
+82	CTATAGCC	1	1572603541	t	0	Lox site spacer lox5 https://doi.org/10.1186/1471-2164-7-73	f	\N
+81	TACTATAC	1	1572603524	t	0	Lox site spacer lox4 https://doi.org/10.1186/1471-2164-7-73	f	\N
+80	GGATACTT	1	1572603504	t	0	Lox site spacer lox3 https://doi.org/10.1186/1471-2164-7-73	f	\N
+62	AATAAA	1	1572602545	t	0	Eukaryotic polyadenylation signal https://doi.org/10.1016/0092-8674(87)90292-3	f	\N
+110	TATTGAAGCATATTACATACGATATGCTTCAATA	1	1572948570	t	0	reversed - loxP https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+109	GTTGTGTGTT	1	1572948534	t	0	reversed -Eukaryotic polyadenylation signal https://doi.org/10.1016/0092-8674(87)90292-3	f	\N
+108	AAATAA	1	1572948502	t	0	reversed - Eukaryotic polyadenylation signal https://doi.org/10.1016/0092-8674(87)90292-3	f	\N
+107	GGTACCACCA	1	1572948405	t	0	reversed - Eukaryotic ribosomal binding site https://doi.org/10.1016/0022-2836(87)90418-9	f	\N
+106	GGTACCACCG	1	1572948368	t	0	reversed - Eukaryotic ribosomal binding site https://doi.org/10.1016/0022-2836(87)90418-9	f	\N
+105	GTAATATGT	1	1572948264	t	0	reversed - Prokaryotic promoter recognition motif https://doi.org/10.1016/j.jmb.2011.01.018	f	\N
+104	ACAGTT	1	1572948237	t	0	reversed - Prokaryotic promoter recognition motif https://doi.org/10.1016/j.jmb.2011.01.018	f	\N
+103	AAATAT	1	1572948199	t	0	reversed - Eukaryotic promotor recognition motif https://doi.org/10.1016/0022-2836(90)90223-9	f	\N
+102	GCCAGTACATCAATTGCC	1	1572608027	t	0	M3 (MfeI) https://doi.org/10.1016/j.jbiotec.2003.08.005	f	\N
+101	GCGATTACCCTGTACACC	1	1572608007	t	0	B4 (BsrGI) https://doi.org/10.1016/j.jbiotec.2003.08.005	f	\N
+100	GGTTCCACGTAAGCTTCC	1	1572607980	t	0	H1 (HindIII) https://doi.org/10.1016/j.jbiotec.2003.08.005	f	\N
+99	GACGATGAGTCCTGAGTA	1	1572607910	t	0	Adapter R https://doi.org/10.1186/1746-4811-8-32	f	\N
+98	CTCGTAGACTGCGTACCA	1	1572607899	t	0	Adapter F https://doi.org/10.1186/1746-4811-8-32	f	\N
+67	TACCGTTCGTATAGCATACATTATACGAACGGTA	1	1572603059	t	0	loxLR https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+65	ATAACTTCGTATAGCATACATTATACGAACGGTA	1	1572602735	t	0	loxR https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+66	TACCGTTCGTATAGCATACATTATACGAAGTTAT	1	1572602757	t	0	loxL https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+69	TACCGTTCGTATATTCTATCTTATACGAAGTTAT	1	1572603112	t	0	lox2R https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+64	ATAACTTCGTATAGCATACATTATACGAAGTTAT	1	1572602607	t	0	loxP https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+71	TACCGTTCGTATATACTATACTATACGAAGTTAT	1	1572603157	t	0	lox4R https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+114	TATTGAAGCATATATTATGGTATATGCTTGCCAT	1	1572948801	t	0	reversed - lox1R https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+113	ATGGCAAGCATATTACATACGATATGCTTGCCAT	1	1572948762	t	0	reversed - loxLR https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+79	TTCTATCT	1	1572603481	t	0	Lox site spacer lox2 https://doi.org/10.1186/1471-2164-7-73	f	\N
+61	ACCACCATGG	1	1572602275	t	0	Eukaryotic ribosomal binding site https://doi.org/10.1016/0022-2836(87)90418-9	f	\N
+60	GCCACCATGG	1	1572602249	t	0	Eukaryotic ribosomal binding site https://doi.org/10.1016/0022-2836(87)90418-9	f	\N
+59	TGTATAATG	1	1572602092	t	0	Prokaryotic promoter recognition motif https://doi.org/10.1016/j.jmb.2011.01.018	f	\N
+58	TTGACA	1	1572601974	t	0	Prokaryotic promoter recognition motif https://doi.org/10.1016/j.jmb.2011.01.018	f	\N
+74	ATAACTTCGTATAGTATACCTTATACGAAGTTAT	1	1572603228	t	0	loxN https://doi.org/10.1038/nature06293	f	\N
+73	ATAACTTCGTATATGGTATTATATACGAACGGTA	1	1572603211	t	0	Lox1L https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+72	TACCGTTCGTATACTATAGCCTATACGAAGTTAT	1	1572603185	t	0	lox5R https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+78	TGGTATTA	1	1572603458	t	0	Lox site spacer lox1 https://doi.org/10.1186/1471-2164-7-73	f	\N
+70	TACCGTTCGTATAGGATACTTTATACGAAGTTAT	1	1572603134	t	0	lox3R https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+63	TTGTGTGTTG	1	1572602565	t	0	Eukaryotic polyadenylation signal https://doi.org/10.1016/0092-8674(87)90292-3	f	\N
+68	TACCGTTCGTATATGGTATTATATACGAAGTTAT	1	1572603087	t	0	lox1R https://doi.org/10.1016/j.jbiotec.2016.06.033	f	\N
+75	ATAACTTCGTATAGTATACATTATACGAAGTTAT	1	1572603245	t	0	loxP 511 https://doi.org/10.1093/nar/14.5.2287	f	\N
 \.
 
 
@@ -792,7 +817,7 @@ COPY public.undesiredsubsequences (id, sequence, error_prob, created, validated,
 -- Name: api_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
 --
 
-SELECT pg_catalog.setval('public.api_id_seq', 19, true);
+SELECT pg_catalog.setval('public.api_id_seq', 1, true);
 
 
 --
@@ -855,14 +880,14 @@ SELECT pg_catalog.setval('public.synth_meth_id_seq', 4, true);
 -- Name: undesiredsubsequences_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
 --
 
-SELECT pg_catalog.setval('public.undesiredsubsequences_id_seq', 102, true);
+SELECT pg_catalog.setval('public.undesiredsubsequences_id_seq', 114, true);
 
 
 --
 -- Name: user_id_seq; Type: SEQUENCE SET; Schema: public; Owner: dna_sim
 --
 
-SELECT pg_catalog.setval('public.user_id_seq', 18, true);
+SELECT pg_catalog.setval('public.user_id_seq', 1, true);
 
 
 --
@@ -1080,14 +1105,18 @@ ALTER TABLE ONLY public.pcr
 -- PostgreSQL database dump complete
 --
 
+--
+-- Database "postgres" dump
+--
+
 \connect postgres
 
 --
 -- PostgreSQL database dump
 --
 
--- Dumped from database version 11.3
--- Dumped by pg_dump version 11.3
+-- Dumped from database version 12.0
+-- Dumped by pg_dump version 12.0
 
 SET statement_timeout = 0;
 SET lock_timeout = 0;
