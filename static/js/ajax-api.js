@@ -237,27 +237,26 @@ function set_listener(){
             $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
         });
     });
-    $('#temperature').on("change", function (f) {
-       let data = $(this).val();
-       $(this).val(Math.max(0.0, data));
-    });
-    $('#gc_window_size, #kmer_window_size').on("change", function (f) {
+    set_minmax_listener($('#temperature'), 0.0);
+    set_minmax_listener($('#gc_window_size, #kmer_window_size'), 2);
+    set_minmax_listener($('#months, #mon'), 0);
+    set_minmax_listener($('#cycles, #cyc'), 0, 100);
+    set_minmax_listener($('#seed'), 0);
+}
+
+function set_minmax_listener(elem, min, max){
+    elem.on("change", function (f) {
         let data = $(this).val();
-        $(this).val(Math.max(2, data));
-    });
-    $('#months, #mon').on("change", function (f) {
-        let data = $(this).val();
-        $(this).val(Math.max(0, data));
-    });
-    $('#cycles, #cyc').on("change", function (f) {
-        let data = $(this).val();
-        $(this).val(Math.max(0, Math.min(data, 100)));
-    });
-    $('#seed').on("change", function (f) {
-        let data = $(this).val();
-        $(this).val(Math.max(0, data));
+        if(max === undefined){
+            $(this).val(Math.max(min, data));
+        }
+        else{
+            $(this).val(Math.max(min, Math.min(data, max)));
+        }
     });
 }
+
+
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
 function download(text, name, type) {
