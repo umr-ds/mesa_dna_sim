@@ -128,8 +128,7 @@
                                                     return false;"
                                             data-balloon="Update current Error-Probability Graph"
                                             data-balloon-pos="up">
-                                        Update
-                                        Template
+                                        &nbsp;<i class="fas fa-save"></i>&nbsp;
                                     </button>
                                 </div>
                             </div>
@@ -219,15 +218,15 @@
                                     </button>
                                 </td>
                                 <td style="width:5%">
-                                    <button class="button"
+                                    <button class="button button-fill"
                                             data-balloon="Updating will remove the Validation!"
                                             data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
                                             onclick="updateSeq('{{ host }}',{{ subsequence.id }});$('#validate_subseq_{{ subsequence.id }}').prop('disabled', '');$('#validate_subseq_{{ subsequence.id }}').attr('data-balloon','Request validation').prop('disabled',''); return false;">
-                                        Update
+                                        &nbsp;<i class="fas fa-save"></i>&nbsp;
                                     </button>
                                 </td>
                                 <td style="width:5%">
-                                    <button class="button" id="delete_subseq_{{ subsequence.id }}"
+                                    <button class="button button-fill" id="delete_subseq_{{ subsequence.id }}"
                                             data-balloon="Created at: "
                                             data-balloon-pos="up"
                                             onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
@@ -409,14 +408,14 @@
                                                    name="isadmin_{{ user.user_id }}" id="isadmin_{{ user.user_id }}">
                                         </div>
                                         <div class="column is-full-mobile is-">
-                                            <input class="button is-block button-fill" type="button"
+                                            <button class="button is-block button-fill" type="button"
                                                    id="update-user_{{ user.user_id }}"
                                                    name="update-user_{{ user.user_id }}"
                                                    {% if user.user_id == 0 %}disabled{% endif %}
                                                    onclick="$(this).addClass('is-loading');
                                                            updateUserId('{{ host }}', {{ user.user_id }});return false;"
                                                    data-balloon="Update User"
-                                                   data-balloon-pos="up" value="Update"/>
+                                                   data-balloon-pos="up">&nbsp;<i class="fas fa-save"></i>&nbsp;</button>
                                         </div>
                                         <div class="column is-full-mobile">
                                             <input class="button is-block button-fill" type="button"
