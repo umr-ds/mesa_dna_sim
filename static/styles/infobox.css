@@ -407,6 +407,8 @@ br {
 .tooltip:hover .tooltiptext {
     visibility: visible;
     opacity: 1;
+    width: 200px;
+    margin-left: -100px;
 }
 
 .text_lettering, .full_modified_text_lettering {

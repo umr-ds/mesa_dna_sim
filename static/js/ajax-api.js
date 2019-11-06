@@ -252,11 +252,11 @@ function set_listener(){
     $('#cycles, #cyc').on("change", function (f) {
         let data = $(this).val();
         $(this).val(Math.max(0, Math.min(data, 100)));
-    })
+    });
     $('#seed').on("change", function (f) {
         let data = $(this).val();
         $(this).val(Math.max(0, data));
-    })
+    });
 }
 
 /* Example: download(collectSendData(2), 'mosla.json','application/json'); */
@@ -1187,6 +1187,32 @@ function initListsDnD() {
         });
     });
     sorts.push(Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true}));
+    $('.sort_option').unbind();
+    $('.sort_option').on("dblclick", function (f) {
+        let con_id = this.parentElement.parentElement.id;
+        if (con_id === "synthmeth") {
+            let clone = $(this).clone(true).unbind();
+            $('#synthesis_sortable').append(clone);
+        } else if (con_id === "seqmeth") {
+            let clone = $(this).clone(true).unbind();
+            $('#sequencing_sortable').append(clone);
+        } else if (con_id === "pcrmeth") {
+            let clone = $(this).clone(true).unbind();
+            let name = $(clone).text();
+            let cycles = $('#cyc').val();
+            $(clone).text("" + name + " (" + cycles + " cycle(s))").data('multiplier', cycles);
+            $('#pcr_sortable').append(clone);
+        } else if (con_id === "storagemeth") {
+            let clone = $(this).clone(true).unbind();
+            let name = $(clone).text();
+            let months = $('#mon').val();
+            $(clone).text("" + name + " (" + months + " month(s))").data('multiplier', months);
+            $('#pcr_sortable').append(clone);
+        } else if (con_id === "seqmeth1") {
+            this.parentElement.removeChild(this);
+        }
+        initListsDnD();
+    });
 }
 
 function showWarn(text, level, warn_id) {
