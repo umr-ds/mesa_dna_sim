@@ -1,0 +1,67 @@
+version: '3'
+services:
+  web:
+    build: .
+    restart: always
+    ports:
+      - "5000:80"
+      - "5443:443"
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      SQLALCHEMY_DATABASE_URI: postgresql://dna_sim:test1337@postgres:5432/dna_sim
+      DATAPATH: /dna_sim/RNAstructure/data_tables
+      PYTHONPATH: "${PYTHONPATH}:/dna_sim/RNAstructure/exe"
+      PATH: "${PATH}:/dna_sim/RNAstructure/exe"
+      REDIS_SERVER: redis
+      REDIS_PASSWORD: CAC4AqAu-ha.8c37CA
+      SECRET_KEY: CHANGE_ME;CHANGE-ME+CHANGE?ME#Ch4nG3/M3!
+      SECRET_VALIDATION_SALT: CHANGE_ME$$CHANGE=MECHANGE_ME$$CHANGE=ME]]
+      SECRET_PASSWORD_RESET_VALIDATION_KEY: CH4NGE§ME%CHANGE(ME)(CHANGE{ME}}CHANGE&me
+      SECRET_ACCOUNT_DELETION_VALIDATION_KEY: change_me===change_me000CHANGE_ME§§CHANGE&me
+      MAIL_ENABLED: 'False'
+      MAIL_SERVER: smtp.your-server.com
+      MAIL_PORT: 465
+      MAIL_SENDER_ALIAS: CHANGE.ME@your-server.com
+      MAIL_PASSWORD: CHANGE_ME1234
+      MAIL_USERNAME: CHANGE.ME@your-server.com
+      MAIL_USE_TLS: 'False'
+      MAIL_USE_SSL: 'True'
+
+      # Add recipient to receive error-logs via mail!
+      # EXCEPTION_EMAIL: mosla-error-recv@your-server.com
+
+      # Set this for Lets-Encrypt-SSL via Cloudflare-DNS-Verification:
+      # CF_Account_ID: XxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
+      # CF_Token: XxXxXxXxXxXxXxXxXxXxXxXxXxXxXx
+      # CF_HOSTNAME: mesa.mosla.de
+
+      # if you just want to enable ssl with a self-signed cert you can set:
+      SELF_SIGNED_HOSTNAME: mesa.mosla.de
+    networks:
+      - internet
+      - no-internet
+  redis:
+    image: redis
+    restart: always
+    command: redis-server --requirepass CAC4AqAu-ha.8c37CA
+    volumes:
+      - /srv/docker/redis:/data
+    networks:
+      - no-internet
+  postgres:
+    build: ./postgres
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: ACnice290J=jC("))(dmJVJM=)V"Eu9n0
+    volumes:
+      - /srv/docker/postgresql:/var/lib/postgresql/data
+    networks:
+      - no-internet
+networks:
+  no-internet:
+    driver: bridge
+    internal: true
+  internet:
+    driver: bridge
