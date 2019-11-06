@@ -209,8 +209,12 @@ def profile():
             new_email = request.form["new_email"]
             # we got a change email update
             user.email = new_email
-            db.session.add(user)
-            db.session.commit()
+            try:
+                db.session.add(user)
+                db.session.commit()
+            except:
+                db.session.rollback()
+                flash("Email address is already in use.", "warning")
         else:
             # we got a change password update
             old_password = request.form["old_password"]
