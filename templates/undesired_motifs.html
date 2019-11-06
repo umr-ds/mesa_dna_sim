@@ -94,7 +94,6 @@
                                                            value="{{ subsequence.error_prob * 100 }}"
                                                            required min="0.0"
                                                            max="100.0" step="0.01">
-
                                                     <span class="icon is-right">
                                                         <i class="fas fa-percentage"></i>
                                                     </span>
@@ -128,8 +127,8 @@
                                                 </button>
                                             </td>
                                             <td style="width:5%">
-                                                <button class="button" id="delete_subseq_{{ subsequence.id }}"
-                                                        data-balloon="Created at: "
+                                                <button class="button button-fill" id="delete_subseq_{{ subsequence.id }}"
+                                                        data-balloon="Delete this Subsequence created at: "
                                                         data-balloon-pos="up"
                                                         onclick="deleteSeq('{{ host }}',{{ subsequence.id }}); return false;">
                                                     Delete
