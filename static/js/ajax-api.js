@@ -816,35 +816,18 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
                         }
                         optgroup.append(option);
                     });
-                })
-            });
-
-            // make content draggable
-            let trash = $('#trash')[0];
-            [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
-                elem.children().each(function (x) {
-                    sorts.push(Sortable.create(elem.children()[x], {
-                        group: {name: 'a', pull: 'clone', put: false}, sort: false, animation: 100,
-                        onEnd: function (evt) {
-                            if (evt.to === trash) {
-                                evt.to.children[evt.newIndex].remove();
-                            }
-                            if (evt.source === $('#pcrmeth')){
-                                let name = $(evt.clone).val()
-                                $(evt.clone).val(name+" ("+ $('#cyc')+" cycle(s))");
-                            }
-                            if (evt.source === $('#storagemeth')){
-                                let name = $(evt.clone).val()
-                                $(evt.clone).val(name+" ("+ $('#mon') +" month(s))");
-                            }
-                        }
-                    }));
                 });
             });
-
             initListsDnD();
             if (post_success_callback !== undefined)
                 post_success_callback(data);
+            select_option_by_name("gc-dropdown", "Default Graph");
+            select_option_by_name("kmer-dropdown", "Default Graph");
+            select_option_by_name("homopolymer-dropdown", "Default Graph");
+            select_option_by_name("classic_synthmeth", "ErrASE");
+            select_option_by_name("classic_pcrmeth", "Taq");
+            select_option_by_name("classic_storagemeth", "E. coli");
+            select_option_by_name("classic_seqmeth", "Paired End");
         },
         fail: function (data) {
             showWarn(data, 'warning', 444);
@@ -855,6 +838,19 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
             submit_seq_btn.removeClass('is-loading');
         }
     });
+}
+
+function select_option_by_name(id, name){
+    try {
+        let elem = $('#' + id + ' option').filter(function () {
+            return $(this).text() === name;
+        });
+        elem.prop('selected', true);
+    }
+    catch (e) {
+        return
+    }
+
 }
 
 
