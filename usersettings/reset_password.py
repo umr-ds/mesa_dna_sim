@@ -33,7 +33,7 @@ def new_reset_password():
         user = User.query.filter_by(email=email).first()
         if user and user.validated:
             send_mail(None, [user.email],
-                      "Use this link to reset your Password: " + request.host + "/reset_password/" +
+                      "Use this link to reset your Password: " + request.host_url + "/reset_password/" +
                       user.get_password_reset_token() + "\nIf you did not request a Password reset you can ignore this E-Mail",
                       subject="[MOSLA] Your requested Password-reset")
         flash('If this E-Mail belongs to an activated (!) account it should receive an E-Mail containing a Reset-Link',

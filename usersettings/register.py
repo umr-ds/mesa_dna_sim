@@ -54,7 +54,7 @@ def register():
             # response = redirect(url_for("main_page.main_index"))
             # response.set_cookie('YourSessionCookie', user.user_id)
             send_mail(None, [user.email],
-                      "Use this link to confirm your E-Mail: " + request.host + "/confirm/" +
+                      "Use this link to confirm your E-Mail: " + request.host_url + "/confirm/" +
                       generate_confirmation_token(user.email))
             if current_app.config['MAIL_ENABLED']:
                 flash("Signup complete, please confirm your E-Mail", "info")
