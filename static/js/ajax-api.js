@@ -824,10 +824,10 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
             select_option_by_name("gc-dropdown", "Default Graph");
             select_option_by_name("kmer-dropdown", "Default Graph");
             select_option_by_name("homopolymer-dropdown", "Default Graph");
-            select_option_by_name("classic_synthmeth", "ErrASE");
-            select_option_by_name("classic_pcrmeth", "Taq");
-            select_option_by_name("classic_storagemeth", "E. coli");
-            select_option_by_name("classic_seqmeth", "Paired End");
+            select_option_by_name("classic_synthmeth", "3");
+            select_option_by_name("classic_pcrmeth", "2");
+            select_option_by_name("classic_storagemeth", "4");
+            select_option_by_name("classic_seqmeth", "36");
         },
         fail: function (data) {
             showWarn(data, 'warning', 444);
@@ -840,10 +840,10 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
     });
 }
 
-function select_option_by_name(id, name){
+function select_option_by_name(elem_id, id){
     try {
-        let elem = $('#' + id + ' option').filter(function () {
-            return $(this).text() === name;
+        let elem = $('#' + elem_id + ' option').filter(function () {
+            return $(this).val() === id;
         });
         elem.prop('selected', true);
     }
