@@ -464,6 +464,12 @@ br {
     border-bottom-width: 1px;
 }
 
+.tab-box-align {
+    padding-top: 35px !important;
+    padding-bottom: 5px !important;
+    margin-bottom: 0 !important;
+}
+
 [data-theme="light"], :root {
     --primary-bg-color: #f5f5f5;
     --footer-bg-color: #fff;
