@@ -13,7 +13,7 @@
       "url": "http://www.apache.org/licenses/LICENSE-2.0.html"
     }
   },
-  "host": "pc12291.mathematik.uni-marburg.de:5000",
+  "host": "mesa.mosla.de",
   "basePath": "/",
   "tags": [
     {
@@ -21,12 +21,11 @@
       "description": "API Description",
       "externalDocs": {
         "description": "Find out more",
-        "url": "https://github.com/umr-ds/dna_sim"
+        "url": "https://github.com/umr-ds/mesa_dna_sim.git"
       }
     }
   ],
   "schemes": [
-    "http",
     "https"
   ],
   "paths": {
@@ -624,7 +623,7 @@
           "$ref": "#/definitions/Error_attribute"
         },
         "mismatch": {
-          "$ref": "#/definitions/Error_attribute"
+          "$ref": "#/definitions/Error_attribute_mismatch"
         }
       }
     },
@@ -662,6 +661,84 @@
             "random": {
               "type": "number",
               "example": 0.5
+            }
+          }
+        }
+      }
+    },
+    "Error_attribute_mismatch": {
+      "type": "object",
+      "properties": {
+        "pattern": {
+          "type": "object",
+          "properties": {
+            "A": {
+              "type": "object",
+              "properties": {
+                "C": {
+                  "type": "number",
+                  "example": 0
+                },
+                "G": {
+                  "type": "number",
+                  "example": 1
+                },
+                "T": {
+                  "type": "number",
+                  "example": 0
+                }
+              }
+            },
+            "C": {
+              "type": "object",
+              "properties": {
+                "A": {
+                  "type": "number",
+                  "example": 0
+                },
+                "G": {
+                  "type": "number",
+                  "example": 0
+                },
+                "T": {
+                  "type": "number",
+                  "example": 1
+                }
+              }
+            },
+            "G": {
+              "type": "object",
+              "properties": {
+                "A": {
+                  "type": "number",
+                  "example": 1
+                },
+                "C": {
+                  "type": "number",
+                  "example": 0
+                },
+                "T": {
+                  "type": "number",
+                  "example": 0
+                }
+              }
+            },
+            "T": {
+              "type": "object",
+              "properties": {
+                "A": {
+                  "type": "number",
+                  "example": 0
+                },
+                "C": {
+                  "type": "number",
+                  "example": 1
+                },
+                "G": {
+                  "type": "number",
+                  "example": 0
+                }
+              }
             }
           }
         }
