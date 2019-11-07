@@ -231,16 +231,10 @@ function set_listener(){
             });
         });
     });
-    $("[name='error_prob'], [name='raw_error_rate']").each(function (e, elem) {
-        $(elem).on("change", function (f) {
-            let data = $(elem).val();
-            $(elem).val(Math.max(0.0, Math.min(data, 100.0)));
-        });
-    });
     set_minmax_listener($('#temperature'), 0.0);
     set_minmax_listener($('#gc_window_size, #kmer_window_size'), 2);
     set_minmax_listener($('#months, #mon'), 0);
-    set_minmax_listener($('#cycles, #cyc'), 0, 100);
+    set_minmax_listener($("#cycles, #cyc, [name='error_prob'], [name='raw_error_rate']"), 0, 100);
     set_minmax_listener($('#seed'), 0);
 }
 
@@ -1035,14 +1029,7 @@ let dS = {},
     init_AT_dH = 2.3 * 1000,
     init_AT_dS = 4.1,
     sym_dS = -1.4,
-    /**
-     * molar gas constant
-     * R 8.314472 J mol-1 K-1
-     * Divided by 4.184 J / calorie for units:
-     * cal mol-1 K-1
-     */
     R = 1.9872;
-
 
 function calc_tm(sel_seq){
     let tm = 0;
@@ -1151,7 +1138,6 @@ function initListsDnD() {
     }
     sorts = [];
     let trash = $('#trash')[0];
-
     $('#seqmeth1').children().each(function (elem) {
         sorts.push(Sortable.create($('#seqmeth1').children()[elem], {
             group: {name: 'a', pull: true, put: true}, sort: true, animation: 100, scroll: false,
@@ -1162,7 +1148,6 @@ function initListsDnD() {
             }
         }));
     });
-
     [$('#synthmeth'), $('#seqmeth'), $('#pcrmeth'), $('#storagemeth')].forEach(function (elem) {
         elem.children().each(function (x) {
             sorts.push(Sortable.create(elem.children()[x], {
@@ -1186,31 +1171,35 @@ function initListsDnD() {
         });
     });
     sorts.push(Sortable.create(trash, {group: {name: 'a', put: true, pull: true}, sort: true}));
-    $('.sort_option').unbind();
-    $('.sort_option').on("dblclick", function (f) {
+    initListsDbl($('.sort_option'));
+}
+
+function initListsDbl(elem) {
+    elem.unbind();
+    elem.on("dblclick", function (f) {
         let con_id = this.parentElement.parentElement.id;
-        if (con_id === "synthmeth") {
-            let clone = $(this).clone(true).unbind();
-            $('#synthesis_sortable').append(clone);
-        } else if (con_id === "seqmeth") {
-            let clone = $(this).clone(true).unbind();
-            $('#sequencing_sortable').append(clone);
-        } else if (con_id === "pcrmeth") {
-            let clone = $(this).clone(true).unbind();
-            let name = $(clone).text();
-            let cycles = $('#cyc').val();
-            $(clone).text("" + name + " (" + cycles + " cycle(s))").data('multiplier', cycles);
-            $('#pcr_sortable').append(clone);
-        } else if (con_id === "storagemeth") {
-            let clone = $(this).clone(true).unbind();
-            let name = $(clone).text();
-            let months = $('#mon').val();
-            $(clone).text("" + name + " (" + months + " month(s))").data('multiplier', months);
-            $('#pcr_sortable').append(clone);
-        } else if (con_id === "seqmeth1") {
+        if (con_id === "seqmeth1"){
             this.parentElement.removeChild(this);
         }
-        initListsDnD();
+        else {
+            let clone = $(this).clone();
+            if (con_id === "synthmeth") {
+                $('#synthesis_sortable').append(clone);
+            } else if (con_id === "seqmeth") {
+                $('#sequencing_sortable').append(clone);
+            } else if (con_id === "pcrmeth") {
+                let name = $(clone).text();
+                let cycles = $('#cyc').val();
+                $(clone).text("" + name + " (" + cycles + " cycle(s))").data('multiplier', cycles);
+                $('#pcr_sortable').append(clone);
+            } else if (con_id === "storagemeth") {
+                let name = $(clone).text();
+                let months = $('#mon').val();
+                $(clone).text("" + name + " (" + months + " month(s))").data('multiplier', months);
+                $('#pcr_sortable').append(clone);
+            }
+        initListsDbl($(clone));
+        }
     });
 }
 
