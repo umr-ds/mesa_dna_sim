@@ -847,10 +847,7 @@ function select_option_by_name(id, name){
         });
         elem.prop('selected', true);
     }
-    catch (e) {
-        return
-    }
-
+    catch (e) {}
 }
 
 

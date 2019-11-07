@@ -109,6 +109,7 @@ def do_login():
                 session.pop("user_id", None)
                 flash("Session exists, but user does not exist (anymore)", 'warning')
                 return redirect(url_for('login.do_login'))
+    flash("We use cookies to keep you logged in as you navigate between pages. By logging in you agree with this mandatory cookie.", "info")
     return render_template('login.html')
 
 
