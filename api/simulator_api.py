@@ -13,7 +13,6 @@ from werkzeug.exceptions import HTTPException
 
 try:
     import RNAstructure
-
     rna_imported = True
 except ModuleNotFoundError:
     rna_imported = False
@@ -36,7 +35,7 @@ from api.main_page import sanitize_input
 simulator_api = Blueprint("simulator_api", __name__, template_folder="templates")
 
 
-#@simulator_api.errorhandler(Exception)
+@simulator_api.errorhandler(Exception)
 def handle_error(ex):
     code = 500
 
@@ -676,6 +675,7 @@ def storage_error(sequence, g, storage_meth, seed, process="storage", conf=None,
     """
     If no configuration file was uploaded the method loads the selected configuration by its ID from the database. Builds
     a SequencingError object with the configuration and calculates the mutations for the sequence.
+    :param seed: seed to reproduce
     :param sequence: Sequence to calculate the synthesis error probabilites for.
     :param g: Graph to store the results.
     :param storage_meth: Selected storage host.
@@ -795,6 +795,7 @@ def htmlify(input, sequence, modification=False, description=False):
     format to display them on the website, this methods htmlifies them. The html code contains information about the
     error classes and probabilities of every single base and the colorization displayed at the website. To colorize and
     format the results @build_html takes a list with results and returns the html formatted code for it.
+    :param description: True: Add the description to modified parts.
     :param input: Input to htmlify. Mostly results of the error calculations.
     :param sequence: Sequence.
     :param modification: True: Add information about the process that lead to a modification.

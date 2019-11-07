@@ -1,4 +1,3 @@
-import datetime
 import math
 import re
 import time
@@ -7,7 +6,7 @@ from flask import Blueprint, render_template, redirect, session, request, flash,
     current_app
 from flask_cors import cross_origin
 from jinja2 import evalcontextfilter
-from sqlalchemy import desc, or_, and_, asc
+from sqlalchemy import or_, and_, asc
 
 from api.mail import send_mail
 from api.RateLimit import ratelimit, get_view_rate_limit
@@ -21,6 +20,53 @@ from usersettings.register import gen_password
 from api.RedisStorage import get_keys, get_expiration_time, set_expiration_time, read_from_redis, read_all_from_redis
 
 main_page = Blueprint("main_page", __name__, template_folder="templates")
+
+
+def sanitize_input(in_str, regex=r'[^a-zA-Z0-9():/\\.,\-&?#= ]'):
+    result = re.sub(regex, "", in_str)
+    return result
+
+
+def get_admin_mails():
+    admins = User.query.filter_by(is_admin=True).all()
+    return [x.mail for x in admins]
+
+
+def floatify(x, sanitize_mode=False):
+    for key in x:
+        if (key == "mismatch" and isinstance(x[key], dict)) or sanitize_mode:
+            if isinstance(x[key], dict):
+                x[key] = floatify(x[key], sanitize_mode=True)
+            else:
+                if not (isinstance(x[key], int) or isinstance(x[key], float)):
+                    x[key] = sanitize_input(x[key])
+        else:
+            if isinstance(x[key], dict):
+                x[key] = floatify(x[key], sanitize_mode=sanitize_mode)
+            else:  # if isinstance(value, str):
+                x[key] = float(x[key])
+    return x
+
+
+@main_page.context_processor
+def utility_processor():
+    def is_user_admin(user_id):
+        try:
+            user = User.query.filter_by(user_id=int(user_id)).first()
+            return user.is_admin
+        except:
+            return False
+
+    return dict(is_user_admin=is_user_admin)
+
+
+@main_page.app_template_filter()
+@evalcontextfilter
+def to_ctime(eval_ctx, ms_time):
+    try:
+        return time.ctime(ms_time / 1000)
+    except:
+        return "NaN"
 
 
 @main_page.route("/")
@@ -41,14 +87,14 @@ def inject_x_rate_headers(response):
     return response
 
 
-@main_page.route("/api", methods=["GET"])
-def home():
-    return render_template("index.html"), 200
-
-
 def check_existing_users():
     users = User.query.all()
     return len(users) == 1 and users[0].user_id == 0
+
+
+@main_page.route("/api", methods=["GET"])
+def home():
+    return render_template("index.html"), 200
 
 
 @main_page.route("/setup", methods=["GET", "POST"])
@@ -76,10 +122,7 @@ def setup():
 @require_logged_in
 @require_admin
 def manage_users():
-    if request.method == 'POST':
-        r_method = request.json
-    else:
-        r_method = request.args
+    r_method = request.json if request.method == 'POST' else request.args
     if request.method == "GET":
         return jsonify([User.serialize(x) for x in User.query.all()])
     else:
@@ -115,7 +158,8 @@ def manage_users():
 def adminpage():
     today = math.floor(time.time())
     prev_results = sorted([(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                     today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')], key=lambda x: x[2], reverse=True)[0:50]
+                            today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')], key=lambda x: x[2],
+                          reverse=True)[0:50]
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -123,38 +167,22 @@ def adminpage():
         or_(ErrorProbability.awaits_validation.is_(True), ErrorProbability.validated.is_(True))).order_by(
         asc(ErrorProbability.id)).all()
     # ErrorProbability
-    res = db.session.query(SynthesisErrorRates).filter(
-        or_(SynthesisErrorRates.awaits_validation.is_(True), SynthesisErrorRates.validated.is_(True))).order_by(
-        asc(SynthesisErrorRates.id)).all()
-    out = [x.as_dict() for x in res]
-    id_out = {}
     default_eobj = {'id': 'new', 'name': 'New', 'err_attributes': {'mismatch': {}}}
-    for x in out:
-        id_out[int(x['id'])] = x
 
-    seq_res = db.session.query(SequencingErrorRates).filter(
-        or_(SequencingErrorRates.awaits_validation.is_(True), SequencingErrorRates.validated.is_(True))).order_by(
-        asc(SequencingErrorRates.id)).all()
-    seq_out = [x.as_dict() for x in seq_res]
-    seq_id_out = {}
-    for x in seq_out:
-        seq_id_out[int(x['id'])] = x
+    def query_settings(settings_class):
+        res = db.session.query(settings_class).filter(
+            or_(settings_class.awaits_validation.is_(True), settings_class.validated.is_(True))).order_by(
+            asc(settings_class.id)).all()
+        out = [x.as_dict() for x in res]
+        res_out = {}
+        for x in out:
+            res_out[int(x['id'])] = x
+        return res_out
 
-    pcr_res = db.session.query(PcrErrorRates).filter(
-        or_(PcrErrorRates.awaits_validation.is_(True), PcrErrorRates.validated.is_(True))).order_by(
-        asc(PcrErrorRates.id)).all()
-    pcr_out = [x.as_dict() for x in pcr_res]
-    pcr_id_out = {}
-    for x in pcr_out:
-        pcr_id_out[int(x['id'])] = x
-
-    storage_res = db.session.query(StorageErrorRates).filter(
-        or_(StorageErrorRates.awaits_validation.is_(True), StorageErrorRates.validated.is_(True))).order_by(
-        asc(StorageErrorRates.id)).all()
-    storage_out = [x.as_dict() for x in storage_res]
-    storage_id_out = {}
-    for x in storage_out:
-        storage_id_out[int(x['id'])] = x
+    id_out = query_settings(SynthesisErrorRates)
+    seq_id_out = query_settings(SequencingErrorRates)
+    pcr_id_out = query_settings(PcrErrorRates)
+    storage_id_out = query_settings(StorageErrorRates)
 
     users = User.query.order_by(
         asc(User.user_id)).all()
@@ -175,19 +203,20 @@ def history():
     is_admin = user.is_admin
     amount = min(50, int(request.args.get('amount', 50)))
     offset = int(request.args.get('offset', 0))
-    all = bool('all' in request.args)
+    r_all = bool('all' in request.args)
 
     tmp = get_keys('USER_*-*_' + str(user_id))
     if offset > len(tmp):
         return jsonify([])
     if offset+amount > len(tmp):
         amount = len(tmp)-offset
-    if all:
+    if r_all:
         offset = 0
         amount = len(tmp)
     prev_results = sorted([(str(x).split("_")[1], (int(str(x).split("_")[2][:-1]) if is_admin else None),
                      time.time() * 1000 + get_expiration_time(x)) for x in tmp], key=lambda x: x[2], reverse=True)[offset:offset+amount]
     return jsonify(prev_results)
+
 
 @main_page.route('/profile', methods=["GET", "POST"])
 # @require_apikey
@@ -240,11 +269,13 @@ def profile():
     return render_template('profile.html')
 
 
+"""
 @main_page.route('/rate-limited')
 @require_apikey
 @ratelimit(limit=300, per=60 * 15)
 def index():
     return '<h1>This is a rate limited response</h1>'
+"""
 
 
 @main_page.route("/query_sequence", methods=['GET', 'POST'])
@@ -263,24 +294,24 @@ def query_sequence():
     r_uid = r_method.get('uuid')
     if user_id is None:
         flash("Please log in to use all available features!", 'warning')
-        apikey = Apikey.query.filter_by(owner_id=0).first().apikey
+        api_key = Apikey.query.filter_by(owner_id=0).first().apikey
     else:
         user_id = int(user_id)
-        apikey = Apikey.query.filter_by(owner_id=user_id).first()
-        if apikey is not None:
-            apikey = apikey.apikey
+        api_key = Apikey.query.filter_by(owner_id=user_id).first()
+        if api_key is not None:
+            api_key = api_key.apikey
         else:
-            apikey = "NO APIKEY ACTIVE!"
+            api_key = "NO APIKEY ACTIVE!"
     undesired_sub_seq = UndesiredSubsequences.query.filter(
-        or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated == True)).order_by(
+        or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
     gc_charts = ErrorProbability.query.filter(
-        and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
+        and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated.is_(True)),
              ErrorProbability.type == "gc")).order_by(asc(ErrorProbability.id)).all()
     homopolymer_charts = ErrorProbability.query.filter(
-        and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated == True),
+        and_(or_(ErrorProbability.user_id == user_id, ErrorProbability.validated.is_(True)),
              ErrorProbability.type == "homopolymer")).order_by(asc(ErrorProbability.id)).all()
-    return render_template('sequence_view.html', apikey=apikey, sequence=sequence, host=request.url_root,
+    return render_template('sequence_view.html', apikey=api_key, sequence=sequence, host=request.url_root,
                            usubsequence=undesired_sub_seq, user_id=user_id, uuid=r_uid,
                            gc_charts=[ErrorProbability.serialize(x, user_id) for x in gc_charts],
                            homopolymer_charts=[ErrorProbability.serialize(x, user_id) for x in
@@ -297,44 +328,28 @@ def undesired_motifs():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if user_id and user:
-        undesired_sub_seq = UndesiredSubsequences.query.filter_by(owner_id=user_id).order_by(
+        undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated)).order_by(
             asc(UndesiredSubsequences.id)).all()
-        res = db.session.query(SynthesisErrorRates).filter(
-            or_(SynthesisErrorRates.user_id == user_id, SynthesisErrorRates.validated.is_(True))).order_by(
-            asc(SynthesisErrorRates.id)).all()
-        out = [x.as_dict() for x in res]
-        id_out = {}
         default_eobj = {'id': 'new', 'name': 'New', 'err_attributes': {'mismatch': {}}}
-        for x in out:
-            id_out[int(x['id'])] = x
 
-        seq_res = db.session.query(SequencingErrorRates).filter(
-            or_(SequencingErrorRates.user_id == user_id, SequencingErrorRates.validated.is_(True))).order_by(
-            asc(SequencingErrorRates.id)).all()
-        seq_out = [x.as_dict() for x in seq_res]
-        seq_id_out = {}
-        for x in seq_out:
-            seq_id_out[int(x['id'])] = x
+        def query_settings(settings_class):
+            res = db.session.query(settings_class).filter(
+                or_(settings_class.user_id == user_id, settings_class.validated.is_(True))).order_by(
+                asc(settings_class.id)).all()
+            out = [x.as_dict() for x in res]
+            res_out = {}
+            for x in out:
+                res_out[int(x['id'])] = x
+            return res_out
 
-        pcr_res = db.session.query(PcrErrorRates).filter(
-            or_(PcrErrorRates.user_id == user_id, PcrErrorRates.validated.is_(True))).order_by(
-            asc(PcrErrorRates.id)).all()
-        pcr_out = [x.as_dict() for x in pcr_res]
-        pcr_id_out = {}
-        for x in pcr_out:
-            pcr_id_out[int(x['id'])] = x
-
-        storage_res = db.session.query(StorageErrorRates).filter(
-            or_(StorageErrorRates.user_id == user_id, StorageErrorRates.validated.is_(True))).order_by(
-            asc(StorageErrorRates.id)).all()
-        storage_out = [x.as_dict() for x in storage_res]
-        storage_id_out = {}
-        for x in storage_out:
-            storage_id_out[int(x['id'])] = x
+        id_out = query_settings(SynthesisErrorRates)
+        seq_id_out = query_settings(SequencingErrorRates)
+        pcr_id_out = query_settings(PcrErrorRates)
+        storage_id_out = query_settings(StorageErrorRates)
 
         return render_template('undesired_motifs.html', synthesis_errors=id_out, sequencing_errors=seq_id_out,
-                               pcr_errors=pcr_id_out, storage_errors=storage_id_out,
-                               usubsequence=undesired_sub_seq, default_eobj=default_eobj, host=request.url_root)
+                               pcr_errors=pcr_id_out, storage_errors=storage_id_out, usubsequence=undesired_sub_seq,
+                               default_eobj=default_eobj, host=request.url_root, user_id=user_id)
     else:
         flash("Could not find user, please login again", 'warning')
         session.pop('user_id')
@@ -508,25 +523,6 @@ def apply_validation_subseq():
         return jsonify({'did_succeed': False})
 
 
-@main_page.context_processor
-def utility_processor():
-    def is_user_admin(user_id):
-        try:
-            user = User.query.filter_by(user_id=int(user_id)).first()
-            return user.is_admin
-        except:
-            return False
-
-    return dict(is_user_admin=is_user_admin)
-
-@main_page.app_template_filter()
-@evalcontextfilter
-def to_ctime(eval_ctx, ms_time):
-    try:
-        return time.ctime(ms_time / 1000)
-    except:
-        return "NaN"
-
 @main_page.route("/api/update_subsequence", methods=['POST'])
 @require_logged_in
 def update_subsequences():
@@ -574,11 +570,11 @@ def update_error_prob_charts():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     id = request.json.get('chart_id')
-    jsonblob = request.json.get('jsonblob')  # .replace(">", "").replace("<", "")
+    json_blob = request.json.get('jsonblob')  # .replace(">", "").replace("<", "")
     name = sanitize_input(request.json.get('name'), r'[^a-zA-Z0-9() ]')
     type = sanitize_input(request.json.get('type'), r'[^a-zA-Z0-9]')
     copy = bool(request.json.get('copy'))
-    if user_id and user and id is not None and jsonblob is not None and jsonblob != "" and name is not None:
+    if user_id and user and id is not None and json_blob is not None and json_blob != "" and name is not None:
         try:
             # check if an entry exists for the given id AND user --> only entrys for the current user might be updated
             if user.is_admin:
@@ -586,11 +582,11 @@ def update_error_prob_charts():
             else:
                 curr_error_prob = ErrorProbability.query.filter_by(user_id=user_id, id=id).first()
             if curr_error_prob is None or copy:
-                curr_error_prob = ErrorProbability(jsonblob=jsonblob, validated=False, name=name, user_id=user_id,
+                curr_error_prob = ErrorProbability(jsonblob=json_blob, validated=False, name=name, user_id=user_id,
                                                    type=type)
                 db.session.add(curr_error_prob)
             else:
-                curr_error_prob.jsonblob = jsonblob
+                curr_error_prob.jsonblob = json_blob
                 curr_error_prob.validated = False
                 curr_error_prob.name = name
                 curr_error_prob.type = type
@@ -737,7 +733,7 @@ def add_error_probs(mode):
         user_id = session.get('user_id')
         user = User.query.filter_by(user_id=user_id).first()
         data_conf = request.json.get('data')
-        asHTML = request.json.get('asHTML')
+        as_html = request.json.get('asHTML')
         if user_id and user and data_conf is not None:
             err_data = floatify(data_conf['err_data'])
             err_attributes = floatify(data_conf['err_attributes'])
@@ -750,31 +746,15 @@ def add_error_probs(mode):
             db.session.commit()
             res = {'did_succeed': True, 'id': new_elem.id}
 
-            if asHTML is not None and asHTML:
+            if as_html is not None and as_html:
                 res['content'] = render_template('error_probs.html', e_obj=new_elem.as_dict(), host=request.url_root,
-                                                 mode=mode)
+                                                 mode=mode, user_id=user_id)
             else:
                 res['content'] = new_elem.as_dict()
             return jsonify(res)
         return jsonify({'did_succeed': False})
     except Exception as x:
         return jsonify({'did_succeed': False})
-
-
-def floatify(x, sanitize_mode=False):
-    for key in x:
-        if (key == "mismatch" and isinstance(x[key], dict)) or sanitize_mode:
-            if isinstance(x[key], dict):
-                x[key] = floatify(x[key], sanitize_mode=True)
-            else:
-                if not (isinstance(x[key], int) or isinstance(x[key], float)):
-                    x[key] = sanitize_input(x[key])
-        else:
-            if isinstance(x[key], dict):
-                x[key] = floatify(x[key], sanitize_mode=sanitize_mode)
-            else:  # if isinstance(value, str):
-                x[key] = float(x[key])
-    return x
 
 
 @main_page.route("/api/update_<mode>_error_probs", methods=['GET', 'POST'])
@@ -865,16 +845,6 @@ def send_js():
     return send_from_directory('', 'swagger.json')
 
 
-def sanitize_input(input, regex=r'[^a-zA-Z0-9():/\\.,\-&?#= ]'):
-    result = re.sub(regex, "", input)
-    return result
-
-
-def get_admin_mails():
-    admins = User.query.filter_by(is_admin=True).all()
-    return [x.mail for x in admins]
-
-
 @require_admin
 @main_page.route('/remove_result', methods=['POST'])
 def remove_uuid():
@@ -902,8 +872,8 @@ def remove_uuid():
         [set_expiration_time(x, 0) for x in keys]
         return jsonify({'did_succeed': True, 'uuid': uuid})
 
-    uuuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
-    if do_delete and uuuid_user is not None and (user.user_id == int(uuuid_user) or user.is_admin):
+    uuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
+    if do_delete and uuid_user is not None and (user.user_id == int(uuid_user) or user.is_admin):
         # delete
         set_expiration_time(uuid, 0)
         set_expiration_time('USER_' + uuid + "_" + str(user_id), 0)

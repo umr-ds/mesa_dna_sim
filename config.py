@@ -8,7 +8,7 @@ def str2bool(txt):
 
 # only needed if not using the docker webserver
 try:
-    docker_name = 'dnasim'  # os.path.dirname(os.path.realpath(__file__)).split("/")[-1]
+    docker_name = 'mesadnasim'  # os.path.dirname(os.path.realpath(__file__)).split("/")[-1]
     postgres_ip = \
         os.popen(
             'docker network inspect ' + docker_name + '_no-internet | grep "postgres" -A 4 | grep "IPv4Address"').read().split(

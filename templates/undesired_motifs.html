@@ -109,6 +109,7 @@
                                                        value="{{ subsequence.description }}"
                                                         {% endif %}
                                                        required><span>Description</span></label></td>
+                                            {% if subsequence.owner_id == user_id %}
                                             <td style="width:5%">
                                                 <button class="button"
                                                         data-balloon="{% if subsequence.validated %}Already validated!{% elif subsequence.awaits_validation %}Awaiting validation, you can still update.{% else %}Request validation{% endif %}"
@@ -118,14 +119,16 @@
                                                     Publish
                                                 </button>
                                             </td>
-                                            <td style="width:5%">
+                                            {% endif %}
+                                            <td style="width:{% if subsequence.owner_id == user_id %}5{% else %}15{% endif %}%">
                                                 <button class="button button-fill"
-                                                        data-balloon="Updating will remove the Validation!"
-                                                        data-balloon-pos="up" id="update_subseq_{{ subsequence.id }}"
-                                                        onclick="updateSeq('{{ host }}',{{ subsequence.id }}); return false;">
-                                                    &nbsp;<i class="fas fa-save"></i>&nbsp;
+                                                        {% if subsequence.owner_id == user_id %}data-balloon="Updating will remove the Validation!"
+                                                        data-balloon-pos="up" {% endif %} id="update_subseq_{{ subsequence.id }}"
+                                                        onclick="addSubSeq('{{ host }}', '{{ subsequence.id }}'); return false;">
+                                                        {% if subsequence.owner_id == user_id %}&nbsp;<i class="fas fa-save"></i>&nbsp;{% else %}Create copy{% endif %}
                                                 </button>
                                             </td>
+                                            {% if subsequence.owner_id == user_id %}
                                             <td style="width:5%">
                                                 <button class="button button-fill" id="delete_subseq_{{ subsequence.id }}"
                                                         data-balloon="Delete this Subsequence created at: "
@@ -134,6 +137,7 @@
                                                     Delete
                                                 </button>
                                             </td>
+                                            {% endif %}
                                         </tr>
                                     </table>
                                 </div>
@@ -190,7 +194,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="synth_errors">
                             {% for error_id in synthesis_errors %}
-                                {% with e_obj=synthesis_errors[error_id], mode='synth' %}
+                                {% with e_obj=synthesis_errors[error_id], mode='synth', user_id=user_id %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -200,7 +204,7 @@
                 <div class="box field control columns is-full is-multiline has-no-margin-top" style="padding-top: 10px;"
                      id="new_synthesis_errors">
                     <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                    {% with e_obj=default_eobj, mode='synth' %}
+                    {% with e_obj=default_eobj, mode='synth', user_id=user_id %}
                         {% include "error_probs.html" %}
                     {% endwith %}
                 </div>
@@ -215,7 +219,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="seq_errors">
                             {% for error_id in sequencing_errors %}
-                                {% with e_obj=sequencing_errors[error_id], mode='seq' %}
+                                {% with e_obj=sequencing_errors[error_id], mode='seq', user_id=user_id %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -226,7 +230,7 @@
                      style="padding-top: 40px;"
                      id="new_sequencing_errors">
                     <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                    {% with e_obj=default_eobj, mode='seq' %}
+                    {% with e_obj=default_eobj, mode='seq', user_id=user_id %}
                         {% include "error_probs.html" %}
                     {% endwith %}
                 </div>
@@ -241,7 +245,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="pcr_errors">
                             {% for error_id in pcr_errors %}
-                                {% with e_obj=pcr_errors[error_id], mode='pcr' %}
+                                {% with e_obj=pcr_errors[error_id], mode='pcr', user_id=user_id %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -252,7 +256,7 @@
                      style="padding-top: 40px;"
                      id="new_pcr_errors">
                     <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                    {% with e_obj=default_eobj, mode='pcr' %}
+                    {% with e_obj=default_eobj, mode='pcr', user_id=user_id %}
                         {% include "error_probs.html" %}
                     {% endwith %}
                 </div>
@@ -267,7 +271,7 @@
                         <div class="control columns is-full is-multiline has-no-margin-left has-no-margin-top"
                              id="storage_errors">
                             {% for error_id in storage_errors %}
-                                {% with e_obj=storage_errors[error_id], mode='storage' %}
+                                {% with e_obj=storage_errors[error_id], mode='storage', user_id=user_id %}
                                     {% include "error_probs.html" %}
                                 {% endwith %}
                             {% endfor %}
@@ -278,7 +282,7 @@
                      style="padding-top: 40px;"
                      id="new_storage_errors">
                     <div class="subtitle has-text-centered button-fill">Add new Rule</div>
-                    {% with e_obj=default_eobj, mode='storage' %}
+                    {% with e_obj=default_eobj, mode='storage', user_id=user_id %}
                         {% include "error_probs.html" %}
                     {% endwith %}
                 </div>

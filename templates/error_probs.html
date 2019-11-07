@@ -70,6 +70,7 @@
                         </div>
                     {% else %}
                         <div class="columns has-no-margin-top has-no-margin-left has-no-margin-right button-fill">
+                             {% if e_obj.user_id == user_id %}
                             <div class="column has-no-padding-bottom button-fill has-no-padding-top">
                                 <button class="button button-fill"
                                         data-balloon="{% if e_obj.validated %}Already validated - update to remove validation!{% elif e_obj.awaits_validation %}{% if is_admin %}Validate and publish{% else %}Awaiting validation, you can still update.{% endif %}{% else %}Request validation{% endif %}"
@@ -77,21 +78,23 @@
                                         {% if e_obj.validated or (not is_admin and e_obj.awaits_validation) %}disabled{% endif %}
                                         onclick="sendCustomError('{{ host }}','{{ mode }}', '{{ e_obj.id }}');let callback_func = function (desc) { validateCustomError('{{ host }}','{{ mode }}', {{ e_obj.id }}, desc);{% if is_admin %}$('#validate_{{ mode }}_{{ e_obj.id }}').attr('data-balloon','Already validated - update to remove validation!');{% endif %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled', true)};showValidationOverlay('{% if e_obj.validation_desc != None %}{{ e_obj.validation_desc|e | replace("\n", "\\n") | replace("\r", "")  }}{% endif %}', callback_func); return false;">Publish</button>
                             </div>
+                             {% endif %}
                             <div class="column has-no-padding-bottom button-fill has-no-padding-top">
                                 <button class="button button-fill"
-                                        data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
-                                        data-balloon-pos="up" id="update_{{ mode }}_{{ e_obj.id }}"
-                                        onclick="sendCustomError('{{ host }}','{{ mode }}', '{{ e_obj.id }}');{% if is_admin or e_obj.validated %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">&nbsp;<i class="fas fa-save"></i>&nbsp;</button>
+                                        {% if e_obj.user_id == user_id or is_admin %}data-balloon="{% if e_obj.validated %}Updating will remove the Validation! {% else %}Update{% endif %}"
+                                        data-balloon-pos="up" id="update_{{ mode }}_{{ e_obj.id }}"{% endif %}
+                                        onclick="sendCustomError('{{ host }}','{{ mode }}', '{{ e_obj.id }}'{% if e_obj.user_id != user_id and not is_admin %}, true{% endif %});{% if is_admin or (e_obj.validated and e_obj.user_id == user_id) %}$('#validate_{{ mode }}_{{ e_obj.id }}').prop('disabled','');{% endif %}let val_btn = $('#validate_{{ mode }}_{{ e_obj.id }}'); if (val_btn.attr('data-balloon')!=='Awaiting validation, you can still update.') {val_btn.attr('data-balloon','{% if is_admin %}Validate and publish{% else %}Request validation{% endif %}')} return false;">{% if e_obj.user_id == user_id or is_admin %}&nbsp;<i class="fas fa-save"></i>&nbsp;{% else %}Create copy{% endif %}</button>
                             </div>
                             <div class="column has-no-padding-bottom has-no-padding-top button-fill">
                                 <label style="white-space: nowrap;" for="spoiler-{{ mode }}-{{ e_obj.id }}"
-                                       class="column button is-flex" onclick="$(this).toggleClass('is-light')">Modify</label>
+                                       class="column button is-flex" onclick="$(this).toggleClass('is-light')">{% if e_obj.user_id == user_id or is_admin %}Modify{% else %}View{% endif %}</label>
                             </div>
+                        {% if e_obj.user_id == user_id or is_admin %}
                             <div class="column has-no-padding-bottom has-no-padding-top button-fill">
                                 <button class="button button-fill" id="delete_{{ mode }}_{{ e_obj.id }}"
                                        onclick='deleteCustomError("{{ host }}", "{{ mode }}" ,{{ e_obj.id }}); return false;'>Delete</button>
                             </div>
-
+                        {% endif %}
                         </div>
                     {% endif %}
                 </div>

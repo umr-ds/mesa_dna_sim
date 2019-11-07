@@ -1,7 +1,13 @@
-function addSubSeq(host) {
+function addSubSeq(host, id) {
     let sequence = $('#addsequence').val();
     let error_prob = $('#errorprob').val() / 100.0;
     let description = $('#description').val();
+    if (id !== undefined && id !== 'new') {
+        let curr_subseq = $('#subseq_' + id);
+        sequence = curr_subseq.children().find("[name='sequence']").val();
+        error_prob = curr_subseq.children().find("[name='error_prob']").val() / 100.0;
+        description = curr_subseq.children().find("[name='description']").val();
+    }
     $.post({
         url: host + "api/add_subsequence",
         data: {sequence: sequence, error_prob: error_prob, description: description},
@@ -383,7 +389,7 @@ function validateCustomError(host, method, id, desc) {
     });
 }
 
-function sendCustomError(host, method, id) {
+function sendCustomError(host, method, id, create_copy) {
     /* Check for required values */
     if (!$('#' + method + '_description_' + id).val()){
         return false;
@@ -498,6 +504,9 @@ function sendCustomError(host, method, id) {
         type: $('#' + method + '_type_' + id).val()
     };
 
+    if (create_copy === true) {
+     id = "new";
+    }
     /* Send to the Server */
     let endpointstart = "";
     if (id === "new") {
