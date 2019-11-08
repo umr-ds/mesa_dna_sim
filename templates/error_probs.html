@@ -70,7 +70,7 @@
                         </div>
                     {% else %}
                         <div class="columns has-no-margin-top has-no-margin-left has-no-margin-right button-fill">
-                             {% if e_obj.user_id == user_id %}
+                             {% if e_obj.user_id == user_id or is_admin %}
                             <div class="column has-no-padding-bottom button-fill has-no-padding-top">
                                 <button class="button button-fill"
                                         data-balloon="{% if e_obj.validated %}Already validated - update to remove validation!{% elif e_obj.awaits_validation %}{% if is_admin %}Validate and publish{% else %}Awaiting validation, you can still update.{% endif %}{% else %}Request validation{% endif %}"
@@ -601,9 +601,7 @@
                                                         id="add_mismatch_{{ mode }}_{{ e_obj.id }}"
                                                         data-balloon="Add this Mismatch (Rule has to be {% if e_obj.id =="new" %}added{% else %}updated{% endif %} for this change to take effect!)"
                                                         data-balloon-pos="up"
-                                                        onclick="addMismatch('{{ mode }}', '{{ e_obj.id }}'); return false;">
-                                                    Add
-                                                </button>
+                                                        onclick="addMismatch('{{ mode }}', '{{ e_obj.id }}'); return false;">Add</button>
                                             </div>
                                         </div>
                                     </div>
