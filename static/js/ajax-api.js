@@ -219,7 +219,7 @@ function set_listener(){
     $('[name="sequence"], [name = "Original DNA-Sequence"], [name^="mismatch_changed"]').each(function (e, elem) {
         $(elem).on("paste klick change keyup", function (f) {
             setTimeout(function(g){
-                if((f.which == 65 || f.which == 17 || f.which == 67) && f.type == "keyup"){
+                if((f.which === 65 || f.which === 17 || f.which === 67) && f.type === "keyup"){
                     return;
                 }
                 let data = $(elem).val();
@@ -416,7 +416,7 @@ function loadSendData(dta) {
                 if($(this)[0]['value'] === err_meth['id']){
                     return true;
                 }
-                if($(this).data('tmp_id') != undefined){
+                if($(this).data('tmp_id') !== undefined){
                     return $(this).data('tmp_id') === err_meth['id'];
                 }
                 return false;
@@ -580,7 +580,7 @@ function collectSendData(space) {
         if (email_add) {
             email = email_add;
         } else {
-            alert("Please enter your email or deactivate send by mail!");
+            console.log("Please enter your email or deactivate send by mail!");
             return
         }
     }
@@ -835,7 +835,7 @@ function updateSynthDropdown(host_uri, api_key, type, post_success_callback) {
         error: function (jqXHR, textStatus, errorThrown) {
             console.log("Error, status = " + textStatus + ", " + "error thrown: " + errorThrown);
             showWarn(errorThrown, 'warning',400);
-            submit_seq_btn.removeClass('is-loading');
+            //submit_seq_btn.removeClass('is-loading');
         }
     });
 }
@@ -1041,8 +1041,8 @@ function calc_tm(sel_seq){
         let na_corr = TmSettings.Na + divalendToMonovalentCorrection(TmSettings.Mg, TmSettings.dNTP);
         let salt_corr = (seq_len - 1) * 0.368 * Math.log(na_corr);
         let dH_sum = calc_dH(sel_seq);
-        let h = is_self_comp ? 1.0 : 0.25;
-        tm = dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * h)) - 273.15;
+        let var_h = is_self_comp ? 1.0 : 0.25;
+        tm = dH_sum / (dS_sum + salt_corr + R * Math.log(TmSettings.Ct * var_h)) - 273.15;
     }
     return Math.round(tm * 100) / 100;
 }
@@ -1099,7 +1099,7 @@ function divalendToMonovalentCorrection(divalent, monovalent) {
     return 12.0 / Math.sqrt(10) * Math.sqrt(Math.max(0, divalent - monovalent));
 }
 
-function calc_dS(seq, is_self_comp) {
+function calc_dS(seq, p_is_self_comp) {
     let first = seq[0];
     let tmp_dS = first === 'A' || first === 'T' ? init_AT_dS : init_GC_dS;
     for (let i = 0; i < seq.length - 1; ++i) {
@@ -1107,7 +1107,7 @@ function calc_dS(seq, is_self_comp) {
     }
     let last = seq[seq.length - 1];
     tmp_dS += last === 'A' || last === 'T' ? init_AT_dS : init_GC_dS;
-    if (is_self_comp) {
+    if (p_is_self_comp) {
         tmp_dS += sym_dS;
     }
     return tmp_dS;
@@ -1149,12 +1149,12 @@ function initListsDnD() {
                     if (evt.to === trash) {
                         evt.to.children[evt.newIndex].remove();
                     }
-                    if (evt.from.parentElement.id === 'pcrmeth' && evt.to != evt.from) {
+                    if (evt.from.parentElement.id === 'pcrmeth' && evt.to !== evt.from) {
                         let name = $(evt.item).text();
                         let cycles = $('#cyc').val();
                         $(evt.item).text("" + name + " (" + cycles + " cycle(s))").data('multiplier', cycles);
                     }
-                    if (evt.from.parentElement.id === 'storagemeth' && evt.to != evt.from) {
+                    if (evt.from.parentElement.id === 'storagemeth' && evt.to !== evt.from) {
                         let name = $(evt.item).text();
                         let months = $('#mon').val();
                         $(evt.item).text("" + name + " (" + months + " month(s))").data('multiplier', months);
@@ -1169,7 +1169,7 @@ function initListsDnD() {
 
 function initListsDbl(elem) {
     elem.unbind();
-    elem.on("dblclick", function (f) {
+    elem.on("dblclick", function () {
         let con_id = this.parentElement.parentElement.id;
         if (con_id === "seqmeth1"){
             this.parentElement.removeChild(this);
@@ -1308,7 +1308,7 @@ function getNextHistory(showId) {
 
         },
         fail: function (data) {
-            $('#delete-res_' + result_uuid).removeClass('is-loading');
+            //$('#delete-res_' + result_uuid).removeClass('is-loading');
             console.log(data)
         }
     });

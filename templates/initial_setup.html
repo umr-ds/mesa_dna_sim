@@ -7,7 +7,7 @@
         <h3 class="title">Setup</h3>
         <div class="box">
             <span class="subtitle" style="white-space: nowrap">Create your Admin account:</span>
-            <form method="POST" action="/setup">
+            <form method="POST" action="{{ url_for('main_page.setup') }}">
                 <div class="field">
                     <div class="control has-icons-left">
                         <input class="input is-large" type="email" name="email" placeholder="Your Email" autofocus="">
