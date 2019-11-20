@@ -480,6 +480,7 @@ br {
     --spoiler-bg-color: initial;
     --pre-color: initial;
     --sort-opt-bg-color: lightgrey;
+    --copyright-color: black;
 }
 
 
@@ -496,6 +497,7 @@ br {
     --slider-bg-color: #191919;
     --pre-color: #191919;
     --sort-opt-bg-color: grey;
+    --copyright-color: grey;
 }
 
 #overlay-content {
@@ -596,4 +598,8 @@ td, th {
 
 #inner_invitrooverlay > div > div > .has-float-label > span::after {
     top: 40% !important;
+}
+
+.copyright {
+    color: var(--copyright-color) !important;
 }

@@ -76,6 +76,12 @@ def main_index():
     return render_template('index.html'), 200
 
 
+@main_page.route("/impressum")
+def impressum():
+    return render_template("impressum.html")
+
+
+
 @main_page.after_request
 def inject_x_rate_headers(response):
     limit = get_view_rate_limit()
