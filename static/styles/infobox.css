@@ -365,6 +365,12 @@ br {
     top: 3px;
 }
 
+.tooltip[data-position = "rnastruct"]{
+    position: absolute;
+    right: -3px;
+    top: -10px;
+}
+
 .tabs.is-boxed li.is-active a {
     background-color: #fff;
     border-color: green !important;
