@@ -20,7 +20,7 @@
                                         </label>
                                     </div>
                                     {%  if is_admin == True %}
-                                    <div class="column is-one-sixt is-full-mobile">
+                                    <div class="column is-one-tenth is-full-mobile">
                                         <label class="form-group has-float-label">
                                             <input style="width:100%" class="input is-rounded" type="text"
                                                    id="user_id_{{ p_res[0] }}" name="description" disabled=""
@@ -28,6 +28,23 @@
                                                    value="{{ p_res[1] }}">
                                             <span style="white-space: nowrap;">Owner ID</span>
                                         </label>
+                                    </div>
+                                    <div class="column is-one-tenth is-full-mobile">
+                                    <label class="form-group has-float-label">
+                                        <input class="input is-rounded" type="number" id="expiration_change"
+                                               placeholder=""
+                                               size="4"
+                                               value="365"
+                                               required min="1" step="1"><span>Days</span></label>
+                                    </div>
+                                    <div class="column is-one-sixt is-full-mobile">
+                                        <input class="button is-block button-fill" type="button"
+                                               id="change-res_{{ p_res[0] }}"
+                                               name="change-res_{{ p_res[0] }}"
+                                               onclick="changeResultExp('{{ p_res[0] }}');
+                                                       return false;"
+                                               data-balloon="Change Expiration Time"
+                                               data-balloon-pos="up" value="Change"/>
                                     </div>
                                     {%  endif %}
                                     <div class="column is-one-sixt is-full-mobile">
