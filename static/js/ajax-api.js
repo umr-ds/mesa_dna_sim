@@ -1266,15 +1266,16 @@ function changeResultExp(result_uuid, callback){
             if (xhr && xhr.overrideMimeType) {
                 xhr.overrideMimeType('application/json;charset=utf-8');
             }
+            $('#change-res_' + result_uuid).addClass('is-loading');
         },
         success: function (data) {
-            // TODO
-            if (data['did_succeed'] === true)
-                callback();
+            if (data['did_succeed'] === true) {
+                $('#timeout_' + result_uuid).val(data['exp_date']);
+            }
         },
         fail: function (data) {
             $('#delete-res_' + result_uuid).removeClass('is-loading');
-            console.log(data)
+            console.log(data);
         }
     });
 }

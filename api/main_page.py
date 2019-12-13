@@ -890,7 +890,6 @@ def remove_uuid():
 
 @main_page.route("/change_result_expiration", methods=["GET", "POST"])
 @require_logged_in
-@require_admin
 def change_expiration():
     if request.method == 'POST':
         r_method = request.json
@@ -899,16 +898,14 @@ def change_expiration():
     uuid = r_method.get('uuid')
     user_id = session.get('user_id')
     exp_time = r_method.get('exp_time')
-    try:
-        if uuid is None or exp_time is None:
-            raise Exception()
-    except:
+    if uuid is None or exp_time is None:
         return jsonify({'did_succeed': False, 'uuid': uuid}), 400
     user = User.query.filter_by(user_id=user_id).first()
     uuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
     if uuid_user is not None and (user.user_id == int(uuid_user) or user.is_admin):
-        set_expiration_time(uuid, int(exp_time)*86400)
-        set_expiration_time('USER_' + uuid + "_" + str(user_id), int(exp_time)*86400)
-        return jsonify({'did_succeed': True, 'uuid': uuid})
+        ms_time = int(exp_time) * 86400
+        set_expiration_time(uuid, ms_time)
+        set_expiration_time('USER_' + uuid + "_" + str(user_id), ms_time)
+        return jsonify({'did_succeed': True, 'uuid': uuid, 'exp_date': time.ctime(time.time() + ms_time)})
     else:
         return jsonify({'did_succeed': False, 'uuid': uuid}), 400
