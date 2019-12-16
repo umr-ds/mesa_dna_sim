@@ -1,7 +1,10 @@
 version: '3'
 services:
   web:
-    build: .
+    # To build from source uncomment this line:
+    # build: .
+    # and comment out the line below:
+    image: mosla/mesadnasim_web
     restart: always
     ports:
       - "5000:80"
