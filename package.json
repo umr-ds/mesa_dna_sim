@@ -1,7 +1,7 @@
 {
-  "name": "dna_sim",
+  "name": "mesa_dna_sim",
   "version": "1.0.0",
-  "description": "DNA Simulator",
+  "description": "MESA DNA Simulator",
   "main": "index.js",
   "private": true,
   "dependencies": {
@@ -9,21 +9,21 @@
     "bulma-divider": "^0.2.0",
     "bulma-switch": "^2.0.0",
     "canvas2svg": "^1.0.16",
-    "chart.js": "^2.8.0",
+    "chart.js": "^2.9.3",
     "chartjs-plugin-dragdata": "^0.3.1",
     "github-fork-ribbon-css": "^0.2.3",
     "jquery": "^3.4.1",
     "json5": "^2.1.1",
     "letteringjs": "^0.7.0",
-    "nouislider": "^14.0.3",
+    "nouislider": "^14.1.0",
     "sortablejs": "^1.10.1",
     "uglify-es": "^3.3.9",
     "uglifycss": "0.0.29"
   },
   "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.11.2",
+    "@fortawesome/fontawesome-free": "^5.12.0",
     "webpack": "^4.41.2",
-    "webpack-cli": "^3.3.9"
+    "webpack-cli": "^3.3.10"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -31,12 +31,12 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/umr-ds/dna_sim.git"
+    "url": "git+https://github.com/umr-ds/mesa_dna_sim.git"
   },
   "author": "Michael Schwarz",
   "license": "",
   "bugs": {
-    "url": "https://github.com/umr-ds/dna_sim/issues"
+    "url": "https://github.com/umr-ds/mesa_dna_sim/issues"
   },
-  "homepage": "https://github.com/umr-ds/dna_sim#readme"
+  "homepage": "https://github.com/umr-ds/mesa_dna_sim#readme"
 }

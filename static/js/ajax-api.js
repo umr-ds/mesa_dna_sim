@@ -1251,6 +1251,37 @@ function deleteResult(result_uuid, callback, delete_all) {
     });
 }
 
+function changeResultExp(result_uuid, callback){
+    let exp_time = $('#expiration_change').val();
+    $.post({
+        url: host + "change_result_expiration",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            exp_time: exp_time,
+            uuid: result_uuid,
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+            $('#change-res_' + result_uuid).addClass('is-loading');
+        },
+        success: function (data) {
+            if (data['did_succeed'] === true) {
+                $('#timeout_' + result_uuid).val(data['exp_date']);
+                $('#change-res_' + result_uuid).removeClass('is-loading');
+            }
+        },
+        fail: function (data) {
+            $('#change-res_' + result_uuid).removeClass('is-loading');
+            console.log(data);
+        }
+    });
+}
+
+
 function getNextHistory(showId) {
         if (showId === undefined)
             showId = false;

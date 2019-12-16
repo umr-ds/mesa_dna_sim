@@ -10,17 +10,8 @@
                                     <div class="column is-one-third is-full-mobile">
                                         <a href="{{ url_for('main_page.query_sequence') }}?uuid={{ p_res[0] }}">{{ p_res[0] }}</a>
                                     </div>
-                                    <div class="column is-two-sixt is-full-mobile">
-                                        <label class="form-group has-float-label">
-                                            <input style="width:100%" class="input is-rounded" type="text"
-                                                   id="timeout_{{ p_res[0] }}" name="description" disabled=""
-                                                   placeholder="Time-till-expiration"
-                                                   value="{{ p_res[2] | to_ctime }}">
-                                            <span style="white-space: nowrap;">Valid until</span>
-                                        </label>
-                                    </div>
                                     {%  if is_admin == True %}
-                                    <div class="column is-one-sixt is-full-mobile">
+                                    <div class="column is-1 is-full-mobile">
                                         <label class="form-group has-float-label">
                                             <input style="width:100%" class="input is-rounded" type="text"
                                                    id="user_id_{{ p_res[0] }}" name="description" disabled=""
@@ -30,7 +21,35 @@
                                         </label>
                                     </div>
                                     {%  endif %}
-                                    <div class="column is-one-sixt is-full-mobile">
+                                    <div class="column is-two-sixt is-full-mobile">
+                                        <label class="form-group has-float-label">
+                                            <input style="width:100%" class="input is-rounded" type="text"
+                                                   id="timeout_{{ p_res[0] }}" name="description" disabled=""
+                                                   placeholder="Time-till-expiration"
+                                                   value="{{ p_res[2] | to_ctime }}">
+                                            <span style="white-space: nowrap;">Valid until</span>
+                                        </label>
+                                    </div>
+                                    <div class="column is-full-mobile is-expanded field has-addons has-addons-centered has-no-margin-bottom">
+                                        <div class="control">
+                                        <label class="form-group has-float-label">
+                                            <input class="input is-rounded" type="number" id="expiration_change"
+                                                   placeholder=""
+                                                   size="4"
+                                                   value="365"
+                                                   required min="1" step="1"><span>Set expiration Days</span></label>
+                                        </div>
+                                        <div class="control">
+                                                <input class="button is-block button-fill is-rounded" type="button"
+                                                       id="change-res_{{ p_res[0] }}"
+                                                       name="change-res_{{ p_res[0] }}"
+                                                       onclick="changeResultExp('{{ p_res[0] }}');
+                                                               return false;"
+                                                       data-balloon="Change Expiration Time"
+                                                       data-balloon-pos="up" value="Change"/>
+                                        </div>
+                                    </div>
+                                    <div class="column is-one-sixt is-full-mobile is-rounded">
                                         <input class="button is-block button-fill" type="button"
                                                id="delete-res_{{ p_res[0] }}"
                                                name="delete-res_{{ p_res[0] }}"
