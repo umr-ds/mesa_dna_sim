@@ -1271,10 +1271,11 @@ function changeResultExp(result_uuid, callback){
         success: function (data) {
             if (data['did_succeed'] === true) {
                 $('#timeout_' + result_uuid).val(data['exp_date']);
+                $('#change-res_' + result_uuid).removeClass('is-loading');
             }
         },
         fail: function (data) {
-            $('#delete-res_' + result_uuid).removeClass('is-loading');
+            $('#change-res_' + result_uuid).removeClass('is-loading');
             console.log(data);
         }
     });
