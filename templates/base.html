@@ -1,3 +1,4 @@
+{% set version = '1.0.1' %}
 <!DOCTYPE html>
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">-->
 <html lang="en" {% if 'darkmode' in request.cookies and request.cookies['darkmode'] == "true" %}data-theme="dark"{% endif %}>
@@ -27,7 +28,7 @@
 
             <script defer src="{{ url_for('static',filename='js/fontawesome.min.js') }}"></script>
         {% else %}
-            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') }}>
+            <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/all.min.css') + '?v=' + version }}>
         {% endif %}
         {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
             <link rel="stylesheet" type="text/css" href={{ url_for('static',filename='styles/ie.css') }}>
@@ -149,7 +150,7 @@
         <script src={{ url_for('static',filename='js/dateconverter.js') }}></script>
         <script src={{ url_for('static',filename='js/cookies.js') }}></script>
     {% else %}
-        <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js') }}"></script>
+        <script type="text/javascript" src="{{ url_for('static',filename='js/all.min.js')+ '?v=' + version }}"></script>
     {% endif %}
     <script type="text/javascript">
     {%  if "msie" == request.user_agent.browser or "Trident/" in request.user_agent.string or "MSIE " in request.user_agent.string %}
