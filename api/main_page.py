@@ -29,7 +29,7 @@ def sanitize_input(in_str, regex=r'[^a-zA-Z0-9():/\\.,\-&?#= ]'):
 
 def get_admin_mails():
     admins = User.query.filter_by(is_admin=True).all()
-    return [x.mail for x in admins]
+    return [x.email for x in admins]
 
 
 def floatify(x, sanitize_mode=False):
