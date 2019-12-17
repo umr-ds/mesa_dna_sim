@@ -47,7 +47,7 @@ function addSubSeq(host, id) {
                     "</td>" +
                     "<td style=\"width:5%\">\n" +
                     "<button class=\"button button-fill\" id=\"delete_subseq_" + data.id + "\" data-balloon=\"Delete this Subsequence created at: " + dattime + "\"" +
-                    "data-balloon-pos=\"up\" onclick=\"deleteSeq('" + host + "', " + data.id + "); return false;\">Delete\n" +
+                    " data-balloon-pos=\"up\" onclick=\"deleteSeq('" + host + "', " + data.id + "); return false;\">Delete\n" +
                     "</button>\n" +
                     "</td>\n" +
                     "</tr>\n" +
@@ -91,13 +91,17 @@ function updateSeq(host, id) {
         },
         dataType: 'json',
         success: function (data) {
-            console.log("Update successful for id=" + data.id.toString());
-            $('#update_subseq_' + data.id.toString()).children(0).toggleClass('fa-save').toggleClass('fa-check').delay(2000).queue(function () {
-                $('#update_subseq_' + data.id.toString()).children(0).toggleClass('fa-check').toggleClass('fa-save')
-            })
+            if (data.did_succeed) {
+                console.log("Update successful for id=" + data.id.toString());
+                $('#update_subseq_' + data.id.toString()).children(0).toggleClass('fa-save').toggleClass('fa-check').delay(2000).queue(function () {
+                    $('#update_subseq_' + data.id.toString()).children(0).toggleClass('fa-check').toggleClass('fa-save')
+                })
+            } else {
+                console.log("Update failed for id=" + id);
+            }
         },
         fail: function (data) {
-            console.log("Update failed for id=" + data.id.toString());
+            console.log("Update failed for id=" + id);
             showWarn(data, 'warning', 441)
         }
     });
@@ -126,7 +130,11 @@ function validateSeq(host, id, validation_desc) {
         },
         dataType: 'json',
         success: function (data) {
-            console.log("Request for validation for id=" + data.id.toString() + " was successful.");
+            if (data.did_succeed) {
+                console.log("Request for validation for id=" + id + " was successful.");
+            }else{
+                console.log("Request for validation for id=" + id + " failed.");
+            }
             btn.prop("disabled", true);
             if (data.validated) {
                 btn.attr("data-balloon", "Already validated - update to remove validation!")
@@ -135,7 +143,7 @@ function validateSeq(host, id, validation_desc) {
             }
         },
         fail: function (data) {
-            console.log("Request for Validation for id=" + data.id.toString() + " failed.");
+            console.log("Request for Validation for id=" + id + " failed.");
             //$('#text_lettering').text(data);
         }
     });
@@ -333,7 +341,7 @@ function addMismatch(method, obj_id) {
     dna_seq.val("");
     noPossibleMismatches.val(2);
     if (noPossibleMismatches_val > 1)
-        initMismatchSlider(method, $("#mismatch-" + method + "-slider-" + obj_id)[0])
+        initMismatchSlider(method, $("#mismatch-" + method + "-slider-" + obj_id)[0]);
     set_listener();
 }
 
@@ -378,7 +386,7 @@ function validateCustomError(host, method, id, desc) {
                 }
             } else {
                 /* On Failure: either dont do anything, or show error?*/
-                console.log("Error while requesting validation for " + method + "-Error " + data.id.toString());
+                console.log("Error while requesting validation for " + method + "-Error " + id);
             }
 
         },
@@ -391,7 +399,8 @@ function validateCustomError(host, method, id, desc) {
 
 function sendCustomError(host, method, id, create_copy) {
     /* Check for required values */
-    if (!$('#' + method + '_description_' + id).val()){
+    let synth_name_elem = $('#' + method + '_description_' + id);
+    if (!synth_name_elem.val()){
         return false;
     }
     /* Collect all Input-Values*/
@@ -493,7 +502,6 @@ function sendCustomError(host, method, id, create_copy) {
         raw_rate: err_data_raw_rate
     };
 
-    const synth_name_elem = $('#' + method + '_description_' + id);
     const synth_name = synth_name_elem.val();
 
     const result = {
@@ -570,7 +578,7 @@ function sendCustomError(host, method, id, create_copy) {
                 console.log("Error while adding new " + method + "-Error");
             }
         },
-        fail: function (data) {
+        fail: function () {
             /* On Failure: either dont do anything, or show error?*/
             console.log("Error while adding new " + method + "-Error");
         }
@@ -599,7 +607,7 @@ function deleteCustomError(host, method, obj_id) {
                 console.log("Error while deleting " + method + "-Error " + obj_id);
             }
         },
-        fail: function (data) {
+        fail: function () {
             /* On Failure: either dont do anything, or show error?*/
             console.log("Error while deleting " + method + "-Error " + obj_id);
         }
@@ -776,10 +784,10 @@ function initACGTSlider(method, elem) {
     });
 
 
-    var connect = elem.querySelectorAll('.noUi-connect');
-    var classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color', 'c-5-color'];
+    let connect = elem.querySelectorAll('.noUi-connect');
+    let classes = ['c-1-color', 'c-2-color', 'c-3-color', 'c-4-color', 'c-5-color'];
 
-    for (var i = 0; i < connect.length; i++) {
+    for (let i = 0; i < connect.length; i++) {
         connect[i].classList.add(classes[i]);
     }
 }
