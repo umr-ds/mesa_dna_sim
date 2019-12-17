@@ -1,4 +1,4 @@
-from flask import session, Blueprint, request, flash, redirect, url_for, render_template
+from flask import session, Blueprint, request, flash, redirect, url_for, render_template, make_response, current_app
 
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SequencingErrorRates, \
@@ -31,10 +31,17 @@ def do_delete():
 
         if user:
             if user.verify_account_deletion_token(delete_token):
-                remove_user(user)
-                session.pop('user_id', None)
-                flash('Your account has been deleted.', 'info')
-                return redirect(url_for('main_page.main_index'))
+                did_succeed = remove_user(user)
+                if did_succeed:
+                    session.pop('user_id', None)
+                    flash('Your account has been deleted.', 'info')
+                else:
+                    flash('There has been an error, please try again or contact an administrator.', 'warning')
+                response = make_response(redirect(url_for('main_page.main_index')))
+                if did_succeed:
+                    response.set_cookie('darkmode', 'false', 0)
+                    response.set_cookie(current_app.session_cookie_name, '', 0)
+                return response
             else:
                 flash('Deletion Token not (or no longer) valid, if you tried to delete your account, please try again.',
                       'danger')

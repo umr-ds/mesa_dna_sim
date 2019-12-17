@@ -2,6 +2,7 @@ from functools import wraps
 
 import bcrypt as bcrypt
 from flask import flash, request, redirect, url_for, Blueprint, render_template, session
+from markupsafe import Markup
 
 from database.models import User
 
@@ -109,7 +110,8 @@ def do_login():
                 session.pop("user_id", None)
                 flash("Session exists, but user does not exist (anymore)", 'warning')
                 return redirect(url_for('login.do_login'))
-    flash("We use cookies to keep you logged in as you navigate between pages. By logging in you agree with this mandatory cookie.", "info")
+    flash(Markup('We use cookies to keep you logged in as you navigate between pages. By logging in you agree with this mandatory cookie. You can read more about how we use Cookies <a href="/impressum">here</a>.'), "info")
+    #flash(".", "info")
     return render_template('login.html')
 
 

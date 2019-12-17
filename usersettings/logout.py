@@ -1,4 +1,4 @@
-from flask import Blueprint, session, redirect, url_for, flash, make_response
+from flask import Blueprint, session, redirect, url_for, flash, make_response, current_app
 
 from usersettings.login import require_logged_in
 
@@ -20,4 +20,5 @@ def do_logout():
 
     response = make_response(redirect(url_for('main_page.main_index')))
     response.set_cookie('darkmode', 'false', 0)
+    response.set_cookie(current_app.session_cookie_name, '', 0)
     return response
