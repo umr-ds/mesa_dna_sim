@@ -3,18 +3,34 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <div class="column is-4 is-offset-4">
+    <div class="column is-full">
         <h3 class="title">Account deletion</h3>
         <div class="box">
-            <form method="POST" action="/delete">
+            <form id="deletion_form" method="POST" action="/delete">
                 <div class="field">
-                    <div class="control">
+                    <div class="control has-text-centered is-centered">
                         Do you really want to delete your account? This action can not be undone!
                     </div>
                 </div>
                 <input id="token" name="token" type="hidden" value="{{ token }}">
-                <button class="button is-block is-fullwidth">I am sure. Delete my Account</button>
+                <label for="keep_results">Keep previous results:&ensp;</label><input type="checkbox" id="keep_results" name="keep_results"/>
+                <div class="control has-text-centered is-centered has-padding-bottom-20">
+                    If you choose to keep your results (e.g. because they are referred to in a paper), keep in mind that the expiration date still applies!
+                    <p>Additionally, if you want to keep these results, there is no (automated) way to delete these results before they expire.</p>
+                </div>
+                <button class="button is-block is-fullwidth"
+                        onclick='let del_user_callback = function() {$("#deletion_form").submit()};
+                        if (!$("#keep_results").is(":checked")) {deleteResult(0, del_user_callback, true)} else {del_user_callback()} return false;'>I am sure.
+                    Delete my Account
+                </button>
             </form>
         </div>
     </div>
+{% endblock %}
+
+{% block javascript %}
+    {{ super() }}
+    {% if config['DEBUG'] or config['TESTING'] %}
+        <script src={{ url_for('static',filename='js/ajax-api.js') }}></script>
+    {% endif %}
 {% endblock %}

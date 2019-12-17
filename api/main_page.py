@@ -14,7 +14,7 @@ from api.apikey import require_apikey, create_apikey
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SynthesisErrorRates, \
     MethodCategories, SequencingErrorRates, PcrErrorRates, StorageErrorRates
-from usersettings.delete import removeUser
+from usersettings.delete import remove_user
 from usersettings.login import require_logged_in, check_password, require_admin
 from usersettings.register import gen_password
 from api.RedisStorage import get_keys, get_expiration_time, set_expiration_time, read_from_redis, read_all_from_redis
@@ -141,7 +141,7 @@ def manage_users():
             if user.is_admin and len(all_admins) == 1:
                 # we can not allow deletion of the last admin account!
                 return jsonify({'did_succeed': False})
-            return jsonify({'did_succeed': removeUser(user)})
+            return jsonify({'did_succeed': remove_user(user)})
         elif do_update:
             new_email = r_method.get('new_email')
             validated = bool(r_method.get('validated'))

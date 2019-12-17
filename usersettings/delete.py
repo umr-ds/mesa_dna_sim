@@ -2,7 +2,7 @@ from flask import session, Blueprint, request, flash, redirect, url_for, render_
 
 from database.db import db
 from database.models import User, Apikey, UndesiredSubsequences, ErrorProbability, SequencingErrorRates, \
-    SynthesisErrorRates
+    SynthesisErrorRates, StorageErrorRates, PcrErrorRates
 from usersettings.login import require_logged_in
 
 delete = Blueprint("delete", __name__, template_folder="templates")
@@ -31,13 +31,13 @@ def do_delete():
 
         if user:
             if user.verify_account_deletion_token(delete_token):
-                removeUser(user)
+                remove_user(user)
                 session.pop('user_id', None)
                 flash('Your account has been deleted.', 'info')
                 return redirect(url_for('main_page.main_index'))
             else:
                 flash('Deletion Token not (or no longer) valid, if you tried to delete your account, please try again.',
-                      'error')
+                      'danger')
                 return render_template('delete.html', token=user.get_account_deletion_token())
         else:
             flash('Unknown error, could not find User in Database. Account already deleted?', 'warning')
@@ -47,38 +47,25 @@ def do_delete():
         return render_template('delete.html', token=user.get_account_deletion_token())
 
 
-def removeUser(user):
+def remove_user(user):
     if user.user_id == 0:
         # We do not allow deletion of User 0!
         return False
     user_id = user.user_id
-    db.session.query(Apikey).filter(Apikey.owner_id == user_id).delete()
-    db.session.commit()
+    try:
+        # delete all (custom) subsequences, synth, storage and sequencing rules from this user
+        db.session.query(Apikey).filter(Apikey.owner_id == user_id).delete()
+        db.session.query(UndesiredSubsequences).filter(UndesiredSubsequences.owner_id == user_id).delete()
+        for table in [ErrorProbability, SequencingErrorRates, PcrErrorRates, StorageErrorRates,
+                      SynthesisErrorRates]:
+            db.session.query(table).filter(table.user_id == user_id).delete()
+        db.session.commit()
 
-    # delete all (custom) subsequences, synth, storage and sequencing rules from this user
-    db.session.query(UndesiredSubsequences).filter(UndesiredSubsequences.owner_id == user_id).delete()
-    db.session.commit()
-    db.session.query(ErrorProbability).filter(ErrorProbability.user_id == user_id).delete()
-    db.session.commit()
-    db.session.query(SequencingErrorRates).filter(SequencingErrorRates.user_id == user_id).delete()
-    db.session.commit()
-    db.session.query(SynthesisErrorRates).filter(SynthesisErrorRates.user_id == user_id).delete()
-    db.session.commit()
+        # delete the user from the database
+        db.session.delete(user)
+        db.session.commit()
+        return True
+    except Exception as ex:
+        print(ex)
+        return False
 
-    # delete the user from the database
-    db.session.delete(user)
-    db.session.commit()
-    return True
-
-"""
-@delete.route('/delete')
-@require_logged_in
-def do_logout():
-    # remove the username from the session if it is there
-    if 'user_id' in session:
-        session.pop('user_id', None)
-        flash('You have successfully logged out', 'success')
-    else:
-        flash('You are already logged out', 'warning')
-    return redirect(url_for('main_page.main_index'))
-"""
