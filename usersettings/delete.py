@@ -33,14 +33,13 @@ def do_delete():
             if user.verify_account_deletion_token(delete_token):
                 did_succeed = remove_user(user)
                 if did_succeed:
-                    session.pop('user_id', None)
+                    session.clear()
                     flash('Your account has been deleted.', 'info')
                 else:
                     flash('There has been an error, please try again or contact an administrator.', 'warning')
                 response = make_response(redirect(url_for('main_page.main_index')))
                 if did_succeed:
-                    response.set_cookie('darkmode', 'false', 0)
-                    response.set_cookie(current_app.session_cookie_name, '', 0)
+                    response.delete_cookie(current_app.session_cookie_name, path='/')
                 return response
             else:
                 flash('Deletion Token not (or no longer) valid, if you tried to delete your account, please try again.',

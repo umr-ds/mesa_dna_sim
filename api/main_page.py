@@ -81,6 +81,14 @@ def impressum():
     return render_template("impressum.html")
 
 
+@main_page.route("/set_dark_mode", methods=["GET", "POST"])
+@require_logged_in
+def set_dark_mode():
+    r_method = request.json if request.method == 'POST' else request.args
+    bool_mode = r_method.get('dark_mode')
+    session['darkmode'] = bool_mode
+    return jsonify({'did_succeed': True})
+
 
 @main_page.after_request
 def inject_x_rate_headers(response):

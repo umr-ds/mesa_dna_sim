@@ -80,13 +80,13 @@
                 <div>Dark Mode:</div>
                 <div class="box">
                     <button id="darkmode_on" class="button"
-                            {% if 'darkmode' in request.cookies and  request.cookies['darkmode'] == "true" %}disabled{% endif %}
-                            onclick="setCookie('darkmode', true, 32);document.documentElement.setAttribute('data-theme', 'dark');$('#darkmode_off').prop('disabled', '');$(this).prop('disabled','disabled')">
+                            {% if session.get('darkmode') == True %}disabled{% endif %}
+                            onclick="setDarkMode(true);/*setCookie('darkmode', true, 32);*/$('#darkmode_off').prop('disabled', '');$(this).prop('disabled','disabled')">
                         Dark Mode
                     </button>
                     <button id="darkmode_off" class="button"
-                            {% if 'darkmode' not in request.cookies or request.cookies['darkmode'] != "true" %}disabled{% endif %}
-                            onclick="setCookie('darkmode', false, 32);document.documentElement.setAttribute('data-theme', 'light');$('#darkmode_on').prop('disabled', '');$(this).prop('disabled','disabled')">
+                            {% if session.get('darkmode') == False %}disabled{% endif %}
+                            onclick="setDarkMode(false);/*setCookie('darkmode', false, 32);*/$('#darkmode_on').prop('disabled', '');$(this).prop('disabled','disabled')">
                         Light Mode
                     </button>
                 </div>

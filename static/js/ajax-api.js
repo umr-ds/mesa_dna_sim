@@ -1367,3 +1367,25 @@ function calculateInVitroErrorRate(iV_pH, iV_Temp) {
         return Math.pow(10, 16.5 - 0.982 * pH - (5.85 * Math.pow(10,3)) / temp) * 100 * 2629746;
     }
 }
+
+function setDarkMode(bool_mode) {
+    $.post({
+        url: host + "set_dark_mode",
+        dataType: 'json',
+        contentType: 'application/json;charset=UTF-8',
+        data: JSON.stringify({
+            dark_mode: bool_mode
+        }),
+        async: true,
+        beforeSend: function (xhr) {
+            if (xhr && xhr.overrideMimeType) {
+                xhr.overrideMimeType('application/json;charset=utf-8');
+            }
+        }
+    });
+    let mode = "dark";
+    if (bool_mode === false) {
+        mode = "light";
+    }
+    document.documentElement.setAttribute('data-theme', mode);
+}
