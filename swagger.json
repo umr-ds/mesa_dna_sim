@@ -1,12 +1,12 @@
 {
   "swagger": "2.0",
   "info": {
-    "description": "Project description",
-    "version": "1.0.0",
-    "title": "DNA Simulator",
+    "description": "MESA DNA Mutation Simulator - automated assessment of synthetic DNA\nfragments and simulation of DNA synthesis,\nstorage, sequencing, and PCR errors",
+    "version": "1.0.2",
+    "title": "MESA DNA Simulator",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
-      "email": "a@b.c"
+      "email": "peter.schwarz@uni-marburg.de"
     },
     "license": {
       "name": "Apache 2.0",

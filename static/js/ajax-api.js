@@ -252,7 +252,7 @@ function set_minmax_listener(elem, min, max){
 
 
 
-/* Example: download(collectSendData(2), 'mosla.json','application/json'); */
+/* Example: download(collectSendData(2), 'mesa.json','application/json'); */
 function download(text, name, type) {
     let file = new Blob([text], {type: type});
     let isIE = /*@cc_on!@*/false || !!document.documentMode;
@@ -611,10 +611,10 @@ function collectSendData(space) {
 
 function collectSendFastQ(modified) {
     if (modified === false) {
-        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + document.getElementById("overall").innerText + '\n+\n' + $('#overall').data('fastq');
+        return '@Your MESA sequence at ' + document.getElementById("link_to_share").innerText + '\n' + document.getElementById("overall").innerText + '\n+\n' + $('#overall').data('fastq');
     } else {
         let sequence = document.getElementById("mod_seq").innerText.split(" ").join("");
-        return '@Your Moslasequence at ' + document.getElementById("link_to_share").innerText + '\n' + sequence + '\n+\n' + $('#mod_seq').data('fastq');
+        return '@Your MESA sequence at ' + document.getElementById("link_to_share").innerText + '\n' + sequence + '\n+\n' + $('#mod_seq').data('fastq');
     }
 }
 

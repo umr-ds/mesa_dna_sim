@@ -4,7 +4,7 @@ from flask import current_app
 mail = Mail()
 
 
-def send_mail(sender, recipients, text, subject="Confirmation Link for MOSLA-DNASimulator", attachment_txt=None,
+def send_mail(sender, recipients, text, subject="Confirmation Link for MESA DNA Simulator", attachment_txt=None,
               attachment_name=None):
     """
     Sends an email to passed recipients with the passed text.
@@ -24,7 +24,7 @@ def send_mail(sender, recipients, text, subject="Confirmation Link for MOSLA-DNA
         msg = Message(subject, body=text, sender=sender, recipients=recipients)
         if attachment_txt is not None:
             if attachment_name is None:
-                attachment_name = "mosla.fastq"
+                attachment_name = "mesa.fastq"
             msg.attach(filename=attachment_name, content_type="text/plain", data=attachment_txt)
         try:
             mail.send(msg)

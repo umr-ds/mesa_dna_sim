@@ -3,12 +3,12 @@
 <!--<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN">-->
 <html lang="en" {% if session.get('darkmode') == True %}data-theme="dark"{% endif %}>
 <head>
-    <title>{% block title %}MOSLA DNA Simulator{% endblock %}</title>
+    <title>{% block title %}MESA DNA Simulator{% endblock %}</title>
     {% block head %}
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="Description" content="MOSLA DNA-Synthesis-, Storage-, Mutation- and Sequencing-Simulator">
+        <meta name="Description" content="MESA: automated assessment of synthetic DNA fragments and simulation of DNA synthesis, storage, sequencing, and PCR errors">
 
         <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-150x150.png') }}" sizes="32x32"/>
         <link rel="icon" href="{{ url_for('static',filename='img/mosla_fav-300x300.png') }}" sizes="192x192"/>

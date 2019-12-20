@@ -47,7 +47,7 @@ def handle_error(ex):
         code = ex.code
     exception_recv = current_app.config['EXCEPTION_RECV']
     if exception_recv is not None and code != 409:  # we do not want to send an email for invalid credentials
-        send_mail(None, [exception_recv], text, subject="[MOSLA] Exception happened!")
+        send_mail(None, [exception_recv], text, subject="[MESA] Exception happened!")
         raise ex
     return jsonify({'did_succeed': False, 'code': code}), code
 
@@ -193,11 +193,11 @@ def fasta_do_all_wrapper():
             url = host + "query_sequence?uuid=" + uuid
             urls = urls + "\n" + url
             fastq_str_list.append(
-                "@Your Mosla sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
+                "@Your MESA sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
                 list(res.json.values())[0]['res']['fastqOr'])
         fastq_text = "\n".join(fastq_str_list)
-        send_mail(None, [e_mail], urls, subject="[MOSLA] Your DNA-Simulation finished",
-                  attachment_txt=fastq_text, attachment_name="MOSLA.fastq")
+        send_mail(None, [e_mail], urls, subject="[MESA] Your DNA-Simulation finished",
+                  attachment_txt=fastq_text, attachment_name="MESA.fastq")
 
     if request.method == 'POST':
         r_method = request.json
@@ -345,7 +345,7 @@ def do_all_wrapper():
         uuid = list(res.json.values())[0]["uuid"]
         send_mail(None, [email],
                   "Access your result at: " + host + "query_sequence?uuid=" + uuid,
-                  subject="[MOSLA] Your DNA-Simulation finished")
+                  subject="[MESA] Your DNA-Simulation finished")
 
     if request.method == 'POST':
         r_method = request.json

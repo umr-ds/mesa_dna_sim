@@ -433,7 +433,7 @@ def request_validation_g_error():
                 if requesting_user.user_id != user_id:
                     send_mail(None, requesting_user.email,
                               "Your Graph '" + curr_error.name + "' has been validated!",
-                              subject="[MOSLA] Validation Request")
+                              subject="[MESA] Validation Request")
                 curr_error.validated = True
             else:
                 curr_error = ErrorProbability.query.filter_by(user_id=user_id, id=e_id).first()
@@ -441,7 +441,7 @@ def request_validation_g_error():
                 curr_error.validation_desc = validation_desc
                 send_mail(None, get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
-                          subject="[MOSLA] Validation Request")
+                          subject="[MESA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
             db.session.add(curr_error)
             db.session.commit()
@@ -477,7 +477,7 @@ def request_validation_c_error():
                 if requesting_user.user_id != user_id:
                     send_mail(None, [requesting_user.email],
                               "Your Error-Method '" + curr_error.name + "' has been validated!",
-                              subject="[MOSLA] Validation Request")
+                              subject="[MESA] Validation Request")
                 curr_error.validated = True
             else:
                 curr_error = db.session.query(q_class).filter_by(user_id=user_id, id=e_id).first()
@@ -485,7 +485,7 @@ def request_validation_c_error():
                 curr_error.validation_desc = validation_desc
                 send_mail(None, get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
-                          subject="[MOSLA] Validation Request")
+                          subject="[MESA] Validation Request")
             curr_error.awaits_validation = curr_error.validated is False
             db.session.add(curr_error)
             db.session.commit()
@@ -514,7 +514,7 @@ def apply_validation_subseq():
                 if requesting_user.user_id != user_id:
                     send_mail(None, requesting_user.email,
                               "Your Motif / Subsequence '" + curr_sub_seq.description + "' has been validated!",
-                              subject="[MOSLA] Validation Request")
+                              subject="[MESA] Validation Request")
                 curr_sub_seq.validated = True
             else:
                 curr_sub_seq = db.session.query(UndesiredSubsequences).filter_by(owner_id=user_id,
@@ -523,7 +523,7 @@ def apply_validation_subseq():
                 curr_sub_seq.validation_desc = validation_desc
                 send_mail(None, get_admin_mails(),
                           "The user " + str(user_id) + " (" + user.email + ") has requested a validation!",
-                          subject="[MOSLA] Validation Request")
+                          subject="[MESA] Validation Request")
             curr_sub_seq.awaits_validation = curr_sub_seq.validated is False
             db.session.add(curr_sub_seq)
             db.session.commit()
