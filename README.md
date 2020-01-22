@@ -1,12 +1,18 @@
 # MESA - MOSLA Error Simulator
 ##### A flexible DNA Error Detection and Simulation Framework
 
+## Dont want to setup a local instance? 
+Try out MESA at [mesa.mosla.de](mesa.mosla.de)
+
 ## Tips:
-Visit http://rna.urmc.rochester.edu/RNAstructure.html to get the latest version of RNAstructure.tgz !
+Visit [http://rna.urmc.rochester.edu/RNAstructure.html](http://rna.urmc.rochester.edu/RNAstructure.html) to get the latest version of RNAstructure.tgz !
 
 ## Usage:
  
 The integrated docker-compose.yml file is all you need to get started!
+
+While you CAN build your own docker image from scratch, a prebuild image is available on DockerHub (mosla/mesadnasim_web) and should be loaded the first time you run `docker-compose up (-d)`
+  
 
 Before starting things up you should take a look at the compose-file:
 If you plan to use MESA you should change all SECRETS to random and secure strings: 
@@ -17,7 +23,7 @@ If you plan to use MESA you should change all SECRETS to random and secure strin
       SECRET_ACCOUNT_DELETION_VALIDATION_KEY: <!!!!!!!!!!!!!!!!!!!!!!!!!!>
 
 Additionally you have to set all mail-settings:
-If you do not want to use E-Mail you can set MAIL_ENABLED to 'False', in this case an Administrator has to validate newly registered users - Password reset wont (forgotten password) and changing the E-Mail Address for a user can only be performed by an Administrator
+If you do not want to use E-Mail you can set MAIL_ENABLED to 'False', in this case an Administrator has to validate newly registered users - Password reset wont work and changing the E-Mail Address for a user can only be performed by an Administrator
       
       MAIL_ENABLED: 'True'
       MAIL_SERVER: <smtp.your-server.com>
