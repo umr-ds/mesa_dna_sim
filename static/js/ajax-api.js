@@ -323,7 +323,7 @@ function handleFileChange(evt) {
                         document.getElementById("do_max_expect").checked = false;
                         $('#fasta_inf').show();
                         jseq.data("sequence_list", sequences);
-                        jseq.val("Fasta file loaded. Your results will be send to your E-Mail");
+                        jseq.val("Fasta file loaded. Your results will be sent to your E-Mail");
                         //queryServer(undefined);
                     }
                 } else {
@@ -664,7 +664,7 @@ function queryServer(uuid) {
     let res = $('#results');
     let resultsbymail = $('#resultsbymail');
     let mode = "all";
-    if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail") {
+    if (fasta && jseq.val() === "Fasta file loaded. Your results will be sent to your E-Mail") {
         mode = "fasta_all";
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
@@ -733,7 +733,7 @@ function queryServer(uuid) {
             if (data['result_by_mail'] === true) {
                 resultsbymail.css('display', 'initial');
             }
-            if (fasta && jseq.val() === "Fasta file loaded. Your results will be send to your E-Mail"){
+            if (fasta && jseq.val() === "Fasta file loaded. Your results will be sent to your E-Mail"){
                 jseq.val("");
                 document.getElementById("send_email").checked = false;
                 document.getElementById("send_email").disabled = false;
