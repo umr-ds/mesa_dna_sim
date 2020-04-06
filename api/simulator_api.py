@@ -175,7 +175,7 @@ def fasta_do_all_wrapper():
     This method wraps the do_multiple method (which works with multiline fasta files) to get the app context and allow
     the usage of mutliple threads to calculate the results faster. If a multiline fasta file is uploaded, the method
     gets a list with sequences and calls @do_all for every sequence in another thread. Every sequence gets a unique uuid
-    to access the results and an e_mail with all uuids will be send to the user that uploaded the fasta file.
+    to access the results and an e_mail with all uuids will be sent to the user that uploaded the fasta file.
     :return:
     """
 

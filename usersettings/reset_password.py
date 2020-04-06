@@ -60,7 +60,7 @@ def confirm_reset_password(token):
         send_mail(None, [user.email],
                   "Your new Password: " + new_pass + "\nYou can change it in your profile.",
                   subject="[MESA] Your new Password for MESA DNA Simulator")
-        flash('A new password hat been generated and will be send to you by mail', 'success')
+        flash('A new password hat been generated and will be sent to you by mail', 'success')
         session['user_id'] = user.user_id
     else:
         flash('Account not activated yet!', 'warning')
