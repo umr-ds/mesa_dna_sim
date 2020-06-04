@@ -41,7 +41,7 @@ services:
       # CF_HOSTNAME: mesa.mosla.de
 
       # if you just want to enable ssl with a self-signed cert you can set:
-      SELF_SIGNED_HOSTNAME: mesa.mosla.de
+      # SELF_SIGNED_HOSTNAME: mesa.mosla.de
     networks:
       - internet
       - no-internet
