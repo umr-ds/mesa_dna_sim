@@ -2,7 +2,7 @@
 ##### A flexible DNA Error Detection and Simulation Framework
 
 ## Dont want to setup a local instance? 
-Try out MESA at [mesa.mosla.de](mesa.mosla.de)
+Try out MESA at [mesa.mosla.de](https://mesa.mosla.de/)
 
 ## Tips:
 Visit [http://rna.urmc.rochester.edu/RNAstructure.html](http://rna.urmc.rochester.edu/RNAstructure.html) to get the latest version of RNAstructure.tgz !
