@@ -1175,7 +1175,7 @@ function initListsDbl(elem) {
             this.parentElement.removeChild(this);
         }
         else {
-            let clone = $(this).clone();
+            let clone = $(this).clone(true);
             if (con_id === "synthmeth") {
                 $('#synthesis_sortable').append(clone);
             } else if (con_id === "seqmeth") {
