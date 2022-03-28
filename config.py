@@ -19,6 +19,7 @@ try:
             'docker network inspect ' + docker_name + '_no-internet | grep "redis" -A 4 | grep "IPv4Address"').read().split(
             '": "')[1].split("/")[0]
 except:
+    print("Failed getting docker IPs, using fallback values!")
     postgres_ip = '172.22.0.2'  # docker network inspect dnasim_no-internet | grep "postgres" -A 4 | grep "IPv4Address"
     redis_ip = os.environ.get('REDIS_SERVER') or '172.18.0.2'  # docker network inspect dnasim_no-internet | grep "redis" -A 4 | grep "IPv4Address"
 

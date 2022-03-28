@@ -5,7 +5,7 @@ import time
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory, \
     current_app
 from flask_cors import cross_origin
-from jinja2 import evalcontextfilter
+from jinja2 import pass_eval_context
 from sqlalchemy import or_, and_, asc
 
 from api.mail import send_mail
@@ -61,7 +61,7 @@ def utility_processor():
 
 
 @main_page.app_template_filter()
-@evalcontextfilter
+@pass_eval_context
 def to_ctime(eval_ctx, ms_time):
     try:
         return time.ctime(ms_time / 1000)

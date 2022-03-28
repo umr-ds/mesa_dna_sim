@@ -9,7 +9,7 @@ class Graph:
             self.graph = self.create_graph()
         else:
             self.graph = graph
-        self.source_node = self.graph.node[0]
+        self.source_node = self.graph.nodes[0]
         self.visited_nodes = defaultdict(set)
 
     def create_graph(self):
