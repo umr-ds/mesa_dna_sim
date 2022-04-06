@@ -1,5 +1,5 @@
 /**!
- * Sortable 1.15.0
+ * Sortable 1.14.0
  * @author	RubaXa   <trash@rubaxa.org>
  * @author	owenm    <owen23355@gmail.com>
  * @license MIT
@@ -166,7 +166,7 @@
     throw new TypeError("Invalid attempt to spread non-iterable instance.\nIn order to be iterable, non-array objects must have a [Symbol.iterator]() method.");
   }
 
-  var version = "1.15.0";
+  var version = "1.14.0";
 
   function userAgent(pattern) {
     if (typeof window !== 'undefined' && window.navigator) {
@@ -1173,7 +1173,7 @@
   }; // #1184 fix - Prevent click event on fallback if dragged but item not changed position
 
 
-  if (documentExists && !ChromeForAndroid) {
+  if (documentExists) {
     document.addEventListener('click', function (evt) {
       if (ignoreNextClick) {
         evt.preventDefault();
@@ -1792,7 +1792,6 @@
 
       if (!Sortable.eventCanceled) {
         cloneEl = clone(dragEl);
-        cloneEl.removeAttribute("id");
         cloneEl.draggable = false;
         cloneEl.style['will-change'] = '';
 
@@ -2034,14 +2033,7 @@
 
           if (_onMove(rootEl, el, dragEl, dragRect, target, targetRect, evt, !!target) !== false) {
             capture();
-
-            if (elLastChild && elLastChild.nextSibling) {
-              // the last draggable element is not the last node
-              el.insertBefore(dragEl, elLastChild.nextSibling);
-            } else {
-              el.appendChild(dragEl);
-            }
-
+            el.appendChild(dragEl);
             parentEl = el; // actualization
 
             changed();
@@ -3186,13 +3178,11 @@
         }
       }
 
-      if (!sortable.options.avoidImplicitDeselect) {
-        if (sortable.options.supportPointer) {
-          on(document, 'pointerup', this._deselectMultiDrag);
-        } else {
-          on(document, 'mouseup', this._deselectMultiDrag);
-          on(document, 'touchend', this._deselectMultiDrag);
-        }
+      if (sortable.options.supportPointer) {
+        on(document, 'pointerup', this._deselectMultiDrag);
+      } else {
+        on(document, 'mouseup', this._deselectMultiDrag);
+        on(document, 'touchend', this._deselectMultiDrag);
       }
 
       on(document, 'keydown', this._checkKeyDown);
@@ -3200,7 +3190,6 @@
       this.defaults = {
         selectedClass: 'sortable-selected',
         multiDragKey: null,
-        avoidImplicitDeselect: false,
         setData: function setData(dataTransfer, dragEl) {
           var data = '';
 
@@ -3491,7 +3480,7 @@
               rootEl: rootEl,
               name: 'select',
               targetEl: dragEl$1,
-              originalEvent: evt
+              originalEvt: evt
             }); // Modifier activated, select from last to dragEl
 
             if (evt.shiftKey && lastMultiDragSelect && sortable.el.contains(lastMultiDragSelect)) {
@@ -3520,7 +3509,7 @@
                     rootEl: rootEl,
                     name: 'select',
                     targetEl: children[i],
-                    originalEvent: evt
+                    originalEvt: evt
                   });
                 }
               }
@@ -3537,7 +3526,7 @@
               rootEl: rootEl,
               name: 'deselect',
               targetEl: dragEl$1,
-              originalEvent: evt
+              originalEvt: evt
             });
           }
         } // Multi-drag drop
@@ -3648,7 +3637,7 @@
             rootEl: this.sortable.el,
             name: 'deselect',
             targetEl: el,
-            originalEvent: evt
+            originalEvt: evt
           });
         }
       },

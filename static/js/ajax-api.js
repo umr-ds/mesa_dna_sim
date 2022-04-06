@@ -1299,11 +1299,22 @@ function getNextHistory(showId) {
             for (let i in data) {
                 var date = new Date(parseFloat(data[i][2]));
                 let curr_elem = "<div class=\"column is-full\" id=\"prev_res_" + data[i][0] + "\">\n" +
-                    "                                <div class=\"columns is-full\">\n" +
+                    "                              <div class=\"columns is-full\">\n" +
                     "                                    <div class=\"column is-one-third is-full-mobile\">\n" +
                     "                                        <a href=\"" + host + "?uuid=" + data[i][0] + "\">" + data[i][0] + "</a>\n" +
-                    "                                    </div>\n" +
-                    "                                    <div class=\"column is-two-sixt is-full-mobile\">\n" +
+                    "                                    </div>\n";
+                if (data[i][1] !== null && showId) {
+                    curr_elem += "                                    <div class=\"column is-1 is-full-mobile\">\n" +
+                        "                                        <label class=\"form-group has-float-label\">\n" +
+                        "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
+                        "                                                   id=\"user_id_" + data[i][1] + "\" name=\"description\" disabled=\"\"\n" +
+                        "                                                   placeholder=\"Owner ID\"\n" +
+                        "                                                   value=\"" + data[i][1] + "\">\n" +
+                        "                                            <span style=\"white-space: nowrap;\">Owner ID</span>\n" +
+                        "                                        </label>\n" +
+                        "                                    </div>\n";
+                }
+                curr_elem += "<div class=\"column is-two-sixt is-full-mobile\">\n" +
                     "                                        <label class=\"form-group has-float-label\">\n" +
                     "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
                     "                                                   id=\"timeout_" + data[i][0] + "\" name=\"description\" disabled=\"\"\n" +
@@ -1312,21 +1323,30 @@ function getNextHistory(showId) {
                     "                                            <span style=\"white-space: nowrap;\">Valid until</span>\n" +
                     "                                        </label>\n" +
                     "                                    </div>\n";
-                if (data[i][1] !== null && showId) {
-                    curr_elem += "                                    <div class=\"column is-one-sixt is-full-mobile\">\n" +
-                        "                                        <label class=\"form-group has-float-label\">\n" +
-                        "                                            <input style=\"width:100%\" class=\"input is-rounded\" type=\"text\"\n" +
-                        "                                                   id=\"user_id_{{ p_res[0] }}\" name=\"description\" disabled=\"\"\n" +
-                        "                                                   placeholder=\"Owner ID\"\n" +
-                        "                                                   value=\"" + data[i][1] + "\">\n" +
-                        "                                            <span style=\"white-space: nowrap;\">Owner ID</span>\n" +
-                        "                                        </label>\n" +
-                        "                                    </div>\n";
-                }
+                curr_elem += "<div class=\"column is-full-mobile is-expanded field has-addons has-addons-centered has-no-margin-bottom\">\n" +
+                    "                                        <div class=\"control\">\n" +
+                    "                                        <label class=\"form-group has-float-label\">\n" +
+                    "                                            <input class=\"input is-rounded\" type=\"number\" id=\"expiration_change\"\n" +
+                    "                                                   placeholder=\"\"\n" +
+                    "                                                   size=\"4\"\n" +
+                    "                                                   value=\"365\"\n" +
+                    "                                                   required min=\"1\" step=\"1\"><span>Set expiration Days</span></label>\n" +
+                    "                                        </div>\n" +
+                    "                                        <div class=\"control\">\n" +
+                    "                                                <input class=\"button is-block button-fill is-rounded\" type=\"button\"\n" +
+                    "                                                       id=\"change-res_" + data[i][0] + "\"\n" +
+                    "                                                       name=\"change-res_" + data[i][0] + "\"\n" +
+                    "                                                       onclick=\"changeResultExp('" + data[i][0] + "');\n" +
+                    "                                                               return false;\"\n" +
+                    "                                                       data-balloon=\"Change Expiration Time\"\n" +
+                    "                                                       data-balloon-pos=\"up\" value=\"Change\"/>\n" +
+                    "                                        </div>\n" +
+                    "                                    </div>";
+
                 curr_elem += "                                    <div class=\"column is-one-sixt is-full-mobile\">\n" +
                     "                                        <input class=\"button is-block button-fill\" type=\"button\"\n" +
-                    "                                               id=\"delete-res_{{ p_res[0] }}\"\n" +
-                    "                                               name=\"delete-res_{{ p_res[0] }}\"\n" +
+                    "                                               id=\"delete-res_" + data[i][0] + "\"\n" +
+                    "                                               name=\"delete-res_" + data[i][0] + "\"\n" +
                     "                                               onclick=\"deleteResult('" + data[i][0] + "');\n" +
                     "                                                       $('#prev_res_" + data[i][0] + "').remove();return false;\"\n" +
                     "                                               data-balloon=\"Delete Result\"\n" +
