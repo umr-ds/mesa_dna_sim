@@ -172,8 +172,8 @@ def manage_users():
 def adminpage():
     today = math.floor(time.time())
     prev_results = sorted([(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                            today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')], key=lambda x: x[2],
-                          reverse=True)[0:50]
+                        today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')[0:100]], key=lambda x: x[2],
+                      reverse=True)
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
