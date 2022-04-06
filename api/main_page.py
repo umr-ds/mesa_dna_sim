@@ -910,7 +910,7 @@ def change_expiration():
         return jsonify({'did_succeed': False, 'uuid': uuid}), 400
     user = User.query.filter_by(user_id=user_id).first()
     uuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
-    if uuid_user is not None and (user.user_id == int(uuid_user) or user.is_admin):
+    if user.is_admin or (uuid_user is not None and user.user_id == int(uuid_user)):
         ms_time = int(exp_time) * 86400
         set_expiration_time(uuid, ms_time)
         set_expiration_time('USER_' + uuid + "_" + str(user_id), ms_time)
