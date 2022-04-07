@@ -1328,7 +1328,7 @@ function getNextHistory(showId) {
                     "                                        <label class=\"form-group has-float-label\">\n" +
                     "                                            <input class=\"input is-rounded\" type=\"number\" id=\"expiration_change\"\n" +
                     "                                                   placeholder=\"\"\n" +
-                    "                                                   size=\"4\"\n" +
+                    "                                                   size=\"8\"\n" +
                     "                                                   value=\"365\"\n" +
                     "                                                   required min=\"1\" step=\"1\"><span>Set expiration Days</span></label>\n" +
                     "                                        </div>\n" +
