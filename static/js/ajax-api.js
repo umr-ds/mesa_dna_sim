@@ -499,7 +499,7 @@ function loadSendData(dta) {
     importUndesiredFromJson(dta['enabledUndesiredSeqs']);
 }
 
-function collectSendData(space) {
+function collectSendData(space, strip_key) {
     if (space === undefined)
         space = 0;
     let sequence = $("#sequence").val().toUpperCase();
@@ -586,7 +586,7 @@ function collectSendData(space) {
     }
     return JSON.stringify({
         sequence: sequence,
-        key: apikey,
+        key: ((strip_key === true) ? "" : apikey),
         enabledUndesiredSeqs: extractUndesiredToJson(),
         kmer_windowsize: $('#kmer_window_size').val(),
         gc_windowsize: $('#gc_window_size').val(),
