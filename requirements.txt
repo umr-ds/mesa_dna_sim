@@ -8,7 +8,7 @@ itsdangerous==2.1.2
 psycopg2-binary==2.9.3
 redis==4.2.2
 regex==2022.3.15
-SQLAlchemy==1.4.34
+SQLAlchemy==1.4.35
 uWSGI==2.0.20
 networkx==2.7.1
 flask-cors==3.0.10
