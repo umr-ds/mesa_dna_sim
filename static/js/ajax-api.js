@@ -1330,7 +1330,7 @@ function getNextHistory(showId) {
                     "                                                   placeholder=\"\"\n" +
                     "                                                   size=\"8\"\n" +
                     "                                                   value=\"365\"\n" +
-                    "                                                   required min=\"1\" step=\"1\"><span>Set expiration Days</span></label>\n" +
+                    "                                                   required min=\"1\" step=\"1\"><span>expiration days</span></label>\n" +
                     "                                        </div>\n" +
                     "                                        <div class=\"control\">\n" +
                     "                                                <input class=\"button is-block button-fill is-rounded\" type=\"button\"\n" +
