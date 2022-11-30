@@ -147,7 +147,7 @@ class SequencingError:
         :param mode:
         :return:
         """
-        poly_b = {ele['base'] for ele in poly if ele['base'] is not " "}
+        poly_b = {ele['base'] for ele in poly if ele['base'] != " "}
         # If the only homopolymer found was empty spaces (deletions), randomly indel a base
         if not poly_b:
             return self._indel(pattern=None, position_range=None, mode=mode)

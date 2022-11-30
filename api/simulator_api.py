@@ -616,7 +616,7 @@ def sanitize_json(data, bases=r'[^ACGT]', max_y=100.0, max_x=100.0):
                 data.update({entry: max(0.0, min(float(data_tmp), max_x))})
             elif entry == 'y':
                 data.update({entry: max(0.0, min(float(data_tmp), max_y))})
-            elif entry == 'temperature' or (entry == 'random_seed' and data_tmp is not ""):
+            elif entry == 'temperature' or (entry == 'random_seed' and data_tmp != ""):
                 data.update({entry: max(0.0, float(data_tmp))})
     return data
 
@@ -626,7 +626,7 @@ def synthesis_error(sequence, g, synth_meth, seed, process="synthesis", conf=Non
     Either takes an uploaded configuration or gets the selected configuration by its ID from the database to build a
     SequencingError object with the parameters. Calculates synthesis errors and mutation probabilities of the sequence
     based on the configuration and returns the result.
-    :param sequence: Sequence to calculate the synthesis error probabilites for.
+    :param sequence: Sequence to calculate the synthesis error probabilities for.
     :param g: Graph to store the results.
     :param synth_meth: Selected synthesis method.
     :param seed: Used seed.
