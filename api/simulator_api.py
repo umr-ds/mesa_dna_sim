@@ -324,7 +324,11 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
             file_content[ending] = base64.standard_b64encode(content).decode("utf-8")
             if ending == ".dot":
                 file_content['plain_dot'] = content.decode("utf-8").split("\n")[2]
-    save_to_redis(basefilename, json.dumps(file_content), min(redis_retention_time,31536000))
+    if redis_retention_time > 1:
+        try:
+            save_to_redis(basefilename, json.dumps(file_content), min(redis_retention_time,31536000))
+        except redis.exceptions.ConnectionError as ex:
+            print('Could not connect to Redis-Server')
     print(os.system("rm " + basefilename + ".*"))
     os.chdir(prev_wd)
     return [basefilename, file_content]
@@ -555,11 +559,12 @@ def do_all(r_method):
             pass
         if not isinstance(redis_retention_time, int):
             redis_retention_time = 31536000  # 1 year
-        try:
-            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}),
-                          min(redis_retention_time, 31536000), user=owner_id)
-        except redis.exceptions.ConnectionError as ex:
-            print('Could not connect to Redis-Server')
+        if redis_retention_time > 1:
+            try:
+                save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}),
+                              min(redis_retention_time, 31536000), user=owner_id)
+            except redis.exceptions.ConnectionError as ex:
+                print('Could not connect to Redis-Server')
     pool.close()
     return jsonify(res_all)
 
