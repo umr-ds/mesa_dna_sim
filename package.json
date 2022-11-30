@@ -1,6 +1,6 @@
 {
   "name": "mesa_dna_sim",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "MESA DNA Mutation Simulator - automated assessment of synthetic DNA\nfragments and simulation of DNA synthesis,\nstorage, sequencing, and PCR errors",
   "main": "index.js",
   "private": true,

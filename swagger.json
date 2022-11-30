@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "description": "MESA DNA Mutation Simulator - automated assessment of synthetic DNA\nfragments and simulation of DNA synthesis,\nstorage, sequencing, and PCR errors",
-    "version": "1.0.2",
+    "version": "1.0.3",
     "title": "MESA DNA Simulator",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
@@ -424,6 +424,11 @@
           "type": "string",
           "example": "TESTlKG-b6GTESTT7cgGTESTw_MRTESTj_e44wnTEST"
         },
+        "retention_time": {
+          "type": "integer",
+          "example": 31536000,
+            "description": "Retention time in seconds, maximum is 31536000 (1 year) - should be set to 0 for bulk API usage"
+        },
         "sequence": {
           "type": "string",
           "example": "AGACGTAGCATCAGCTACGATCAGCTATGCAGC"
@@ -509,6 +514,11 @@
         "email": {
           "type": "string",
           "example": ""
+        },
+        "retention_time": {
+          "type": "integer",
+          "example": 31536000,
+          "description": "Retention time in seconds, maximum is 31536000 (1 year) - should be set to 0 for bulk API usage"
         },
         "asHTML": {
           "type": "boolean",

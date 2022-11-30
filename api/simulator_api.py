@@ -13,6 +13,7 @@ from werkzeug.exceptions import HTTPException
 
 try:
     import RNAstructure
+
     rna_imported = True
 except ModuleNotFoundError:
     rna_imported = False
@@ -242,9 +243,10 @@ def max_expect():
     else:
         r_method = request.args
     sequence = r_method.get('sequence')
+    redis_retention_time = int(r_method.get('retention_time', 31536000))
     return jsonify(
         create_max_expect(sequence, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
-                          window=3))
+                          window=3, redis_retention_time=redis_retention_time))
 
 
 @simulator_api.route('/api/getIMG', methods=['GET'])
@@ -269,7 +271,7 @@ def get_max_expect_file():
 
 
 def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
-                      window=3):
+                      window=3, redis_retention_time=31536000):
     if not rna_imported:
         return [basefilename, {
             'plain_dot': "Error: " + "RNAstructure not imported correctly. Secondary Structure calculation not supported."}]
@@ -322,7 +324,7 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
             file_content[ending] = base64.standard_b64encode(content).decode("utf-8")
             if ending == ".dot":
                 file_content['plain_dot'] = content.decode("utf-8").split("\n")[2]
-    save_to_redis(basefilename, json.dumps(file_content), 31536000)
+    save_to_redis(basefilename, json.dumps(file_content), min(redis_retention_time,31536000))
     print(os.system("rm " + basefilename + ".*"))
     os.chdir(prev_wd)
     return [basefilename, file_content]
@@ -401,7 +403,7 @@ def do_all(r_method):
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
     err_simulation_order = r_method.get('err_simulation_order')
-
+    redis_retention_time = int(r_method.get('retention_time', 31536000))
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -493,8 +495,8 @@ def do_all(r_method):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed, conf=meth['conf'],
-                                  cycles=inner_cycles) + 1) % 4294967296
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed,
+                                  conf=meth['conf'], cycles=inner_cycles) + 1) % 4294967296
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:
@@ -548,8 +550,14 @@ def do_all(r_method):
         except:
             pass
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000,
-                          user=owner_id)
+            r_method.pop('retention_time')
+        except:
+            pass
+        if not isinstance(redis_retention_time, int):
+            redis_retention_time = 31536000  # 1 year
+        try:
+            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}),
+                          min(redis_retention_time, 31536000), user=owner_id)
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
     pool.close()
@@ -913,7 +921,8 @@ def build_html(res_list, reducesets=True):
                     res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
                            "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 elif lineage == "":
-                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + ", Description: " + str(descript) + \
+                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(
+                        error_prob) + ", Description: " + str(descript) + \
                            "\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \
