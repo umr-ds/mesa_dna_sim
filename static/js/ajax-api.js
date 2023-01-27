@@ -669,6 +669,7 @@ function queryServer(uuid) {
         let tmp_data = JSON.parse(send_data);
         delete tmp_data["sequence"];
         tmp_data["sequence_list"] = jseq.data("sequence_list");
+        tmp_data["retention_time"] = 2630000
         send_data = JSON.stringify(tmp_data);
     }
     $.post({
