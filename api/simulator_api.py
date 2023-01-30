@@ -1,10 +1,12 @@
 import base64
 import copy
+import functools
 import json
 import math
 import multiprocessing
 import traceback
 import uuid
+import uwsgidecoratorsfallback
 from threading import Thread
 from multiprocessing.pool import ThreadPool
 import os
@@ -185,7 +187,8 @@ def fasta_do_all_wrapper():
         with current_app.app_context():
             cores = 2
             p = multiprocessing.Pool(cores)
-            res_lst = p.map(do_all, lst)
+            owner_id = owner_for_key(r_method['key'])
+            res_lst = p.map(functools.partial(do_all, owner_id=owner_id), lst)
             p.close()
         urls = "Access your results at: "
         fastq_str_list = []
@@ -346,8 +349,8 @@ def do_all_wrapper():
     """
 
     @copy_current_request_context
-    def thread_do_all(r_method, email, host):
-        res = do_all(r_method)
+    def thread_do_all(r_method, owner_id, email, host):
+        res = do_all(r_method, owner_id)
         uuid = list(res.json.values())[0]["uuid"]
         send_mail(None, [email],
                   "Access your result at: " + host + "query_sequence?uuid=" + uuid,
@@ -371,22 +374,22 @@ def do_all_wrapper():
             return jsonify({"did_succeed": False}), 404
     # TODO estimate time needed
     send_via_mail = r_method.get('send_mail')
+    apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
         # spawn a thread, of do_all and send an email to the user to
-        apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
         user = User.query.filter_by(user_id=apikey.owner_id).first()
         email = user.email
         if apikey.owner_id == 0:
             # we are not really logged in, just using the free api-key!
             email = r_method.get('email')
-        thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
+        thread = Thread(target=thread_do_all, args=(r_method, apikey.owner_id, email, request.host_url))
         thread.start()
         return jsonify({"result_by_mail": True, "did_succeed": False})
     else:
-        return do_all(r_method)
+        return do_all(r_method, owner_id=apikey.owner_id)
 
 
-def do_all(r_method):
+def do_all(r_method, owner_id):
     """
     This method collects all the parameters for the calculation of the different error probabilities for the sequence.
     It calls all the methods that are calculating error probabilities with the specified parameters and collects the
@@ -547,7 +550,6 @@ def do_all(r_method):
 
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
-        owner_id = owner_for_key(r_method['key'])
         r_method.pop('key')  # drop key from stored fields
         try:
             r_method.pop('email')
@@ -565,6 +567,9 @@ def do_all(r_method):
                               min(redis_retention_time, 31536000), user=owner_id)
             except redis.exceptions.ConnectionError as ex:
                 print('Could not connect to Redis-Server')
+            except Exception as ex1:
+                print(f"{uuid_str}, {res}, {owner_id}, {redis_retention_time}")
+                raise ex1
     pool.close()
     return jsonify(res_all)
 

@@ -1,6 +1,7 @@
 import time
 from functools import wraps
 import secrets
+import traceback
 
 from flask import request, abort
 
@@ -13,6 +14,7 @@ def query_apikey(key_):
         apikey = Apikey.query.filter_by(apikey=key_).first()
         return apikey is not None
     except Exception as e:
+        print(traceback.format_exc())
         print(e)
         return False  # str(e)
 
@@ -22,6 +24,7 @@ def owner_for_key(key_):
         apikey = Apikey.query.filter_by(apikey=key_).first()
         return apikey.owner_id
     except Exception as e:
+        print(traceback.format_exc())
         print(e)
         return False  # str(e)
 
