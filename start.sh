@@ -21,4 +21,4 @@ fi
 #--fullchain-file /path/to/fullchain/nginx/cert.pem \
 
 #source venv/bin/activate
-uwsgi --ini uwsgi.ini --enable-threads
+uwsgi --ini uwsgi.ini --enable-threads # --processes 8 --threads 4

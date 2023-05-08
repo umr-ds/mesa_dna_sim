@@ -8,7 +8,7 @@ def str2bool(txt):
 
 # only needed if not using the docker webserver
 try:
-    docker_name = 'mesadnasim'  # os.path.dirname(os.path.realpath(__file__)).split("/")[-1]
+    docker_name = 'mesa_dna_sim'  # os.path.dirname(os.path.realpath(__file__)).split("/")[-1]
     postgres_ip = \
         os.popen(
             'docker network inspect ' + docker_name + '_no-internet | grep "postgres" -A 4 | grep "IPv4Address"').read().split(
@@ -46,9 +46,13 @@ class Config(object):
     MAIL_USE_SSL = str2bool(os.environ.get('MAIL_USE_SSL'))
     MAIL_SENDER_ALIAS = os.environ.get('MAIL_SENDER_ALIAS')
     MAIL_DEBUG = False
-
     EXCEPTION_RECV = os.environ.get('EXCEPTION_EMAIL') or None
 
+    SQLALCHEMY_ENGINE_OPTIONS = {
+        'pool_size': 10,
+        'pool_recycle': 60,
+        'pool_pre_ping': True
+    }
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         'SQLALCHEMY_DATABASE_URI')
 

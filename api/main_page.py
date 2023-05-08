@@ -1,6 +1,7 @@
 import math
 import re
 import time
+import func_timeout
 
 from flask import Blueprint, render_template, redirect, session, request, flash, url_for, jsonify, send_from_directory, \
     current_app
@@ -171,9 +172,17 @@ def manage_users():
 @require_admin
 def adminpage():
     today = math.floor(time.time())
-    prev_results = sorted([(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
-                        today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')[0:100]], key=lambda x: x[2],
-                      reverse=True)
+
+    def get_sorted_keys():
+        return sorted([(str(x).split("_")[1], int(str(x).split("_")[2][:-1]),
+                        today * 1000 + get_expiration_time(x)) for x in get_keys('USER_*-*')],
+                      key=lambda x: x[2],
+                      reverse=True)[0:50]
+
+    try:
+        prev_results = func_timeout.func_timeout(10, get_sorted_keys())
+    except Exception:
+        prev_results = []
     undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
         or_(UndesiredSubsequences.awaits_validation.is_(True), UndesiredSubsequences.validated.is_(True))).order_by(
         asc(UndesiredSubsequences.id)).all()
@@ -222,13 +231,21 @@ def history():
     tmp = get_keys('USER_*-*_' + str(user_id))
     if offset > len(tmp):
         return jsonify([])
-    if offset+amount > len(tmp):
-        amount = len(tmp)-offset
+    if offset + amount > len(tmp):
+        amount = len(tmp) - offset
     if r_all:
         offset = 0
         amount = len(tmp)
-    prev_results = sorted([(str(x).split("_")[1], (int(str(x).split("_")[2][:-1]) if is_admin else None),
-                     time.time() * 1000 + get_expiration_time(x)) for x in tmp], key=lambda x: x[2], reverse=True)[offset:offset+amount]
+
+    def get_sorted_keys():
+        return sorted([(str(x).split("_")[1], (int(str(x).split("_")[2][:-1]) if is_admin else None),
+                        time.time() * 1000 + get_expiration_time(x)) for x in tmp], key=lambda x: x[2],
+                      reverse=True)[offset:offset + amount]
+
+    try:
+        prev_results = func_timeout.func_timeout(10, get_sorted_keys())
+    except Exception:
+        prev_results = []
     return jsonify(prev_results)
 
 
@@ -342,7 +359,8 @@ def undesired_motifs():
     user_id = session.get('user_id')
     user = User.query.filter_by(user_id=user_id).first()
     if user_id and user:
-        undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated)).order_by(
+        undesired_sub_seq = db.session.query(UndesiredSubsequences).filter(
+            or_(UndesiredSubsequences.owner_id == user_id, UndesiredSubsequences.validated)).order_by(
             asc(UndesiredSubsequences.id)).all()
         default_eobj = {'id': 'new', 'name': 'New', 'err_attributes': {'mismatch': {}}}
 
@@ -910,7 +928,7 @@ def change_expiration():
         return jsonify({'did_succeed': False, 'uuid': uuid}), 400
     user = User.query.filter_by(user_id=user_id).first()
     uuid_user = read_from_redis('USER_' + uuid + "_" + str(user_id))
-    if user.is_admin or (uuid_user is not None and user.user_id == int(uuid_user)):
+    if uuid_user is not None and (user.user_id == int(uuid_user) or user.is_admin):
         ms_time = int(exp_time) * 86400
         set_expiration_time(uuid, ms_time)
         set_expiration_time('USER_' + uuid + "_" + str(user_id), ms_time)

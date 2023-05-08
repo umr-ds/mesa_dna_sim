@@ -1,10 +1,12 @@
 import base64
 import copy
+import functools
 import json
 import math
 import multiprocessing
 import traceback
 import uuid
+import uwsgidecoratorsfallback
 from threading import Thread
 from multiprocessing.pool import ThreadPool
 import os
@@ -13,6 +15,7 @@ from werkzeug.exceptions import HTTPException
 
 try:
     import RNAstructure
+
     rna_imported = True
 except ModuleNotFoundError:
     rna_imported = False
@@ -49,7 +52,7 @@ def handle_error(ex):
     if exception_recv is not None and code != 409:  # we do not want to send an email for invalid credentials
         send_mail(None, [exception_recv], text, subject="[MESA] Exception happened!")
         raise ex
-    return jsonify({'did_succeed': False, 'code': code}), code ## , 'text': text
+    return jsonify({'did_succeed': False, 'code': code}), code
 
 
 @simulator_api.route('/api/homopolymer', methods=['GET', 'POST'])
@@ -184,7 +187,8 @@ def fasta_do_all_wrapper():
         with current_app.app_context():
             cores = 2
             p = multiprocessing.Pool(cores)
-            res_lst = p.map(do_all, lst)
+            owner_id = owner_for_key(r_method['key'])
+            res_lst = p.map(functools.partial(do_all, owner_id=owner_id), lst)
             p.close()
         urls = "Access your results at: "
         fastq_str_list = []
@@ -242,9 +246,10 @@ def max_expect():
     else:
         r_method = request.args
     sequence = r_method.get('sequence')
+    redis_retention_time = int(r_method.get('retention_time', 31536000))
     return jsonify(
         create_max_expect(sequence, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
-                          window=3))
+                          window=3, redis_retention_time=redis_retention_time))
 
 
 @simulator_api.route('/api/getIMG', methods=['GET'])
@@ -269,7 +274,7 @@ def get_max_expect_file():
 
 
 def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percent=10, gamma=1, max_structures=1,
-                      window=3):
+                      window=3, redis_retention_time=31536000):
     if not rna_imported:
         return [basefilename, {
             'plain_dot': "Error: " + "RNAstructure not imported correctly. Secondary Structure calculation not supported."}]
@@ -322,7 +327,11 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
             file_content[ending] = base64.standard_b64encode(content).decode("utf-8")
             if ending == ".dot":
                 file_content['plain_dot'] = content.decode("utf-8").split("\n")[2]
-    save_to_redis(basefilename, json.dumps(file_content), 31536000)
+    if redis_retention_time > 1:
+        try:
+            save_to_redis(basefilename, json.dumps(file_content), min(redis_retention_time,31536000))
+        except redis.exceptions.ConnectionError as ex:
+            print('Could not connect to Redis-Server')
     print(os.system("rm " + basefilename + ".*"))
     os.chdir(prev_wd)
     return [basefilename, file_content]
@@ -340,8 +349,8 @@ def do_all_wrapper():
     """
 
     @copy_current_request_context
-    def thread_do_all(r_method, email, host):
-        res = do_all(r_method)
+    def thread_do_all(r_method, owner_id, email, host):
+        res = do_all(r_method, owner_id)
         uuid = list(res.json.values())[0]["uuid"]
         send_mail(None, [email],
                   "Access your result at: " + host + "query_sequence?uuid=" + uuid,
@@ -365,22 +374,22 @@ def do_all_wrapper():
             return jsonify({"did_succeed": False}), 404
     # TODO estimate time needed
     send_via_mail = r_method.get('send_mail')
+    apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
         # spawn a thread, of do_all and send an email to the user to
-        apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
         user = User.query.filter_by(user_id=apikey.owner_id).first()
         email = user.email
         if apikey.owner_id == 0:
             # we are not really logged in, just using the free api-key!
             email = r_method.get('email')
-        thread = Thread(target=thread_do_all, args=(r_method, email, request.host_url))
+        thread = Thread(target=thread_do_all, args=(r_method, apikey.owner_id, email, request.host_url))
         thread.start()
         return jsonify({"result_by_mail": True, "did_succeed": False})
     else:
-        return do_all(r_method)
+        return do_all(r_method, owner_id=apikey.owner_id)
 
 
-def do_all(r_method):
+def do_all(r_method, owner_id):
     """
     This method collects all the parameters for the calculation of the different error probabilities for the sequence.
     It calls all the methods that are calculating error probabilities with the specified parameters and collects the
@@ -401,7 +410,7 @@ def do_all(r_method):
     gc_window = r_method.get('gc_windowsize')
     enabled_undesired_seqs = r_method.get('enabledUndesiredSeqs')
     err_simulation_order = r_method.get('err_simulation_order')
-
+    redis_retention_time = int(r_method.get('retention_time', 31536000))
     gc_error_prob_func = create_error_prob_function(r_method.get('gc_error_prob'))
     homopolymer_error_prob_func = create_error_prob_function(r_method.get('homopolymer_error_prob'))
     kmer_error_prob_func = create_error_prob_function(r_method.get('kmer_error_prob'))
@@ -493,8 +502,8 @@ def do_all(r_method):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed, conf=meth['conf'],
-                                  cycles=inner_cycles) + 1) % 4294967296
+                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed,
+                                  conf=meth['conf'], cycles=inner_cycles) + 1) % 4294967296
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:
@@ -541,17 +550,26 @@ def do_all(r_method):
 
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
-        owner_id = owner_for_key(r_method['key'])
         r_method.pop('key')  # drop key from stored fields
         try:
             r_method.pop('email')
         except:
             pass
         try:
-            save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}), 31536000,
-                          user=owner_id)
-        except redis.exceptions.ConnectionError as ex:
-            print('Could not connect to Redis-Server')
+            r_method.pop('retention_time')
+        except:
+            pass
+        if not isinstance(redis_retention_time, int):
+            redis_retention_time = 31536000  # 1 year
+        if redis_retention_time > 1:
+            try:
+                save_to_redis(uuid_str, json.dumps({'res': res, 'query': r_method, 'uuid': uuid_str}),
+                              min(redis_retention_time, 31536000), user=owner_id)
+            except redis.exceptions.ConnectionError as ex:
+                print('Could not connect to Redis-Server')
+            except Exception as ex1:
+                print(f"{uuid_str}, {res}, {owner_id}, {redis_retention_time}")
+                raise ex1
     pool.close()
     return jsonify(res_all)
 
@@ -913,7 +931,8 @@ def build_html(res_list, reducesets=True):
                     res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + \
                            "%\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 elif lineage == "":
-                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(error_prob) + ", Description: " + str(descript) + \
+                    res += "<span class=\"g_" + cname + "\" title=\"Error Probability: " + str(
+                        error_prob) + ", Description: " + str(descript) + \
                            "\" style=\"background-color: " + colorize(error_prob / 100) + ";\">" + str(seq) + "</span>"
                 else:
                     res += "<span class=\"g_" + cname + "\" title=\"" + lineage + \

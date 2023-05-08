@@ -11,10 +11,9 @@ RUN apt-get update -y \
 #RUN tar -xvf RNAstructureSourceLinuxTextInterfaces64bit.tgz \
  && tar -xvf RNAstructureSource.tgz \
  && cd RNAstructure \
- && sed -i 's/@# The wrapper is placed in the RNAstructure directory. Move it to exe\//mv ..\/_RNAstructure_wrap.cpython-38-x86_64-linux-gnu.so ..\/$(WRAPPER_LIB_NAME)/g' RNAstructure_python_interface/Makefile \
+ && sed -i 's/@# The wrapper is placed in the RNAstructure directory. Move it to exe\//mv ..\/_RNAstructure_wrap.cpython-38-x86_64-linux-gnu.so ..\/$(WRAPPER_LIB_NAME)/g' python_interface/Makefile \
  && sed -i 's/#include <map>/#include <string>\n#include <map>/g' CycleFold/constants.h \
- && make all && make python_setup \
-#&& make python-all PYTHON=python3 && make python3_interface && make python3_dist \
+ && make all && make python-interface PYTHON=python3 \
  && cd .. \
  && rm RNA*.tgz \
  && apt-get purge -y --auto-remove swig build-essential libssl-dev libffi-dev python-dev \

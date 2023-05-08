@@ -6,7 +6,7 @@ from api.main_page import main_page
 from api.error_handle import page_not_found
 from api.simulator_api import simulator_api
 from config import Config
-from database.db import db
+from database.db import db, setup_db
 from database.models import User
 from usersettings.reset_password import reset
 from usersettings.delete import delete
@@ -20,7 +20,7 @@ def main(cfg=Config):
     app = Flask(__name__)
     app.config.from_object(cfg)  # Choose from the different configs...
 
-    db.init_app(app)
+    setup_db(app)
     mail.init_app(app)
 
     app.register_blueprint(main_page)
