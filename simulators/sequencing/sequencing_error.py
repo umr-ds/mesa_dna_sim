@@ -367,8 +367,10 @@ class SequencingError:
             if self.attributes is False:
                 eval('self.' + mutation_type)(err_rate)
             else:
-                for n in range(round((len(self.seq) * err_rate))):
-                    eval('self.' + mutation_type)()
+                np.random.seed(self.seed)
+                for n in range((len(self.seq))):
+                    if np.random.random() <= err_rate:
+                        eval('self.' + mutation_type)()
         self.g.graph.nodes[0]['seq'] = self.seq
         return self.seed
 
