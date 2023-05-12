@@ -9,10 +9,9 @@ def setup_db(app):
     db.init_app(app)
 
 
-@postfork
-def reset_db_connections():
-    with db.app.app_context():
-        print("[POSTFORK] Restarting Postgres sessions")
-        db.session.close_all()
-        db.engine.dispose()
-        db.create_scoped_session()
+#@postfork
+#def reset_db_connections():
+#    with db.app.app_context():
+#        print("[POSTFORK] Restarting Postgres sessions")
+#        db.session.close_all()
+#        db.engine.dispose()
