@@ -1,10 +1,10 @@
-FROM python:3.8-slim as builder
+FROM python:3.11-slim as builder
 MAINTAINER Peter Michael Schwarz "peter.schwarz@uni-marburg.de"
 COPY . /dna_sim
 WORKDIR /dna_sim
 
 RUN apt-get update -y \
- && apt-get install --no-install-recommends -y nginx build-essential wget cron swig ghostscript libssl-dev libffi-dev python-dev \
+ && apt-get install --no-install-recommends -y nginx build-essential wget cron swig ghostscript libssl-dev libffi-dev python-dev-is-python3 \
  && pip3 install -r requirements.txt --no-cache-dir \
  && wget -O -  https://get.acme.sh | sh \
  && mv nginx.conf /etc/nginx \

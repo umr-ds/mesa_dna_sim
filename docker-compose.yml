@@ -2,7 +2,7 @@ version: '3'
 services:
   web:
     # To build from source uncomment this line:
-    # build: .
+    #build: .
     # and comment out the line below:
     image: mosla/mesadnasim_web
     restart: always

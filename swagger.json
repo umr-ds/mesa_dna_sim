@@ -2,7 +2,7 @@
   "swagger": "2.0",
   "info": {
     "description": "MESA DNA Mutation Simulator - automated assessment of synthetic DNA\nfragments and simulation of DNA synthesis,\nstorage, sequencing, and PCR errors",
-    "version": "1.1.0",
+    "version": "1.2.0",
     "title": "MESA DNA Simulator",
     "termsOfService": "http://swagger.io/terms/",
     "contact": {
