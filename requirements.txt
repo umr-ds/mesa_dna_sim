@@ -1,4 +1,4 @@
-numpy~=1.20.3
+numpy~=1.22.0
 scipy==1.10.1
 bcrypt==4.0.1
 Flask==2.3.2
