@@ -2,7 +2,7 @@ import time
 from functools import update_wrapper
 from flask import request, g
 
-from . import redis
+from . import getRedis
 
 
 class RateLimit(object):
@@ -14,7 +14,7 @@ class RateLimit(object):
         self.limit = limit
         self.per = per
         self.send_x_headers = send_x_headers
-        p = redis.pipeline()
+        p = getRedis().pipeline()
         p.incr(self.key)
         p.expireat(self.key, self.reset + self.expiration_window)
         self.current = min(p.execute()[0], limit)

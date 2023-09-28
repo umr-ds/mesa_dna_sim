@@ -197,7 +197,7 @@ def fasta_do_all_wrapper():
             url = host + "query_sequence?uuid=" + uuid
             urls = urls + "\n" + url
             fastq_str_list.append(
-                "@Your MESA sequence at " + url + "\n" + list(res.json.values())[0]["sequence"] + "\n+\n" +
+                "@Your MESA sequence at " + url + "\n" + list(res.json.values())[0]["modified_sequence"] + "\n+\n" +
                 list(res.json.values())[0]['res']['fastqOr'])
         fastq_text = "\n".join(fastq_str_list)
         send_mail(None, [e_mail], urls, subject="[MESA] Your DNA-Simulation finished",
