@@ -6,8 +6,8 @@ Flask-Mail==0.9.1
 Flask-SQLAlchemy==3.0.3
 itsdangerous==2.1.2
 psycopg2-binary==2.9.6
-redis==4.5.5
-regex==2023.5.5
+redis~=4.5.5
+regex~=2023.5.5
 SQLAlchemy==2.0.13
 uWSGI==2.0.21
 networkx~=2.3.0
