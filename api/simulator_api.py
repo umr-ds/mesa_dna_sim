@@ -197,7 +197,8 @@ def fasta_do_all_wrapper():
             url = host + "query_sequence?uuid=" + uuid
             urls = urls + "\n" + url
             fastq_str_list.append(
-                "@Your MESA sequence at " + url + "\n" + list(res.json.values())[0]["modified_sequence"] + "\n+\n" +
+                "@Your MESA sequence at " + url + "\n" +
+                list(res.json.values())[0]["modified_sequence"].replace(" ", "") + "\n+\n" +
                 list(res.json.values())[0]['res']['fastqOr'])
         fastq_text = "\n".join(fastq_str_list)
         send_mail(None, [e_mail], urls, subject="[MESA] Your DNA-Simulation finished",
@@ -329,7 +330,7 @@ def create_max_expect(dna_str, basefilename=None, temperature=310.15, max_percen
                 file_content['plain_dot'] = content.decode("utf-8").split("\n")[2]
     if redis_retention_time > 1:
         try:
-            save_to_redis(basefilename, json.dumps(file_content), min(redis_retention_time,31536000))
+            save_to_redis(basefilename, json.dumps(file_content), min(redis_retention_time, 31536000))
         except redis.exceptions.ConnectionError as ex:
             print('Could not connect to Redis-Server')
     print(os.system("rm " + basefilename + ".*"))
@@ -418,7 +419,7 @@ def do_all(r_method, owner_id):
     org_seed = r_method.get('random_seed')
     if org_seed == "":
         org_seed = int(np.random.randint(0, 4294967295, dtype=np.uint32))
-    seed = np.uint32(np.float(org_seed) % 4294967296) if org_seed else None
+    seed = np.uint32(float(org_seed) % 4294967296) if org_seed else None
     do_max_expect = bool(r_method.get('do_max_expect', False))
     temp = float(r_method.get('temperature', 310.15))
     as_html = r_method.get('asHTML', False)
@@ -538,15 +539,16 @@ def do_all(r_method, owner_id):
             mod_html = htmlify(mod_res, mod_seq, modification=True)
             res = {'res': {'modify': mod_html, 'subsequences': usubseq_html,
                            'kmer': kmer_html, 'gccontent': gc_html, 'homopolymer': homopolymer_html,
-                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod, 'seed': org_seed,
-                           'maxexpectid': basefilename, 'dot_seq': "<pre>" + plain_dot + "</pre>"},
-                   'uuid': uuid_str, 'sequence': sequence}
+                           'all': htmlify(res, sequence), 'fastqOr': fastqOr, 'fastqMod': fastqMod,
+                           'seed': org_seed, 'maxexpectid': basefilename,
+                           'dot_seq': "<pre>" + plain_dot + "</pre>"}, 'modified_sequence': mod_seq, 'uuid': uuid_str,
+                   'sequence': sequence}
         elif not as_html:
             res = {
                 'res': {'modify': mod_res, 'kmer': kmer_res, 'gccontent': gc_window_res, 'homopolymer': homopolymer_res,
                         'all': res, 'uuid': uuid_str, 'sequence': sequence, 'seed': str(seed),
                         'maxexpectid': basefilename, 'modified_sequence': mod_seq, 'fastqOr': fastqOr,
-                        'fastqMod': fastqMod, 'dot_seq': plain_dot}}
+                        'fastqMod': fastqMod, 'dot_seq': plain_dot}, 'modified_sequence': mod_seq}
 
         res_all[sequence] = res
         res = {k: r['res'] for k, r in res_all.items()}
