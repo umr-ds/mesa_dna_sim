@@ -9,7 +9,7 @@ class Graph:
             self.graph = self.create_graph()
         else:
             self.graph = graph
-        self.source_node = self.graph.nodes[0]
+        self.source_node = self.graph[0]
         self.visited_nodes = defaultdict(set)
 
     def create_graph(self):
@@ -61,27 +61,27 @@ class Graph:
 
     def shift_indices(self, offset, orig_end, process):
         for i in range(1, len(self.graph.nodes())):
-            if self.graph.node[i]["startpos"] >= orig_end:
+            if self.graph._node[i]["startpos"] >= orig_end:
                 try:
-                    self.visited_nodes[process].remove(self.graph.node[i]["startpos"])
-                    self.visited_nodes["modified_positions"].remove(self.graph.node[i]["startpos"])
+                    self.visited_nodes[process].remove(self.graph._node[i]["startpos"])
+                    self.visited_nodes["modified_positions"].remove(self.graph._node[i]["startpos"])
                 except KeyError:
                     pass
-                self.visited_nodes[process].add(self.graph.node[i]["startpos"] + offset)
-                self.visited_nodes["modified_positions"].add(self.graph.node[i]["startpos"] + offset)
-                self.graph.node[i]["startpos"] += offset
-                self.graph.node[i]["endpos"] += offset
-        self.graph.node[0]["endpos"] += offset
+                self.visited_nodes[process].add(self.graph._node[i]["startpos"] + offset)
+                self.visited_nodes["modified_positions"].add(self.graph._node[i]["startpos"] + offset)
+                self.graph._node[i]["startpos"] += offset
+                self.graph._node[i]["endpos"] += offset
+        self.graph._node[0]["endpos"] += offset
 
     def add_edges(self, node_id):
-        if self.graph.node[node_id]["startpos"] in self.visited_nodes['modified_positions']:
-            self.nodesearch(self.graph.node[node_id]["startpos"], node_id)
+        if self.graph._node[node_id]["startpos"] in self.visited_nodes['modified_positions']:
+            self.nodesearch(self.graph._node[node_id]["startpos"], node_id)
         else:
             self.graph.add_edge(0, node_id)
 
     def nodesearch(self, nodepos, node_id):
         for i in range(node_id - 1, -1, -1):
-            n = self.graph.node[i]
+            n = self.graph._node[i]
             if nodepos == n['startpos'] or i == 0:
                 self.graph.add_edge(i, node_id)
                 break
@@ -92,7 +92,7 @@ class Graph:
             return list()
         error_lineages = dict()
         c = 0
-        for subgraph in nx.weakly_connected_component_subgraphs(self.graph):
+        for subgraph in [self.graph.subgraph(c) for c in nx.weakly_connected_components(self.graph)]:
             sc = str(c)
             error_lineages[sc] = dict()
             for node in subgraph.nodes(data=True):
