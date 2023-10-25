@@ -21,6 +21,6 @@ redis~=4.5.5
 regex==2023.8.8
 six==1.16.0
 SQLAlchemy==2.0.21
-Werkzeug==2.3.7
+Werkzeug==3.0.1
 uWSGI==2.0.22
 networkx==2.3.0
