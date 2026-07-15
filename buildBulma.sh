@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 npm install
-sass --no-source-map node_modules/bulma/sass/mosla.scss:static/styles/bulma.min.css --style compressed
-#sass --no-source-map node_modules/bulma-switch/dist/css/bulma-switch.sass:static/styles/bulma-switch.min.css --style compressed
+export PATH="$(pwd)/node_modules/.bin:$(pwd)/node_modules/node/bin:$PATH"
+
+sass --no-source-map --quiet-deps --quiet static/styles/mosla.scss:static/styles/bulma.min.css --style compressed
+#sass --no-source-map --quiet-deps node_modules/bulma-switch/dist/css/bulma-switch.sass:static/styles/bulma-switch.min.css --style compressed
 
 sed -i -e 's/background-color: #a00/background-color: #7a1219/g' node_modules/github-fork-ribbon-css/gh-fork-ribbon.css
 cp node_modules/github-fork-ribbon-css/gh-fork-ribbon.css static/styles/gh-fork-ribbon.css
@@ -25,8 +27,8 @@ cp node_modules/nouislider/distribute/nouislider.min.js static/js/nouislider.min
 cp node_modules/@fortawesome/fontawesome-free/js/all.min.js static/js/fontawesome.min.js
 #cp node_modules/@fortawesome/fontawesome-free/css/all.min.css static/style/fontawesome.min.css
 
-rm static/js/all.min.js
-rm static/styles/all.min.css
+rm -f static/js/all.min.js
+rm -f static/styles/all.min.css
 cd static/js
 
 uglifyjs -c --output all.min.js -- jquery.min.js jquery.lettering.js Chart.min.js chartjs-plugin-dragData.min.js fontawesome.min.js error-chart.js autoscroll.js ajax-api.js index.min.js nouislider.min.js Sortable.min.js error_probs.js dateconverter.js # cookies.js

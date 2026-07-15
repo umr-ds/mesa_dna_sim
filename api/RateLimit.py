@@ -3,6 +3,7 @@ from functools import update_wrapper
 from flask import request, g
 
 from . import getRedis
+from api.apikey import is_admin_apikey
 
 
 class RateLimit(object):
@@ -31,12 +32,20 @@ def on_over_limit(limit):
     return 'You hit the rate limit', 400
 
 
+def _request_api_key():
+    return request.args.get('key') or (
+        request.json and request.json.get('key')) or (
+        request.form and request.form.get('key')) or request.headers.get('key')
+
+
 def ratelimit(limit, per=300, send_x_headers=True,
               over_limit=on_over_limit,
               scope_func=lambda: request.args.get('key'),
               key_func=lambda: request.endpoint):
     def decorator(f):
         def rate_limited(*args, **kwargs):
+            if is_admin_apikey(_request_api_key()):
+                return f(*args, **kwargs)
             key = 'rate-limit/%s/%s/' % (key_func(), scope_func())
             rlimit = RateLimit(key, limit, per, send_x_headers)
             g._view_rate_limit = rlimit

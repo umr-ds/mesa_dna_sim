@@ -17,19 +17,20 @@ fi
 if [[ "$1" == "--clear-db" || "$1" == "-c" || "$2" == "--clear-db" || "$2" == "-c" ]];
 then
     echo "!! REMOVING EXISTING DB !!"
-    docker-compose down
+    docker compose down
     sudo rm -rf /srv/docker/postgresql
     sudo rm -rf /srv/docker/redis
 fi
 
-if [[ "$1" == "--no-cache" || "$1" == "-n" || "$2" == "--no-cache" || "$2" == "-n" ]];
+if [[ "$1" == "d" || "$1" == "-n" || "$2" == "--no-cache" || "$2" == "-n" ]];
 then
     echo "!! IGNORING CACHE - THIS WILL TAKE LONGER !!"
-    docker-compose build --no-cache
+    docker compose build --no-cache
 else
-    docker-compose build
+    docker compose build
 fi
 
 # if things wont work as intended try uncommenting the next line:
-docker-compose up -d  # --build --force-recreate
+docker compose up -d  # --build --force-recreate
 echo "IP's might have changed!"
+

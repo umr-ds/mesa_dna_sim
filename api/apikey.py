@@ -3,14 +3,44 @@ from functools import wraps
 import secrets
 import traceback
 
-from flask import request, abort
+from flask import request, abort, current_app
 
 from database.db import db
-from database.models import Apikey
+from database.models import Apikey, User
+
+
+def _get_admin_apikey():
+    key = current_app.config.get('ADMIN_API_KEY')
+    if isinstance(key, str):
+        key = key.strip()
+    return key or None
+
+
+def is_admin_apikey(key_):
+    admin_key = _get_admin_apikey()
+    if not admin_key or not key_:
+        return False
+    return secrets.compare_digest(str(key_), admin_key)
+
+
+def resolve_admin_owner_id():
+    # Prefer a real admin account; during initial onboarding fall back to bootstrap user 0.
+    admin = User.query.filter(User.is_admin.is_(True), User.user_id != 0).order_by(User.user_id.asc()).first()
+    if admin is not None:
+        return admin.user_id
+    bootstrap_admin = User.query.filter_by(user_id=0).first()
+    if bootstrap_admin is not None:
+        return bootstrap_admin.user_id
+    admin = User.query.filter_by(is_admin=True).order_by(User.user_id.asc()).first()
+    if admin is not None:
+        return admin.user_id
+    return 0
 
 
 def query_apikey(key_):
     try:
+        if is_admin_apikey(key_):
+            return True
         apikey = Apikey.query.filter_by(apikey=key_).first()
         return apikey is not None
     except Exception as e:
@@ -21,7 +51,11 @@ def query_apikey(key_):
 
 def owner_for_key(key_):
     try:
+        if is_admin_apikey(key_):
+            return resolve_admin_owner_id()
         apikey = Apikey.query.filter_by(apikey=key_).first()
+        if apikey is None:
+            return False
         return apikey.owner_id
     except Exception as e:
         print(traceback.format_exc())

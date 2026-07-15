@@ -38,6 +38,14 @@ To receive all exceptions and errors via mail you MAY set:
 
       EXCEPTION_EMAIL: <error-logging@your-server.com>
 
+Optionally you can define a global admin API key (disabled if not set):
+
+      ADMIN_API_KEY: <very-long-random-key>
+
+If `ADMIN_API_KEY` is set, it is always accepted and mapped to an admin owner. During initial onboarding
+it falls back to the bootstrap admin user, so API access works even before the first custom admin account is created.
+This can be used to use MESA in local tools without access to the public MESA instance and without rate-limiting.
+
 To use Lets-Encrypt with Cloudflare-DNA you can set: 
 
       # CF_Account_ID: XxXxXxXxXxXxXxXxXxXxXxXxXxXxXx

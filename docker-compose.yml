@@ -32,6 +32,9 @@ services:
       MAIL_USE_TLS: 'False'
       MAIL_USE_SSL: 'True'
 
+      # Optional: when set, this key is always accepted as admin API key.
+      # ADMIN_API_KEY: CHANGE_ME_ADMIN_API_KEY
+
       # Add recipient to receive error-logs via mail!
       # EXCEPTION_EMAIL: mosla-error-recv@your-server.com
 

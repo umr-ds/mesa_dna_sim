@@ -1,4 +1,4 @@
-FROM postgres:14-alpine
+FROM pgautoupgrade/pgautoupgrade:16-alpine
 
 COPY pg_dump.sql /docker-entrypoint-initdb.d/pg_dump.pg_sql
 COPY init.sh /docker-entrypoint-initdb.d/

@@ -23,8 +23,8 @@ import redis
 from flask import jsonify, request, Blueprint, current_app, copy_current_request_context, make_response
 from math import floor
 from api.RedisStorage import save_to_redis, read_from_redis
-from api.apikey import require_apikey, query_apikey, owner_for_key
-from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, StorageErrorRates, Apikey, User
+from api.apikey import require_apikey, owner_for_key, is_admin_apikey
+from database.models import SequencingErrorRates, SynthesisErrorRates, PcrErrorRates, StorageErrorRates, User
 from api.mail import send_mail
 from simulators.error_probability import create_error_prob_function
 from simulators.error_sources.gc_content import overall_gc_content, windowed_gc_content
@@ -43,9 +43,13 @@ def handle_error(ex):
     code = 500
 
     text = str(request) + "\n"
-    text += str(request.json) + "\n"
+    try:
+        json_data = str(request.get_json(silent=True))
+    except Exception:
+        json_data = "<invalid JSON>"
+    text += json_data + "\n"
     text += str(request.args) + "\n"
-    text += str(''.join(traceback.format_exception(etype=type(ex), value=ex, tb=ex.__traceback__)))
+    text += str(''.join(traceback.format_exception(ex)))
     if isinstance(ex, HTTPException):
         code = ex.code
     exception_recv = current_app.config['EXCEPTION_RECV']
@@ -218,10 +222,15 @@ def fasta_do_all_wrapper():
         if r_res is not None:
             return jsonify(json.loads(r_res))
     # TODO estimate time needed
-    apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
-    if apikey.owner_id == 0:
+    req_key = r_method.get('key')
+    owner_id = owner_for_key(req_key)
+    if owner_id is False:
+        return jsonify({'did_succeed': False}), 401
+    if owner_id == 0 and not is_admin_apikey(req_key):
         return jsonify({'did_succeed': False})
-    user = User.query.filter_by(user_id=apikey.owner_id).first()
+    user = User.query.filter_by(user_id=owner_id).first()
+    if user is None or user.email is None:
+        return jsonify({'did_succeed': False})
     email = user.email
     sequence_list = r_method.get('sequence_list')
     del r_method['sequence_list']
@@ -375,19 +384,24 @@ def do_all_wrapper():
             return jsonify({"did_succeed": False}), 404
     # TODO estimate time needed
     send_via_mail = r_method.get('send_mail')
-    apikey = Apikey.query.filter_by(apikey=r_method.get('key')).first()
+    req_key = r_method.get('key')
+    owner_id = owner_for_key(req_key)
+    if owner_id is False:
+        return jsonify({'did_succeed': False}), 401
     if (len(r_method.get('sequence')) > 1000 or (send_via_mail and r_uid is None)) and request:
         # spawn a thread, of do_all and send an email to the user to
-        user = User.query.filter_by(user_id=apikey.owner_id).first()
-        email = user.email
-        if apikey.owner_id == 0:
+        user = User.query.filter_by(user_id=owner_id).first()
+        email = user.email if user is not None else None
+        if owner_id == 0 and not is_admin_apikey(req_key):
             # we are not really logged in, just using the free api-key!
             email = r_method.get('email')
-        thread = Thread(target=thread_do_all, args=(r_method, apikey.owner_id, email, request.host_url))
+        if email is None:
+            email = r_method.get('email')
+        thread = Thread(target=thread_do_all, args=(r_method, owner_id, email, request.host_url))
         thread.start()
         return jsonify({"result_by_mail": True, "did_succeed": False})
     else:
-        return do_all(r_method, owner_id=apikey.owner_id)
+        return do_all(r_method, owner_id=owner_id)
 
 
 def do_all(r_method, owner_id):
@@ -419,7 +433,7 @@ def do_all(r_method, owner_id):
     org_seed = r_method.get('random_seed')
     if org_seed == "":
         org_seed = int(np.random.randint(0, 4294967295, dtype=np.uint32))
-    seed = np.uint32(float(org_seed) % 4294967296) if org_seed else None
+    seed = int(float(org_seed) % 4294967296) if org_seed else None
     do_max_expect = bool(r_method.get('do_max_expect', False))
     temp = float(r_method.get('temperature', 310.15))
     as_html = r_method.get('asHTML', False)
@@ -481,8 +495,8 @@ def do_all(r_method, owner_id):
             for meth in err_simulation_order['Synthesis']:
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
-                seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,
-                                        conf=meth['conf']) + 1) % 4294967296  # + "_" + meth['name']
+                seed = (int(synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="synthesis", seed=seed,
+                                        conf=meth['conf'])) + 1) % 4294967296  # + "_" + meth['name']
 
             # Storage / PCR:
 
@@ -503,15 +517,15 @@ def do_all(r_method, owner_id):
                     inner_cycles = int(meth['cycles'])
                 except:
                     inner_cycles = 1
-                seed = (pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed,
-                                  conf=meth['conf'], cycles=inner_cycles) + 1) % 4294967296
+                seed = (int(pcr_error(g.graph.nodes[0]['seq'], g, meth['id'], process=meth['conf']['type'], seed=seed,
+                                  conf=meth['conf'], cycles=inner_cycles)) + 1) % 4294967296
 
             # Sequencing:
             for meth in err_simulation_order['Sequencing']:
                 # we want to permutate the seed because a user might want to use the same ruleset multiple times and
                 # therefore expects different results for each run ( we have to make sure we are in [0,2^32-1] )
-                seed = (synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="sequencing", seed=seed,
-                                        conf=meth['conf']) + 1) % 4294967296  # + "_" + meth['name']
+                seed = (int(synthesis_error(g.graph.nodes[0]['seq'], g, meth['id'], process="sequencing", seed=seed,
+                                        conf=meth['conf'])) + 1) % 4294967296  # + "_" + meth['name']
 
             # The code commented out is for visualization of sequencing and synthesis
             # methods seperated, it is inefficient - better to color the sequence

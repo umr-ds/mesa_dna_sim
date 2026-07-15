@@ -35,6 +35,8 @@ class Config(object):
     SECRET_VALIDATION_SALT = os.environ.get('SECRET_VALIDATION_SALT')
     SECRET_PASSWORD_RESET_VALIDATION_KEY = os.environ.get('SECRET_PASSWORD_RESET_VALIDATION_KEY')
     SECRET_ACCOUNT_DELETION_VALIDATION_KEY = os.environ.get('SECRET_ACCOUNT_DELETION_VALIDATION_KEY')
+    # Optional: enables a global admin admin api key without rate-limiting when set.
+    ADMIN_API_KEY = os.environ.get('ADMIN_API_KEY') or None
 
     MAIL_SUPPRESS_SEND = False
     MAIL_ENABLED = str2bool(os.environ.get('MAIL_ENABLED'))
